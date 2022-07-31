@@ -4,7 +4,7 @@ import { Messages } from 'src/scripts/Constants';
 
 const messages = new Messages();
 
-interface HttpResponse<T> extends Response {
+export interface HttpResponse<T> extends Response {
   parsedBody?: T;
 }
 
@@ -21,23 +21,37 @@ export async function http<T>(request: RequestInfo): Promise<HttpResponse<T>> {
   }
   return response;
 }
-export async function get<T>(
+export async function GET<T>(
   path: string,
-  args: RequestInit = { method: 'get' }
+  args: RequestInit = { method: 'GET' }
 ): Promise<HttpResponse<T>> {
   return await http<T>(new Request(path, args));
 }
-export async function post<T>(
+export async function POST<T>(
   path: string,
   body: unknown,
-  args: RequestInit = { method: 'post', body: JSON.stringify(body) }
+  args: RequestInit = {
+    method: 'POST',
+    headers: {
+      Accept: '*/*',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  }
 ): Promise<HttpResponse<T>> {
   return await http<T>(new Request(path, args));
 }
-export async function put<T>(
+export async function PUT<T>(
   path: string,
   body: unknown,
-  args: RequestInit = { method: 'put', body: JSON.stringify(body) }
+  args: RequestInit = {
+    method: 'PUT',
+    headers: {
+      Accept: '*/*',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  }
 ): Promise<HttpResponse<T>> {
   return await http<T>(new Request(path, args));
 }

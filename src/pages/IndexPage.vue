@@ -1,12 +1,12 @@
 <template>
   <q-page>
-    <!-- <example-component
+    <example-component
       title="Example component"
       active
       :todos="todos"
       :meta="meta"
-    ></example-component> -->
-    <SettingsPage />
+    ></example-component>
+    <!-- <SettingsPage /> -->
   </q-page>
 </template>
 
@@ -17,7 +17,7 @@ import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
   name: 'IndexPage',
-  components: { SettingsPage },
+  components: {},
   setup() {
     const todos = ref<Todo[]>([
       {

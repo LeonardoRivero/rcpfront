@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-card>
+    <!-- <q-card>
       <q-tabs
         v-model="tab"
         dense
@@ -24,6 +24,9 @@
           Lorem ipsum dolor sit amet consectetur adipisicing elit.
           <TableCUPS />
           <SpecialityForm />
+          <div v-if="store.specialityForm.visible">
+            <SpecialityForm />
+          </div>
           <q-btn
             push
             color="white"
@@ -37,45 +40,50 @@
           <CUPS />
         </q-tab-panel>
       </q-tab-panels>
-    </q-card>
+    </q-card> -->
+    <div class="row justify-around">
+      <div><SpecialityForm /></div>
+      <div><DxMainCode /></div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
 import { ref } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { useCounterStore } from 'src/stores/example-store';
 import CUPS from 'src/components/CUPS.vue';
 import TableCUPS from 'src/components/DataTable.vue';
 import SpecialityForm from 'src/components/Forms/SpecialityForm.vue';
+import DxMainCode from 'src/components/Forms/DxMainCodeForm.vue';
+import { Forms } from 'src/interfaces/IModels';
+
 export default defineComponent({
-  components: { CUPS, TableCUPS, SpecialityForm },
+  components: { SpecialityForm, DxMainCode },
 
   setup() {
     const store = useCounterStore();
     const router = useRouter();
-    const { doubleCount } = storeToRefs(store);
-    const { increment } = store;
 
     onMounted(async () => {
       if (store.allSpecialities == undefined) {
-        const response = await store.getAllInsurance();
+        const response = await store.retrieveAllSpecialities();
         if (response.status == HttpStatusCodes.NOT_FOUND) {
           router.push('/:catchAll');
         }
       }
+      let formSpeciality: Forms = {
+        visible: false,
+        data: {},
+        title: 'neuvo',
+      };
+      store.setSpecialityForm(formSpeciality);
     });
     return {
       tab: ref('mails'),
       store,
-      doubleCount,
-      increment,
-      async test() {
-        store.counter = 8;
-      },
     };
   },
 });

@@ -72,10 +72,10 @@ const linksList = [
     link: 'https://facebook.quasar.dev',
   },
   {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev',
+    title: 'Configuraciones',
+    caption: 'Configuraciones Generales',
+    icon: 'mdi-cog',
+    link: '/settings',
   },
 ];
 

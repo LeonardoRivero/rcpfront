@@ -51,7 +51,7 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useCounterStore } from 'src/stores/example-store';
 const columns = [
   {
@@ -93,6 +93,12 @@ export default {
       loading,
       columns,
       rows,
+      addRow() {
+        console.log('add');
+      },
+      removeRow() {
+        console.log('remove');
+      },
     };
   },
 };
