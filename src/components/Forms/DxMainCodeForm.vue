@@ -107,12 +107,12 @@ import { useRouter } from 'vue-router';
 import { useCounterStore } from 'src/stores/storeSettings';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { useDxMainCode } from 'src/services/DxMainCodeService';
-import { useSpeciality } from 'src/services/Speciality';
+import { useSpeciality } from 'src/services/SpecialityService';
 export default defineComponent({
   name: 'DxMainCodeForm',
   setup() {
-    const store = useCounterStore();
-    const router = useRouter();
+    // const store = useCounterStore();
+    // const router = useRouter();
     const {
       dxMainCodeofSpeciality,
       currentDxMainCode,
@@ -127,86 +127,14 @@ export default defineComponent({
       confirmChanges,
     } = useDxMainCode();
     const { currentSpeciality } = useSpeciality();
-
-    //const formDXMainCode = ref<QForm | null>(null);
-    // let error = ref(false);
-    // let model = ref<IDXMainCodeRequest>();
-    //let expanded = ref(false);
-    //let selectedSpeciality = ref<ISpeciality>({} as ISpeciality);
-    // let description = ref<string>('');
-    // let textCUP = ref<string>('');
-    //let currentDxMainCode = ref<IDXMainCodeRequest>({} as IDXMainCodeRequest);
-    //const service = new DXMainCode();
-    //const serviceSpeciality = new Specialities();
-
-    // async function validate() {
-    //   let isValid = await formDXMainCode.value?.validate();
-    //   let speciality = serviceSpeciality.getCurrent();
-    //   let dxMainCode = await service.getCurrent();
-
-    //   if (speciality == null) {
-    //     error.value = true;
-    //     return;
+    // onMounted(async () => {
+    //   if (store.allDxMainCodes == undefined) {
+    //     const response = await store.retrieveAllDxMainCode();
+    //     if (response.status == HttpStatusCodes.NOT_FOUND) {
+    //       router.push('/:catchAll');
+    //     }
     //   }
-    //   console.log(dxMainCode);
-    //   // if (selectedSpeciality.value == undefined) return;
-
-    //   // let dxMainCode = currentDxMainCode.value;
-    //   // if (specialitySelected == null) {
-    //   //   errorlet error = ref(false);Code.id == undefined) {
-    //     //service.add(dxMainCode);deberia dejar esta
-    //     // store.createDxMainCode(dxMainCode);
-    //   }
-    //   if (dxMainCode.id != undefined) {
-    //     // let data: IDXMainCode = {
-    //     //   id: dxMainCode.id,
-    //     //   CUP: dxMainCode.CUP,
-    //     //   description: dxMainCode.description,
-    //     //   speciality: specialitySelected.id,
-    //     // };
-    //     // store.updateDxMainCode(dxMainCode);
-    //     service.edit(dxMainCode);
-    //   }
-    // }
-
-    // function add() {
-    //   if (expanded.value === false) {
-    //     expanded.value = !expanded.value;
-    //   }
-
-    //   currentDxMainCode.value = service.getDefault();
-    //   // let data: DXMainCode = {
-    //   //   id: undefined,
-    //   //   CUP: '',
-    //   //   description: '',
-    //   //   speciality: 0,
-    //   // };
-    // }
-
-    // function edit() {
-    //   if (expanded.value === false) {
-    //     expanded.value = !expanded.value;
-    //   }
-    //   currentDxMainCode.value = model.value as IDXMainCodeRequest;
-    // }
-    // async function descriptionChanged(val: IDXMainCodeRequest) {
-    //   textCUP.value = val.CUP;
-    //   model.value = val;
-    //   //service.setCurrent(val);
-    //   // store.$patch((state) => {
-    //   //   state.currentDxMainCode = val;
-    //   // });
-    // }
-
-    onMounted(async () => {
-      if (store.allDxMainCodes == undefined) {
-        const response = await store.retrieveAllDxMainCode();
-        console.log(response.parsedBody);
-        if (response.status == HttpStatusCodes.NOT_FOUND) {
-          router.push('/:catchAll');
-        }
-      }
-    });
+    // });
     return {
       dxMainCode,
       clearDxMainCode,
@@ -214,7 +142,7 @@ export default defineComponent({
       currentDxMainCode,
       dxMainCodeofSpeciality,
       currentSpeciality,
-      store,
+      // store,
       expanded,
       formDXMainCode,
       error,

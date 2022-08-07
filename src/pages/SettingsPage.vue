@@ -44,6 +44,7 @@
     <div class="row justify-around">
       <div><SpecialityForm /></div>
       <div><DxMainCode /></div>
+      <div><RelationCode /></div>
     </div>
   </div>
 </template>
@@ -56,27 +57,22 @@ import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { useCounterStore } from 'src/stores/storeSettings';
 import SpecialityForm from 'src/components/Forms/SpecialityForm.vue';
 import DxMainCode from 'src/components/Forms/DxMainCodeForm.vue';
+import RelationCode from 'src/components/Forms/RelationCode.vue';
 
 export default defineComponent({
-  components: { SpecialityForm, DxMainCode },
+  components: { SpecialityForm, DxMainCode, RelationCode },
 
   setup() {
     const store = useCounterStore();
     const router = useRouter();
 
     onMounted(async () => {
-      if (store.allSpecialities == undefined) {
-        const response = await store.retrieveAllSpecialities();
-        if (response.status == HttpStatusCodes.NOT_FOUND) {
-          router.push('/:catchAll');
-        }
-      }
-      // let formSpeciality: Forms = {
-      //   visible: false,
-      //   data: {},
-      //   title: 'neuvo',
-      // };
-      //store.setSpecialityForm(formSpeciality);
+      // if (store.allSpecialities == undefined) {
+      //   const response = await store.retrieveAllSpecialities();
+      //   if (response.status == HttpStatusCodes.NOT_FOUND) {
+      //     router.push('/:catchAll');
+      //   }
+      // }
     });
     return {
       tab: ref('mails'),

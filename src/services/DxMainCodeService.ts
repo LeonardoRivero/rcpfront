@@ -1,15 +1,17 @@
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useCounterStore } from 'src/stores/storeSettings';
 import {
   IDXMainCodeRequest,
   IDXMainCodeResponse,
-  ISpeciality,
 } from 'src/interfaces/IModels';
+import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
 export function useDxMainCode() {
   const store = useCounterStore();
+  const router = useRouter();
   const { allDxMainCodes, currentDxMainCode, currentSpeciality } =
     storeToRefs(store);
   const dxMainCode = ref<IDXMainCodeResponse>();
@@ -42,7 +44,6 @@ export function useDxMainCode() {
       return;
     }
     if (!currentDxMainCode.value) return;
-    console.log(currentSpeciality.value);
     if (currentSpeciality.value?.id == null) {
       error.value = true;
       return;
@@ -66,7 +67,17 @@ export function useDxMainCode() {
       store.updateDxMainCode(payload);
     }
   }
-
+  async function getAllDxMainCode() {
+    if (store.allDxMainCodes == undefined) {
+      const response = await store.retrieveAllDxMainCode();
+      if (response.status == HttpStatusCodes.NOT_FOUND) {
+        router.push('/:catchAll');
+      }
+    }
+  }
+  onMounted(async () => {
+    getAllDxMainCode();
+  });
   return {
     //! Properties
     clearDxMainCode,

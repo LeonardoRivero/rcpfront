@@ -25,7 +25,8 @@ export async function GET<T>(
   path: string,
   args: RequestInit = { method: 'GET' }
 ): Promise<HttpResponse<T>> {
-  return await http<T>(new Request(path, args));
+  const response = await http<T>(new Request(path, args));
+  return response;
 }
 export async function POST<T>(
   path: string,

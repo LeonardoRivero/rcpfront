@@ -24,6 +24,9 @@ export class EndPoints {
   updateDxMainCode(id: number): string {
     return `${this.domine}/api/dxmaincode/${id}/`;
   }
+  updateRelationCode(id: number): string {
+    return `${this.domine}/api/relationcode/${id}/`;
+  }
 }
 export class Messages {
   get successMessage(): string {

@@ -11,6 +11,8 @@ import {
   Forms,
   IDXMainCodeRequest,
   IDXMainCodeResponse,
+  IRelationCodeRequest,
+  IRelationCodeResponse,
 } from 'src/interfaces/IModels';
 import { EndPoints } from 'src/scripts/Constants';
 
@@ -23,33 +25,11 @@ export const useCounterStore = defineStore('settings', {
     allDxMainCodes: null as Array<IDXMainCodeResponse> | null,
     currentDxMainCode: {} as IDXMainCodeResponse | null,
     listDxMainCodesBySpeciality: null as Array<IDXMainCodeResponse> | null,
-    descriptionCUP: '' as string,
+    allRelationCodes: undefined as Array<IRelationCodeResponse> | undefined,
+    currentRelationCode: undefined as IRelationCodeResponse | undefined,
     specialityForm: {} as Forms | undefined,
   }),
-  getters: {
-    // selectedSpeciality(state) {
-    //   if (this.currentSpeciality == null) {
-    //     const data = {} as ISpeciality;
-    //     return data;
-    //   }
-    //   this.listDxMainCodesBySpeciality = this.dxMainCodeofSpeciality;
-    //   return state.currentSpeciality;
-    // },
-    // dxMainCodeofSpeciality: (state) => {
-    //   if (state.allDxMainCodes === null) {
-    //     const data = [{} as IDXMainCodeResponse];
-    //     console.log('first');
-    //     return data;
-    //   }
-    //   const result = state.allDxMainCodes.filter(
-    //     (dxMainCode) => dxMainCode.speciality.id == state.currentSpeciality?.id
-    //   );
-    //   if (result.length === 0) {
-    //     state.descriptionCUP = '';
-    //   }
-    //   return result;
-    // },
-  },
+  getters: {},
   actions: {
     async createSpeciality(data: ISpeciality): Promise<HttpResponse<unknown>> {
       const url = endpoint.getORcreateSpeciality;
@@ -96,6 +76,33 @@ export const useCounterStore = defineStore('settings', {
         return null;
       }
       const url = endpoint.updateDxMainCode(data.id);
+      const response = await PUT(url, data);
+      handleResponse(response);
+      return response;
+    },
+    async createRelationCode(
+      data: IRelationCodeRequest
+    ): Promise<HttpResponse<unknown>> {
+      const url = endpoint.getORcreateDxMainCode;
+      const response = await POST(url, data);
+      handleResponse(response);
+      return response;
+    },
+    async retrieveRelationCode(): Promise<HttpResponse<unknown>> {
+      const url = endpoint.getORcreateRelationCode;
+      const response = await GET(url);
+      this.allRelationCodes =
+        response.parsedBody as Array<IRelationCodeResponse>;
+      handleResponse(response);
+      return response;
+    },
+    async updateRelationCode(
+      data: IRelationCodeRequest
+    ): Promise<HttpResponse<unknown> | null> {
+      if (data.id == null) {
+        return null;
+      }
+      const url = endpoint.updateRelationCode(data.id);
       const response = await PUT(url, data);
       handleResponse(response);
       return response;
