@@ -53,12 +53,9 @@ import { defineComponent, onMounted } from 'vue';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
-import { useCounterStore } from 'src/stores/example-store';
-import CUPS from 'src/components/CUPS.vue';
-import TableCUPS from 'src/components/DataTable.vue';
+import { useCounterStore } from 'src/stores/storeSettings';
 import SpecialityForm from 'src/components/Forms/SpecialityForm.vue';
 import DxMainCode from 'src/components/Forms/DxMainCodeForm.vue';
-import { Forms } from 'src/interfaces/IModels';
 
 export default defineComponent({
   components: { SpecialityForm, DxMainCode },
@@ -74,12 +71,12 @@ export default defineComponent({
           router.push('/:catchAll');
         }
       }
-      let formSpeciality: Forms = {
-        visible: false,
-        data: {},
-        title: 'neuvo',
-      };
-      store.setSpecialityForm(formSpeciality);
+      // let formSpeciality: Forms = {
+      //   visible: false,
+      //   data: {},
+      //   title: 'neuvo',
+      // };
+      //store.setSpecialityForm(formSpeciality);
     });
     return {
       tab: ref('mails'),

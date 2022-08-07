@@ -6,21 +6,24 @@
         <div class="text-caption text-grey">
           CUPS existentes:
           {{
-            dxMainCodeofSpeciality == null ? 0 : dxMainCodeofSpeciality.length
+            dxMainCodeofSpeciality == null ? '' : dxMainCodeofSpeciality.length
           }}
         </div>
         <q-select
           dense
           clearable
           outlined
-          v-model="model"
+          v-model="dxMainCode"
           :options="dxMainCodeofSpeciality"
           option-value="id"
           option-label="description"
           map-options
           label="Descripcion"
-          :hint="`Codigo CUP:  ${model ? textCUP : ''}`"
-          @update:model-value="(val) => descriptionChanged(val)"
+          :hint="`Codigo CUP:  ${
+            currentDxMainCode.CUP != null ? currentDxMainCode.CUP : ''
+          }`"
+          @update:model-value="(val) => dxMainCodeChanged(val)"
+          @clear="(val) => clearDxMainCode(val)"
         >
         </q-select>
       </q-card-section>
@@ -31,7 +34,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="model != null"
+          v-if="dxMainCode != null"
           flat
           round
           color="green"
@@ -56,13 +59,14 @@
         <div v-show="expanded">
           <q-separator />
           <q-card-section class="text-subitle2">
-            <q-form @submit="validate" ref="formDXMainCode">
+            <q-form @submit="confirmChanges" ref="formDXMainCode">
               <q-input
                 dense
                 outlined
                 disable
-                v-model="selectedSpeciality.description"
+                v-model="currentSpeciality.description"
                 label="Especialidad"
+                :error="error"
               />
               <q-input
                 dense
@@ -98,134 +102,125 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { storeToRefs } from 'pinia';
-import { QForm } from 'quasar';
-import { useCounterStore } from 'src/stores/example-store';
-import { IDXMainCodeRequest, DXMainCode } from 'src/interfaces/IModels';
+import { useCounterStore } from 'src/stores/storeSettings';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
+import { useDxMainCode } from 'src/services/DxMainCodeService';
+import { useSpeciality } from 'src/services/Speciality';
 export default defineComponent({
   name: 'DxMainCodeForm',
   setup() {
     const store = useCounterStore();
     const router = useRouter();
-    const { selectedSpeciality, dxMainCodeofSpeciality, currentDxMainCodes } =
-      storeToRefs(store);
-    const formDXMainCode = ref<QForm | null>(null);
-    //let optionSpeciality = ref(Array<Speciality>());
-    //let selectSpeciality = ref<Speciality>();
-    //let currentSpeciality = ref<Speciality>({ id: undefined, description: '' });
-    let error = ref(false);
-    //let options = ref(Array<IDXMainCodeRequest>());
-    let model = ref<IDXMainCodeRequest>();
-    let expanded = ref(false);
-    let description = ref<string>('');
-    let textCUP = ref<string>('');
-    let currentDxMainCode = ref<IDXMainCodeRequest>({} as IDXMainCodeRequest);
-    let serviceDXMainCode = ref<DXMainCode>({} as DXMainCode);
+    const {
+      dxMainCodeofSpeciality,
+      currentDxMainCode,
+      dxMainCode,
+      expanded,
+      formDXMainCode,
+      error,
+      clearDxMainCode,
+      dxMainCodeChanged,
+      edit,
+      add,
+      confirmChanges,
+    } = useDxMainCode();
+    const { currentSpeciality } = useSpeciality();
 
-    async function reset(val: DXMainCode) {
-      console.log(val);
-    }
-    async function validate() {
-      let isValid = await formDXMainCode.value?.validate();
-      let specialitySelected = selectedSpeciality.value;
-      let dxMainCode = currentDxMainCode.value;
-      if (specialitySelected == null) {
-        error.value = true;
-        return;
-      }
-      if (isValid == false) {
-        return;
-      }
+    //const formDXMainCode = ref<QForm | null>(null);
+    // let error = ref(false);
+    // let model = ref<IDXMainCodeRequest>();
+    //let expanded = ref(false);
+    //let selectedSpeciality = ref<ISpeciality>({} as ISpeciality);
+    // let description = ref<string>('');
+    // let textCUP = ref<string>('');
+    //let currentDxMainCode = ref<IDXMainCodeRequest>({} as IDXMainCodeRequest);
+    //const service = new DXMainCode();
+    //const serviceSpeciality = new Specialities();
 
-      if (dxMainCode == null || specialitySelected.id == null) return;
-      if (dxMainCode.id == undefined) {
-        // let data: IDXMainCode = {
-        //   CUP: dxMainCode.CUP,
-        //   description: dxMainCode.description,
-        //   speciality: specialitySelected.id,
-        // };
-        store.createDxMainCode(dxMainCode);
-      }
-      if (dxMainCode.id != undefined) {
-        // let data: IDXMainCode = {
-        //   id: dxMainCode.id,
-        //   CUP: dxMainCode.CUP,
-        //   description: dxMainCode.description,
-        //   speciality: specialitySelected.id,
-        // };
-        store.updateDxMainCode(dxMainCode);
-      }
-    }
+    // async function validate() {
+    //   let isValid = await formDXMainCode.value?.validate();
+    //   let speciality = serviceSpeciality.getCurrent();
+    //   let dxMainCode = await service.getCurrent();
 
-    function add() {
-      if (expanded.value === false) {
-        expanded.value = !expanded.value;
-      }
-      const service = new DXMainCode();
-      currentDxMainCode.value = service.default();
-      // let data: DXMainCode = {
-      //   id: undefined,
-      //   CUP: '',
-      //   description: '',
-      //   speciality: 0,
-      // };
-    }
+    //   if (speciality == null) {
+    //     error.value = true;
+    //     return;
+    //   }
+    //   console.log(dxMainCode);
+    //   // if (selectedSpeciality.value == undefined) return;
 
-    function edit() {
-      if (expanded.value === false) {
-        expanded.value = !expanded.value;
-      }
-      currentDxMainCode.value = model.value as IDXMainCodeRequest;
-    }
-    async function descriptionChanged(val: IDXMainCodeRequest) {
-      textCUP.value = val.CUP;
-      currentDxMainCode.value = val;
-    }
-    // function specialityChanged(val: Speciality) {
-    //   console.log(val);
-    //   error.value = false;
-    //   selectedSpeciality.value = val;
+    //   // let dxMainCode = currentDxMainCode.value;
+    //   // if (specialitySelected == null) {
+    //   //   errorlet error = ref(false);Code.id == undefined) {
+    //     //service.add(dxMainCode);deberia dejar esta
+    //     // store.createDxMainCode(dxMainCode);
+    //   }
+    //   if (dxMainCode.id != undefined) {
+    //     // let data: IDXMainCode = {
+    //     //   id: dxMainCode.id,
+    //     //   CUP: dxMainCode.CUP,
+    //     //   description: dxMainCode.description,
+    //     //   speciality: specialitySelected.id,
+    //     // };
+    //     // store.updateDxMainCode(dxMainCode);
+    //     service.edit(dxMainCode);
+    //   }
+    // }
+
+    // function add() {
+    //   if (expanded.value === false) {
+    //     expanded.value = !expanded.value;
+    //   }
+
+    //   currentDxMainCode.value = service.getDefault();
+    //   // let data: DXMainCode = {
+    //   //   id: undefined,
+    //   //   CUP: '',
+    //   //   description: '',
+    //   //   speciality: 0,
+    //   // };
+    // }
+
+    // function edit() {
+    //   if (expanded.value === false) {
+    //     expanded.value = !expanded.value;
+    //   }
+    //   currentDxMainCode.value = model.value as IDXMainCodeRequest;
+    // }
+    // async function descriptionChanged(val: IDXMainCodeRequest) {
+    //   textCUP.value = val.CUP;
+    //   model.value = val;
+    //   //service.setCurrent(val);
+    //   // store.$patch((state) => {
+    //   //   state.currentDxMainCode = val;
+    //   // });
     // }
 
     onMounted(async () => {
-      if (store.currentSpeciality === null) {
-        // options.value =  [currentDxMainCode.value];
-      }
-
       if (store.allDxMainCodes == undefined) {
         const response = await store.retrieveAllDxMainCode();
         console.log(response.parsedBody);
-        //options.value = response.parsedBody as Array<DXMainCode>;
         if (response.status == HttpStatusCodes.NOT_FOUND) {
           router.push('/:catchAll');
         }
       }
-      // optionSpeciality.value = store.allSpecialities as Array<Speciality>;
     });
     return {
-      //optionSpeciality,
-      //selectSpeciality,
-      dxMainCodeofSpeciality,
-      selectedSpeciality,
-      store,
-      model,
-      //options,
-      expanded,
-      currentDxMainCodes,
+      dxMainCode,
+      clearDxMainCode,
+      dxMainCodeChanged,
       currentDxMainCode,
-      description,
+      dxMainCodeofSpeciality,
+      currentSpeciality,
+      store,
+      expanded,
       formDXMainCode,
-      textCUP,
       error,
-      validate,
-      add,
       edit,
-      descriptionChanged,
-      //specialityChanged,
-      reset,
+      add,
+      confirmChanges,
     };
   },
 });
