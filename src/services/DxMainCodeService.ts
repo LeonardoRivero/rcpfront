@@ -10,7 +10,8 @@ import {
 
 export function useDxMainCode() {
   const store = useCounterStore();
-  const { allDxMainCodes, currentDxMainCode } = storeToRefs(store);
+  const { allDxMainCodes, currentDxMainCode, currentSpeciality } =
+    storeToRefs(store);
   const dxMainCode = ref<IDXMainCodeResponse>();
   const expanded = ref(false);
   const formDXMainCode = ref<QForm | null>(null);
@@ -41,7 +42,8 @@ export function useDxMainCode() {
       return;
     }
     if (!currentDxMainCode.value) return;
-    if (store.currentSpeciality ?? ({} as ISpeciality)) {
+    console.log(currentSpeciality.value);
+    if (currentSpeciality.value?.id == null) {
       error.value = true;
       return;
     }
