@@ -64,7 +64,6 @@ export default defineComponent({
 
   setup() {
     const store = useCounterStore();
-    const router = useRouter();
 
     onMounted(async () => {
       // if (store.allSpecialities == undefined) {

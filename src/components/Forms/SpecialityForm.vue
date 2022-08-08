@@ -17,6 +17,9 @@
           option-label="description"
           map-options
           label="Especialidad"
+          :hint="`Especialidad Id:${
+            speciality == undefined ? '' : speciality.id
+          }`"
           @update:model-value="(val) => specialityChanged(val)"
           @clear="(val) => clearSpeciality(val)"
         >
@@ -83,7 +86,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted } from 'vue';
 import { useSpeciality } from 'src/services/SpecialityService';
 
 export default defineComponent({
@@ -91,7 +94,7 @@ export default defineComponent({
   setup() {
     const {
       allSpecialities,
-      //getAllSpecialities,
+      getAllSpecialities,
       currentSpeciality,
       speciality,
       expanded,
@@ -102,6 +105,9 @@ export default defineComponent({
       confirmChanges,
       clearSpeciality,
     } = useSpeciality();
+    onMounted(async () => {
+      getAllSpecialities();
+    });
 
     return {
       expanded,

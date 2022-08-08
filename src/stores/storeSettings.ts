@@ -26,7 +26,7 @@ export const useCounterStore = defineStore('settings', {
     currentDxMainCode: {} as IDXMainCodeResponse | null,
     listDxMainCodesBySpeciality: null as Array<IDXMainCodeResponse> | null,
     allRelationCodes: undefined as Array<IRelationCodeResponse> | undefined,
-    currentRelationCode: undefined as IRelationCodeResponse | undefined,
+    currentRelationCode: {} as IRelationCodeResponse | null,
     specialityForm: {} as Forms | undefined,
   }),
   getters: {},
@@ -83,12 +83,12 @@ export const useCounterStore = defineStore('settings', {
     async createRelationCode(
       data: IRelationCodeRequest
     ): Promise<HttpResponse<unknown>> {
-      const url = endpoint.getORcreateDxMainCode;
+      const url = endpoint.getORcreateRelationCode;
       const response = await POST(url, data);
       handleResponse(response);
       return response;
     },
-    async retrieveRelationCode(): Promise<HttpResponse<unknown>> {
+    async retrieveAllRelationCodes(): Promise<HttpResponse<unknown>> {
       const url = endpoint.getORcreateRelationCode;
       const response = await GET(url);
       this.allRelationCodes =

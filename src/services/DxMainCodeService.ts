@@ -9,9 +9,9 @@ import {
 } from 'src/interfaces/IModels';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
+const store = useCounterStore();
+const router = useRouter();
 export function useDxMainCode() {
-  const store = useCounterStore();
-  const router = useRouter();
   const { allDxMainCodes, currentDxMainCode, currentSpeciality } =
     storeToRefs(store);
   const dxMainCode = ref<IDXMainCodeResponse>();
@@ -20,11 +20,9 @@ export function useDxMainCode() {
   const error = ref(false);
 
   function clearDxMainCode(val: IDXMainCodeRequest) {
-    console.log(val);
     dxMainCode.value = undefined;
     currentDxMainCode.value = {} as IDXMainCodeResponse;
   }
-
   function dxMainCodeChanged(val: IDXMainCodeResponse): void {
     store.currentDxMainCode = val;
   }
@@ -75,9 +73,7 @@ export function useDxMainCode() {
       }
     }
   }
-  onMounted(async () => {
-    getAllDxMainCode();
-  });
+
   return {
     //! Properties
     clearDxMainCode,
@@ -87,6 +83,7 @@ export function useDxMainCode() {
     currentDxMainCode,
     expanded,
     error,
+
     //! Computed
     dxMainCodeofSpeciality: computed(() => {
       if (store.allDxMainCodes === null) {
@@ -103,5 +100,6 @@ export function useDxMainCode() {
     edit,
     dxMainCodeChanged,
     confirmChanges,
+    getAllDxMainCode,
   };
 }

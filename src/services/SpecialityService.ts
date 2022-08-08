@@ -1,4 +1,4 @@
-import { computed, ref, onBeforeMount } from 'vue';
+import { computed, ref, onBeforeMount, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
@@ -6,11 +6,9 @@ import { useCounterStore } from 'src/stores/storeSettings';
 import { HttpResponse } from 'src/scripts/Request';
 import { ISpeciality } from 'src/interfaces/IModels';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
-
+const router = useRouter();
+const store = useCounterStore();
 export function useSpeciality() {
-  const router = useRouter();
-  const store = useCounterStore();
-
   const { allSpecialities, currentSpeciality } = storeToRefs(store);
 
   const speciality = ref<ISpeciality>();
@@ -18,7 +16,6 @@ export function useSpeciality() {
   const formSpeciality = ref<QForm | null>(null);
 
   function clearSpeciality(val: ISpeciality) {
-    console.log(val);
     currentSpeciality.value = {} as ISpeciality;
   }
 
@@ -51,7 +48,6 @@ export function useSpeciality() {
   async function getAllSpecialities() {
     if (allSpecialities.value == undefined) {
       const response = await store.retrieveAllSpecialities();
-      console.log(response);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         router.push('/:catchAll');
       }
@@ -60,10 +56,7 @@ export function useSpeciality() {
     const response = allSpecialities.value;
     return response;
   }
-  onBeforeMount(async () => {
-    console.log('onMounted');
-    getAllSpecialities();
-  });
+
   return {
     //! Properties
     getAllSpecialities,

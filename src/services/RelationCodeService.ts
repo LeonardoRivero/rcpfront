@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useCounterStore } from 'src/stores/storeSettings';
@@ -6,22 +7,26 @@ import {
   IRelationCodeRequest,
   IRelationCodeResponse,
 } from 'src/interfaces/IModels';
+import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
 export function useRelationCode() {
+  const router = useRouter();
   const store = useCounterStore();
-  const { allRelationCodes, currentRelationCode, currentSpeciality } =
-    storeToRefs(store);
+  const {
+    allRelationCodes,
+    currentRelationCode,
+    currentSpeciality,
+    currentDxMainCode,
+  } = storeToRefs(store);
   const relationCode = ref<IRelationCodeResponse>();
   const expanded = ref(false);
   const formDXMainCode = ref<QForm | null>(null);
   const error = ref(false);
 
   function clearRelationCode(val: IRelationCodeRequest) {
-    console.log(val);
     relationCode.value = undefined;
     currentRelationCode.value = {} as IRelationCodeResponse;
   }
-
   function relationCodeChanged(val: IRelationCodeResponse): void {
     store.currentRelationCode = val;
   }
@@ -48,21 +53,29 @@ export function useRelationCode() {
     const data = currentRelationCode.value;
     console.log(data);
     if (currentRelationCode.value.id == undefined) {
-      // const payload = {
-      //   CUP: data.CUP,
-      //   description: data.description,
-      //   speciality: data.speciality.id,
-      // } as IRelationCodeResponse;
-      // store.createRelationCode(payload);
+      const payload = {
+        code: data.code,
+        description: data.description,
+        dxmaincode: currentDxMainCode.value?.id,
+      } as IRelationCodeRequest;
+      store.createRelationCode(payload);
     }
     if (currentRelationCode.value.id != undefined) {
-      // const payload = {
-      //   id: data.id,
-      //   CUP: data.CUP,
-      //   description: data.description,
-      //   speciality: data.speciality.id,
-      // } as IRelationCodeResponse;
-      // store.updateRelationCode(payload);
+      const payload = {
+        id: data.id,
+        code: data.code,
+        description: data.description,
+        dxmaincode: currentDxMainCode.value?.id,
+      } as IRelationCodeRequest;
+      store.updateRelationCode(payload);
+    }
+  }
+  async function getAllRelationCodes() {
+    if (store.allRelationCodes == undefined) {
+      const response = await store.retrieveAllRelationCodes();
+      if (response.status == HttpStatusCodes.NOT_FOUND) {
+        router.push('/:catchAll');
+      }
     }
   }
 
@@ -84,6 +97,7 @@ export function useRelationCode() {
         (relationCode) =>
           relationCode.dxmaincode.id == store.currentDxMainCode?.id
       );
+
       clearRelationCode({} as IRelationCodeRequest);
       return result;
     }),
@@ -92,5 +106,6 @@ export function useRelationCode() {
     edit,
     relationCodeChanged,
     confirmChanges,
+    getAllRelationCodes,
   };
 }

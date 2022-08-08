@@ -4,7 +4,7 @@
       <q-card-section>
         <div class="text-h5 q-mt-sm q-mb-xs">Codigos Relacionados</div>
         <div class="text-caption text-grey">
-          Codigos Relacionados existentes:
+          Codigos Relacionados encontrados:
           {{
             relationCodeOfMainCode == null ? '' : relationCodeOfMainCode.length
           }}
@@ -19,22 +19,22 @@
           option-label="description"
           map-options
           label="Descripcion"
-          :hint="`Codigo CUP:  ${
-            currentRelationCode != null ? currentRelationCode : ''
+          :hint="`Codigo Relacionado:  ${
+            relationCode == undefined ? '' : currentRelationCode.code
           }`"
           @update:model-value="(val) => relationCodeChanged(val)"
           @clear="(val) => clearRelationCode(val)"
         >
         </q-select>
       </q-card-section>
-      <!-- <q-card-actions>
+      <q-card-actions>
         <q-btn flat round color="primary" icon="mdi-plus" @click="add">
           <q-tooltip transition-show="scale" transition-hide="scale">
             Agregar
           </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="dxMainCode != null"
+          v-if="relationCode != null"
           flat
           round
           color="green"
@@ -71,8 +71,16 @@
               <q-input
                 dense
                 outlined
-                v-model="currentRelationCode.description"
-                label="Codigo CUP"
+                disable
+                v-model="currentDxMainCode.description"
+                label="Codigo Principal"
+                :error="error"
+              />
+              <q-input
+                dense
+                outlined
+                v-model="currentRelationCode.code"
+                label="Codigo Relacionado"
                 maxlength="10"
                 lazy-rules
                 :rules="[
@@ -83,7 +91,7 @@
                 dense
                 outlined
                 v-model="currentRelationCode.description"
-                label="Descripcion Codigo CUP"
+                label="Descripcion Codigo Relacionado"
                 lazy-rules
                 :rules="[
                   (val) =>
@@ -96,22 +104,18 @@
             </q-form>
           </q-card-section>
         </div>
-      </q-slide-transition> -->
+      </q-slide-transition>
     </q-card>
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useCounterStore } from 'src/stores/storeSettings';
-import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { useSpeciality } from 'src/services/SpecialityService';
 import { useRelationCode } from 'src/services/RelationCodeService';
+import { useDxMainCode } from 'src/services/DxMainCodeService';
 export default defineComponent({
-  name: 'DxMainCodeForm',
+  name: 'RelationCodeForm',
   setup() {
-    const store = useCounterStore();
-    const router = useRouter();
     const {
       relationCodeOfMainCode,
       currentRelationCode,
@@ -124,15 +128,14 @@ export default defineComponent({
       edit,
       add,
       confirmChanges,
+      getAllRelationCodes,
     } = useRelationCode();
+
     const { currentSpeciality } = useSpeciality();
+    const { currentDxMainCode } = useDxMainCode();
+
     onMounted(async () => {
-      if (store.allDxMainCodes == undefined) {
-        const response = await store.retrieveAllDxMainCode();
-        if (response.status == HttpStatusCodes.NOT_FOUND) {
-          router.push('/:catchAll');
-        }
-      }
+      getAllRelationCodes();
     });
     return {
       relationCode,
@@ -141,7 +144,7 @@ export default defineComponent({
       currentRelationCode,
       relationCodeOfMainCode,
       currentSpeciality,
-      store,
+      currentDxMainCode,
       expanded,
       formDXMainCode,
       error,

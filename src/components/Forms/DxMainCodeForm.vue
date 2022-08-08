@@ -125,6 +125,7 @@ export default defineComponent({
       edit,
       add,
       confirmChanges,
+      getAllDxMainCode,
     } = useDxMainCode();
     const { currentSpeciality } = useSpeciality();
     // onMounted(async () => {
@@ -135,6 +136,9 @@ export default defineComponent({
     //     }
     //   }
     // });
+    onMounted(async () => {
+      getAllDxMainCode();
+    });
     return {
       dxMainCode,
       clearDxMainCode,
@@ -156,6 +160,6 @@ export default defineComponent({
 <style lang="sass" scoped>
 .my-card
   width: 100%
-  min-width: 300px
-  max-width: 300px
+  min-width: 350px
+  max-width: 350px
 </style>
