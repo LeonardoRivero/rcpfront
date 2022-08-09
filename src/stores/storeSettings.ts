@@ -13,21 +13,24 @@ import {
   IDXMainCodeResponse,
   IRelationCodeRequest,
   IRelationCodeResponse,
+  IHealthInsurance,
 } from 'src/interfaces/IModels';
 import { EndPoints } from 'src/scripts/Constants';
 
 const endpoint = new EndPoints();
 
-export const useCounterStore = defineStore('settings', {
+export const useStoreSettings = defineStore('settings', {
   state: () => ({
     allSpecialities: undefined as Array<ISpeciality> | undefined,
     currentSpeciality: {} as ISpeciality | null,
     allDxMainCodes: null as Array<IDXMainCodeResponse> | null,
     currentDxMainCode: {} as IDXMainCodeResponse | null,
-    listDxMainCodesBySpeciality: null as Array<IDXMainCodeResponse> | null,
+    // listDxMainCodesBySpeciality: null as Array<IDXMainCodeResponse> | null,
     allRelationCodes: undefined as Array<IRelationCodeResponse> | undefined,
     currentRelationCode: {} as IRelationCodeResponse | null,
-    specialityForm: {} as Forms | undefined,
+    allInsurance: null as Array<IHealthInsurance> | null,
+    currentInsurance: {} as IHealthInsurance | null,
+    // specialityForm: {} as Forms | undefined,
   }),
   getters: {},
   actions: {
@@ -50,6 +53,32 @@ export const useCounterStore = defineStore('settings', {
         return null;
       }
       const url = endpoint.updateSpeciality(data.id);
+      const response = await PUT(url, data);
+      handleResponse(response);
+      return response;
+    },
+    async createInsurance(
+      data: IHealthInsurance
+    ): Promise<HttpResponse<unknown>> {
+      const url = endpoint.getORcreateInsurance;
+      const response = await POST(url, data);
+      handleResponse(response);
+      return response;
+    },
+    async retrieveAllInsurance(): Promise<HttpResponse<unknown>> {
+      const url = endpoint.getORcreateInsurance;
+      const response = await GET(url);
+      this.allInsurance =
+        (await response.parsedBody) as Array<IHealthInsurance>;
+      return response;
+    },
+    async updateInsurance(
+      data: IHealthInsurance
+    ): Promise<HttpResponse<unknown> | null> {
+      if (data.id == null) {
+        return null;
+      }
+      const url = endpoint.updateInsurance(data.id);
       const response = await PUT(url, data);
       handleResponse(response);
       return response;

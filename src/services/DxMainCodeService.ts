@@ -1,15 +1,15 @@
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
-import { useCounterStore } from 'src/stores/storeSettings';
+import { useStoreSettings } from 'src/stores/storeSettings';
 import {
   IDXMainCodeRequest,
   IDXMainCodeResponse,
 } from 'src/interfaces/IModels';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
-const store = useCounterStore();
+const store = useStoreSettings();
 const router = useRouter();
 export function useDxMainCode() {
   const { allDxMainCodes, currentDxMainCode, currentSpeciality } =

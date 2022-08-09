@@ -104,7 +104,7 @@
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useCounterStore } from 'src/stores/storeSettings';
+import { useStoreSettings } from 'src/stores/storeSettings';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { useDxMainCode } from 'src/services/DxMainCodeService';
 import { useSpeciality } from 'src/services/SpecialityService';
@@ -157,9 +157,3 @@ export default defineComponent({
   },
 });
 </script>
-<style lang="sass" scoped>
-.my-card
-  width: 100%
-  min-width: 350px
-  max-width: 350px
-</style>

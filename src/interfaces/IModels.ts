@@ -2,6 +2,11 @@ export interface ISpeciality {
   id?: number;
   description: string;
 }
+export interface IHealthInsurance {
+  id?: number;
+  nameInsurance: string;
+  entityCode: string;
+}
 export interface IDXMainCodeRequest {
   id?: number;
   CUP: string;
@@ -14,7 +19,6 @@ export interface IDXMainCodeResponse {
   description: string;
   speciality: ISpeciality;
 }
-
 export interface IRelationCodeRequest {
   id?: number;
   description: string;

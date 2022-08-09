@@ -10,8 +10,8 @@
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
-        <q-toolbar-title> Quasar App </q-toolbar-title>
-        <div>Quasar v{{ $q.version }}</div>
+        <q-toolbar-title> Registro Clinico de Pacientes </q-toolbar-title>
+        <div>R.C.P Version(Beta)</div>
       </q-toolbar>
     </q-header>
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>

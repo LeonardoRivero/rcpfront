@@ -2,28 +2,23 @@
   <div class="q-pa-md">
     <q-card class="my-card" flat bordered>
       <q-card-section>
-        <div class="text-h5 q-mt-sm q-mb-xs">Codigos Relacionados</div>
+        <div class="text-h5 q-mt-sm q-mb-xs">Entidades</div>
         <div class="text-caption text-grey">
-          Codigos Relacionados encontrados:
-          {{
-            relationCodeOfMainCode == null ? '' : relationCodeOfMainCode.length
-          }}
+          Entidades Registradas:
+          {{ allInsurance == null ? '' : allInsurance.length }}
         </div>
         <q-select
           dense
           clearable
           outlined
-          v-model="relationCode"
-          :options="relationCodeOfMainCode"
+          v-model="insurance"
+          :options="allInsurance"
           option-value="id"
-          option-label="description"
+          option-label="nameInsurance"
           map-options
           label="Descripcion"
-          :hint="`Codigo Relacionado:  ${
-            relationCode == undefined ? '' : currentRelationCode.code
-          }`"
-          @update:model-value="(val) => relationCodeChanged(val)"
-          @clear="(val) => clearRelationCode(val)"
+          @update:model-value="(val) => insuranceChanged(val)"
+          @clear="(val) => clearInsurance(val)"
         >
         </q-select>
       </q-card-section>
@@ -34,7 +29,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="relationCode != null"
+          v-if="insurance != null"
           flat
           round
           color="green"
@@ -59,28 +54,12 @@
         <div v-show="expanded">
           <q-separator />
           <q-card-section class="text-subitle2">
-            <q-form @submit="confirmChanges" ref="formDXMainCode">
+            <q-form @submit="confirmChanges" ref="formInsurance">
               <q-input
                 dense
                 outlined
-                disable
-                v-model="currentSpeciality.description"
-                label="Especialidad"
-                :error="error"
-              />
-              <q-input
-                dense
-                outlined
-                disable
-                v-model="currentDxMainCode.description"
-                label="Codigo Principal"
-                :error="error"
-              />
-              <q-input
-                dense
-                outlined
-                v-model="currentRelationCode.code"
-                label="Codigo Relacionado"
+                v-model="currentInsurance.entityCode"
+                label="Codigo Entidad"
                 maxlength="10"
                 lazy-rules
                 :rules="[
@@ -90,8 +69,8 @@
               <q-input
                 dense
                 outlined
-                v-model="currentRelationCode.description"
-                label="Descripcion Codigo Relacionado"
+                v-model="currentInsurance.nameInsurance"
+                label="Descripcion Entidad"
                 lazy-rules
                 :rules="[
                   (val) =>
@@ -110,43 +89,36 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
-import { useSpeciality } from 'src/services/SpecialityService';
-import { useRelationCode } from 'src/services/RelationCodeService';
-import { useDxMainCode } from 'src/services/DxMainCodeService';
+import { useInsurance } from 'src/services/InsuranceService';
 export default defineComponent({
-  name: 'RelationCodeForm',
+  name: 'InsuranceForm',
   setup() {
     const {
-      relationCodeOfMainCode,
-      currentRelationCode,
-      relationCode,
+      currentInsurance,
+      insurance,
       expanded,
-      formDXMainCode,
+      formInsurance,
       error,
-      relationCodeChanged,
-      clearRelationCode,
+      insuranceChanged,
+      clearInsurance,
       edit,
       add,
       confirmChanges,
-      getAllRelationCodes,
-    } = useRelationCode();
-
-    const { currentSpeciality } = useSpeciality();
-    const { currentDxMainCode } = useDxMainCode();
+      getAllInsurance,
+      allInsurance,
+    } = useInsurance();
 
     onMounted(async () => {
-      getAllRelationCodes();
+      getAllInsurance();
     });
     return {
-      relationCode,
-      clearRelationCode,
-      relationCodeChanged,
-      currentRelationCode,
-      relationCodeOfMainCode,
-      currentSpeciality,
-      currentDxMainCode,
+      insurance,
+      clearInsurance,
+      insuranceChanged,
+      allInsurance,
+      currentInsurance,
       expanded,
-      formDXMainCode,
+      formInsurance,
       error,
       edit,
       add,

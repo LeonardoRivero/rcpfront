@@ -41,10 +41,11 @@
         </q-tab-panel>
       </q-tab-panels>
     </q-card> -->
-    <div class="row justify-around">
-      <div><SpecialityForm /></div>
-      <div><DxMainCode /></div>
-      <div><RelationCode /></div>
+    <div class="row">
+      <div class="col"><SpecialityForm /></div>
+      <div class="col"><DxMainCode /></div>
+      <div class="col"><RelationCode /></div>
+      <div class="col"><Insurance /></div>
     </div>
   </div>
 </template>
@@ -52,18 +53,17 @@
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
-import { useCounterStore } from 'src/stores/storeSettings';
+import { useStoreSettings } from 'src/stores/storeSettings';
 import SpecialityForm from 'src/components/Forms/SpecialityForm.vue';
 import DxMainCode from 'src/components/Forms/DxMainCodeForm.vue';
 import RelationCode from 'src/components/Forms/RelationCode.vue';
+import Insurance from 'src/components/Forms/InsuranceForm.vue';
 
 export default defineComponent({
-  components: { SpecialityForm, DxMainCode, RelationCode },
+  components: { SpecialityForm, DxMainCode, RelationCode, Insurance },
 
   setup() {
-    const store = useCounterStore();
+    const store = useStoreSettings();
 
     onMounted(async () => {
       // if (store.allSpecialities == undefined) {
@@ -80,3 +80,9 @@ export default defineComponent({
   },
 });
 </script>
+<style lang="sass" scoped>
+.row > div
+  padding: 5px 5px
+.row + .row
+  margin-top: 1rem
+</style>

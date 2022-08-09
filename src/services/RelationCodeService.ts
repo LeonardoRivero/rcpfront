@@ -2,7 +2,7 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
-import { useCounterStore } from 'src/stores/storeSettings';
+import { useStoreSettings } from 'src/stores/storeSettings';
 import {
   IRelationCodeRequest,
   IRelationCodeResponse,
@@ -11,7 +11,7 @@ import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
 export function useRelationCode() {
   const router = useRouter();
-  const store = useCounterStore();
+  const store = useStoreSettings();
   const {
     allRelationCodes,
     currentRelationCode,

@@ -2,12 +2,12 @@ import { computed, ref, onBeforeMount, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
-import { useCounterStore } from 'src/stores/storeSettings';
+import { useStoreSettings } from 'src/stores/storeSettings';
 import { HttpResponse } from 'src/scripts/Request';
 import { ISpeciality } from 'src/interfaces/IModels';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 const router = useRouter();
-const store = useCounterStore();
+const store = useStoreSettings();
 export function useSpeciality() {
   const { allSpecialities, currentSpeciality } = storeToRefs(store);
 

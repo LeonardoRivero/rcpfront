@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md row items-start q-gutter-md">
+  <div class="q-pa-md">
     <q-card class="my-card" flat bordered>
       <q-card-section>
         <div class="text-h5 q-mt-sm q-mb-xs">Especialidades</div>
@@ -124,9 +124,3 @@ export default defineComponent({
   },
 });
 </script>
-<style lang="sass" scoped>
-.my-card
-  width: 100%
-  min-width: 250px
-  max-width: 250px
-</style>
