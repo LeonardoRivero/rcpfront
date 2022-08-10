@@ -36,3 +36,15 @@ export interface Forms {
   title: string;
   data: object;
 }
+export interface IPatient {
+  id: number;
+  name: string;
+  lastName: string;
+  IDType: number;
+  identification: number;
+  dateBirth: Date;
+  phoneNumber: number;
+  insurance: number;
+  gender: number;
+  email: string;
+}

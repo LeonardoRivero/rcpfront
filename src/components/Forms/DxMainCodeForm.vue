@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <q-card class="my-card" flat bordered>
+    <q-card class="my-card" bordered>
       <q-card-section>
         <div class="text-h5 q-mt-sm q-mb-xs">Codigos CUPS</div>
         <div class="text-caption text-grey">
@@ -157,3 +157,13 @@ export default defineComponent({
   },
 });
 </script>
+<style lang="sass" scoped>
+.my-card
+    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2)
+    transition: all ease 0.2s
+
+.my-card:hover
+    transition: all ease 0.2s
+    box-shadow: inherit
+    box-shadow: 5px 5px 20px 5px rgba(0,0,0,0.3)
+</style>

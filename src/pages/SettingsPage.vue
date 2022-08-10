@@ -42,10 +42,10 @@
       </q-tab-panels>
     </q-card> -->
     <div class="row">
-      <div class="col"><SpecialityForm /></div>
-      <div class="col"><DxMainCode /></div>
-      <div class="col"><RelationCode /></div>
-      <div class="col"><Insurance /></div>
+      <div class="col-12 col-md"><Insurance /></div>
+      <div class="col-12 col-md"><SpecialityForm /></div>
+      <div class="col-12 col-md"><DxMainCode /></div>
+      <div class="col-12 col-md"><RelationCode /></div>
     </div>
   </div>
 </template>

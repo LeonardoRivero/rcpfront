@@ -54,10 +54,10 @@ const linksList = [
     link: 'https://chat.quasar.dev',
   },
   {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev',
+    title: 'Pacientes',
+    caption: 'Gestion Pacientes',
+    icon: 'mdi-human-wheelchair',
+    link: '/patient',
   },
   {
     title: 'Twitter',
