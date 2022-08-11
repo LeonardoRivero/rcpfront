@@ -1,6 +1,6 @@
 export class EndPoints {
   private domine = 'https://leonardorivero.pythonanywhere.com';
-  get getAllGender() {
+  get getAllIDType() {
     return `${this.domine}/api/idtype/all/`;
   }
   get getORcreateInsurance(): string {
@@ -14,6 +14,12 @@ export class EndPoints {
   }
   get getORcreateRelationCode(): string {
     return `${this.domine}/api/relationcode/all/`;
+  }
+  get getAllGender(): string {
+    return `${this.domine}/api/gender/all/`;
+  }
+  get getORcreatePatient(): string {
+    return `${this.domine}/api/patient/all/`;
   }
   updateInsurance(id: number): string {
     return `${this.domine}/api/insurance/${id}/`;
