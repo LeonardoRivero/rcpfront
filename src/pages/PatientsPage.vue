@@ -1,9 +1,9 @@
 <template>
   <div class="row q-col-gutter-x-md">
-    <div class="col-7">
+    <div class="col-12 col-md">
       <Patients />
     </div>
-    <div class="col-5">Algo mas</div>
+    <div class="col-12 col-md">Algo mas</div>
   </div>
 </template>
 <script lang="ts">
