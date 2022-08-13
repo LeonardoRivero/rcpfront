@@ -10,8 +10,12 @@ import {
   IHealthInsurance,
 } from 'src/interfaces/IModels';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
+import { BASE_YEAR, MININUM_AGE, Messages } from 'src/scripts/Constants';
+import { Notification } from 'src/scripts/Notifications';
 const router = useRouter();
 const store = useStorePatients();
+const notification = new Notification();
+const message = new Messages();
 
 export function usePatient() {
   const {
@@ -37,6 +41,16 @@ export function usePatient() {
     console.log(val);
     store.currentIDType = val;
   }
+  function isAdult(birthday: Date): boolean {
+    const dateBirthday = new Date(birthday);
+    const ageDifMs = Date.now() - dateBirthday.getTime();
+    const ageDate = new Date(ageDifMs);
+    const result = Math.abs(ageDate.getUTCFullYear() - BASE_YEAR);
+    if (result > MININUM_AGE) {
+      return true;
+    }
+    return false;
+  }
   // function add(): void {
   //   expanded.value = !expanded.value;
   //   currentRelationCode.value = {} as IRelationCodeResponse;
@@ -54,9 +68,18 @@ export function usePatient() {
       return;
     }
     console.log(currentPatient.value, insurance.value, idType.value);
+
     if (!currentPatient.value) return;
     if (insurance.value?.id == null || idType.value?.id == null) return;
+
     const data = currentPatient.value;
+    const adult = isAdult(data.dateBirth);
+    if (adult == false) {
+      notification.setMessage(message.isNotAdult);
+      notification.showError();
+      return;
+    }
+
     if (currentPatient.value.id == undefined) {
       const payload = {
         name: data.name,
@@ -69,7 +92,8 @@ export function usePatient() {
         gender: 1,
         email: data.email,
       } as IPatientRequest;
-      store.createPatient(payload);
+      console.log('first');
+      //Sstore.createPatient(payload);
     }
     if (currentPatient.value.id != undefined) {
       console.log('see');
@@ -90,10 +114,28 @@ export function usePatient() {
       }
     }
   }
+  async function getAllGenders() {
+    if (store.allGenders == null) {
+      const response = await store.retrieveAllGenders();
+      if (response.status == HttpStatusCodes.NOT_FOUND) {
+        router.push('/:catchAll');
+      }
+    }
+  }
   function isValidEmail(val: string) {
     const emailPattern =
       /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
     return emailPattern.test(val) || 'Email no valido';
+  }
+  function setOptionsToggle() {
+    // if (allGenders == null) {
+    //   return null;
+    // }
+    const result = allGenders.value?.forEach((element) =>
+      console.log(element.id)
+    );
+    console.log(result);
+    return result;
   }
 
   return {
@@ -111,18 +153,7 @@ export function usePatient() {
     // expanded,
     error,
     //! Computed
-    // relationCodeOfMainCode: computed(() => {
-    //   if (store.allRelationCodes === undefined) {
-    //     return null;
-    //   }
-    //   const result = store.allRelationCodes.filter(
-    //     (relationCode) =>
-    //       relationCode.dxmaincode.id == store.currentDxMainCode?.id
-    //   );
 
-    //   clearRelationCode({} as IRelationCodeRequest);
-    //   return result;
-    // }),
     //! Metodos
     // add,
     // edit,
@@ -130,6 +161,8 @@ export function usePatient() {
     confirmChanges,
     isValidEmail,
     getAllIDTypes,
+    getAllGenders,
     clearIdType,
+    setOptionsToggle,
   };
 }

@@ -41,5 +41,10 @@ export class Messages {
   get errorMessage(): string {
     return 'Ocurrio un error. Intentelo de nuevo';
   }
+  get isNotAdult(): string {
+    return 'Paciente menor de edad';
+  }
 }
+export const MININUM_AGE = 18;
+export const BASE_YEAR = 1970;
 // export default { EndPoints, Messages };
