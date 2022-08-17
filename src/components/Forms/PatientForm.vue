@@ -1,49 +1,77 @@
 <template>
   <q-page class="q-pa-md">
+    <div class="text-black">
+      <q-toolbar>
+        <q-space />
+        <q-input
+          v-model="identificationPatient"
+          label="Nº Documento paciente"
+          clearable
+          dense
+          type="number"
+          @keydown.enter.prevent="searchPatient"
+          lazy-rules
+          :rules="[(val) => val > 0 || 'Numero invalido']"
+        ></q-input>
+        <q-btn
+          flat
+          round
+          dense
+          icon="search"
+          class="q-mr-xs"
+          @click="searchPatient"
+        />
+      </q-toolbar>
+    </div>
     <q-form @submit="confirmChanges" class="q-gutter-md" ref="formPatient">
       <h4>Pacientes</h4>
       <div class="q-gutter-x-md">
         <q-input
+          :readonly="disable"
           dense
           v-model="currentPatient.name"
-          label="Nombres"
+          label="Nombres *"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Nombres no validos']"
         />
         <q-input
+          :readonly="disable"
           dense
           v-model="currentPatient.lastName"
-          label="Apellidos"
+          label="Apellidos *"
           lazy-rules
           :rules="[(val) => (val && val.length > 0) || 'Apellidos no validos']"
         />
         <div class="row q-col-gutter-x-md">
           <div class="col-6 col-md">
             <q-input
+              :readonly="disable"
               dense
               type="number"
               v-model="currentPatient.identification"
-              label="Numero Identificacion"
+              label="Numero Identificacion *"
               lazy-rules
               :rules="[(val) => val > 0 || 'Numero invalido']"
             />
           </div>
           <div class="col-6 col-md">
             <q-select
+              :readonly="disable"
               dense
               clearable
               outlined
-              v-model="idType"
+              v-model="currentPatient.IDType"
               :options="allIDTypes"
               option-value="id"
               option-label="abbreviation"
               map-options
-              label="Tipo Documento"
-              :hint="`Tipo Documento:${
-                idType == undefined ? '' : idType.description
+              label="Tipo Documento *"
+              :hint="`${
+                currentPatient.IDType == undefined
+                  ? ''
+                  : currentPatient.IDType.description
               }`"
               @update:model-value="(val) => idTypeChanged(val)"
-              @clear="(val) => clearIdType(val)"
               :rules="[
                 (val) => (val && val != null) || 'Tipo documento no valido',
               ]"
@@ -54,10 +82,11 @@
         <div class="row q-col-gutter-x-md">
           <div class="col-6 col-md">
             <q-input
+              :readonly="disable"
               dense
               outlined
               v-model="currentPatient.phoneNumber"
-              label="Telefono"
+              label="Telefono *"
               mask="##########"
               unmasked-value
               lazy-rules
@@ -66,53 +95,75 @@
           </div>
           <div class="col-6 col-md">
             <q-input
+              :readonly="disable"
               v-model="currentPatient.dateBirth"
               dense
               type="date"
-              hint="Fecha Nacimiento"
+              mask="DD-MM-YYYY"
+              hint="Fecha Nacimiento *"
+              :rules="[
+                (val) => (val && val.length > 0) || 'Fecha es requerida',
+              ]"
             />
           </div>
         </div>
         <div class="row q-col-gutter-x-md">
           <div class="col-6 col-md">
             <q-select
+              :readonly="disable"
               dense
               clearable
               outlined
-              v-model="insurance"
+              v-model="currentPatient.insurance"
               :options="allInsurance"
               option-value="id"
               option-label="nameInsurance"
               map-options
-              label="Entidad"
+              label="Entidad *"
               @update:model-value="(val) => insuranceChanged(val)"
-              @clear="(val) => clearInsurance(val)"
               :rules="[(val) => (val && val != null) || 'Entidad es requerida']"
             >
             </q-select>
           </div>
           <div class="col-6 col-md">
-            <template v-for="item in allGenders" :key="item.id">
-              <q-radio
-                v-model="shape"
-                checked-icon="task_alt"
-                unchecked-icon="panorama_fish_eye"
-                :val="item.id"
-                :label="item.nameGender"
-              />
-            </template>
+            <q-select
+              :readonly="disable"
+              dense
+              clearable
+              outlined
+              v-model="currentPatient.gender"
+              :options="allGenders"
+              option-value="id"
+              option-label="nameGender"
+              map-options
+              label="Genero *"
+              @update:model-value="(val) => genderChanged(val)"
+              :rules="[(val) => (val && val != null) || 'Genero es requerido']"
+            >
+            </q-select>
           </div>
         </div>
         <q-input
+          :readonly="disable"
           label="Correo electronico"
           dense
           v-model="currentPatient.email"
           type="email"
-          :rules="[(val) => !!val || 'Email es requerido', isValidEmail]"
+          :rules="[isValidEmail]"
         />
         <div class="row q-col-gutter-x-md">
+          <div class="col-12 col-md-12">
+            <div>Campos Obligatorios *</div>
+          </div>
           <div class="col-6 col-md">
             <q-btn label="Guardar" type="submit" color="primary" />
+            <q-btn
+              v-if="disable"
+              color="secondary"
+              icon-right="mdi-pencil"
+              label="Editar"
+              @click="enableEdition"
+            />
           </div>
         </div>
       </div>
@@ -121,48 +172,41 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { usePatient } from 'src/services/PatientService';
 import { useInsurance } from 'src/services/InsuranceService';
 export default {
   setup() {
     const {
       patient,
+      gender,
       currentPatient,
       currentIDType,
       formPatient,
-      confirmChanges,
-      isValidEmail,
       allIDTypes,
       idType,
       allGenders,
+      insurance,
       getAllGenders,
+      confirmChanges,
+      isValidEmail,
       getAllIDTypes,
       idTypeChanged,
-      clearIdType,
-      insurance,
-      setOptionsToggle,
+      genderChanged,
+      searchPatient,
+      identificationPatient,
+      disable,
+      enableEdition,
     } = usePatient();
     const { allInsurance, getAllInsurance, insuranceChanged } = useInsurance();
     onMounted(async () => {
       await getAllIDTypes();
       await getAllInsurance();
       await getAllGenders();
-      setOptionsToggle();
     });
     return {
-      model: ref('one'),
-      password: ref(''),
-      isPwd: ref(true),
-      shape: ref('line'),
-
-      email: ref(''),
-      search: ref(''),
-      tel: ref(''),
-      url: ref(''),
-      time: ref(''),
-      date: ref(''),
       patient,
+      gender,
       currentPatient,
       currentIDType,
       allInsurance,
@@ -170,11 +214,15 @@ export default {
       idType,
       insurance,
       formPatient,
+      identificationPatient,
+      disable,
       confirmChanges,
       isValidEmail,
       idTypeChanged,
       insuranceChanged,
-      clearIdType,
+      genderChanged,
+      searchPatient,
+      enableEdition,
       allGenders,
     };
   },

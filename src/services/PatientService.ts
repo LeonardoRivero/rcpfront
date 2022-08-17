@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { QForm } from 'quasar';
+import { QForm, date } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useStorePatients } from 'src/stores/storePatients';
 import {
@@ -8,10 +8,13 @@ import {
   IPatientResponse,
   IIDType,
   IHealthInsurance,
+  IGender,
 } from 'src/interfaces/IModels';
+import { HttpResponse } from 'src/scripts/Request';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { BASE_YEAR, MININUM_AGE, Messages } from 'src/scripts/Constants';
 import { Notification } from 'src/scripts/Notifications';
+
 const router = useRouter();
 const store = useStorePatients();
 const notification = new Notification();
@@ -27,19 +30,54 @@ export function usePatient() {
   } = storeToRefs(store);
   const patient = ref<IPatientRequest>();
   const idType = ref<IIDType>();
+  const gender = ref<IGender>();
   const insurance = ref<IHealthInsurance>();
-  // const expanded = ref(false);
+  const identificationPatient = ref<string>('');
   const formPatient = ref<QForm | null>(null);
   const error = ref(false);
+  const disable = ref(false);
 
-  function clearIdType(val: IIDType) {
-    console.log(val);
-    // relationCode.value = undefined;
-    // currentRelationCode.value = {} as IRelationCodeResponse;
+  async function searchPatient(): Promise<void> {
+    const response = await store.getPatientByIdentification(
+      identificationPatient.value
+    );
+    if (response.status == HttpStatusCodes.NO_CONTENT) {
+      formPatient.value?.resetValidation();
+      // const defaultIDType = {
+      //   description: '',
+      //   abbreviation: '',
+      // } as IIDType;
+
+      // const t = new Date().toLocaleString().split(',')[0];
+      // console.log(t);
+      // store.currentPatient = {
+      //   IDType: defaultIDType,
+      //   dateBirth: t,
+      // } as IPatientResponse;
+      // console.log(store.currentPatient);
+
+      //disable.value = false;
+      notification.setMessage(message.notInfoFound);
+      notification.showWarning();
+      return;
+    }
+    const data = response.parsedBody as IPatientResponse;
+    idType.value = data.IDType;
+    // insurance.value = data.insurance;
+    // gender.value = data.gender;
+    disable.value = true;
+    store.currentPatient = data;
+  }
+  function enableEdition(): void {
+    disable.value = false;
   }
   function idTypeChanged(val: IIDType): void {
     console.log(val);
     store.currentIDType = val;
+  }
+  function genderChanged(val: IGender): void {
+    console.log(val);
+    store.currentGender = val;
   }
   function isAdult(birthday: Date): boolean {
     const dateBirthday = new Date(birthday);
@@ -70,26 +108,25 @@ export function usePatient() {
     console.log(currentPatient.value, insurance.value, idType.value);
 
     if (!currentPatient.value) return;
-    if (insurance.value?.id == null || idType.value?.id == null) return;
 
     const data = currentPatient.value;
-    const adult = isAdult(data.dateBirth);
-    if (adult == false) {
-      notification.setMessage(message.isNotAdult);
-      notification.showError();
-      return;
-    }
+    // const adult = isAdult(data.dateBirth);
+    // if (adult == false) {
+    //   notification.setMessage(message.isNotAdult);
+    //   notification.showError();
+    //   return;
+    // }
 
     if (currentPatient.value.id == undefined) {
       const payload = {
         name: data.name,
         lastName: data.lastName,
-        IDType: idType.value.id,
+        IDType: idType.value?.id,
         identification: data.identification,
         dateBirth: data.dateBirth,
         phoneNumber: data.phoneNumber,
-        insurance: insurance.value.id,
-        gender: 1,
+        insurance: insurance.value?.id,
+        gender: gender.value?.id,
         email: data.email,
       } as IPatientRequest;
       console.log('first');
@@ -97,12 +134,18 @@ export function usePatient() {
     }
     if (currentPatient.value.id != undefined) {
       console.log('see');
-      // const payload = {
-      //   id: data.id,
-      //   code: data.code,
-      //   description: data.description,
-      //   dxmaincode: currentDxMainCode.value?.id,
-      // } as IRelationCodeRequest;
+      const payload = {
+        id: data.id,
+        name: data.name,
+        lastName: data.lastName,
+        IDType: idType.value?.id,
+        identification: data.identification,
+        dateBirth: data.dateBirth,
+        phoneNumber: data.phoneNumber,
+        insurance: insurance.value?.id,
+        gender: gender.value?.id,
+        email: data.email,
+      } as IPatientRequest;
       // store.updateRelationCode(payload);
     }
   }
@@ -127,16 +170,6 @@ export function usePatient() {
       /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
     return emailPattern.test(val) || 'Email no valido';
   }
-  function setOptionsToggle() {
-    // if (allGenders == null) {
-    //   return null;
-    // }
-    const result = allGenders.value?.forEach((element) =>
-      console.log(element.id)
-    );
-    console.log(result);
-    return result;
-  }
 
   return {
     //! Properties
@@ -144,12 +177,15 @@ export function usePatient() {
     allGenders,
     formPatient,
     patient,
+    gender,
     allIDTypes,
     currentPatient,
     currentIDType,
     currentGender,
     idType,
     insurance,
+    identificationPatient,
+    disable,
     // expanded,
     error,
     //! Computed
@@ -157,12 +193,13 @@ export function usePatient() {
     //! Metodos
     // add,
     // edit,
+    searchPatient,
     idTypeChanged,
+    genderChanged,
     confirmChanges,
     isValidEmail,
     getAllIDTypes,
     getAllGenders,
-    clearIdType,
-    setOptionsToggle,
+    enableEdition,
   };
 }

@@ -31,13 +31,8 @@ export interface IRelationCodeResponse {
   code: string;
   dxmaincode: IDXMainCodeResponse;
 }
-export interface Forms {
-  visible: boolean;
-  title: string;
-  data: object;
-}
 export interface IIDType {
-  id: number;
+  id?: number;
   description: string;
   abbreviation: string;
 }
@@ -51,7 +46,7 @@ export interface IPatientRequest {
   lastName: string;
   IDType: number;
   identification: number;
-  dateBirth: Date;
+  dateBirth: string;
   phoneNumber: number;
   insurance: number;
   gender: number;
@@ -63,9 +58,18 @@ export interface IPatientResponse {
   lastName: string;
   IDType: IIDType;
   identification: number;
-  dateBirth: Date;
+  dateBirth: string;
   phoneNumber: number;
-  insurance: number;
+  insurance: IHealthInsurance;
   gender: IGender;
   email: string;
+}
+export interface Forms {
+  visible: boolean;
+  title: string;
+  data: object;
+}
+export interface IQueryParameters {
+  parameter: string;
+  value: string;
 }

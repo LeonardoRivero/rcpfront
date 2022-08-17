@@ -6,14 +6,21 @@ import {
   handleResponse,
   HttpResponse,
 } from 'src/scripts/Request';
-import { IPatientRequest, IIDType, IGender } from 'src/interfaces/IModels';
+import {
+  IPatientRequest,
+  IPatientResponse,
+  IIDType,
+  IGender,
+  IQueryParameters,
+} from 'src/interfaces/IModels';
 import { EndPoints } from 'src/scripts/Constants';
+import HttpStatusCode from 'src/scripts/HttpStatusCodes';
 
 const endpoint = new EndPoints();
 
 export const useStorePatients = defineStore('patients', {
   state: () => ({
-    currentPatient: {} as IPatientRequest,
+    currentPatient: {} as IPatientResponse,
     allIDTypes: undefined as Array<IIDType> | undefined,
     currentIDType: {} as IIDType | null,
     allGenders: null as Array<IGender> | null,
@@ -36,6 +43,25 @@ export const useStorePatients = defineStore('patients', {
       const url = endpoint.getORcreatePatient;
       const response = await POST(url, data);
       handleResponse(response);
+      return response;
+    },
+    async getPatientByIdentification(
+      identification: string
+    ): Promise<HttpResponse<unknown>> {
+      const urlBase = endpoint.getORcreatePatient;
+      // const arrayQueriesParameters: IQueryParameters = [
+      //   { parameter: 'identification',value:identification },
+      // ];
+      const url = endpoint.urlQueryParameter(
+        urlBase,
+        'identification',
+        identification
+      );
+      console.log(url);
+      const response = await GET(url);
+      console.log(response);
+      //this.currentPatient = (await response.parsedBody) as IPatientResponse;
+
       return response;
     },
   },

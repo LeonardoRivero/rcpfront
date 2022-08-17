@@ -33,6 +33,9 @@ export class EndPoints {
   updateRelationCode(id: number): string {
     return `${this.domine}/api/relationcode/${id}/`;
   }
+  urlQueryParameter(urlBase: string, parameter: string, value: string): string {
+    return `${urlBase}?${parameter}=${value}`;
+  }
 }
 export class Messages {
   get successMessage(): string {
@@ -43,6 +46,9 @@ export class Messages {
   }
   get isNotAdult(): string {
     return 'Paciente menor de edad';
+  }
+  get notInfoFound(): string {
+    return 'No se encontró información';
   }
 }
 export const MININUM_AGE = 18;

@@ -109,7 +109,7 @@ export default defineComponent({
     } = useInsurance();
 
     onMounted(async () => {
-      getAllInsurance();
+      await getAllInsurance();
     });
     return {
       insurance,
