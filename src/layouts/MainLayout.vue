@@ -48,10 +48,10 @@ const linksList = [
     link: 'https://github.com/quasarframework',
   },
   {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev',
+    title: 'Citas',
+    caption: 'Administrar Citas',
+    icon: 'mdi-calendar',
+    link: '/consults',
   },
   {
     title: 'Pacientes',

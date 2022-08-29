@@ -155,14 +155,20 @@
           <div class="col-12 col-md-12">
             <div>Campos Obligatorios *</div>
           </div>
-          <div class="col-6 col-md">
-            <q-btn label="Guardar" type="submit" color="primary" />
+          <div class="col-12 col-md">
+            <q-btn
+              label="Guardar"
+              type="submit"
+              color="primary"
+              icon-right="mdi-content-save"
+            />
             <q-btn
               v-if="disable"
               color="secondary"
               icon-right="mdi-pencil"
               label="Editar"
               @click="enableEdition"
+              class="q-ml-sm"
             />
           </div>
         </div>
