@@ -1,17 +1,17 @@
 <template>
   <div class="row q-col-gutter-x-md">
     <div class="col-12 col-md">
-      <Consul />
+      <!-- <ConsultForm /> -->
+      <Test />
     </div>
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import Consults from 'src/components/CalendarConsults.vue';
-import Consul from 'src/components/Forms/CaleForm.vue';
-
+import ConsultForm from 'src/components/Forms/ConsultForm.vue';
+import Test from 'src/components/Forms/TestFormd.vue';
 export default defineComponent({
-  components: { Consul },
+  components: { Test },
   setup() {
     test: ref(false);
   },

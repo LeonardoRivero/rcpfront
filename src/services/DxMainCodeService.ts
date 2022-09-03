@@ -6,7 +6,7 @@ import { useStoreSettings } from 'src/stores/storeSettings';
 import {
   IDXMainCodeRequest,
   IDXMainCodeResponse,
-} from 'src/interfaces/IModels';
+} from 'src/interfaces/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
 const store = useStoreSettings();

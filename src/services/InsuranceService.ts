@@ -1,9 +1,9 @@
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useStoreSettings } from 'src/stores/storeSettings';
-import { IHealthInsurance } from 'src/interfaces/IModels';
+import { IHealthInsurance } from 'src/interfaces/IPatients';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
 const store = useStoreSettings();

@@ -1,10 +1,10 @@
-import { computed, ref, onBeforeMount, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useStoreSettings } from 'src/stores/storeSettings';
 import { HttpResponse } from 'src/scripts/Request';
-import { ISpeciality } from 'src/interfaces/IModels';
+import { ISpeciality } from 'src/interfaces/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 const router = useRouter();
 const store = useStoreSettings();

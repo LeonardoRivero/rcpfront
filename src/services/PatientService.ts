@@ -9,7 +9,7 @@ import {
   IIDType,
   IHealthInsurance,
   IGender,
-} from 'src/interfaces/IModels';
+} from 'src/interfaces/IPatients';
 import { HttpResponse } from 'src/scripts/Request';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { BASE_YEAR, MININUM_AGE, Messages } from 'src/scripts/Constants';

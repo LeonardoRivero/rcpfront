@@ -6,7 +6,7 @@ import { useStoreSettings } from 'src/stores/storeSettings';
 import {
   IRelationCodeRequest,
   IRelationCodeResponse,
-} from 'src/interfaces/IModels';
+} from 'src/interfaces/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
 export function useRelationCode() {

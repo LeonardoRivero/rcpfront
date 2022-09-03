@@ -11,8 +11,7 @@ import {
   IPatientResponse,
   IIDType,
   IGender,
-  IQueryParameters,
-} from 'src/interfaces/IModels';
+} from 'src/interfaces/IPatients';
 import { EndPoints } from 'src/scripts/Constants';
 import HttpStatusCode from 'src/scripts/HttpStatusCodes';
 

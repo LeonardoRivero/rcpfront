@@ -16,7 +16,10 @@
     </q-header>
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <q-item-label header> Essential Links </q-item-label>
+        <q-item-label header>
+          <q-img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0xHovWAQLBx7HGcdVg6RfZoDtXc9YVMrYHw&usqp=CAU"
+        /></q-item-label>
         <EssentialLink
           v-for="link in essentialLinks"
           :key="link.title"
@@ -35,21 +38,21 @@ import { defineComponent, ref } from 'vue';
 import EssentialLink from 'components/EssentialLink.vue';
 
 const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev',
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework',
-  },
+  // {
+  //   title: 'Docs',
+  //   caption: 'quasar.dev',
+  //   icon: 'school',
+  //   link: 'https://quasar.dev',
+  // },
   {
     title: 'Citas',
-    caption: 'Administrar Citas',
+    caption: 'Gestiona Citas Pacientes',
+    icon: 'mdi-calendar-multiple-check',
+    link: '/appointment',
+  },
+  {
+    title: 'Agenda',
+    caption: 'Administra Agenda',
     icon: 'mdi-calendar',
     link: '/consults',
   },
@@ -59,18 +62,18 @@ const linksList = [
     icon: 'mdi-human-wheelchair',
     link: '/patient',
   },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev',
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev',
-  },
+  // {
+  //   title: 'Twitter',
+  //   caption: '@quasarframework',
+  //   icon: 'rss_feed',
+  //   link: 'https://twitter.quasar.dev',
+  // },
+  // {
+  //   title: 'Facebook',
+  //   caption: '@QuasarFramework',
+  //   icon: 'public',
+  //   link: 'https://facebook.quasar.dev',
+  // },
   {
     title: 'Configuraciones',
     caption: 'Configuraciones Generales',

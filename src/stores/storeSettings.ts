@@ -8,13 +8,12 @@ import {
 } from 'src/scripts/Request';
 import {
   ISpeciality,
-  Forms,
   IDXMainCodeRequest,
   IDXMainCodeResponse,
   IRelationCodeRequest,
   IRelationCodeResponse,
-  IHealthInsurance,
-} from 'src/interfaces/IModels';
+} from 'src/interfaces/IConsults';
+import { IHealthInsurance } from 'src/interfaces/IPatients';
 import { EndPoints } from 'src/scripts/Constants';
 
 const endpoint = new EndPoints();
