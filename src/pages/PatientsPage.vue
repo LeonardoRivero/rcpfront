@@ -3,7 +3,7 @@
     <div class="col-12 col-md">
       <Patients />
     </div>
-    <div class="col-12 col-md">Algo mas</div>
+    <!-- <div class="col-12 col-md">Algo mas</div> -->
   </div>
 </template>
 <script lang="ts">

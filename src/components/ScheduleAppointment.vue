@@ -44,17 +44,18 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <q-inner-loading
+    <!-- <q-inner-loading
       :showing="visible"
       label="Por favor espere..."
       label-class="text-teal"
       label-style="font-size: 1.1em"
-    />
+    /> -->
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive, ref } from 'vue';
+import { defineComponent, reactive, ref, onMounted } from 'vue';
 
+import { useQuasar, QSpinnerGears } from 'quasar';
 import '@fullcalendar/core/vdom';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -63,15 +64,23 @@ import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import esLocale from '@fullcalendar/core/locales/es';
 import { Notification } from 'src/scripts/Notifications';
-import { useQuasar, QSpinnerGears } from 'quasar';
+import { EndPoints } from 'src/scripts/Constants';
+import { scheduleService } from 'src/services/ScheduleService';
+
+const endpoint = new EndPoints();
 
 const notification = new Notification();
 export default defineComponent({
   components: { FullCalendar },
 
   setup() {
+    const { getLastIdConsult, lastConsult } = scheduleService();
+
+    onMounted(async () => {
+      getLastIdConsult();
+    });
     const $q = useQuasar();
-    const id = ref(10);
+    const id = ref(lastConsult.value.id);
     let card = ref(false);
     let stars = ref(3);
     let visible = ref(false);
@@ -92,21 +101,21 @@ export default defineComponent({
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,listWeek,timeGridForYear',
       },
-      // events: {
-      //   //visitar esta url para mas info:https://fullcalendar.io/docs/events-json-feed
-      //   url: 'https://history-events-of-a-day.p.rapidapi.com/api/getevents',
-      //   method: 'POST',
-      //   extraParams: {
-      //     month: 'june',
-      //     day: '28',
-      //   },
-      //   failure: function () {
-      //     notification.setMessage('Ocurrio un error al obtener los datos!');
-      //     notification.showError();
-      //   },
-      //   color: 'yellow', // a non-ajax option
-      //   textColor: 'black', // a non-ajax option
-      // },
+      events: {
+        //visitar esta url para mas info:https://fullcalendar.io/docs/events-json-feed
+        url: endpoint.getORcreateConsult,
+        method: 'GET',
+        // extraParams: {
+        //   month: 'june',
+        //   day: '28',
+        // },
+        failure: function () {
+          notification.setMessage('Ocurrio un error al obtener los datos!');
+          notification.showError();
+        },
+        color: 'yellow', // a non-ajax option
+        textColor: 'black', // a non-ajax option
+      },
       loading: function (bool: boolean) {
         let dialog = Object();
         if (bool) {
@@ -131,48 +140,53 @@ export default defineComponent({
           dialog.update;
         }
       },
-      events: [
-        {
-          title: 'Reunion',
-          start: '2022-08-12T14:30:00',
-          extendedProps: {
-            status: 'done',
-          },
-        },
-        {
-          title: 'Birthday Party',
-          start: '2022-08-13T08:10:00',
-          backgroundColor: 'green',
-          borderColor: 'green',
-        },
-        {
-          title: 'Birthday Party',
-          start: '2022-08-13T07:10:00',
-          backgroundColor: 'green',
-          borderColor: 'green',
-        },
+      // events: [
+      //   {
+      //     title: 'Reunion',
+      //     start: '2022-08-12T14:30:00',
+      //     extendedProps: {
+      //       status: 'done',
+      //     },
+      //   },
+      //   {
+      //     title: 'Birthday Party',
+      //     start: '2022-08-13T08:10:00',
+      //     backgroundColor: 'green',
+      //     borderColor: 'green',
+      //   },
+      //   {
+      //     title: 'Birthday Party',
+      //     start: '2022-08-13T07:10:00',
+      //     backgroundColor: 'green',
+      //     borderColor: 'green',
+      //   },
 
-        {
-          title: 'Cumpleaños Mamasita Milena',
-          start: '2022-09-08T07:10:00',
-          backgroundColor: 'green',
-          borderColor: 'green',
-        },
-      ],
+      //   {
+      //     title: 'Cumpleaños Mamasita Milena',
+      //     start: '2022-09-08T07:10:00',
+      //     backgroundColor: 'green',
+      //     borderColor: 'green',
+      //   },
+      // ],
       locale: esLocale,
       editable: true,
       selectable: true,
       weekends: true,
       select: (arg: any) => {
+        if (id.value === undefined) {
+          notification.setMessage('Ocurrio un error al obtener los datos!');
+          notification.showError();
+          return;
+        }
         id.value = id.value + 1;
         const cal = arg.view.calendar;
         cal.unselect();
         cal.addEvent({
           id: `${id.value}`,
-          title: `New Event ${id.value}`,
+          title: `Nueva Cita ${id.value}`,
           start: arg.start,
           end: arg.end,
-          allDay: true,
+          allDay: false,
         });
       },
       eventClick: (arg: any) => {

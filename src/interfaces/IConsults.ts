@@ -76,13 +76,3 @@ export interface IConsultResponse {
   patient?: IPatientResponse;
   doctor?: IDoctorResponse;
 }
-
-export interface IQueryParameters {
-  parameter: string;
-  value: string;
-}
-export interface Forms {
-  visible: boolean;
-  title: string;
-  data: object;
-}

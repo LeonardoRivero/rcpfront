@@ -21,6 +21,9 @@ export class EndPoints {
   get getORcreatePatient(): string {
     return `${this.domine}/api/patient/all/`;
   }
+  get getORcreateConsult() {
+    return `${this.domine}/api/consult/all/`;
+  }
   updateInsurance(id: number): string {
     return `${this.domine}/api/insurance/${id}/`;
   }

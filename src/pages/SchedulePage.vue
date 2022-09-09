@@ -8,7 +8,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import Schedule from 'src/components/Forms/Schedule_.vue';
+import Schedule from 'src/components/ScheduleAppointment.vue';
 import ConsultForm from 'src/components/Forms/ConsultForm.vue';
 export default defineComponent({
   components: { Schedule, ConsultForm },

@@ -12,11 +12,11 @@
               <q-list>
                 <q-item>
                   <q-item-section>
-                    <q-item-label class="q-pb-xs"
+                    <!-- <q-item-label class="q-pb-xs"
                       >Nombres Paciente</q-item-label
-                    >
+                    > -->
                     <div class="row q-col-gutter-x-md">
-                      <div class="col-3 col-md">
+                      <div class="col-6 col-md">
                         <q-input
                           dense
                           outlined
@@ -24,7 +24,7 @@
                           label="Nombre Paciente"
                         />
                       </div>
-                      <div class="col-3 col-md">
+                      <div class="col-6 col-md">
                         <q-input
                           dense
                           outlined
@@ -37,7 +37,43 @@
                 </q-item>
                 <q-item>
                   <q-item-section>
-                    <q-item-label class="q-pb-xs">Account</q-item-label>
+                    <div class="row q-col-gutter-x-md">
+                      <div class="col-6 col-md">
+                        <q-input
+                          dense
+                          outlined
+                          v-model="deposit.date"
+                          mask="date"
+                          label="Fecha Cita"
+                        >
+                          <template v-slot:append>
+                            <q-icon name="event" class="cursor-pointer">
+                              <q-popup-proxy
+                                ref="depositDateProxy"
+                                transition-show="scale"
+                                transition-hide="scale"
+                              >
+                                <q-date v-model="date" />
+                              </q-popup-proxy>
+                            </q-icon>
+                          </template>
+                        </q-input>
+                      </div>
+                      <div class="col-6 col-md">
+                        <q-input
+                          dense
+                          type="number"
+                          outlined
+                          v-model="deposit.amount"
+                          label="N° Identificacion"
+                        />
+                      </div>
+                    </div>
+                  </q-item-section>
+                </q-item>
+                <!-- <q-item>
+                  <q-item-section>
+                    <div class="row q-col-gutter-x-md"></div>
                     <q-select
                       dense
                       label="Account"
@@ -48,58 +84,49 @@
                       options-dense
                     ></q-select>
                   </q-item-section>
-                </q-item>
-                <q-item>
-                  <q-item-section>
-                    <q-item-label class="q-pb-xs">Fecha Cita</q-item-label>
-                    <q-input
+                </q-item> -->
+                <div v-if="expandedT">
+                  <q-card-actions align="right" class="text-teal">
+                    <q-btn
+                      color="grey"
+                      round
+                      flat
                       dense
-                      outlined
-                      v-model="deposit.date"
-                      mask="date"
-                      label="Deposit Date"
-                    >
-                      <template v-slot:append>
-                        <q-icon name="event" class="cursor-pointer">
-                          <q-popup-proxy
-                            ref="depositDateProxy"
-                            transition-show="scale"
-                            transition-hide="scale"
-                          >
-                            <q-date
-                              v-model="deposit.date"
-                              @input="() => $refs.depositDateProxy.hide()"
+                      :icon="
+                        expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_up'
+                      "
+                      @click="expanded = !expanded"
+                    />
+                  </q-card-actions>
+                </div>
+                <q-slide-transition>
+                  <div v-show="expanded">
+                    <q-item>
+                      <q-item-section>
+                        <div class="row q-col-gutter-x-md">
+                          <div class="col-6 col-md">
+                            <q-input
+                              dense
+                              type="number"
+                              outlined
+                              v-model="deposit.amount"
+                              label="Copago"
                             />
-                          </q-popup-proxy>
-                        </q-icon>
-                      </template>
-                    </q-input>
-                  </q-item-section>
-                </q-item>
-                <q-item>
-                  <q-item-section>
-                    <q-item-label class="q-pb-xs">Copago</q-item-label>
-                    <q-input
-                      dense
-                      type="number"
-                      outlined
-                      v-model="deposit.amount"
-                      label="Amount"
-                    />
-                  </q-item-section>
-                </q-item>
-                <q-item>
-                  <q-item-section>
-                    <q-item-label class="q-pb-xs">Telefono</q-item-label>
-                    <q-input
-                      dense
-                      type="number"
-                      outlined
-                      v-model="deposit.phone"
-                      label="Phone"
-                    />
-                  </q-item-section>
-                </q-item>
+                          </div>
+                          <div class="col-6 col-md">
+                            <q-input
+                              dense
+                              type="number"
+                              outlined
+                              v-model="deposit.phone"
+                              label="Phone"
+                            />
+                          </div>
+                        </div>
+                      </q-item-section>
+                    </q-item>
+                  </div>
+                </q-slide-transition>
               </q-list>
               <q-card-actions align="right" class="text-teal">
                 <q-btn
@@ -118,9 +145,7 @@
           <q-card-section>
             <div class="text-h6">Historial Citas Paciente</div>
           </q-card-section>
-
           <q-separator inset></q-separator>
-
           <q-card-section>
             <q-table
               :data="data"
@@ -192,19 +217,29 @@
     </div>
   </q-page>
 </template>
-
 <script>
+import { ref, defineComponent } from 'vue';
 import { exportFile } from 'quasar';
-function wrapCsvValue(val, formatFn) {
-  let formatted = formatFn !== void 0 ? formatFn(val) : val;
-  formatted =
-    formatted === void 0 || formatted === null ? '' : String(formatted);
-  formatted = formatted.split('"').join('""');
-  return `"${formatted}"`;
-}
-export default {
-  data() {
+import Patients from 'src/components/Forms/PatientForm.vue';
+import { appointmentService } from 'src/services/AppointmentService';
+// function wrapCsvValue(val, formatFn) {
+//   let formatted = formatFn !== void 0 ? formatFn(val) : val;
+//   formatted =
+//     formatted === void 0 || formatted === null ? '' : String(formatted);
+//   formatted = formatted.split('"').join('""');
+//   return `"${formatted}"`;
+// }
+export default defineComponent({
+  components: {},
+  setup() {
+    const { expandedT, expanded } = appointmentService();
+
+    // const expanded = ref(false);
+    const date = ref('2019/02/01');
     return {
+      expandedT,
+      expanded,
+      date,
       filter: '',
       mode: 'list',
       deposit: {},
@@ -305,7 +340,7 @@ export default {
   beforeMount() {
     this.showLoading();
   },
-};
+});
 </script>
 
 <style lang="sass" scoped>
