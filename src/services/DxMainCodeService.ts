@@ -11,7 +11,7 @@ import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
 const store = useStoreSettings();
 const router = useRouter();
-export function useDxMainCode() {
+export function dxMainCodeService() {
   const { allDxMainCodes, currentDxMainCode, currentSpeciality } =
     storeToRefs(store);
   const dxMainCode = ref<IDXMainCodeResponse>();

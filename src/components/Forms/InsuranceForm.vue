@@ -89,7 +89,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
-import { useInsurance } from 'src/services/InsuranceService';
+import { insuranceService } from 'src/services/InsuranceService';
 export default defineComponent({
   name: 'InsuranceForm',
   setup() {
@@ -106,7 +106,7 @@ export default defineComponent({
       confirmChanges,
       getAllInsurance,
       allInsurance,
-    } = useInsurance();
+    } = insuranceService();
 
     onMounted(async () => {
       await getAllInsurance();

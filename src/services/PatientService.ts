@@ -20,7 +20,7 @@ const store = useStorePatients();
 const notification = new Notification();
 const message = new Messages();
 
-export function usePatient() {
+export function patientService() {
   const {
     allIDTypes,
     currentIDType,

@@ -224,8 +224,8 @@
 
 <script>
 import { onMounted } from 'vue';
-import { usePatient } from 'src/services/PatientService';
-import { useInsurance } from 'src/services/InsuranceService';
+import { patientService } from 'src/services/PatientService';
+import { insuranceService } from 'src/services/InsuranceService';
 export default {
   setup() {
     const {
@@ -248,8 +248,9 @@ export default {
       identificationPatient,
       disable,
       enableEdition,
-    } = usePatient();
-    const { allInsurance, getAllInsurance, insuranceChanged } = useInsurance();
+    } = patientService();
+    const { allInsurance, getAllInsurance, insuranceChanged } =
+      insuranceService();
     onMounted(async () => {
       await getAllIDTypes();
       await getAllInsurance();

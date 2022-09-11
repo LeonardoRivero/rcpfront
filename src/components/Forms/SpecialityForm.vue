@@ -87,7 +87,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
-import { useSpeciality } from 'src/services/SpecialityService';
+import { specialityService } from 'src/services/SpecialityService';
 
 export default defineComponent({
   name: 'SpecialityForm',
@@ -104,7 +104,7 @@ export default defineComponent({
       edit,
       confirmChanges,
       clearSpeciality,
-    } = useSpeciality();
+    } = specialityService();
     onMounted(async () => {
       getAllSpecialities();
     });

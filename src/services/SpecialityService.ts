@@ -8,7 +8,7 @@ import { ISpeciality } from 'src/interfaces/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 const router = useRouter();
 const store = useStoreSettings();
-export function useSpeciality() {
+export function specialityService() {
   const { allSpecialities, currentSpeciality } = storeToRefs(store);
 
   const speciality = ref<ISpeciality>();

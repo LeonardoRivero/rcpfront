@@ -8,7 +8,7 @@ import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
 const store = useStoreSettings();
 const router = useRouter();
-export function useInsurance() {
+export function insuranceService() {
   const { allInsurance, currentInsurance } = storeToRefs(store);
   const insurance = ref<IHealthInsurance>();
   const expanded = ref(false);

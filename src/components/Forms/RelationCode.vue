@@ -110,9 +110,9 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
-import { useSpeciality } from 'src/services/SpecialityService';
-import { useRelationCode } from 'src/services/RelationCodeService';
-import { useDxMainCode } from 'src/services/DxMainCodeService';
+import { specialityService } from 'src/services/SpecialityService';
+import { relationCodeService } from 'src/services/RelationCodeService';
+import { dxMainCodeService } from 'src/services/DxMainCodeService';
 export default defineComponent({
   name: 'RelationCodeForm',
   setup() {
@@ -129,10 +129,10 @@ export default defineComponent({
       add,
       confirmChanges,
       getAllRelationCodes,
-    } = useRelationCode();
+    } = relationCodeService();
 
-    const { currentSpeciality } = useSpeciality();
-    const { currentDxMainCode } = useDxMainCode();
+    const { currentSpeciality } = specialityService();
+    const { currentDxMainCode } = dxMainCodeService();
 
     onMounted(async () => {
       getAllRelationCodes();

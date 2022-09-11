@@ -9,7 +9,7 @@ import {
 } from 'src/interfaces/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
-export function useRelationCode() {
+export function relationCodeService() {
   const router = useRouter();
   const store = useStoreSettings();
   const {

@@ -103,11 +103,8 @@
 
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useStoreSettings } from 'src/stores/storeSettings';
-import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
-import { useDxMainCode } from 'src/services/DxMainCodeService';
-import { useSpeciality } from 'src/services/SpecialityService';
+import { dxMainCodeService } from 'src/services/DxMainCodeService';
+import { specialityService } from 'src/services/SpecialityService';
 export default defineComponent({
   name: 'DxMainCodeForm',
   setup() {
@@ -126,8 +123,8 @@ export default defineComponent({
       add,
       confirmChanges,
       getAllDxMainCode,
-    } = useDxMainCode();
-    const { currentSpeciality } = useSpeciality();
+    } = dxMainCodeService();
+    const { currentSpeciality } = specialityService();
     // onMounted(async () => {
     //   if (store.allDxMainCodes == undefined) {
     //     const response = await store.retrieveAllDxMainCode();
