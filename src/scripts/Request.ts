@@ -80,4 +80,12 @@ export async function handleResponse(response: Response) {
       timeout: 2000,
     });
   }
+  if (response.status == HttpStatusCodes.CREATED) {
+    Notify.create({
+      type: 'positive',
+      message: messages.successMessage,
+      position: 'top-right',
+      timeout: 2000,
+    });
+  }
 }

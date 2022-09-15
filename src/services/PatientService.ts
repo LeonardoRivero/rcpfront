@@ -14,9 +14,11 @@ import { HttpResponse } from 'src/scripts/Request';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { BASE_YEAR, MININUM_AGE, Messages } from 'src/scripts/Constants';
 import { Notification } from 'src/scripts/Notifications';
+import { useStoreSettings } from 'src/stores/storeSettings';
 
 const router = useRouter();
 const store = useStorePatients();
+const storeInsurance = useStoreSettings();
 const notification = new Notification();
 const message = new Messages();
 
@@ -28,6 +30,7 @@ export function patientService() {
     allGenders,
     currentPatient,
   } = storeToRefs(store);
+  const { currentInsurance } = storeToRefs(storeInsurance);
   const patient = ref<IPatientRequest>();
   const idType = ref<IIDType>();
   const gender = ref<IGender>();
@@ -125,15 +128,15 @@ export function patientService() {
       const payload = {
         name: data.name,
         lastName: data.lastName,
-        IDType: idType.value?.id,
+        IDType: store.currentIDType?.id,
         identification: data.identification,
         dateBirth: data.dateBirth,
         phoneNumber: data.phoneNumber,
-        insurance: insurance.value?.id,
-        gender: gender.value?.id,
+        insurance: currentInsurance.value?.id,
+        gender: store.currentGender?.id,
         email: data.email,
       } as IPatientRequest;
-      console.log('first');
+      console.log(payload);
       store.createPatient(payload);
     }
     if (currentPatient.value.id != undefined) {
