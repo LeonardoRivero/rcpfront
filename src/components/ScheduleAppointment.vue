@@ -1,49 +1,25 @@
 <template>
   <div>
     <FullCalendar :options="options" />
-    <q-dialog v-model="card">
-      <q-card class="my-card">
-        <q-img
-          src="https://t3.ftcdn.net/jpg/02/44/58/20/360_F_244582094_BTflxzaxlNDHk250JiOaPwAeC4487ns8.jpg"
-        />
 
-        <q-card-section>
-          <q-btn
-            fab
-            color="primary"
-            icon="place"
-            class="absolute"
-            style="top: 0; right: 12px; transform: translateY(-50%)"
-          />
+    <div class="row q-col-gutter-sm q-ma-xs q-mr-sm">
+      <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        <q-dialog v-model="card" persistent>
+          <q-card class="my-card" bordered>
+            <q-card-section class="row items-center q-pb-none">
+              <div class="text-h6">Agendar Cita</div>
+              <q-space />
+              <q-btn icon="close" flat round dense v-close-popup />
+            </q-card-section>
+            <q-separator inset></q-separator>
+            <q-card-section>
+              <Appointment />
+            </q-card-section>
+          </q-card>
+        </q-dialog>
+      </div>
+    </div>
 
-          <div class="row no-wrap items-center">
-            <div class="col text-h6 ellipsis">FOSCAL</div>
-            <div
-              class="col-auto text-grey text-caption q-pt-md row no-wrap items-center"
-            >
-              <q-icon name="place" />
-              250 ft
-            </div>
-          </div>
-
-          <q-rating v-model="stars" :max="5" size="32px" />
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          <div class="text-subtitle1">$・Italian, Cafe</div>
-          <div class="text-caption text-grey">
-            Small plates, salads & sandwiches in an intimate setting.
-          </div>
-        </q-card-section>
-
-        <q-separator />
-
-        <q-card-actions align="right">
-          <q-btn v-close-popup flat color="primary" label="Reserve" />
-          <q-btn v-close-popup flat color="primary" round icon="event" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
     <!-- <q-inner-loading
       :showing="visible"
       label="Por favor espere..."
@@ -66,12 +42,13 @@ import esLocale from '@fullcalendar/core/locales/es';
 import { Notification } from 'src/scripts/Notifications';
 import { EndPoints } from 'src/scripts/Constants';
 import { scheduleService } from 'src/services/ScheduleService';
+import Appointment from 'src/components/Forms/AppointmentForm.vue';
 
 const endpoint = new EndPoints();
 
 const notification = new Notification();
 export default defineComponent({
-  components: { FullCalendar },
+  components: { FullCalendar, Appointment },
 
   setup() {
     const { getLastIdConsult, lastConsult } = scheduleService();
@@ -80,7 +57,8 @@ export default defineComponent({
       getLastIdConsult();
     });
     const $q = useQuasar();
-    const id = ref(lastConsult.value.id);
+    // const id = ref(lastConsult.value.id);
+    const id = ref(10);
     let card = ref(false);
     let stars = ref(3);
     let visible = ref(false);
@@ -110,36 +88,36 @@ export default defineComponent({
         //   day: '28',
         // },
         failure: function () {
-          notification.setMessage('Ocurrio un error al obtener los datos!');
+          notification.setMessage('error al obtener los datos!');
           notification.showError();
         },
         color: 'yellow', // a non-ajax option
         textColor: 'black', // a non-ajax option
       },
-      loading: function (bool: boolean) {
-        let dialog = Object();
-        if (bool) {
-          // notification.setMessage('other bool');
-          // notification.showError();
-          visible.value = bool;
-          const dialog = $q.dialog({
-            title: 'Cargando. Por favor espere...',
-            dark: true,
-            message: '0%',
-            progress: {
-              spinner: QSpinnerGears,
-              color: 'amber',
-            },
-            persistent: bool, // we want the user to not be able to close it
-            ok: true, // we want the user to not be able to close it
-          });
-        } else {
-          // notification.setMessage('bool');
-          // notification.showError();
-          visible.value = bool;
-          dialog.update;
-        }
-      },
+      // loading: function (bool: boolean) {
+      //   let dialog = Object();
+      //   if (bool) {
+      //     // notification.setMessage('other bool');
+      //     // notification.showError();
+      //     visible.value = bool;
+      //     const dialog = $q.dialog({
+      //       title: 'Cargando. Por favor espere...',
+      //       dark: true,
+      //       message: '0%',
+      //       progress: {
+      //         spinner: QSpinnerGears,
+      //         color: 'amber',
+      //       },
+      //       persistent: bool, // we want the user to not be able to close it
+      //       ok: true, // we want the user to not be able to close it
+      //     });
+      //   } else {
+      //     // notification.setMessage('bool');
+      //     // notification.showError();
+      //     visible.value = bool;
+      //     dialog.update;
+      //   }
+      // },
       // events: [
       //   {
       //     title: 'Reunion',
@@ -172,8 +150,9 @@ export default defineComponent({
       editable: true,
       selectable: true,
       weekends: true,
-      select: (arg: any) => {
-        if (id.value === undefined) {
+      select: async (arg: any) => {
+        // let id = await getLastIdConsult();
+        if (id.value == undefined) {
           notification.setMessage('Ocurrio un error al obtener los datos!');
           notification.showError();
           return;
@@ -183,7 +162,7 @@ export default defineComponent({
         cal.unselect();
         cal.addEvent({
           id: `${id.value}`,
-          title: `Nueva Cita ${id.value}`,
+          title: 'Nueva Cita',
           start: arg.start,
           end: arg.end,
           allDay: false,
@@ -193,6 +172,7 @@ export default defineComponent({
         console.log(arg);
         console.log(arg.event.startStr);
         console.log(arg.event.id);
+
         card.value = true;
 
         // const cal = arg.view.calendar;

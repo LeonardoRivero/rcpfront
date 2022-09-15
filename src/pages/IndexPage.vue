@@ -14,21 +14,25 @@
           @click="$q.dark.toggle()"
           :icon="$q.dark.isActive ? 'nights_stay' : 'wb_sunny'"
         />
+        <q-img
+          style="height: 45%; width: 45%"
+          src="https://svgsilh.com/svg/1301891.svg"
+        ></q-img>
         <q-card
           class="login-form"
           v-bind:style="
             $q.platform.is.mobile ? { width: '80%' } : { width: '30%' }
           "
         >
-          <q-img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0xHovWAQLBx7HGcdVg6RfZoDtXc9YVMrYHw&usqp=CAU"
-          ></q-img>
-          <q-card-section>
+          <!-- <q-img
+            src="https://svgsilh.com/svg/1301891.svg"
+          ></q-img> -->
+          <!-- <q-card-section>
             <div class="row no-wrap items-center">
               <div class="col text-h6 ellipsis">Bienvenido a R.C.P</div>
             </div>
-          </q-card-section>
-          <q-card-section>
+          </q-card-section> -->
+          <!-- <q-card-section>
             <q-form class="q-gutter-md">
               <q-input filled v-model="username" label="Username" lazy-rules />
 
@@ -59,7 +63,7 @@
                 ></a>
               </div>
             </q-form>
-          </q-card-section>
+          </q-card-section> -->
         </q-card>
       </q-page>
     </q-page-container>

@@ -5,9 +5,8 @@ import { storeToRefs } from 'pinia';
 import { useStoreSchedule } from 'src/stores/storeSchedule';
 import { IConsultRequest, IConsultResponse } from 'src/interfaces/IConsults';
 // import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
-
+const store = useStoreSchedule();
 export function scheduleService() {
-  const store = useStoreSchedule();
   const { lastConsult } = storeToRefs(store);
   // const dxMainCode = ref<IDXMainCodeResponse>();
   // const expanded = ref(false);
@@ -15,8 +14,11 @@ export function scheduleService() {
   // const error = ref(false);
 
   async function getLastIdConsult(): Promise<number | undefined> {
-    await store.getLastConsult();
-    const id = lastConsult.value.id;
+    const response = await store.getLastConsult();
+    const id = response.id;
+    if (id === undefined) {
+      return 0;
+    }
     return id;
     // dxMainCode.value = undefined;
     // currentDxMainCode.value = {} as IDXMainCodeResponse;

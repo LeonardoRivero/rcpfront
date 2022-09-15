@@ -1,146 +1,192 @@
 <template>
-  <q-page>
-    <div class="row q-col-gutter-sm q-ma-xs q-mr-sm">
-      <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-        <q-card class="my-card" bordered>
+  <!-- <q-page> -->
+  <!-- <div class="row q-col-gutter-sm q-ma-xs q-mr-sm">
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12"> -->
+  <!-- <q-card class="my-card" bordered>
           <q-card-section>
             <div class="text-h6">Agregar/Actualizar Cita</div>
           </q-card-section>
           <q-separator inset></q-separator>
-          <q-card-section>
-            <q-form>
-              <q-list>
-                <q-item>
-                  <q-item-section>
-                    <!-- <q-item-label class="q-pb-xs"
-                      >Nombres Paciente</q-item-label
-                    > -->
-                    <div class="row q-col-gutter-x-md">
-                      <div class="col-6 col-md">
-                        <q-input
-                          dense
-                          outlined
-                          v-model="deposit.description"
-                          label="Nombre Paciente"
-                        />
-                      </div>
-                      <div class="col-6 col-md">
-                        <q-input
-                          dense
-                          outlined
-                          v-model="deposit.description"
-                          label="Apellido Paciente"
-                        />
-                      </div>
-                    </div>
-                  </q-item-section>
-                </q-item>
-                <q-item>
-                  <q-item-section>
-                    <div class="row q-col-gutter-x-md">
-                      <div class="col-6 col-md">
-                        <q-input
-                          dense
-                          outlined
-                          v-model="deposit.date"
-                          mask="date"
-                          label="Fecha Cita"
-                        >
-                          <template v-slot:append>
-                            <q-icon name="event" class="cursor-pointer">
-                              <q-popup-proxy
-                                ref="depositDateProxy"
-                                transition-show="scale"
-                                transition-hide="scale"
-                              >
-                                <q-date v-model="date" />
-                              </q-popup-proxy>
-                            </q-icon>
-                          </template>
-                        </q-input>
-                      </div>
-                      <div class="col-6 col-md">
-                        <q-input
-                          dense
-                          type="number"
-                          outlined
-                          v-model="deposit.amount"
-                          label="N° Identificacion"
-                        />
-                      </div>
-                    </div>
-                  </q-item-section>
-                </q-item>
-                <!-- <q-item>
-                  <q-item-section>
-                    <div class="row q-col-gutter-x-md"></div>
-                    <q-select
-                      dense
-                      label="Account"
-                      outlined
-                      v-model="deposit.account"
-                      :options="options"
-                      stack-label
-                      options-dense
-                    ></q-select>
-                  </q-item-section>
-                </q-item> -->
-                <div v-if="expandedT">
-                  <q-card-actions align="right" class="text-teal">
-                    <q-btn
-                      color="grey"
-                      round
-                      flat
-                      dense
-                      :icon="
-                        expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_up'
-                      "
-                      @click="expanded = !expanded"
-                    />
-                  </q-card-actions>
-                </div>
-                <q-slide-transition>
-                  <div v-show="expanded">
-                    <q-item>
-                      <q-item-section>
-                        <div class="row q-col-gutter-x-md">
-                          <div class="col-6 col-md">
-                            <q-input
-                              dense
-                              type="number"
-                              outlined
-                              v-model="deposit.amount"
-                              label="Copago"
-                            />
-                          </div>
-                          <div class="col-6 col-md">
-                            <q-input
-                              dense
-                              type="number"
-                              outlined
-                              v-model="deposit.phone"
-                              label="Phone"
-                            />
-                          </div>
-                        </div>
-                      </q-item-section>
-                    </q-item>
-                  </div>
-                </q-slide-transition>
-              </q-list>
-              <q-card-actions align="right" class="text-teal">
-                <q-btn
-                  label="Guardar"
-                  type="submit"
-                  color="primary"
-                  v-close-popup
-                />
-              </q-card-actions>
-            </q-form>
-          </q-card-section>
-        </q-card>
+          <q-card-section> -->
+  <q-form @submit="confirmChanges" ref="formAppointment">
+    <q-list>
+      <q-item>
+        <q-item-section>
+          <q-item-label class="q-pb-xs">Datos Paciente</q-item-label>
+          <div class="row q-col-gutter-x-md">
+            <div class="col-6 col-md">
+              <q-input
+                dense
+                outlined
+                v-model="currentPatient.name"
+                label="Nombre Paciente"
+              />
+            </div>
+            <div class="col-6 col-md">
+              <q-input
+                dense
+                outlined
+                v-model="currentPatient.lastName"
+                label="Apellido Paciente"
+              />
+            </div>
+          </div>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <div class="row q-col-gutter-x-md">
+            <div class="col-6 col-md">
+              <q-input
+                dense
+                outlined
+                v-model="currentAppointment.date"
+                mask="date"
+                label="Fecha Cita"
+                :rules="['date']"
+              >
+                <template v-slot:append>
+                  <q-icon name="event">
+                    <q-popup-proxy
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        today-btn
+                        v-model="date"
+                        navigation-min-year-month="2022/09"
+                      />
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+            </div>
+            <div class="col-6 col-md">
+              <q-input
+                dense
+                type="number"
+                outlined
+                v-model="identificationPatient"
+                @keydown.enter.prevent="searchPatient"
+                label="N° Identificacion"
+              >
+                <template v-slot:append>
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    icon="search"
+                    class="q-mr-xs"
+                    @click="searchPatient"
+                /></template>
+              </q-input>
+            </div>
+          </div>
+        </q-item-section>
+      </q-item>
+      <div v-if="hasArrowForExpanded">
+        <q-card-actions align="right" class="text-teal">
+          <q-btn
+            color="grey"
+            round
+            flat
+            dense
+            :icon="expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_up'"
+            @click="expanded = !expanded"
+          />
+        </q-card-actions>
       </div>
-      <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <q-slide-transition>
+        <div v-show="expanded">
+          <q-item>
+            <q-item-section>
+              <q-item-label class="q-pb-xs">Datos Consulta</q-item-label>
+              <div class="row q-col-gutter-x-md">
+                <div class="col-4 col-md">
+                  <q-input
+                    dense
+                    type="number"
+                    outlined
+                    v-model="deposit.amount"
+                    label="Copago"
+                  />
+                </div>
+                <div class="col-4 col-md">
+                  <q-input
+                    dense
+                    type="number"
+                    outlined
+                    v-model="deposit.phone"
+                    label="Valor Consulta"
+                  />
+                </div>
+                <div class="col-4 col-md">
+                  <q-input
+                    outlined
+                    disable
+                    dense
+                    hint="Total monto a pagar"
+                    v-model="number"
+                    type="number"
+                    prefix="$"
+                  >
+                  </q-input>
+                </div>
+              </div>
+              <div class="row q-col-gutter-x-md">
+                <div class="col-4 col-md">
+                  <q-input
+                    dense
+                    type="number"
+                    outlined
+                    v-model="deposit.amount"
+                    label="N° Autorización"
+                  />
+                </div>
+                <div class="col-4 col-md">
+                  <q-select
+                    dense
+                    label="Razon Consulta"
+                    outlined
+                    v-model="deposit.account"
+                    :options="options"
+                    stack-label
+                    options-dense
+                  ></q-select>
+                </div>
+                <div class="col-4 col-md">
+                  <q-select
+                    dense
+                    clearable
+                    outlined
+                    v-model="deposit.account"
+                    :options="options"
+                    option-value="id"
+                    option-label="description"
+                    map-options
+                    label="Codigo Principal"
+                    :hint="Codigo"
+                  ></q-select>
+                </div>
+              </div>
+            </q-item-section>
+          </q-item>
+        </div>
+      </q-slide-transition>
+    </q-list>
+    <q-card-actions align="right" class="text-teal">
+      <q-btn
+        label="Guardar"
+        type="submit"
+        color="primary"
+        @click="saveAppointment"
+      />
+    </q-card-actions>
+  </q-form>
+  <!-- </q-card-section>
+        </q-card> -->
+  <!-- </div> -->
+  <!-- <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
         <q-card class="my-card" bordered>
           <q-card-section>
             <div class="text-h6">Historial Citas Paciente</div>
@@ -213,15 +259,16 @@
             </q-table>
           </q-card-section>
         </q-card>
-      </div>
-    </div>
-  </q-page>
+      </div> -->
+  <!-- </div> -->
+  <!-- </q-page> -->
 </template>
-<script>
+<script lang="ts">
 import { ref, defineComponent } from 'vue';
 import { exportFile } from 'quasar';
 import Patients from 'src/components/Forms/PatientForm.vue';
 import { appointmentService } from 'src/services/AppointmentService';
+import { patientService } from 'src/services/PatientService';
 // function wrapCsvValue(val, formatFn) {
 //   let formatted = formatFn !== void 0 ? formatFn(val) : val;
 //   formatted =
@@ -232,14 +279,28 @@ import { appointmentService } from 'src/services/AppointmentService';
 export default defineComponent({
   components: {},
   setup() {
-    const { expandedT, expanded } = appointmentService();
-
-    // const expanded = ref(false);
-    const date = ref('2019/02/01');
-    return {
-      expandedT,
+    const {
+      hasArrowForExpanded,
       expanded,
-      date,
+      identificationPatient,
+      currentAppointment,
+      formAppointment,
+      searchPatient,
+      confirmChanges,
+    } = appointmentService();
+    const { currentPatient } = patientService();
+    // const expanded = ref(false);
+    // const date = ref('2019/02/01');
+    return {
+      formAppointment,
+      currentAppointment,
+      identificationPatient,
+      confirmChanges,
+      searchPatient,
+      hasArrowForExpanded,
+      expanded,
+      // date,
+      currentPatient,
       filter: '',
       mode: 'list',
       deposit: {},
@@ -292,57 +353,56 @@ export default defineComponent({
       ],
     };
   },
-  methods: {
-    exportDepositsTable() {
-      // naive encoding to csv format
-      const content = [this.columns.map((col) => wrapCsvValue(col.label))]
-        .concat(
-          this.data.map((row) =>
-            this.columns
-              .map((col) =>
-                wrapCsvValue(
-                  typeof col.field === 'function'
-                    ? col.field(row)
-                    : row[col.field === void 0 ? col.name : col.field],
-                  col.format
-                )
-              )
-              .join(',')
-          )
-        )
-        .join('\r\n');
-      const status = exportFile('deposits.csv', content, 'text/csv');
-      if (status !== true) {
-        this.$q.notify({
-          message: 'Browser denied file download...',
-          color: 'negative',
-          icon: 'warning',
-        });
-      }
-    },
-    showLoading() {
-      // this.$q.loading.show({
-      //   message: '<b>Demo loading screen, replace your message here<b>',
-      // });
-      // // hiding in 2s
-      // this.timer = setTimeout(() => {
-      //   this.$q.loading.hide();
-      //   this.timer = void 0;
-      // }, 3000);
-    },
-    beforeDestroy() {
-      if (this.timer !== void 0) {
-        clearTimeout(this.timer);
-        this.$q.loading.hide();
-      }
-    },
-  },
-  beforeMount() {
-    this.showLoading();
-  },
+  // methods: {
+  //   exportDepositsTable() {
+  //     // naive encoding to csv format
+  //     const content = [this.columns.map((col) => wrapCsvValue(col.label))]
+  //       .concat(
+  //         this.data.map((row) =>
+  //           this.columns
+  //             .map((col) =>
+  //               wrapCsvValue(
+  //                 typeof col.field === 'function'
+  //                   ? col.field(row)
+  //                   : row[col.field === void 0 ? col.name : col.field],
+  //                 col.format
+  //               )
+  //             )
+  //             .join(',')
+  //         )
+  //       )
+  //       .join('\r\n');
+  //     const status = exportFile('deposits.csv', content, 'text/csv');
+  //     if (status !== true) {
+  //       this.$q.notify({
+  //         message: 'Browser denied file download...',
+  //         color: 'negative',
+  //         icon: 'warning',
+  //       });
+  //     }
+  //   },
+  //   showLoading() {
+  //     // this.$q.loading.show({
+  //     //   message: '<b>Demo loading screen, replace your message here<b>',
+  //     // });
+  //     // // hiding in 2s
+  //     // this.timer = setTimeout(() => {
+  //     //   this.$q.loading.hide();
+  //     //   this.timer = void 0;
+  //     // }, 3000);
+  //   },
+  //   beforeDestroy() {
+  //     if (this.timer !== void 0) {
+  //       clearTimeout(this.timer);
+  //       this.$q.loading.hide();
+  //     }
+  //   },
+  // },
+  // beforeMount() {
+  //   this.showLoading();
+  // },
 });
 </script>
-
 <style lang="sass" scoped>
 .my-card
     box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2)

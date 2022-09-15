@@ -60,7 +60,7 @@ export interface IConsultRequest {
   patientStatus?: number;
   reasonConsult?: number;
   dxMainCode?: number;
-  patient?: number;
+  patient: number;
   doctor?: number;
 }
 export interface IConsultResponse {

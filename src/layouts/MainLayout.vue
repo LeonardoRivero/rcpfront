@@ -38,12 +38,12 @@ import { defineComponent, ref } from 'vue';
 import EssentialLink from 'components/EssentialLink.vue';
 
 const linksList = [
-  // {
-  //   title: 'Docs',
-  //   caption: 'quasar.dev',
-  //   icon: 'school',
-  //   link: 'https://quasar.dev',
-  // },
+  {
+    title: 'Inicio',
+    caption: 'Inicio R.C.P',
+    icon: 'home',
+    link: '/',
+  },
   {
     title: 'Citas',
     caption: 'Gestiona Citas Pacientes',

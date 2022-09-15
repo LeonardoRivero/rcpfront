@@ -42,6 +42,10 @@ export function patientService() {
       identificationPatient.value
     );
     if (response.status == HttpStatusCodes.NO_CONTENT) {
+      const now = new Date().toJSON().split('T');
+      store.currentPatient = {
+        dateBirth: now[0],
+      } as IPatientResponse;
       formPatient.value?.resetValidation();
       // const defaultIDType = {
       //   description: '',

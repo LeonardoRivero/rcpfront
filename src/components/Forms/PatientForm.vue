@@ -21,15 +21,14 @@
                   lazy-rules
                   :rules="[(val) => val > 0 || 'Numero invalido']"
                 >
-                  <template v-slot:append>
-                    <q-btn
+                  <template v-slot:append
+                    ><q-btn
                       flat
                       round
                       dense
                       icon="search"
                       class="q-mr-xs"
-                      @click="searchPatient"
-                    /> </template
+                      @click="searchPatient" /></template
                 ></q-input>
               </q-toolbar>
             </div>
@@ -38,7 +37,7 @@
                 <q-item>
                   <q-item-section>
                     <div class="row q-col-gutter-x-md">
-                      <div class="col-3 col-md">
+                      <div class="col-6 col-md">
                         <q-input
                           :readonly="disable"
                           outlined
@@ -52,7 +51,7 @@
                           ]"
                         />
                       </div>
-                      <div class="col-3 col-md">
+                      <div class="col-6 col-md">
                         <q-input
                           :readonly="disable"
                           outlined
@@ -68,7 +67,7 @@
                       </div>
                     </div>
                     <div class="row q-col-gutter-x-md">
-                      <div class="col-3 col-md">
+                      <div class="col-6 col-md">
                         <q-input
                           outlined
                           :readonly="disable"
@@ -80,7 +79,7 @@
                           :rules="[(val) => val > 0 || 'Numero invalido']"
                         />
                       </div>
-                      <div class="col-3 col-md">
+                      <div class="col-6 col-md">
                         <q-select
                           :readonly="disable"
                           dense
@@ -108,7 +107,7 @@
                       </div>
                     </div>
                     <div class="row q-col-gutter-x-md">
-                      <div class="col-3 col-md">
+                      <div class="col-6 col-md">
                         <q-input
                           :readonly="disable"
                           dense
@@ -124,7 +123,7 @@
                           ]"
                         />
                       </div>
-                      <div class="col-3 col-md">
+                      <div class="col-6 col-md">
                         <q-input
                           outlined
                           :readonly="disable"
@@ -141,7 +140,7 @@
                       </div>
                     </div>
                     <div class="row q-col-gutter-x-md">
-                      <div class="col-3 col-md">
+                      <div class="col-6 col-md">
                         <q-select
                           :readonly="disable"
                           dense
@@ -161,7 +160,7 @@
                         >
                         </q-select>
                       </div>
-                      <div class="col-3 col-md">
+                      <div class="col-6 col-md">
                         <q-select
                           :readonly="disable"
                           dense
@@ -183,7 +182,7 @@
                       </div>
                     </div>
                     <div class="row q-col-gutter-x-md">
-                      <div class="col-6 col-md">
+                      <div class="col-12 col-md">
                         <q-input
                           :readonly="disable"
                           label="Correo electronico"

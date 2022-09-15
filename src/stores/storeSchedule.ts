@@ -27,13 +27,13 @@ export const useStoreSchedule = defineStore('schedule', {
     // currentGender: {} as IGender | null,
   }),
   actions: {
-    async getLastConsult(): Promise<unknown> {
+    async getLastConsult(): Promise<IConsultResponse> {
       const urlBase = endpoint.getORcreateConsult;
-      const url = endpoint.urlQueryParameter(urlBase, 'last', 'g');
+      const url = endpoint.urlQueryParameter(urlBase, 'last', 'j');
       const response = await GET(url);
       console.log(response);
       this.lastConsult = (await response.parsedBody) as IConsultResponse;
-      return response;
+      return this.lastConsult;
     },
     // async retrieveAllGenders(): Promise<HttpResponse<unknown>> {
     //   const url = endpoint.getAllGender;

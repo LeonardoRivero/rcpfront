@@ -53,7 +53,11 @@ export class Messages {
   get notInfoFound(): string {
     return 'No se encontró información';
   }
+  get searchIncorrect(): string {
+    return 'Busqueda incorrecta o campos invalidos';
+  }
 }
 export const MININUM_AGE = 18;
 export const BASE_YEAR = 1970;
+export const FORMAT_DATE = 'YYYY/MM/DD';
 // export default { EndPoints, Messages };

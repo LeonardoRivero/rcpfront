@@ -1,4 +1,4 @@
-import { Notify } from 'quasar';
+import { Notify, Dialog } from 'quasar';
 
 export class Notification {
   private _message = '' as string;
@@ -29,5 +29,24 @@ export class Notification {
   showWarning(): void {
     this._type = 'warning';
     this.triggerNotification();
+  }
+}
+export class Modal {
+  public triggerModal(): void {
+    Dialog.create({
+      title: 'Alerta',
+      message: 'Paciente no creado.Desea crear el paciente ahora mismo',
+      cancel: true,
+      persistent: true,
+    })
+      .onOk((data) => {
+        console.log('OK', data);
+      })
+      .onCancel(() => {
+        console.log('Cancel');
+      })
+      .onDismiss(() => {
+        console.log('I am triggered on both OK and Cancel');
+      });
   }
 }

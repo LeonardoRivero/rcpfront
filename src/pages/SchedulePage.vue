@@ -7,13 +7,19 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import Schedule from 'src/components/ScheduleAppointment.vue';
 import ConsultForm from 'src/components/Forms/ConsultForm.vue';
+import { appointmentService } from 'src/services/AppointmentService';
 export default defineComponent({
   components: { Schedule, ConsultForm },
   setup() {
+    const { cardIsExpandible } = appointmentService();
     test: ref(false);
+    onMounted(async () => {
+      console.log('first');
+      await cardIsExpandible(true);
+    });
   },
 });
 </script>

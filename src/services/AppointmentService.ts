@@ -1,37 +1,130 @@
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { QForm } from 'quasar';
+import { QForm, date } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useStoreAppointment } from 'src/stores/storeAppointment';
+import { useStorePatients } from 'src/stores/storePatients';
+
 import { IConsultRequest, IConsultResponse } from 'src/interfaces/IConsults';
-// import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
+import { IPatientResponse } from 'src/interfaces/IPatients';
+import { FORMAT_DATE, Messages } from 'src/scripts/Constants';
+import { Notification } from 'src/scripts/Notifications';
+import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
 const store = useStoreAppointment();
+const storePatients = useStorePatients();
+const notification = new Notification();
+const message = new Messages();
 const router = useRouter();
+
 export function appointmentService() {
-  const { expandedT, expanded } = storeToRefs(store);
+  const { hasArrowForExpanded, expanded, currentAppointment } =
+    storeToRefs(store);
+  const { currentPatient } = storeToRefs(storePatients);
   // const dxMainCode = ref<IDXMainCodeResponse>();
   //const expanded = ref(false);
+
+  const timeStamp = Date.now();
+  const formattedDate = date.formatDate(timeStamp, FORMAT_DATE);
+  const setDate = currentAppointment.value;
+  setDate.date = formattedDate;
+  const formAppointment = ref<QForm | null>(null);
   // const formDXMainCode = ref<QForm | null>(null);
   // const error = ref(false);
+  const identificationPatient = ref<string>('');
+  async function searchPatient(): Promise<void> {
+    if (identificationPatient.value === '') {
+      notification.setMessage(message.searchIncorrect);
+      notification.showError();
+      return;
+    }
+    const response = await storePatients.getPatientByIdentification(
+      identificationPatient.value
+    );
 
+    const patient = (await response.parsedBody) as IPatientResponse;
+    currentAppointment.value.id = patient.id;
+    console.log(patient);
+
+    if (response.status == HttpStatusCodes.NO_CONTENT) {
+      notification.setMessage(message.notInfoFound);
+      notification.showWarning();
+      return;
+    }
+    const data = response.parsedBody as IPatientResponse;
+    console.log(data);
+  }
+  // verificar si es necesaria esta funcion o sino simplificar
   async function cardIsExpandible(isExpansible: boolean): Promise<void> {
-    //expanded.value = isExpansible;
-    // store.expanded = isExpansible;
     if (isExpansible == false) {
       store.settest(isExpansible);
       store.setother(true);
     }
+    if (isExpansible == true) {
+      store.settest(!isExpansible);
+      store.setother(false);
+    }
     console.log(isExpansible);
+  }
+  async function confirmChanges(): Promise<void> {
+    const isValid = await formAppointment.value?.validate();
+    console.log(isValid);
+    if (isValid == false) {
+      return;
+    }
+    const response = await storePatients.getPatientByIdentification(
+      identificationPatient.value
+    );
+    const patient = (await response.parsedBody) as IPatientResponse;
+    console.log(currentAppointment.value, currentPatient.value, patient);
+
+    if (!currentAppointment.value) return;
+
+    const data = currentAppointment.value;
+    console.log(data);
+
+    if (currentAppointment.value.id == undefined) {
+      // const payload = {
+      //   name: data.name,
+      //   lastName: data.lastName,
+      //   IDType: idType.value?.id,
+      //   identification: data.identification,
+      //   dateBirth: data.dateBirth,
+      //   phoneNumber: data.phoneNumber,
+      //   insurance: insurance.value?.id,
+      //   gender: gender.value?.id,
+      //   email: data.email,
+      // } as IConsultRequest;
+      console.log('first');
+      //Sstore.createPatient(payload);
+    }
+    if (currentAppointment.value.id != undefined) {
+      console.log('see');
+      // const payload = {
+      //   id: data.id,
+      //   name: data.name,
+      //   lastName: data.lastName,
+      //   IDType: idType.value?.id,
+      //   identification: data.identification,
+      //   dateBirth: data.dateBirth,
+      //   phoneNumber: data.phoneNumber,
+      //   insurance: insurance.value?.id,
+      //   gender: gender.value?.id,
+      //   email: data.email,
+      // } as IPatientRequest;
+      // store.updateRelationCode(payload);
+    }
   }
   return {
     // //! Properties
     // clearDxMainCode,
-    // formDXMainCode,
+    formAppointment,
     // dxMainCode,
     // allDxMainCodes,
     // currentDxMainCode,
-    expandedT,
+    currentAppointment,
+    identificationPatient,
+    hasArrowForExpanded,
     expanded,
     // error,
     // //! Computed
@@ -49,8 +142,9 @@ export function appointmentService() {
     // add,
     // edit,
     // dxMainCodeChanged,
-    // confirmChanges,
+    confirmChanges,
     // getAllDxMainCode,
     cardIsExpandible,
+    searchPatient,
   };
 }
