@@ -18,20 +18,20 @@ const message = new Messages();
 const router = useRouter();
 
 export function appointmentService() {
-  const { hasArrowForExpanded, expanded, currentAppointment } =
+  const { hasArrowForExpanded, expanded, currentAppointment, currentPatient } =
     storeToRefs(store);
-  const { currentPatient } = storeToRefs(storePatients);
+  //const { currentPatient } = storeToRefs(storePatients);
   // const dxMainCode = ref<IDXMainCodeResponse>();
   //const expanded = ref(false);
 
   const timeStamp = Date.now();
   const formattedDate = date.formatDate(timeStamp, FORMAT_DATE);
-  const setDate = currentAppointment.value;
-  setDate.date = formattedDate;
+  currentAppointment.value.date = formattedDate;
   const formAppointment = ref<QForm | null>(null);
   // const formDXMainCode = ref<QForm | null>(null);
   // const error = ref(false);
   const identificationPatient = ref<string>('');
+
   async function searchPatient(): Promise<void> {
     if (identificationPatient.value === '') {
       notification.setMessage(message.searchIncorrect);
@@ -41,17 +41,18 @@ export function appointmentService() {
     const response = await storePatients.getPatientByIdentification(
       identificationPatient.value
     );
-
+    if (response.status == HttpStatusCodes.NO_CONTENT) {
+      notification.setMessage(message.notInfoFound);
+      notification.showWarning();
+      store.currentPatient = {} as IPatientResponse;
+      return;
+    }
     const patient = (await response.parsedBody) as IPatientResponse;
     currentAppointment.value.id = patient.id;
     console.log(patient);
 
-    if (response.status == HttpStatusCodes.NO_CONTENT) {
-      notification.setMessage(message.notInfoFound);
-      notification.showWarning();
-      return;
-    }
     const data = response.parsedBody as IPatientResponse;
+    store.currentPatient = data;
     console.log(data);
   }
   // verificar si es necesaria esta funcion o sino simplificar
@@ -121,7 +122,7 @@ export function appointmentService() {
     formAppointment,
     // dxMainCode,
     // allDxMainCodes,
-    // currentDxMainCode,
+    currentPatient,
     currentAppointment,
     identificationPatient,
     hasArrowForExpanded,

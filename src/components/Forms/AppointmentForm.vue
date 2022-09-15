@@ -12,7 +12,61 @@
     <q-list>
       <q-item>
         <q-item-section>
-          <q-item-label class="q-pb-xs">Datos Paciente</q-item-label>
+          <q-item-label class="q-pb-xs"
+            >Datos Paciente
+            <small>
+              <cite title="Ayuda"
+                >(Antes de crear cita,verifique la informacion del
+                paciente)</cite
+              >
+            </small>
+          </q-item-label>
+          <div class="row q-col-gutter-x-md">
+            <div class="col-6 col-md">
+              <q-select
+                dense
+                clearable
+                outlined
+                v-model="speciality"
+                :options="allSpecialities"
+                option-value="id"
+                option-label="description"
+                map-options
+                label="Especialidad"
+                @update:model-value="(val) => specialityChanged(val)"
+                @clear="(val) => clearSpeciality(val)"
+              >
+              </q-select>
+            </div>
+            <div class="col-6 col-md">
+              <q-input
+                dense
+                type="number"
+                outlined
+                v-model="identificationPatient"
+                @keydown.enter.prevent="searchPatient"
+                label="N° Identificacion"
+              >
+                <template v-slot:append>
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    icon="search"
+                    class="q-mr-xs"
+                    @click="searchPatient"
+                  />
+                  <q-tooltip transition-show="scale" transition-hide="scale">
+                    Verificar Paciente
+                  </q-tooltip></template
+                >
+              </q-input>
+            </div>
+          </div>
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
           <div class="row q-col-gutter-x-md">
             <div class="col-6 col-md">
               <q-input
@@ -53,7 +107,7 @@
                     >
                       <q-date
                         today-btn
-                        v-model="date"
+                        v-model="currentAppointment.date"
                         navigation-min-year-month="2022/09"
                       />
                     </q-popup-proxy>
@@ -62,23 +116,27 @@
               </q-input>
             </div>
             <div class="col-6 col-md">
-              <q-input
-                dense
-                type="number"
-                outlined
-                v-model="identificationPatient"
-                @keydown.enter.prevent="searchPatient"
-                label="N° Identificacion"
-              >
+              <q-input outlined v-model="time" dense>
                 <template v-slot:append>
-                  <q-btn
-                    flat
-                    round
-                    dense
-                    icon="search"
-                    class="q-mr-xs"
-                    @click="searchPatient"
-                /></template>
+                  <q-icon name="access_time" class="cursor-pointer">
+                    <q-popup-proxy
+                      cover
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-time v-model="time" now-btn :format24h="false">
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Cerrar"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-time>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
               </q-input>
             </div>
           </div>
@@ -102,7 +160,7 @@
             <q-item-section>
               <q-item-label class="q-pb-xs">Datos Consulta</q-item-label>
               <div class="row q-col-gutter-x-md">
-                <div class="col-4 col-md">
+                <div class="col-12 col-md-4">
                   <q-input
                     dense
                     type="number"
@@ -111,7 +169,7 @@
                     label="Copago"
                   />
                 </div>
-                <div class="col-4 col-md">
+                <div class="col-12 col-md-4">
                   <q-input
                     dense
                     type="number"
@@ -120,7 +178,7 @@
                     label="Valor Consulta"
                   />
                 </div>
-                <div class="col-4 col-md">
+                <div class="col-12 col-md-4">
                   <q-input
                     outlined
                     disable
@@ -134,7 +192,7 @@
                 </div>
               </div>
               <div class="row q-col-gutter-x-md">
-                <div class="col-4 col-md">
+                <div class="col-12 col-md-4">
                   <q-input
                     dense
                     type="number"
@@ -143,7 +201,7 @@
                     label="N° Autorización"
                   />
                 </div>
-                <div class="col-4 col-md">
+                <div class="col-12 col-md-4">
                   <q-select
                     dense
                     label="Razon Consulta"
@@ -154,7 +212,7 @@
                     options-dense
                   ></q-select>
                 </div>
-                <div class="col-4 col-md">
+                <div class="col-12 col-md-4">
                   <q-select
                     dense
                     clearable
@@ -287,11 +345,14 @@ export default defineComponent({
       formAppointment,
       searchPatient,
       confirmChanges,
+      currentPatient,
     } = appointmentService();
-    const { currentPatient } = patientService();
+    const {} = patientService();
     // const expanded = ref(false);
     // const date = ref('2019/02/01');
+    const time = ref('04:44');
     return {
+      time,
       formAppointment,
       currentAppointment,
       identificationPatient,
@@ -307,12 +368,7 @@ export default defineComponent({
       pagination: {
         rowsPerPage: 10,
       },
-      options: [
-        'National Bank',
-        'Bank of Asia',
-        'Corporate Bank',
-        'Public Bank',
-      ],
+      options: ['Primera Vez', 'Control', 'Post-Quirurgico '],
       columns: [
         {
           name: 'description',

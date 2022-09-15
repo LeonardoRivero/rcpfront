@@ -4,7 +4,7 @@
       <div class="col-12 col-md">
         <!-- <ConsultForm /> -->
         <div class="row q-col-gutter-sm q-ma-xs q-mr-sm">
-          <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+          <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
             <q-card class="my-card" bordered>
               <q-card-section>
                 <div class="text-h6">Agregar/Actualizar Cita</div>

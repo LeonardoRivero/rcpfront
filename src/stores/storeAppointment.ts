@@ -21,10 +21,7 @@ const endpoint = new EndPoints();
 export const useStoreAppointment = defineStore('appointment', {
   state: () => ({
     currentAppointment: {} as IConsultRequest,
-    // allIDTypes: undefined as Array<IIDType> | undefined,
-    // currentIDType: {} as IIDType | null,
-    // allGenders: null as Array<IGender> | null,
-    // currentGender: {} as IGender | null,
+    currentPatient: {} as IPatientResponse,
     hasArrowForExpanded: false,
     expanded: false,
   }),
