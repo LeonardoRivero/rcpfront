@@ -134,7 +134,7 @@ export function patientService() {
         email: data.email,
       } as IPatientRequest;
       console.log('first');
-      //Sstore.createPatient(payload);
+      store.createPatient(payload);
     }
     if (currentPatient.value.id != undefined) {
       console.log('see');
@@ -150,7 +150,7 @@ export function patientService() {
         gender: gender.value?.id,
         email: data.email,
       } as IPatientRequest;
-      // store.updateRelationCode(payload);
+      //store.updateRelationCode(payload);
     }
   }
   async function getAllIDTypes() {

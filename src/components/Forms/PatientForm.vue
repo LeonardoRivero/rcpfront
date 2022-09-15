@@ -134,7 +134,8 @@
                           hint="Fecha Nacimiento *"
                           :rules="[
                             (val) =>
-                              (val && val.length > 0) || 'Fecha es requerida',
+                              (val && val.length > 0) ||
+                              'Fecha Nacimiento es requerida',
                           ]"
                         />
                       </div>
