@@ -25,6 +25,8 @@ const message = new Messages();
 export function patientService() {
   const {
     allIDTypes,
+    allReasonConsult,
+    allPatientStatus,
     currentIDType,
     currentGender,
     allGenders,
@@ -172,6 +174,26 @@ export function patientService() {
       }
     }
   }
+  async function getAllReasonConsult() {
+    console.log('second');
+    let response = {} as HttpResponse<unknown>;
+    if (store.allReasonConsult.length == 0) {
+      response = await store.retrieveAllReasonConsult();
+    }
+    if (response.status == HttpStatusCodes.NOT_FOUND) {
+      router.push('/:catchAll');
+    }
+  }
+  async function getAllPatientStatus() {
+    console.log('first');
+    let response = {} as HttpResponse<unknown>;
+    if (store.allPatientStatus.length == 0) {
+      response = await store.retrieveAllPatientStatus();
+    }
+    if (response.status == HttpStatusCodes.NOT_FOUND) {
+      router.push('/:catchAll');
+    }
+  }
   function isValidEmail(val: string) {
     const emailPattern =
       /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
@@ -193,6 +215,8 @@ export function patientService() {
     insurance,
     identificationPatient,
     disable,
+    allReasonConsult,
+    allPatientStatus,
     // expanded,
     error,
     //! Computed
@@ -207,6 +231,8 @@ export function patientService() {
     isValidEmail,
     getAllIDTypes,
     getAllGenders,
+    getAllReasonConsult,
+    getAllPatientStatus,
     enableEdition,
   };
 }

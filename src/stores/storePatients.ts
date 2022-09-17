@@ -14,6 +14,7 @@ import {
 } from 'src/interfaces/IPatients';
 import { EndPoints } from 'src/scripts/Constants';
 import HttpStatusCode from 'src/scripts/HttpStatusCodes';
+import { IPatientStatus, IReasonConsult } from 'src/interfaces/IConsults';
 
 const endpoint = new EndPoints();
 
@@ -24,6 +25,8 @@ export const useStorePatients = defineStore('patients', {
     currentIDType: {} as IIDType | null,
     allGenders: null as Array<IGender> | null,
     currentGender: {} as IGender | null,
+    allPatientStatus: [] as Array<IPatientStatus>,
+    allReasonConsult: [] as Array<IReasonConsult>,
   }),
   actions: {
     async retrieveAllIDTypes(): Promise<HttpResponse<unknown>> {
@@ -60,7 +63,22 @@ export const useStorePatients = defineStore('patients', {
       const response = await GET(url);
       console.log(response);
       //this.currentPatient = (await response.parsedBody) as IPatientResponse;
-
+      return response;
+    },
+    async retrieveAllPatientStatus(): Promise<HttpResponse<unknown>> {
+      const url = endpoint.getORcreatePatientStatus;
+      const response = await GET(url);
+      console.log(response);
+      this.allPatientStatus = response.parsedBody as Array<IPatientStatus>;
+      handleResponse(response);
+      return response;
+    },
+    async retrieveAllReasonConsult(): Promise<HttpResponse<unknown>> {
+      const url = endpoint.getORcreateReasonConsult;
+      const response = await GET(url);
+      this.allReasonConsult = response.parsedBody as Array<IReasonConsult>;
+      console.log(response);
+      handleResponse(response);
       return response;
     },
   },

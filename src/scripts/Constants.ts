@@ -24,6 +24,12 @@ export class EndPoints {
   get getORcreateConsult() {
     return `${this.domine}/api/consult/all/`;
   }
+  get getORcreatePatientStatus() {
+    return `${this.domine}/api/patientstatus/all/`;
+  }
+  get getORcreateReasonConsult() {
+    return `${this.domine}/api/reasonconsult/all/`;
+  }
   updateInsurance(id: number): string {
     return `${this.domine}/api/insurance/${id}/`;
   }
@@ -42,7 +48,7 @@ export class EndPoints {
 }
 export class Messages {
   get successMessage(): string {
-    return 'Datos Guardados Correctamente';
+    return 'Datos Guardados Exitosamente';
   }
   get errorMessage(): string {
     return 'Ocurrio un error. Intentelo de nuevo';
@@ -60,4 +66,5 @@ export class Messages {
 export const MININUM_AGE = 18;
 export const BASE_YEAR = 1970;
 export const FORMAT_DATE = 'YYYY/MM/DD';
+export const FORMAT_HOUR = 'HH:mm';
 // export default { EndPoints, Messages };

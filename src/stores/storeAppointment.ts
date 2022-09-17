@@ -32,5 +32,14 @@ export const useStoreAppointment = defineStore('appointment', {
     setother(isbool: boolean): void {
       this.expanded = isbool;
     },
+    async createAppointment(
+      data: IConsultRequest
+    ): Promise<HttpResponse<unknown>> {
+      const url = endpoint.getORcreateConsult;
+      const response = await POST(url, data);
+      console.log(response);
+      handleResponse(response);
+      return response;
+    },
   },
 });

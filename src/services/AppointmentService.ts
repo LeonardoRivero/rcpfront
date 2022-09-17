@@ -4,10 +4,14 @@ import { QForm, date } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useStoreAppointment } from 'src/stores/storeAppointment';
 import { useStorePatients } from 'src/stores/storePatients';
-
-import { IConsultRequest, IConsultResponse } from 'src/interfaces/IConsults';
+import {
+  IConsultRequest,
+  IConsultResponse,
+  IDXMainCodeResponse,
+  IReasonConsult,
+} from 'src/interfaces/IConsults';
 import { IPatientResponse } from 'src/interfaces/IPatients';
-import { FORMAT_DATE, Messages } from 'src/scripts/Constants';
+import { FORMAT_DATE, FORMAT_HOUR, Messages } from 'src/scripts/Constants';
 import { Notification } from 'src/scripts/Notifications';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
@@ -20,18 +24,26 @@ const router = useRouter();
 export function appointmentService() {
   const { hasArrowForExpanded, expanded, currentAppointment, currentPatient } =
     storeToRefs(store);
-  //const { currentPatient } = storeToRefs(storePatients);
-  // const dxMainCode = ref<IDXMainCodeResponse>();
-  //const expanded = ref(false);
-
   const timeStamp = Date.now();
-  const formattedDate = date.formatDate(timeStamp, FORMAT_DATE);
-  currentAppointment.value.date = formattedDate;
+  const formattedDate = ref(date.formatDate(timeStamp, 'YYYY-MM-DD HH:mm'));
+  const formattedTime = ref(date.formatDate(timeStamp, 'YYYY-MM-DD HH:mm'));
+  currentAppointment.value.date = formattedDate.value;
   const formAppointment = ref<QForm | null>(null);
-  // const formDXMainCode = ref<QForm | null>(null);
-  // const error = ref(false);
   const identificationPatient = ref<string>('');
+  const dxMainCode = ref<IDXMainCodeResponse>();
+  const reasonConsult = ref<IReasonConsult>();
 
+  function calculateAmountPaid(val: IConsultRequest) {
+    if (currentAppointment.value.price == undefined) {
+      currentAppointment.value.price = 0;
+    }
+    if (currentAppointment.value.copayment == undefined) {
+      currentAppointment.value.copayment = 0;
+    }
+
+    currentAppointment.value.amountPaid =
+      +currentAppointment.value.price + +currentAppointment.value.copayment;
+  }
   async function searchPatient(): Promise<void> {
     if (identificationPatient.value === '') {
       notification.setMessage(message.searchIncorrect);
@@ -47,11 +59,11 @@ export function appointmentService() {
       store.currentPatient = {} as IPatientResponse;
       return;
     }
-    const patient = (await response.parsedBody) as IPatientResponse;
-    currentAppointment.value.id = patient.id;
-    console.log(patient);
+    // const patient = (await response.parsedBody) as IPatientResponse;
+    // currentAppointment.value.id = patient.id;
+    // console.log(patient);
 
-    const data = response.parsedBody as IPatientResponse;
+    const data = (await response.parsedBody) as IPatientResponse;
     store.currentPatient = data;
     console.log(data);
   }
@@ -69,36 +81,36 @@ export function appointmentService() {
   }
   async function confirmChanges(): Promise<void> {
     const isValid = await formAppointment.value?.validate();
-    console.log(isValid);
     if (isValid == false) {
       return;
     }
-    const response = await storePatients.getPatientByIdentification(
+    const responsePatient = await storePatients.getPatientByIdentification(
       identificationPatient.value
     );
-    const patient = (await response.parsedBody) as IPatientResponse;
+    const patient = (await responsePatient.parsedBody) as IPatientResponse;
     console.log(currentAppointment.value, currentPatient.value, patient);
 
     if (!currentAppointment.value) return;
 
     const data = currentAppointment.value;
     console.log(data);
-
     if (currentAppointment.value.id == undefined) {
-      // const payload = {
-      //   name: data.name,
-      //   lastName: data.lastName,
-      //   IDType: idType.value?.id,
-      //   identification: data.identification,
-      //   dateBirth: data.dateBirth,
-      //   phoneNumber: data.phoneNumber,
-      //   insurance: insurance.value?.id,
-      //   gender: gender.value?.id,
-      //   email: data.email,
-      // } as IConsultRequest;
-      console.log('first');
-      //Sstore.createPatient(payload);
+      const payload = {
+        copayment: currentAppointment.value.copayment,
+        amountPaid: currentAppointment.value.amountPaid,
+        date: currentAppointment.value.date,
+        authorizationNumber: currentAppointment.value.authorizationNumber,
+        patientStatus: 1,
+        reasonConsult: reasonConsult.value?.id,
+        dxMainCode: dxMainCode.value?.id,
+        patient: currentPatient.value.id,
+        doctor: 1,
+      } as IConsultRequest;
+      console.log('first', payload);
+      const response = await store.createAppointment(payload);
+      console.log('first', response);
     }
+
     if (currentAppointment.value.id != undefined) {
       console.log('see');
       // const payload = {
@@ -120,8 +132,9 @@ export function appointmentService() {
     // //! Properties
     // clearDxMainCode,
     formAppointment,
-    // dxMainCode,
-    // allDxMainCodes,
+    formattedTime,
+    dxMainCode,
+    reasonConsult,
     currentPatient,
     currentAppointment,
     identificationPatient,
@@ -144,7 +157,7 @@ export function appointmentService() {
     // edit,
     // dxMainCodeChanged,
     confirmChanges,
-    // getAllDxMainCode,
+    calculateAmountPaid,
     cardIsExpandible,
     searchPatient,
   };

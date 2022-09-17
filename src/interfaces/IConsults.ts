@@ -56,7 +56,7 @@ export interface IConsultRequest {
   copayment?: number;
   amountPaid?: number;
   date: string;
-  authorizationNumber?: number;
+  authorizationNumber?: string;
   patientStatus?: number;
   reasonConsult?: number;
   dxMainCode?: number;

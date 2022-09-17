@@ -16,27 +16,60 @@
             >Datos Paciente
             <small>
               <cite title="Ayuda"
-                >(Antes de crear cita,verifique la informacion del
+                >(Antes de crear la cita,verifique la informacion del
                 paciente)</cite
               >
             </small>
           </q-item-label>
           <div class="row q-col-gutter-x-md">
             <div class="col-6 col-md">
-              <q-select
+              <q-input
                 dense
-                clearable
                 outlined
-                v-model="speciality"
-                :options="allSpecialities"
-                option-value="id"
-                option-label="description"
-                map-options
-                label="Especialidad"
-                @update:model-value="(val) => specialityChanged(val)"
-                @clear="(val) => clearSpeciality(val)"
+                v-model="currentAppointment.date"
+                label="Fecha Cita"
               >
-              </q-select>
+                <template v-slot:prepend>
+                  <q-icon name="event">
+                    <q-popup-proxy
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        today-btn
+                        v-model="currentAppointment.date"
+                        navigation-min-year-month="2022/09"
+                        mask="YYYY-MM-DD HH:mm"
+                      />
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+                <template v-slot:append>
+                  <q-icon name="access_time">
+                    <q-popup-proxy
+                      cover
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-time
+                        v-model="currentAppointment.date"
+                        mask="YYYY-MM-DD HH:mm"
+                        now-btn
+                        :format24h="false"
+                      >
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Cerrar"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-time>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
             </div>
             <div class="col-6 col-md">
               <q-input
@@ -46,6 +79,8 @@
                 v-model="identificationPatient"
                 @keydown.enter.prevent="searchPatient"
                 label="N° Identificacion"
+                lazy-rules
+                :rules="[(val) => val > 0 || 'Numero invalido']"
               >
                 <template v-slot:append>
                   <q-btn
@@ -90,33 +125,9 @@
       <q-item>
         <q-item-section>
           <div class="row q-col-gutter-x-md">
+            <div class="col-6 col-md"></div>
             <div class="col-6 col-md">
-              <q-input
-                dense
-                outlined
-                v-model="currentAppointment.date"
-                mask="date"
-                label="Fecha Cita"
-                :rules="['date']"
-              >
-                <template v-slot:append>
-                  <q-icon name="event">
-                    <q-popup-proxy
-                      transition-show="scale"
-                      transition-hide="scale"
-                    >
-                      <q-date
-                        today-btn
-                        v-model="currentAppointment.date"
-                        navigation-min-year-month="2022/09"
-                      />
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
-              </q-input>
-            </div>
-            <div class="col-6 col-md">
-              <q-input outlined v-model="time" dense>
+              <!-- <q-input outlined v-model="formattedTime" dense>
                 <template v-slot:append>
                   <q-icon name="access_time" class="cursor-pointer">
                     <q-popup-proxy
@@ -137,7 +148,7 @@
                     </q-popup-proxy>
                   </q-icon>
                 </template>
-              </q-input>
+              </q-input> -->
             </div>
           </div>
         </q-item-section>
@@ -161,34 +172,42 @@
               <q-item-label class="q-pb-xs">Datos Consulta</q-item-label>
               <div class="row q-col-gutter-x-md">
                 <div class="col-12 col-md-4">
-                  <q-input
+                  <q-select
                     dense
-                    type="number"
+                    clearable
                     outlined
-                    v-model="deposit.amount"
-                    label="Copago"
-                  />
-                </div>
-                <div class="col-12 col-md-4">
-                  <q-input
-                    dense
-                    type="number"
-                    outlined
-                    v-model="deposit.phone"
-                    label="Valor Consulta"
-                  />
-                </div>
-                <div class="col-12 col-md-4">
-                  <q-input
-                    outlined
-                    disable
-                    dense
-                    hint="Total monto a pagar"
-                    v-model="number"
-                    type="number"
-                    prefix="$"
+                    v-model="speciality"
+                    :options="allSpecialities"
+                    option-value="id"
+                    option-label="description"
+                    map-options
+                    label="Especialidad"
+                    @update:model-value="(val) => specialityChanged(val)"
+                    @clear="(val) => clearSpeciality(val)"
+                    :rules="[
+                      (val) =>
+                        (val && val != null) || 'Especialidad es requerida',
+                    ]"
                   >
-                  </q-input>
+                  </q-select>
+                </div>
+                <div class="col-12 col-md-8">
+                  <q-select
+                    dense
+                    clearable
+                    outlined
+                    v-model="dxMainCode"
+                    :options="dxMainCodeofSpeciality"
+                    option-value="id"
+                    option-label="description"
+                    map-options
+                    label="Codigo Principal"
+                    :hint="Codigo"
+                    :rules="[
+                      (val) =>
+                        (val && val != null) || 'Codigo Principal es requerido',
+                    ]"
+                  ></q-select>
                 </div>
               </div>
               <div class="row q-col-gutter-x-md">
@@ -197,8 +216,10 @@
                     dense
                     type="number"
                     outlined
-                    v-model="deposit.amount"
+                    v-model="currentAppointment.authorizationNumber"
                     label="N° Autorización"
+                    lazy-rules
+                    :rules="[(val) => val > 0 || 'Autorizacion invalida']"
                   />
                 </div>
                 <div class="col-12 col-md-4">
@@ -206,10 +227,16 @@
                     dense
                     label="Razon Consulta"
                     outlined
-                    v-model="deposit.account"
-                    :options="options"
+                    v-model="reasonConsult"
+                    :options="allReasonConsult"
+                    option-value="id"
+                    option-label="abbreviation"
+                    map-options
                     stack-label
-                    options-dense
+                    :rules="[
+                      (val) =>
+                        (val && val != null) || 'Razon consulta es requerida',
+                    ]"
                   ></q-select>
                 </div>
                 <div class="col-12 col-md-4">
@@ -217,14 +244,58 @@
                     dense
                     clearable
                     outlined
-                    v-model="deposit.account"
-                    :options="options"
+                    v-model="currentAppointment.patientStatus"
+                    :options="allPatientStatus"
                     option-value="id"
                     option-label="description"
                     map-options
-                    label="Codigo Principal"
-                    :hint="Codigo"
+                    stack-label
+                    label="Estado Paciente"
+                    :rules="[
+                      (val) =>
+                        (val && val != null) || 'Estado Paciente es requerido',
+                    ]"
                   ></q-select>
+                </div>
+              </div>
+              <div class="row q-col-gutter-x-md">
+                <div class="col-12 col-md-4">
+                  <q-input
+                    prefix="$"
+                    dense
+                    type="number"
+                    outlined
+                    v-model="currentAppointment.copayment"
+                    label="Copago"
+                    @update:model-value="(val) => calculateAmountPaid(val)"
+                    lazy-rules
+                    :rules="[(val) => val >= 0 || 'Valor copago invalido']"
+                  />
+                </div>
+                <div class="col-12 col-md-4">
+                  <q-input
+                    prefix="$"
+                    dense
+                    type="number"
+                    outlined
+                    v-model="currentAppointment.price"
+                    label="Valor Consulta"
+                    @update:model-value="(val) => calculateAmountPaid(val)"
+                    lazy-rules
+                    :rules="[(val) => val >= 0 || 'Valor consulta invalido']"
+                  />
+                </div>
+                <div class="col-12 col-md-4">
+                  <q-input
+                    outlined
+                    disable
+                    dense
+                    hint="Total monto a pagar"
+                    v-model="currentAppointment.amountPaid"
+                    type="number"
+                    prefix="$"
+                  >
+                  </q-input>
                 </div>
               </div>
             </q-item-section>
@@ -322,11 +393,14 @@
   <!-- </q-page> -->
 </template>
 <script lang="ts">
-import { ref, defineComponent } from 'vue';
+import { ref, defineComponent, onMounted } from 'vue';
 import { exportFile } from 'quasar';
 import Patients from 'src/components/Forms/PatientForm.vue';
 import { appointmentService } from 'src/services/AppointmentService';
 import { patientService } from 'src/services/PatientService';
+import { specialityService } from 'src/services/SpecialityService';
+import { dxMainCodeService } from 'src/services/DxMainCodeService';
+import { IDXMainCodeResponse } from 'src/interfaces/IConsults';
 // function wrapCsvValue(val, formatFn) {
 //   let formatted = formatFn !== void 0 ? formatFn(val) : val;
 //   formatted =
@@ -336,6 +410,7 @@ import { patientService } from 'src/services/PatientService';
 // }
 export default defineComponent({
   components: {},
+
   setup() {
     const {
       hasArrowForExpanded,
@@ -343,25 +418,56 @@ export default defineComponent({
       identificationPatient,
       currentAppointment,
       formAppointment,
+      currentPatient,
+      formattedTime,
+      dxMainCode,
+      reasonConsult,
       searchPatient,
       confirmChanges,
-      currentPatient,
+      calculateAmountPaid,
     } = appointmentService();
-    const {} = patientService();
-    // const expanded = ref(false);
-    // const date = ref('2019/02/01');
-    const time = ref('04:44');
+    const {
+      allSpecialities,
+      speciality,
+      getAllSpecialities,
+      specialityChanged,
+      clearSpeciality,
+    } = specialityService();
+    const { dxMainCodeofSpeciality, getAllDxMainCode } = dxMainCodeService();
+    const {
+      getAllReasonConsult,
+      getAllPatientStatus,
+      allReasonConsult,
+      allPatientStatus,
+    } = patientService();
+
+    onMounted(async () => {
+      getAllSpecialities();
+      getAllDxMainCode();
+      getAllReasonConsult();
+      getAllPatientStatus();
+    });
     return {
-      time,
+      reasonConsult,
+      allReasonConsult,
+      allPatientStatus,
+      dxMainCode,
+      formattedTime,
       formAppointment,
       currentAppointment,
       identificationPatient,
       confirmChanges,
+      calculateAmountPaid,
       searchPatient,
       hasArrowForExpanded,
       expanded,
       // date,
+      allSpecialities,
+      speciality,
+      clearSpeciality,
+      specialityChanged,
       currentPatient,
+      dxMainCodeofSpeciality,
       filter: '',
       mode: 'list',
       deposit: {},
