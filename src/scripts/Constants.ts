@@ -42,8 +42,13 @@ export class EndPoints {
   updateRelationCode(id: number): string {
     return `${this.domine}/api/relationcode/${id}/`;
   }
-  urlQueryParameter(urlBase: string, parameter: string, value: string): string {
-    return `${urlBase}?${parameter}=${value}`;
+  urlQueryParameter(urlBase: string, parameters: object): string {
+    urlBase = urlBase.concat('?');
+    for (const [key, value] of Object.entries(parameters)) {
+      urlBase = urlBase.concat(key, '=', value, '&');
+    }
+    const fullUrl = urlBase.slice(0, -1);
+    return fullUrl;
   }
 }
 export class Messages {
