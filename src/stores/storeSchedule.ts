@@ -29,7 +29,7 @@ export const useStoreSchedule = defineStore('schedule', {
   actions: {
     async getLastConsult(): Promise<IConsultResponse> {
       const urlBase = endpoint.getORcreateConsult;
-      const url = endpoint.urlQueryParameter(urlBase, 'last', 'j');
+      const url = endpoint.urlQueryParameter(urlBase, { last: 'null' });
       const response = await GET(url);
       console.log(response);
       this.lastConsult = (await response.parsedBody) as IConsultResponse;

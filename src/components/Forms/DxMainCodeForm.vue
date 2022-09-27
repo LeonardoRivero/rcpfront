@@ -3,6 +3,7 @@
     <q-card class="my-card" bordered>
       <q-card-section>
         <div class="text-h5 q-mt-sm q-mb-xs">Codigos CUPS</div>
+        {{ currentDxMainCode }}
         <div class="text-caption text-grey">
           CUPS existentes:
           {{
@@ -13,7 +14,7 @@
           dense
           clearable
           outlined
-          v-model="dxMainCode"
+          v-model="currentDxMainCode.description"
           :options="dxMainCodeofSpeciality"
           option-value="id"
           option-label="description"
@@ -34,7 +35,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="dxMainCode != null"
+          v-if="currentDxMainCode.id != null"
           flat
           round
           color="green"
@@ -98,6 +99,7 @@
         </div>
       </q-slide-transition>
     </q-card>
+    <ModalCommon />
   </div>
 </template>
 
@@ -105,8 +107,10 @@
 import { defineComponent, onMounted } from 'vue';
 import { dxMainCodeService } from 'src/services/DxMainCodeService';
 import { specialityService } from 'src/services/SpecialityService';
+import ModalCommon from 'src/components/commons/ModalCommon.vue';
 export default defineComponent({
   name: 'DxMainCodeForm',
+  components: { ModalCommon },
   setup() {
     // const store = useCounterStore();
     // const router = useRouter();
@@ -123,6 +127,7 @@ export default defineComponent({
       add,
       confirmChanges,
       getAllDxMainCode,
+      testDxMainCode,
     } = dxMainCodeService();
     const { currentSpeciality } = specialityService();
     // onMounted(async () => {
@@ -137,6 +142,7 @@ export default defineComponent({
       getAllDxMainCode();
     });
     return {
+      testDxMainCode,
       dxMainCode,
       clearDxMainCode,
       dxMainCodeChanged,

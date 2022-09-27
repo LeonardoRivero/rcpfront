@@ -13,3 +13,11 @@ export interface EventSchedule {
   start: string;
   end: string;
 }
+export interface IColumnsDataTable {
+  name: string;
+  required?: boolean;
+  label: string;
+  align?: string;
+  field: string;
+  sortable: boolean;
+}

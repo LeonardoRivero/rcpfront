@@ -14,9 +14,13 @@ import {
   IRelationCodeResponse,
 } from 'src/interfaces/IConsults';
 import { IHealthInsurance } from 'src/interfaces/IPatients';
-import { EndPoints } from 'src/scripts/Constants';
+import { EndPoints, Messages } from 'src/scripts/Constants';
+import { IColumnsDataTable } from 'src/interfaces/ICommons';
+import { serviceDataTable } from 'src/services/DataTableService';
 
 const endpoint = new EndPoints();
+const messages = new Messages();
+const { setData, setTitle, otrafunciontest } = serviceDataTable();
 
 export const useStoreSettings = defineStore('settings', {
   state: () => ({
@@ -25,13 +29,24 @@ export const useStoreSettings = defineStore('settings', {
     allDxMainCodes: null as Array<IDXMainCodeResponse> | null,
     currentDxMainCode: {} as IDXMainCodeResponse | null,
     // listDxMainCodesBySpeciality: null as Array<IDXMainCodeResponse> | null,
-    allRelationCodes: undefined as Array<IRelationCodeResponse> | undefined,
+    allRelationCodes: null as Array<IRelationCodeResponse> | null,
     currentRelationCode: {} as IRelationCodeResponse | null,
     allInsurance: undefined as Array<IHealthInsurance> | undefined,
     currentInsurance: {} as IHealthInsurance,
     // specialityForm: {} as Forms | undefined,
   }),
-  getters: {},
+  getters: {
+    testDxMainCode(state) {
+      // if (state.allDxMainCodes === null) {
+      //   console.log('entro');
+      //   return {} as Array<IDXMainCodeResponse>;
+      // }
+      // const result = state.allDxMainCodes.filter(
+      //   (dxMainCode) => dxMainCode.speciality.id == state.currentSpeciality?.id
+      // );
+      // return result;
+    },
+  },
   actions: {
     async createSpeciality(data: ISpeciality): Promise<HttpResponse<unknown>> {
       const url = endpoint.getORcreateSpeciality;
@@ -97,6 +112,17 @@ export const useStoreSettings = defineStore('settings', {
       handleResponse(response);
       return response;
     },
+    async retrieveAllDxMainCodeBySpecialityId(
+      specialityId: number
+    ): Promise<HttpResponse<unknown>> {
+      const urlBase = endpoint.getORcreateDxMainCode;
+      const queryParameters = { speciality: specialityId };
+      const url = endpoint.urlQueryParameter(urlBase, queryParameters);
+      const response = await GET(url);
+      this.allDxMainCodes = response.parsedBody as Array<IDXMainCodeResponse>;
+      //handleResponse(response);
+      return response;
+    },
     async updateDxMainCode(
       data: IDXMainCodeRequest
     ): Promise<HttpResponse<unknown> | null> {
@@ -105,7 +131,7 @@ export const useStoreSettings = defineStore('settings', {
       }
       const url = endpoint.updateDxMainCode(data.id);
       const response = await PUT(url, data);
-      handleResponse(response);
+      handleResponse(response, messages.updateSuccesfully);
       return response;
     },
     async createRelationCode(
@@ -122,6 +148,42 @@ export const useStoreSettings = defineStore('settings', {
       this.allRelationCodes =
         response.parsedBody as Array<IRelationCodeResponse>;
       handleResponse(response);
+      const columnsr = [
+        {
+          name: 'id',
+          required: true,
+          label: 'Id',
+          align: 'left',
+          field: 'id',
+          sortable: true,
+        },
+        {
+          name: 'descripcionDX',
+          required: true,
+          align: 'center',
+          label: 'Nombre Especialidad',
+          field: 'descripcionDX',
+          sortable: true,
+        },
+        {
+          name: 'speciality',
+          required: true,
+          align: 'center',
+          label: 'Nombre Especialidad',
+          field: 'speciality',
+          sortable: true,
+        },
+      ] as Array<IColumnsDataTable>;
+      const r = this.allRelationCodes.map((row) => {
+        return {
+          id: row.id,
+          descripcionDX: row.dxmaincode.description,
+          speciality: row.dxmaincode.speciality.description,
+        };
+      });
+      console.log(r);
+      setTitle('Example Full');
+      setData(columnsr, r);
       return response;
     },
     async updateRelationCode(
@@ -133,6 +195,18 @@ export const useStoreSettings = defineStore('settings', {
       const url = endpoint.updateRelationCode(data.id);
       const response = await PUT(url, data);
       handleResponse(response);
+      return response;
+    },
+    async retrieveAllRelationCodeByDxMainId(
+      dxMainCodeId: number
+    ): Promise<HttpResponse<unknown>> {
+      const urlBase = endpoint.getORcreateRelationCode;
+      const queryParameters = { dxMainCodeId: dxMainCodeId };
+      const url = endpoint.urlQueryParameter(urlBase, queryParameters);
+      const response = await GET(url);
+      this.allRelationCodes =
+        response.parsedBody as Array<IRelationCodeResponse>;
+      //handleResponse(response);
       return response;
     },
   },

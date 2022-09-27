@@ -48,17 +48,11 @@ export const useStorePatients = defineStore('patients', {
       return response;
     },
     async getPatientByIdentification(
-      identification: string
+      idPatient: string
     ): Promise<HttpResponse<unknown>> {
       const urlBase = endpoint.getORcreatePatient;
-      // const arrayQueriesParameters: IQueryParameters = [
-      //   { parameter: 'identification',value:identification },
-      // ];
-      const url = endpoint.urlQueryParameter(
-        urlBase,
-        'identification',
-        identification
-      );
+      const queriesParameters = { identification: idPatient };
+      const url = endpoint.urlQueryParameter(urlBase, queriesParameters);
       console.log(url);
       const response = await GET(url);
       console.log(response);

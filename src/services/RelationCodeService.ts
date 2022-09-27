@@ -8,6 +8,7 @@ import {
   IRelationCodeResponse,
 } from 'src/interfaces/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
+import { HttpResponse } from 'src/scripts/Request';
 
 export function relationCodeService() {
   const router = useRouter();
@@ -24,11 +25,22 @@ export function relationCodeService() {
   const error = ref(false);
 
   function clearRelationCode(val: IRelationCodeRequest) {
+    console.log(val);
     relationCode.value = undefined;
     currentRelationCode.value = {} as IRelationCodeResponse;
   }
-  function relationCodeChanged(val: IRelationCodeResponse): void {
+  async function relationCodeChanged(
+    val: IRelationCodeResponse
+  ): Promise<void> {
     store.currentRelationCode = val;
+    // if (val.id === undefined) {
+    //   return;
+    // }
+    // const dxMainCodeId = val.id;
+    // const response = await store.retrieveAllRelationCodeByDxMainId(
+    //   dxMainCodeId
+    // );
+    // console.log(response);
   }
   function add(): void {
     expanded.value = !expanded.value;
@@ -45,39 +57,66 @@ export function relationCodeService() {
     if (isValid == false) {
       return;
     }
-    if (!currentRelationCode.value) return;
-    if (currentSpeciality.value?.id == null) {
+    if (!currentRelationCode.value || currentDxMainCode.value?.id === undefined)
+      return;
+    if (currentSpeciality.value?.id === undefined) {
       error.value = true;
       return;
     }
     const data = currentRelationCode.value;
     console.log(data);
+    let payload = {} as IRelationCodeRequest;
     if (currentRelationCode.value.id == undefined) {
-      const payload = {
+      payload = {
         code: data.code,
         description: data.description,
-        dxmaincode: currentDxMainCode.value?.id,
-      } as IRelationCodeRequest;
-      store.createRelationCode(payload);
+        dxmaincode: currentDxMainCode.value.id,
+      };
+      const response = await store.createRelationCode(payload);
+      currentRelationCode.value =
+        (await response.parsedBody) as IRelationCodeResponse;
     }
     if (currentRelationCode.value.id != undefined) {
-      const payload = {
+      payload = {
         id: data.id,
         code: data.code,
         description: data.description,
-        dxmaincode: currentDxMainCode.value?.id,
-      } as IRelationCodeRequest;
-      store.updateRelationCode(payload);
+        dxmaincode: currentDxMainCode.value.id,
+      };
+      await store.updateRelationCode(payload);
     }
+    const response = await store.retrieveAllRelationCodeByDxMainId(
+      currentDxMainCode.value.id
+    );
+    relationCodeOfMainCode.value =
+      (await response.parsedBody) as Array<IRelationCodeResponse>;
   }
   async function getAllRelationCodes() {
+    let response = {} as HttpResponse<unknown>;
     if (store.allRelationCodes == undefined) {
-      const response = await store.retrieveAllRelationCodes();
-      if (response.status == HttpStatusCodes.NOT_FOUND) {
-        router.push('/:catchAll');
-      }
+      response = await store.retrieveAllRelationCodes();
+    }
+    if (response.status == HttpStatusCodes.NOT_FOUND) {
+      router.push('/:catchAll');
     }
   }
+  const relationCodeOfMainCode = computed({
+    get: () => {
+      // clearRelationCode({} as IRelationCodeRequest);
+      // return store.allRelationCodes;
+      if (store.allRelationCodes === null) {
+        return {} as Array<IRelationCodeResponse>;
+      }
+      const result = store.allRelationCodes.filter(
+        (relationCode) =>
+          relationCode.dxmaincode.id == store.currentDxMainCode?.id
+      );
+      return result;
+    },
+    set: (value) => {
+      store.allRelationCodes = value;
+    },
+  });
 
   return {
     //! Properties
@@ -89,18 +128,19 @@ export function relationCodeService() {
     expanded,
     error,
     //! Computed
-    relationCodeOfMainCode: computed(() => {
-      if (store.allRelationCodes === undefined) {
-        return null;
-      }
-      const result = store.allRelationCodes.filter(
-        (relationCode) =>
-          relationCode.dxmaincode.id == store.currentDxMainCode?.id
-      );
+    relationCodeOfMainCode,
+    // relationCodeOfMainCode: computed(() => {
+    //   if (store.allRelationCodes === undefined) {
+    //     return null;
+    //   }
+    //   const result = store.allRelationCodes.filter(
+    //     (relationCode) =>
+    //       relationCode.dxmaincode.id == store.currentDxMainCode?.id
+    //   );
 
-      clearRelationCode({} as IRelationCodeRequest);
-      return result;
-    }),
+    //   clearRelationCode({} as IRelationCodeRequest);
+    //   return result;
+    // }),
     //! Metodos
     add,
     edit,

@@ -12,13 +12,22 @@ import {
 } from 'src/interfaces/IPatients';
 import { HttpResponse } from 'src/scripts/Request';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
-import { BASE_YEAR, MININUM_AGE, Messages } from 'src/scripts/Constants';
-import { Notification } from 'src/scripts/Notifications';
+import {
+  BASE_YEAR,
+  MININUM_AGE,
+  Messages,
+  FORMAT_DATE,
+} from 'src/scripts/Constants';
+import { Modal, Notification } from 'src/scripts/Notifications';
 import { useStoreSettings } from 'src/stores/storeSettings';
+import modalService from './ModalService';
+import { useStoreModal } from 'src/stores/storeCommon';
 
 const router = useRouter();
 const store = useStorePatients();
 const storeInsurance = useStoreSettings();
+// const serviceModal = modalService();
+const storeCommon = useStoreModal();
 const notification = new Notification();
 const message = new Messages();
 
@@ -33,6 +42,7 @@ export function patientService() {
     currentPatient,
   } = storeToRefs(store);
   const { currentInsurance } = storeToRefs(storeInsurance);
+  // const { title, urlToRedirect, visible, redirect } = storeToRefs(storeCommon);
   const patient = ref<IPatientRequest>();
   const idType = ref<IIDType>();
   const gender = ref<IGender>();
@@ -47,9 +57,10 @@ export function patientService() {
       identificationPatient.value
     );
     if (response.status == HttpStatusCodes.NO_CONTENT) {
-      const now = new Date().toJSON().split('T');
+      const timeStamp = Date.now();
+      const formattedDate = ref(date.formatDate(timeStamp, FORMAT_DATE));
       store.currentPatient = {
-        dateBirth: now[0],
+        dateBirth: formattedDate.value,
       } as IPatientResponse;
       formPatient.value?.resetValidation();
       // const defaultIDType = {
@@ -167,15 +178,15 @@ export function patientService() {
     }
   }
   async function getAllGenders() {
+    let response = {} as HttpResponse<unknown>;
     if (store.allGenders == null) {
-      const response = await store.retrieveAllGenders();
-      if (response.status == HttpStatusCodes.NOT_FOUND) {
-        router.push('/:catchAll');
-      }
+      response = await store.retrieveAllGenders();
+    }
+    if (response.status == HttpStatusCodes.NOT_FOUND) {
+      router.push('/:catchAll');
     }
   }
   async function getAllReasonConsult() {
-    console.log('second');
     let response = {} as HttpResponse<unknown>;
     if (store.allReasonConsult.length == 0) {
       response = await store.retrieveAllReasonConsult();
@@ -185,7 +196,6 @@ export function patientService() {
     }
   }
   async function getAllPatientStatus() {
-    console.log('first');
     let response = {} as HttpResponse<unknown>;
     if (store.allPatientStatus.length == 0) {
       response = await store.retrieveAllPatientStatus();

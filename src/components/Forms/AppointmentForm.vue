@@ -8,7 +8,7 @@
           </q-card-section>
           <q-separator inset></q-separator>
           <q-card-section> -->
-  <q-form @submit="confirmChanges" ref="formAppointment">
+  <q-form @submit="confirmChanges" :ref="formAppointment">
     <q-list>
       <q-item>
         <q-item-section>
@@ -54,8 +54,8 @@
                       <q-time
                         v-model="currentAppointment.date"
                         mask="YYYY-MM-DD HH:mm"
-                        now-btn
-                        :format24h="false"
+                        :minute-options="minutesAllowed"
+                        :hour-options="hoursAllowed"
                       >
                         <div class="row items-center justify-end">
                           <q-btn
@@ -122,12 +122,32 @@
           </div>
         </q-item-section>
       </q-item>
-      <q-item>
+      <!-- <q-item>
         <q-item-section>
           <div class="row q-col-gutter-x-md">
-            <div class="col-6 col-md"></div>
             <div class="col-6 col-md">
-              <!-- <q-input outlined v-model="formattedTime" dense>
+              <transition
+                enter-active-class="animated zoomIn"
+                leave-active-class="animated fadeOut"
+              >
+                <q-field
+                  color="black"
+                  bg-color="red"
+                  filled
+                  outlined
+                  dense
+                  v-show="show"
+                >
+                  <template v-slot:control>
+                    <div class="self-center full-width no-outline">
+                      Paciente no ha sido creado, Desea crearlo ahora
+                    </div>
+                  </template>
+                </q-field>
+              </transition>
+            </div>
+            <div class="col-6 col-md">
+              <q-input outlined v-model="formattedTime" dense>
                 <template v-slot:append>
                   <q-icon name="access_time" class="cursor-pointer">
                     <q-popup-proxy
@@ -148,11 +168,11 @@
                     </q-popup-proxy>
                   </q-icon>
                 </template>
-              </q-input> -->
+              </q-input>
             </div>
           </div>
         </q-item-section>
-      </q-item>
+      </q-item> -->
       <div v-if="hasArrowForExpanded">
         <q-card-actions align="right" class="text-teal">
           <q-btn
@@ -304,14 +324,10 @@
       </q-slide-transition>
     </q-list>
     <q-card-actions align="right" class="text-teal">
-      <q-btn
-        label="Guardar"
-        type="submit"
-        color="primary"
-        @click="saveAppointment"
-      />
+      <q-btn label="Guardar" type="submit" color="primary" />
     </q-card-actions>
   </q-form>
+  <ModalCommon />
   <!-- </q-card-section>
         </q-card> -->
   <!-- </div> -->
@@ -394,6 +410,7 @@
 </template>
 <script lang="ts">
 import { ref, defineComponent, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { exportFile } from 'quasar';
 import Patients from 'src/components/Forms/PatientForm.vue';
 import { appointmentService } from 'src/services/AppointmentService';
@@ -401,6 +418,7 @@ import { patientService } from 'src/services/PatientService';
 import { specialityService } from 'src/services/SpecialityService';
 import { dxMainCodeService } from 'src/services/DxMainCodeService';
 import { IDXMainCodeResponse } from 'src/interfaces/IConsults';
+import ModalCommon from 'src/components/commons/ModalCommon.vue';
 // function wrapCsvValue(val, formatFn) {
 //   let formatted = formatFn !== void 0 ? formatFn(val) : val;
 //   formatted =
@@ -409,9 +427,9 @@ import { IDXMainCodeResponse } from 'src/interfaces/IConsults';
 //   return `"${formatted}"`;
 // }
 export default defineComponent({
-  components: {},
-
+  components: { ModalCommon },
   setup() {
+    // const router = useRouter();
     const {
       hasArrowForExpanded,
       expanded,
@@ -422,6 +440,9 @@ export default defineComponent({
       formattedTime,
       dxMainCode,
       reasonConsult,
+      show, //verificar si se esta usando sino borrar
+      hoursAllowed,
+      minutesAllowed,
       searchPatient,
       confirmChanges,
       calculateAmountPaid,
@@ -447,7 +468,11 @@ export default defineComponent({
       getAllReasonConsult();
       getAllPatientStatus();
     });
+
     return {
+      hoursAllowed,
+      minutesAllowed,
+      show, //verificar si se esta usando sino borrar
       reasonConsult,
       allReasonConsult,
       allPatientStatus,
@@ -466,6 +491,7 @@ export default defineComponent({
       speciality,
       clearSpeciality,
       specialityChanged,
+      // saveAppointment,
       currentPatient,
       dxMainCodeofSpeciality,
       filter: '',

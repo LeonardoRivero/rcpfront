@@ -47,6 +47,7 @@
       <div class="col-12 col-md"><DxMainCode /></div>
       <div class="col-12 col-md"><RelationCode /></div>
     </div>
+    <DataTable />
   </div>
 </template>
 
@@ -58,9 +59,16 @@ import SpecialityForm from 'src/components/Forms/SpecialityForm.vue';
 import DxMainCode from 'src/components/Forms/DxMainCodeForm.vue';
 import RelationCode from 'src/components/Forms/RelationCode.vue';
 import Insurance from 'src/components/Forms/InsuranceForm.vue';
+import DataTable from 'src/components/commons/DataTable.vue';
 
 export default defineComponent({
-  components: { SpecialityForm, DxMainCode, RelationCode, Insurance },
+  components: {
+    SpecialityForm,
+    DxMainCode,
+    RelationCode,
+    Insurance,
+    DataTable,
+  },
 
   setup() {
     const store = useStoreSettings();

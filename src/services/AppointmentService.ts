@@ -11,27 +11,41 @@ import {
   IReasonConsult,
 } from 'src/interfaces/IConsults';
 import { IPatientResponse } from 'src/interfaces/IPatients';
-import { FORMAT_DATE, FORMAT_HOUR, Messages } from 'src/scripts/Constants';
-import { Notification } from 'src/scripts/Notifications';
+import * as Constants from 'src/scripts/Constants';
+import { Modal, Notification } from 'src/scripts/Notifications';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
+import { useStoreModal } from 'src/stores/storeCommon';
+import table from 'src/components/Forms/RelationCode.vue';
+import modalService from './ModalService';
+import { Validators } from 'src/scripts/Helpers';
 
 const store = useStoreAppointment();
 const storePatients = useStorePatients();
 const notification = new Notification();
-const message = new Messages();
+const message = new Constants.Messages();
 const router = useRouter();
+const storeCommon = useStoreModal();
+const serviceModal = modalService();
+const validator = new Validators();
 
 export function appointmentService() {
   const { hasArrowForExpanded, expanded, currentAppointment, currentPatient } =
     storeToRefs(store);
+  const hoursAllowed = Constants.OPTIONS_HOURS;
+  const minutesAllowed = Constants.OPTIONS_MINUTES;
   const timeStamp = Date.now();
-  const formattedDate = ref(date.formatDate(timeStamp, 'YYYY-MM-DD HH:mm'));
-  const formattedTime = ref(date.formatDate(timeStamp, 'YYYY-MM-DD HH:mm'));
+  const formattedDate = ref(
+    date.formatDate(timeStamp, Constants.FORMAT_DATETIME)
+  );
+  const formattedTime = ref(
+    date.formatDate(timeStamp, Constants.FORMAT_DATETIME)
+  );
   currentAppointment.value.date = formattedDate.value;
   const formAppointment = ref<QForm | null>(null);
   const identificationPatient = ref<string>('');
   const dxMainCode = ref<IDXMainCodeResponse>();
   const reasonConsult = ref<IReasonConsult>();
+  const show = ref(false);
 
   function calculateAmountPaid(val: IConsultRequest) {
     if (currentAppointment.value.price == undefined) {
@@ -56,7 +70,23 @@ export function appointmentService() {
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       notification.setMessage(message.notInfoFound);
       notification.showWarning();
-      store.currentPatient = {} as IPatientResponse;
+
+      serviceModal.setTitle('Atención');
+      serviceModal.setObject(message.notFoundInfoPatient);
+      serviceModal.withRedirect('/patient');
+      serviceModal.showModal(true);
+
+      storePatients.currentPatient = {
+        identification: parseInt(identificationPatient.value),
+      } as IPatientResponse;
+
+      // const modal = new Modal();
+      // modal.withRedirectPage(
+      //   'Atencion',
+      //   'Desea crear el paciente ahora mismo?',
+      //   '/patient'
+      // );
+      show.value = true;
       return;
     }
     // const patient = (await response.parsedBody) as IPatientResponse;
@@ -84,6 +114,15 @@ export function appointmentService() {
     if (isValid == false) {
       return;
     }
+    const data = currentAppointment.value;
+
+    const dateIsValid = validator.dateGreater(data.date);
+    if (dateIsValid === false) {
+      notification.setMessage(message.dateOrHourNotValid);
+      notification.showError();
+      return;
+    }
+
     const responsePatient = await storePatients.getPatientByIdentification(
       identificationPatient.value
     );
@@ -92,7 +131,6 @@ export function appointmentService() {
 
     if (!currentAppointment.value) return;
 
-    const data = currentAppointment.value;
     console.log(data);
     if (currentAppointment.value.id == undefined) {
       const payload = {
@@ -130,7 +168,7 @@ export function appointmentService() {
   }
   return {
     // //! Properties
-    // clearDxMainCode,
+    show,
     formAppointment,
     formattedTime,
     dxMainCode,
@@ -140,6 +178,8 @@ export function appointmentService() {
     identificationPatient,
     hasArrowForExpanded,
     expanded,
+    hoursAllowed,
+    minutesAllowed,
     // error,
     // //! Computed
     // dxMainCodeofSpeciality: computed(() => {

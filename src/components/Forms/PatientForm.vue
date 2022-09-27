@@ -4,7 +4,7 @@
       <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
         <q-card class="my-card" bordered>
           <q-card-section>
-            <div class="text-h4">Pacientes</div>
+            <div class="text-h4 text_bold">Pacientes</div>
           </q-card-section>
           <q-separator inset></q-separator>
           <q-card-section>
@@ -124,7 +124,7 @@
                         />
                       </div>
                       <div class="col-6 col-md">
-                        <q-input
+                        <!-- <q-input
                           outlined
                           :readonly="disable"
                           v-model="currentPatient.dateBirth"
@@ -137,7 +137,43 @@
                               (val && val.length > 0) ||
                               'Fecha Nacimiento es requerida',
                           ]"
-                        />
+                        /> -->
+                        <q-input
+                          outlined
+                          :readonly="disable"
+                          v-model="currentPatient.dateBirth"
+                          dense
+                          hint="Fecha Nacimiento *"
+                          :rules="[
+                            (val) =>
+                              (val && val.length > 0) ||
+                              'Fecha Nacimiento es requerida',
+                          ]"
+                        >
+                          <template v-slot:append>
+                            <q-icon name="event">
+                              <q-popup-proxy
+                                transition-show="scale"
+                                transition-hide="scale"
+                              >
+                                <q-date
+                                  v-model="currentPatient.dateBirth"
+                                  today-btn
+                                  mask="YYYY-MM-DD"
+                                >
+                                  <div class="row items-center justify-end">
+                                    <q-btn
+                                      v-close-popup
+                                      label="Cerrar"
+                                      color="primary"
+                                      flat
+                                    />
+                                  </div>
+                                </q-date>
+                              </q-popup-proxy>
+                            </q-icon>
+                          </template>
+                        </q-input>
                       </div>
                     </div>
                     <div class="row q-col-gutter-x-md">
@@ -223,10 +259,11 @@
 </template>
 
 <script>
-import { onMounted } from 'vue';
+import { defineComponent, onMounted } from 'vue';
 import { patientService } from 'src/services/PatientService';
 import { insuranceService } from 'src/services/InsuranceService';
-export default {
+
+export default defineComponent({
   setup() {
     const {
       patient,
@@ -278,7 +315,7 @@ export default {
       allGenders,
     };
   },
-};
+});
 </script>
 <style lang="sass" scoped>
 .my-custom-toggle

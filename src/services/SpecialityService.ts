@@ -1,13 +1,18 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
+import { routerInstance } from 'boot/globalRouter';
 import { storeToRefs } from 'pinia';
 import { useStoreSettings } from 'src/stores/storeSettings';
 import { HttpResponse } from 'src/scripts/Request';
-import { ISpeciality } from 'src/interfaces/IConsults';
+import { IDXMainCodeResponse, ISpeciality } from 'src/interfaces/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
+import { dxMainCodeService } from './DxMainCodeService';
 const router = useRouter();
 const store = useStoreSettings();
+const { dxMainCodeofSpeciality, dxMainCode, currentDxMainCode } =
+  dxMainCodeService();
+
 export function specialityService() {
   const { allSpecialities, currentSpeciality } = storeToRefs(store);
 
@@ -18,9 +23,16 @@ export function specialityService() {
   function clearSpeciality(val: ISpeciality) {
     currentSpeciality.value = {} as ISpeciality;
   }
-
-  function specialityChanged(val: ISpeciality): void {
+  async function specialityChanged(val: ISpeciality): Promise<void> {
     store.currentSpeciality = val;
+    if (val.id === undefined) {
+      return;
+    }
+    const specialityId = val.id;
+    const response = await store.retrieveAllDxMainCodeBySpecialityId(
+      specialityId
+    );
+    currentDxMainCode.value = {} as IDXMainCodeResponse;
   }
   function add(): void {
     expanded.value = !expanded.value;
@@ -39,17 +51,18 @@ export function specialityService() {
     }
     if (!currentSpeciality.value) return;
     if (currentSpeciality.value.id == undefined) {
-      store.createSpeciality(currentSpeciality.value);
+      await store.createSpeciality(currentSpeciality.value);
     }
     if (currentSpeciality.value.id != undefined) {
-      store.updateSpeciality(currentSpeciality.value);
+      await store.updateSpeciality(currentSpeciality.value);
     }
+    await store.retrieveAllSpecialities();
   }
   async function getAllSpecialities() {
     if (allSpecialities.value == undefined) {
       const response = await store.retrieveAllSpecialities();
       if (response.status == HttpStatusCodes.NOT_FOUND) {
-        router.push('/:catchAll');
+        routerInstance.push('/:catchAll');
       }
       return (await response.parsedBody) as Array<ISpeciality>;
     }

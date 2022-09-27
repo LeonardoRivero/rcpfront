@@ -1,4 +1,7 @@
+import { useRouter } from 'vue-router';
 import { Notify, Dialog } from 'quasar';
+import { Loading, QSpinnerGears } from 'quasar';
+import route from 'src/router/index';
 
 export class Notification {
   private _message = '' as string;
@@ -32,15 +35,22 @@ export class Notification {
   }
 }
 export class Modal {
-  public triggerModal(): void {
+  private _message = '' as string;
+  private _url = '' as string;
+  private _title = '' as string;
+  private _redirectPage = false as boolean;
+  private triggerModal(): void {
     Dialog.create({
-      title: 'Alerta',
-      message: 'Paciente no creado.Desea crear el paciente ahora mismo',
+      title: this._title,
+      message: this._message,
       cancel: true,
       persistent: true,
     })
-      .onOk((data) => {
+      .onOk(async (data) => {
         console.log('OK', data);
+        if (this._redirectPage) {
+          //route().push({ name: 'patients' });
+        }
       })
       .onCancel(() => {
         console.log('Cancel');
@@ -48,5 +58,22 @@ export class Modal {
       .onDismiss(() => {
         console.log('I am triggered on both OK and Cancel');
       });
+  }
+  public withRedirectPage(
+    title: string,
+    message: string,
+    urlToRedirect: string
+  ) {
+    this._message = message;
+    this._url = urlToRedirect;
+    this._title = title;
+    this._redirectPage = true;
+    this.triggerModal();
+  }
+  public showLoading(): void {
+    Loading.show();
+  }
+  public hideLoading(): void {
+    Loading.hide();
   }
 }
