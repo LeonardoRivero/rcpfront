@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
@@ -23,6 +23,10 @@ export function relationCodeService() {
   const expanded = ref(false);
   const formDXMainCode = ref<QForm | null>(null);
   const error = ref(false);
+
+  onMounted(async () => {
+    getAllRelationCodes();
+  });
 
   function clearRelationCode(val: IRelationCodeRequest) {
     console.log(val);
@@ -104,10 +108,11 @@ export function relationCodeService() {
     get: () => {
       // clearRelationCode({} as IRelationCodeRequest);
       // return store.allRelationCodes;
-      if (store.allRelationCodes === null) {
+      const listRelationCodes = allRelationCodes.value;
+      if (listRelationCodes === null) {
         return {} as Array<IRelationCodeResponse>;
       }
-      const result = store.allRelationCodes.filter(
+      const result = listRelationCodes.filter(
         (relationCode) =>
           relationCode.dxmaincode.id == store.currentDxMainCode?.id
       );
@@ -129,18 +134,6 @@ export function relationCodeService() {
     error,
     //! Computed
     relationCodeOfMainCode,
-    // relationCodeOfMainCode: computed(() => {
-    //   if (store.allRelationCodes === undefined) {
-    //     return null;
-    //   }
-    //   const result = store.allRelationCodes.filter(
-    //     (relationCode) =>
-    //       relationCode.dxmaincode.id == store.currentDxMainCode?.id
-    //   );
-
-    //   clearRelationCode({} as IRelationCodeRequest);
-    //   return result;
-    // }),
     //! Metodos
     add,
     edit,

@@ -3,7 +3,6 @@
     <q-card class="my-card" bordered>
       <q-card-section>
         <div class="text-h5 q-mt-sm q-mb-xs">Codigos CUPS</div>
-        {{ currentDxMainCode }}
         <div class="text-caption text-grey">
           CUPS existentes:
           {{
@@ -14,7 +13,7 @@
           dense
           clearable
           outlined
-          v-model="currentDxMainCode.description"
+          v-model="dxMainCode"
           :options="dxMainCodeofSpeciality"
           option-value="id"
           option-label="description"
@@ -35,7 +34,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="currentDxMainCode.id != null"
+          v-if="dxMainCode != null"
           flat
           round
           color="green"
@@ -104,16 +103,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent } from 'vue';
 import { dxMainCodeService } from 'src/services/DxMainCodeService';
 import { specialityService } from 'src/services/SpecialityService';
 import ModalCommon from 'src/components/commons/ModalCommon.vue';
+import 'src/css/app.sass';
+
 export default defineComponent({
   name: 'DxMainCodeForm',
   components: { ModalCommon },
   setup() {
-    // const store = useCounterStore();
-    // const router = useRouter();
     const {
       dxMainCodeofSpeciality,
       currentDxMainCode,
@@ -126,30 +125,15 @@ export default defineComponent({
       edit,
       add,
       confirmChanges,
-      getAllDxMainCode,
-      testDxMainCode,
     } = dxMainCodeService();
     const { currentSpeciality } = specialityService();
-    // onMounted(async () => {
-    //   if (store.allDxMainCodes == undefined) {
-    //     const response = await store.retrieveAllDxMainCode();
-    //     if (response.status == HttpStatusCodes.NOT_FOUND) {
-    //       router.push('/:catchAll');
-    //     }
-    //   }
-    // });
-    onMounted(async () => {
-      getAllDxMainCode();
-    });
     return {
-      testDxMainCode,
       dxMainCode,
       clearDxMainCode,
       dxMainCodeChanged,
       currentDxMainCode,
       dxMainCodeofSpeciality,
       currentSpeciality,
-      // store,
       expanded,
       formDXMainCode,
       error,
@@ -160,13 +144,3 @@ export default defineComponent({
   },
 });
 </script>
-<style lang="sass" scoped>
-.my-card
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2)
-    transition: all ease 0.2s
-
-.my-card:hover
-    transition: all ease 0.2s
-    box-shadow: inherit
-    box-shadow: 5px 5px 20px 5px rgba(0,0,0,0.3)
-</style>

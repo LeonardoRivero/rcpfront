@@ -1,5 +1,6 @@
 import { Ref, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { routerInstance } from 'boot/globalRouter';
 import { storeToRefs } from 'pinia';
 import { useStoreModal } from 'src/stores/storeCommon';
 import Swal from 'sweetalert2';
@@ -9,12 +10,7 @@ const storeCommon = useStoreModal();
 const router = useRouter();
 
 export default function modalService() {
-  // const { lastConsult } = storeToRefs(store);
-  // const title = ref('');
-  // const visible = ref(false);
-  // const redirect = ref(false);
-  // const formDXMainCode = ref<QForm | null>(null);
-  // const error = ref(false);
+  let _type: string | null = null;
   const { urlToRedirect, visible, redirect, objetToShow, title } =
     storeToRefs(storeCommon);
 
@@ -22,25 +18,28 @@ export default function modalService() {
     urlToRedirect.value = url;
     redirect.value = true;
   }
+  function setType(typeModal: string) {
+    _type = typeModal;
+  }
   function setTitle(titleModal: string): void {
     title.value = titleModal;
   }
-  function showModal(show: boolean) {
+  function showModal2(show: boolean) {
     console.log(show);
     visible.value = show;
   }
   function setObject(obj: string) {
     objetToShow.value = obj;
   }
-  async function testSw(
+  async function showModal(
     titleModal: string,
     textModal: string
   ): Promise<boolean> {
     const result = await Swal.fire({
       title: titleModal,
       allowOutsideClick: false,
+      icon: 'info',
       text: textModal,
-      icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
@@ -48,16 +47,30 @@ export default function modalService() {
       confirmButtonText: 'Aceptar',
     });
     if (result.isConfirmed == true) {
-      urlToRedirect.value = '/';
-      await routes.push(['/patient']);
       return true;
     }
-    return true;
+    if (result.isDenied == true) {
+      return false;
+    }
+    return false;
+  }
+  async function simpleModal() {
+    const result = await Swal.fire(
+      'The Internet?',
+      'That thing is still around?',
+      'question'
+    );
+    if (result.isConfirmed == true) {
+      return true;
+    }
+    if (result.isDenied == true) {
+      return false;
+    }
+    return false;
   }
 
   return {
     //! Properties
-    testSw,
     title,
     visible,
     urlToRedirect,
@@ -68,5 +81,6 @@ export default function modalService() {
     showModal,
     setObject,
     setTitle,
+    simpleModal,
   };
 }

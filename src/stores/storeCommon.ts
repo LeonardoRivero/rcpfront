@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
+import { IColumnsDataTable } from 'src/interfaces/ICommons';
 
 export const useStoreModal = defineStore('modal', {
   state: () => ({
@@ -8,6 +9,8 @@ export const useStoreModal = defineStore('modal', {
     visible: ref(false),
     redirect: ref(false),
     objetToShow: ref<string>(),
+    columnsTable: ref<Array<IColumnsDataTable>>(),
+    dataToShow: ref<unknown>(),
   }),
   actions: {
     // setTitle(title: string): void {

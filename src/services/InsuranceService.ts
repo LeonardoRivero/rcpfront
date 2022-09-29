@@ -1,10 +1,11 @@
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useStoreSettings } from 'src/stores/storeSettings';
 import { IHealthInsurance } from 'src/interfaces/IPatients';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
+import { HttpResponse } from 'src/scripts/Request';
 
 const store = useStoreSettings();
 const router = useRouter();
@@ -14,6 +15,10 @@ export function insuranceService() {
   const expanded = ref(false);
   const formInsurance = ref<QForm | null>(null);
   const error = ref(false);
+
+  onMounted(async () => {
+    await getAllInsurance();
+  });
 
   function clearInsurance(val: IHealthInsurance) {
     insurance.value = undefined;
@@ -60,11 +65,12 @@ export function insuranceService() {
     }
   }
   async function getAllInsurance() {
+    let response = {} as HttpResponse<unknown>;
     if (store.allInsurance == undefined) {
-      const response = await store.retrieveAllInsurance();
-      if (response.status == HttpStatusCodes.NOT_FOUND) {
-        router.push('/:catchAll');
-      }
+      response = await store.retrieveAllInsurance();
+    }
+    if (response.status == HttpStatusCodes.NOT_FOUND) {
+      router.push('/:catchAll');
     }
   }
 

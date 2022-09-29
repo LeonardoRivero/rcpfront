@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QForm, date } from 'quasar';
 import { storeToRefs } from 'pinia';
@@ -18,6 +18,10 @@ import { useStoreModal } from 'src/stores/storeCommon';
 import table from 'src/components/Forms/RelationCode.vue';
 import modalService from './ModalService';
 import { Validators } from 'src/scripts/Helpers';
+import { routerInstance } from 'src/boot/globalRouter';
+import { patientService } from './PatientService';
+import { specialityService } from './SpecialityService';
+import { dxMainCodeService } from './DxMainCodeService';
 
 const store = useStoreAppointment();
 const storePatients = useStorePatients();
@@ -27,6 +31,10 @@ const router = useRouter();
 const storeCommon = useStoreModal();
 const serviceModal = modalService();
 const validator = new Validators();
+
+const { getAllReasonConsult, getAllPatientStatus } = patientService();
+const { getAllSpecialities } = specialityService();
+const { getAllDxMainCode } = dxMainCodeService();
 
 export function appointmentService() {
   const { hasArrowForExpanded, expanded, currentAppointment, currentPatient } =
@@ -46,6 +54,13 @@ export function appointmentService() {
   const dxMainCode = ref<IDXMainCodeResponse>();
   const reasonConsult = ref<IReasonConsult>();
   const show = ref(false);
+
+  onMounted(async () => {
+    getAllSpecialities();
+    getAllDxMainCode();
+    getAllReasonConsult();
+    getAllPatientStatus();
+  });
 
   function calculateAmountPaid(val: IConsultRequest) {
     if (currentAppointment.value.price == undefined) {
@@ -71,22 +86,31 @@ export function appointmentService() {
       notification.setMessage(message.notInfoFound);
       notification.showWarning();
 
-      serviceModal.setTitle('Atención');
-      serviceModal.setObject(message.notFoundInfoPatient);
-      serviceModal.withRedirect('/patient');
-      serviceModal.showModal(true);
+      // serviceModal.setTitle('Atención');
+      // serviceModal.setObject(message.notFoundInfoPatient);
+      // serviceModal.withRedirect('/patient');
+      // serviceModal.showModal(true);
+
+      const confirm = await serviceModal.showModal(
+        'Atención',
+        message.notFoundInfoPatient
+      );
+      // const confirm = await serviceModal.simpleModal();
+      if (confirm == false) {
+        return;
+      }
 
       storePatients.currentPatient = {
         identification: parseInt(identificationPatient.value),
       } as IPatientResponse;
-
+      routerInstance.push('/patient');
       // const modal = new Modal();
       // modal.withRedirectPage(
       //   'Atencion',
       //   'Desea crear el paciente ahora mismo?',
       //   '/patient'
       // );
-      show.value = true;
+      //show.value = true;
       return;
     }
     // const patient = (await response.parsedBody) as IPatientResponse;
@@ -111,6 +135,7 @@ export function appointmentService() {
   }
   async function confirmChanges(): Promise<void> {
     const isValid = await formAppointment.value?.validate();
+    console.log(isValid);
     if (isValid == false) {
       return;
     }

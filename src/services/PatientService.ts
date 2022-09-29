@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { QForm, date } from 'quasar';
 import { storeToRefs } from 'pinia';
@@ -22,10 +22,12 @@ import { Modal, Notification } from 'src/scripts/Notifications';
 import { useStoreSettings } from 'src/stores/storeSettings';
 import modalService from './ModalService';
 import { useStoreModal } from 'src/stores/storeCommon';
+import { insuranceService } from './InsuranceService';
 
 const router = useRouter();
 const store = useStorePatients();
 const storeInsurance = useStoreSettings();
+const { getAllInsurance } = insuranceService();
 // const serviceModal = modalService();
 const storeCommon = useStoreModal();
 const notification = new Notification();
@@ -51,6 +53,12 @@ export function patientService() {
   const formPatient = ref<QForm | null>(null);
   const error = ref(false);
   const disable = ref(false);
+
+  onMounted(async () => {
+    await getAllIDTypes();
+    await getAllInsurance();
+    await getAllGenders();
+  });
 
   async function searchPatient(): Promise<void> {
     const response = await store.getPatientByIdentification(

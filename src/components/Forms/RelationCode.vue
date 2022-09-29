@@ -109,10 +109,12 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent } from 'vue';
 import { specialityService } from 'src/services/SpecialityService';
 import { relationCodeService } from 'src/services/RelationCodeService';
 import { dxMainCodeService } from 'src/services/DxMainCodeService';
+import 'src/css/app.sass';
+
 export default defineComponent({
   name: 'RelationCodeForm',
   setup() {
@@ -128,15 +130,11 @@ export default defineComponent({
       edit,
       add,
       confirmChanges,
-      getAllRelationCodes,
     } = relationCodeService();
 
     const { currentSpeciality } = specialityService();
     const { currentDxMainCode } = dxMainCodeService();
 
-    onMounted(async () => {
-      getAllRelationCodes();
-    });
     return {
       relationCode,
       clearRelationCode,
@@ -155,13 +153,3 @@ export default defineComponent({
   },
 });
 </script>
-<style lang="sass" scoped>
-.my-card
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2)
-    transition: all ease 0.2s
-
-.my-card:hover
-    transition: all ease 0.2s
-    box-shadow: inherit
-    box-shadow: 5px 5px 20px 5px rgba(0,0,0,0.3)
-</style>

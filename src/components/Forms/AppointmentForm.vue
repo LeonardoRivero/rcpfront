@@ -1,13 +1,4 @@
 <template>
-  <!-- <q-page> -->
-  <!-- <div class="row q-col-gutter-sm q-ma-xs q-mr-sm">
-    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12"> -->
-  <!-- <q-card class="my-card" bordered>
-          <q-card-section>
-            <div class="text-h6">Agregar/Actualizar Cita</div>
-          </q-card-section>
-          <q-separator inset></q-separator>
-          <q-card-section> -->
   <q-form @submit="confirmChanges" :ref="formAppointment">
     <q-list>
       <q-item>
@@ -28,6 +19,7 @@
                 outlined
                 v-model="currentAppointment.date"
                 label="Fecha Cita"
+                hint="Finalizacion Cita"
               >
                 <template v-slot:prepend>
                   <q-icon name="event">
@@ -122,57 +114,6 @@
           </div>
         </q-item-section>
       </q-item>
-      <!-- <q-item>
-        <q-item-section>
-          <div class="row q-col-gutter-x-md">
-            <div class="col-6 col-md">
-              <transition
-                enter-active-class="animated zoomIn"
-                leave-active-class="animated fadeOut"
-              >
-                <q-field
-                  color="black"
-                  bg-color="red"
-                  filled
-                  outlined
-                  dense
-                  v-show="show"
-                >
-                  <template v-slot:control>
-                    <div class="self-center full-width no-outline">
-                      Paciente no ha sido creado, Desea crearlo ahora
-                    </div>
-                  </template>
-                </q-field>
-              </transition>
-            </div>
-            <div class="col-6 col-md">
-              <q-input outlined v-model="formattedTime" dense>
-                <template v-slot:append>
-                  <q-icon name="access_time" class="cursor-pointer">
-                    <q-popup-proxy
-                      cover
-                      transition-show="scale"
-                      transition-hide="scale"
-                    >
-                      <q-time v-model="time" now-btn :format24h="false">
-                        <div class="row items-center justify-end">
-                          <q-btn
-                            v-close-popup
-                            label="Cerrar"
-                            color="primary"
-                            flat
-                          />
-                        </div>
-                      </q-time>
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
-              </q-input>
-            </div>
-          </div>
-        </q-item-section>
-      </q-item> -->
       <div v-if="hasArrowForExpanded">
         <q-card-actions align="right" class="text-teal">
           <q-btn
@@ -409,7 +350,7 @@
   <!-- </q-page> -->
 </template>
 <script lang="ts">
-import { ref, defineComponent, onMounted } from 'vue';
+import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import { exportFile } from 'quasar';
 import Patients from 'src/components/Forms/PatientForm.vue';
@@ -417,19 +358,11 @@ import { appointmentService } from 'src/services/AppointmentService';
 import { patientService } from 'src/services/PatientService';
 import { specialityService } from 'src/services/SpecialityService';
 import { dxMainCodeService } from 'src/services/DxMainCodeService';
-import { IDXMainCodeResponse } from 'src/interfaces/IConsults';
 import ModalCommon from 'src/components/commons/ModalCommon.vue';
-// function wrapCsvValue(val, formatFn) {
-//   let formatted = formatFn !== void 0 ? formatFn(val) : val;
-//   formatted =
-//     formatted === void 0 || formatted === null ? '' : String(formatted);
-//   formatted = formatted.split('"').join('""');
-//   return `"${formatted}"`;
-// }
+
 export default defineComponent({
   components: { ModalCommon },
   setup() {
-    // const router = useRouter();
     const {
       hasArrowForExpanded,
       expanded,
@@ -447,27 +380,10 @@ export default defineComponent({
       confirmChanges,
       calculateAmountPaid,
     } = appointmentService();
-    const {
-      allSpecialities,
-      speciality,
-      getAllSpecialities,
-      specialityChanged,
-      clearSpeciality,
-    } = specialityService();
-    const { dxMainCodeofSpeciality, getAllDxMainCode } = dxMainCodeService();
-    const {
-      getAllReasonConsult,
-      getAllPatientStatus,
-      allReasonConsult,
-      allPatientStatus,
-    } = patientService();
-
-    onMounted(async () => {
-      getAllSpecialities();
-      getAllDxMainCode();
-      getAllReasonConsult();
-      getAllPatientStatus();
-    });
+    const { allSpecialities, speciality, specialityChanged, clearSpeciality } =
+      specialityService();
+    const { dxMainCodeofSpeciality } = dxMainCodeService();
+    const { allReasonConsult, allPatientStatus } = patientService();
 
     return {
       hoursAllowed,

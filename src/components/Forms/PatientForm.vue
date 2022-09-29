@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <div class="row q-col-gutter-sm q-ma-xs q-mr-sm">
-      <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <q-card class="my-card" bordered>
           <q-card-section>
             <div class="text-h4 text_bold">Pacientes</div>
@@ -259,9 +259,10 @@
 </template>
 
 <script>
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent } from 'vue';
 import { patientService } from 'src/services/PatientService';
 import { insuranceService } from 'src/services/InsuranceService';
+import 'src/css/app.sass';
 
 export default defineComponent({
   setup() {
@@ -275,10 +276,8 @@ export default defineComponent({
       idType,
       allGenders,
       insurance,
-      getAllGenders,
       confirmChanges,
       isValidEmail,
-      getAllIDTypes,
       idTypeChanged,
       genderChanged,
       searchPatient,
@@ -286,13 +285,8 @@ export default defineComponent({
       disable,
       enableEdition,
     } = patientService();
-    const { allInsurance, getAllInsurance, insuranceChanged } =
-      insuranceService();
-    onMounted(async () => {
-      await getAllIDTypes();
-      await getAllInsurance();
-      await getAllGenders();
-    });
+    const { allInsurance, insuranceChanged } = insuranceService();
+
     return {
       patient,
       gender,
@@ -320,12 +314,4 @@ export default defineComponent({
 <style lang="sass" scoped>
 .my-custom-toggle
   border: 1px solid #027be3
-.my-card
-  box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2)
-  transition: all ease 0.2s
-
-.my-card:hover
-  transition: all ease 0.2s
-  box-shadow: inherit
-  box-shadow: 5px 5px 20px 5px rgba(0,0,0,0.3)
 </style>

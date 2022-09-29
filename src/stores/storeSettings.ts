@@ -20,7 +20,7 @@ import { serviceDataTable } from 'src/services/DataTableService';
 
 const endpoint = new EndPoints();
 const messages = new Messages();
-const { setData, setTitle, otrafunciontest } = serviceDataTable();
+const { setData, titleTable } = serviceDataTable();
 
 export const useStoreSettings = defineStore('settings', {
   state: () => ({
@@ -35,18 +35,7 @@ export const useStoreSettings = defineStore('settings', {
     currentInsurance: {} as IHealthInsurance,
     // specialityForm: {} as Forms | undefined,
   }),
-  getters: {
-    testDxMainCode(state) {
-      // if (state.allDxMainCodes === null) {
-      //   console.log('entro');
-      //   return {} as Array<IDXMainCodeResponse>;
-      // }
-      // const result = state.allDxMainCodes.filter(
-      //   (dxMainCode) => dxMainCode.speciality.id == state.currentSpeciality?.id
-      // );
-      // return result;
-    },
-  },
+  getters: {},
   actions: {
     async createSpeciality(data: ISpeciality): Promise<HttpResponse<unknown>> {
       const url = endpoint.getORcreateSpeciality;
@@ -182,7 +171,7 @@ export const useStoreSettings = defineStore('settings', {
         };
       });
       console.log(r);
-      setTitle('Example Full');
+      titleTable.value = 'Examples fulss';
       setData(columnsr, r);
       return response;
     },

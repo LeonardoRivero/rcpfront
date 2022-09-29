@@ -88,8 +88,10 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent } from 'vue';
 import { insuranceService } from 'src/services/InsuranceService';
+import 'src/css/app.sass';
+
 export default defineComponent({
   name: 'InsuranceForm',
   setup() {
@@ -104,13 +106,9 @@ export default defineComponent({
       edit,
       add,
       confirmChanges,
-      getAllInsurance,
       allInsurance,
     } = insuranceService();
 
-    onMounted(async () => {
-      await getAllInsurance();
-    });
     return {
       insurance,
       clearInsurance,
@@ -127,13 +125,3 @@ export default defineComponent({
   },
 });
 </script>
-<style lang="sass" scoped>
-.my-card
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2)
-    transition: all ease 0.2s
-
-.my-card:hover
-    transition: all ease 0.2s
-    box-shadow: inherit
-    box-shadow: 5px 5px 20px 5px rgba(0,0,0,0.3)
-</style>
