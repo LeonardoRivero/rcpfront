@@ -109,7 +109,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted } from 'vue';
 import { specialityService } from 'src/services/SpecialityService';
 import { relationCodeService } from 'src/services/RelationCodeService';
 import { dxMainCodeService } from 'src/services/DxMainCodeService';
@@ -130,7 +130,12 @@ export default defineComponent({
       edit,
       add,
       confirmChanges,
+      getAllRelationCodes,
     } = relationCodeService();
+
+    onMounted(async () => {
+      getAllRelationCodes();
+    });
 
     const { currentSpeciality } = specialityService();
     const { currentDxMainCode } = dxMainCodeService();

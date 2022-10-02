@@ -24,10 +24,6 @@ export function relationCodeService() {
   const formDXMainCode = ref<QForm | null>(null);
   const error = ref(false);
 
-  onMounted(async () => {
-    getAllRelationCodes();
-  });
-
   function clearRelationCode(val: IRelationCodeRequest) {
     console.log(val);
     relationCode.value = undefined;
@@ -106,11 +102,11 @@ export function relationCodeService() {
   }
   const relationCodeOfMainCode = computed({
     get: () => {
-      // clearRelationCode({} as IRelationCodeRequest);
+      clearRelationCode({} as IRelationCodeRequest);
       // return store.allRelationCodes;
       const listRelationCodes = allRelationCodes.value;
       if (listRelationCodes === null) {
-        return {} as Array<IRelationCodeResponse>;
+        return [] as Array<IRelationCodeResponse>;
       }
       const result = listRelationCodes.filter(
         (relationCode) =>

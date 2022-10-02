@@ -1,25 +1,18 @@
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { QForm } from 'quasar';
 import { routerInstance } from 'boot/globalRouter';
 import { storeToRefs } from 'pinia';
 import { useStoreSettings } from 'src/stores/storeSettings';
 import { ISpeciality } from 'src/interfaces/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
-import { dxMainCodeService } from './DxMainCodeService';
 
 const store = useStoreSettings();
-const { dxMainCodeofSpeciality, dxMainCode, currentDxMainCode } =
-  dxMainCodeService();
 
 export function specialityService() {
   const { allSpecialities, currentSpeciality } = storeToRefs(store);
   const speciality = ref<ISpeciality>();
   const expanded = ref(false);
   const formSpeciality = ref<QForm | null>(null);
-
-  onMounted(async () => {
-    await getAllSpecialities();
-  });
 
   function clearSpeciality(val: ISpeciality) {
     currentSpeciality.value = {} as ISpeciality;
@@ -30,9 +23,9 @@ export function specialityService() {
       return;
     }
     const specialityId = val.id;
-    // const response = await store.retrieveAllDxMainCodeBySpecialityId(
-    //   specialityId
-    // );
+    const response = await store.retrieveAllDxMainCodeBySpecialityId(
+      specialityId
+    );
     // dxMainCode.value = {} as IDXMainCodeResponse;
     // currentDxMainCode.value = {} as IDXMainCodeResponse;
   }

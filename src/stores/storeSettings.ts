@@ -17,6 +17,7 @@ import { IHealthInsurance } from 'src/interfaces/IPatients';
 import { EndPoints, Messages } from 'src/scripts/Constants';
 import { IColumnsDataTable } from 'src/interfaces/ICommons';
 import { serviceDataTable } from 'src/services/DataTableService';
+import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
 const endpoint = new EndPoints();
 const messages = new Messages();
@@ -62,10 +63,13 @@ export const useStoreSettings = defineStore('settings', {
     },
     async createInsurance(
       data: IHealthInsurance
-    ): Promise<HttpResponse<unknown>> {
+    ): Promise<HttpResponse<unknown> | null> {
       const url = endpoint.getORcreateInsurance;
       const response = await POST(url, data);
       handleResponse(response);
+      if (response.status === HttpStatusCodes.BAD_REQUEST) {
+        return null;
+      }
       return response;
     },
     async retrieveAllInsurance(): Promise<HttpResponse<unknown>> {
@@ -83,7 +87,10 @@ export const useStoreSettings = defineStore('settings', {
       }
       const url = endpoint.updateInsurance(data.id);
       const response = await PUT(url, data);
-      handleResponse(response);
+      if (response.status === HttpStatusCodes.BAD_REQUEST) {
+        return null;
+      }
+      handleResponse(response, messages.updateSuccesfully);
       return response;
     },
     async createDxMainCode(

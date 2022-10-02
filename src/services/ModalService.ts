@@ -7,7 +7,6 @@ import Swal from 'sweetalert2';
 import routes from 'src/router/routes';
 
 const storeCommon = useStoreModal();
-const router = useRouter();
 
 export default function modalService() {
   let _type: string | null = null;

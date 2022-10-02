@@ -88,7 +88,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted } from 'vue';
 import { insuranceService } from 'src/services/InsuranceService';
 import 'src/css/app.sass';
 
@@ -106,8 +106,12 @@ export default defineComponent({
       edit,
       add,
       confirmChanges,
+      getAllInsurance,
       allInsurance,
     } = insuranceService();
+    onMounted(async () => {
+      await getAllInsurance();
+    });
 
     return {
       insurance,

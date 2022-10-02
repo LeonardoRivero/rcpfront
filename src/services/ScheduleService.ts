@@ -15,11 +15,10 @@ export function scheduleService() {
 
   async function getLastIdConsult(): Promise<number | undefined> {
     const response = await store.getLastConsult();
-    const id = response.id;
-    if (id === undefined) {
+    if (response == undefined) {
       return 0;
     }
-    return id;
+    return response.id;
     // dxMainCode.value = undefined;
     // currentDxMainCode.value = {} as IDXMainCodeResponse;
   }

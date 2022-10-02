@@ -23,12 +23,10 @@ import { useStoreSettings } from 'src/stores/storeSettings';
 import modalService from './ModalService';
 import { useStoreModal } from 'src/stores/storeCommon';
 import { insuranceService } from './InsuranceService';
+import { routerInstance } from 'src/boot/globalRouter';
 
-const router = useRouter();
 const store = useStorePatients();
 const storeInsurance = useStoreSettings();
-const { getAllInsurance } = insuranceService();
-// const serviceModal = modalService();
 const storeCommon = useStoreModal();
 const notification = new Notification();
 const message = new Messages();
@@ -53,12 +51,6 @@ export function patientService() {
   const formPatient = ref<QForm | null>(null);
   const error = ref(false);
   const disable = ref(false);
-
-  onMounted(async () => {
-    await getAllIDTypes();
-    await getAllInsurance();
-    await getAllGenders();
-  });
 
   async function searchPatient(): Promise<void> {
     const response = await store.getPatientByIdentification(
@@ -181,7 +173,7 @@ export function patientService() {
     if (store.allIDTypes == undefined) {
       const response = await store.retrieveAllIDTypes();
       if (response.status == HttpStatusCodes.NOT_FOUND) {
-        router.push('/:catchAll');
+        routerInstance.push('/:catchAll');
       }
     }
   }
@@ -191,7 +183,7 @@ export function patientService() {
       response = await store.retrieveAllGenders();
     }
     if (response.status == HttpStatusCodes.NOT_FOUND) {
-      router.push('/:catchAll');
+      routerInstance.push('/:catchAll');
     }
   }
   async function getAllReasonConsult() {
@@ -200,7 +192,7 @@ export function patientService() {
       response = await store.retrieveAllReasonConsult();
     }
     if (response.status == HttpStatusCodes.NOT_FOUND) {
-      router.push('/:catchAll');
+      routerInstance.push('/:catchAll');
     }
   }
   async function getAllPatientStatus() {
@@ -209,7 +201,7 @@ export function patientService() {
       response = await store.retrieveAllPatientStatus();
     }
     if (response.status == HttpStatusCodes.NOT_FOUND) {
-      router.push('/:catchAll');
+      routerInstance.push('/:catchAll');
     }
   }
   function isValidEmail(val: string) {

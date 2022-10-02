@@ -57,7 +57,7 @@ export class Messages {
     return 'Datos Guardados Exitosamente';
   }
   get errorMessage(): string {
-    return 'Ocurrio un error. Intentelo de nuevo';
+    return 'Ocurrio un error. Intentalo de nuevo';
   }
   get isNotAdult(): string {
     return 'Paciente menor de edad';
@@ -72,10 +72,16 @@ export class Messages {
     return 'Datos actualizados correctamente';
   }
   get notFoundInfoPatient(): string {
-    return 'No se encuentra paciente con la información suministrada, ¿Desea crearlo ahora mismo ?';
+    return 'No encontramos el paciente con la información suministrada, ¿Deseas crearlo ahora mismo ?';
   }
   get dateOrHourNotValid(): string {
     return 'Hora o fecha ingresada no es valida.Intentelo de nuevo';
+  }
+  get newRegister(): string {
+    return '¿Haz verificado los datos para crear el nuevo registro?';
+  }
+  get updateRegister(): string {
+    return '¿Deseas actualizar los datos ingresados?';
   }
 }
 export const MININUM_AGE = 18;

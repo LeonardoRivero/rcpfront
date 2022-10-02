@@ -1,24 +1,24 @@
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useStoreSettings } from 'src/stores/storeSettings';
 import { IHealthInsurance } from 'src/interfaces/IPatients';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { HttpResponse } from 'src/scripts/Request';
+import { routerInstance } from 'src/boot/globalRouter';
+import modalService from './ModalService';
+import { Messages } from 'src/scripts/Constants';
 
+const serviceModal = modalService();
+const messages = new Messages();
 const store = useStoreSettings();
-const router = useRouter();
+
 export function insuranceService() {
   const { allInsurance, currentInsurance } = storeToRefs(store);
   const insurance = ref<IHealthInsurance>();
   const expanded = ref(false);
   const formInsurance = ref<QForm | null>(null);
   const error = ref(false);
-
-  onMounted(async () => {
-    await getAllInsurance();
-  });
 
   function clearInsurance(val: IHealthInsurance) {
     insurance.value = undefined;
@@ -43,26 +43,55 @@ export function insuranceService() {
       return;
     }
     if (!currentInsurance.value) return;
-    if (currentInsurance.value?.id == null) {
-      error.value = true;
-      return;
-    }
+
     const data = currentInsurance.value;
+    let response = {} as HttpResponse<unknown>;
+    let confirmCreate = false;
     if (currentInsurance.value.id == undefined) {
+      confirmCreate = await serviceModal.showModal(
+        'Atención',
+        messages.newRegister
+      );
+      if (confirmCreate === false) {
+        return;
+      }
+    }
+    if (confirmCreate === true) {
       const payload = {
         nameInsurance: data.nameInsurance,
         entityCode: data.entityCode,
       } as IHealthInsurance;
-      store.createInsurance(payload);
+      const responseCreate = await store.createInsurance(payload);
+      if (responseCreate == null) {
+        return;
+      }
+      response = responseCreate;
     }
+    let confirmUpdate = false;
     if (currentInsurance.value.id != undefined) {
+      confirmUpdate = await serviceModal.showModal(
+        'Atención',
+        messages.updateRegister
+      );
+      if (confirmUpdate === false) {
+        return;
+      }
+    }
+    if (confirmUpdate == true) {
       const payload = {
         id: data.id,
         nameInsurance: data.nameInsurance,
         entityCode: data.entityCode,
       } as IHealthInsurance;
-      store.updateInsurance(payload);
+      const responseUpdate = await store.updateInsurance(payload);
+      if (responseUpdate == null) {
+        return;
+      }
+      response = responseUpdate;
     }
+
+    currentInsurance.value = response.parsedBody as IHealthInsurance;
+    await store.retrieveAllInsurance();
   }
   async function getAllInsurance() {
     let response = {} as HttpResponse<unknown>;
@@ -70,7 +99,7 @@ export function insuranceService() {
       response = await store.retrieveAllInsurance();
     }
     if (response.status == HttpStatusCodes.NOT_FOUND) {
-      router.push('/:catchAll');
+      routerInstance.push('/:catchAll');
     }
   }
 

@@ -79,13 +79,14 @@ export async function handleResponse(
   if (customMessage == undefined) {
     message = response.statusText;
   }
+  const timeoutModal = 2000;
 
   if (response.status == HttpStatusCodes.ACCEPTED) {
     Notify.create({
       type: 'positive',
       message: message,
       position: 'top-right',
-      timeout: 2000,
+      timeout: timeoutModal,
     });
   }
   if (response.status == HttpStatusCodes.NOT_FOUND) {
@@ -93,7 +94,7 @@ export async function handleResponse(
       type: 'negative',
       message: messages.errorMessage,
       position: 'top-right',
-      timeout: 2000,
+      timeout: timeoutModal,
     });
   }
   if (response.status == HttpStatusCodes.CREATED) {
@@ -101,7 +102,7 @@ export async function handleResponse(
       type: 'positive',
       message: messages.successMessage,
       position: 'top-right',
-      timeout: 2000,
+      timeout: timeoutModal,
     });
   }
   if (response.status == HttpStatusCodes.BAD_REQUEST) {
@@ -109,7 +110,15 @@ export async function handleResponse(
       type: 'negative',
       message: messages.errorMessage,
       position: 'top-right',
-      timeout: 2000,
+      timeout: timeoutModal,
+    });
+  }
+  if (response.status == HttpStatusCodes.OK) {
+    Notify.create({
+      type: 'positive',
+      message: message,
+      position: 'top-right',
+      timeout: timeoutModal,
     });
   }
 }

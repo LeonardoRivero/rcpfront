@@ -163,7 +163,7 @@
                     option-label="description"
                     map-options
                     label="Codigo Principal"
-                    :hint="Codigo"
+                    hint="Codigo"
                     :rules="[
                       (val) =>
                         (val && val != null) || 'Codigo Principal es requerido',
@@ -350,9 +350,7 @@
   <!-- </q-page> -->
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { useRouter } from 'vue-router';
-import { exportFile } from 'quasar';
+import { defineComponent, onMounted } from 'vue';
 import Patients from 'src/components/Forms/PatientForm.vue';
 import { appointmentService } from 'src/services/AppointmentService';
 import { patientService } from 'src/services/PatientService';
@@ -380,10 +378,26 @@ export default defineComponent({
       confirmChanges,
       calculateAmountPaid,
     } = appointmentService();
-    const { allSpecialities, speciality, specialityChanged, clearSpeciality } =
-      specialityService();
-    const { dxMainCodeofSpeciality } = dxMainCodeService();
-    const { allReasonConsult, allPatientStatus } = patientService();
+    const {
+      allSpecialities,
+      speciality,
+      specialityChanged,
+      clearSpeciality,
+      getAllSpecialities,
+    } = specialityService();
+    const { dxMainCodeofSpeciality, getAllDxMainCode } = dxMainCodeService();
+    const {
+      allReasonConsult,
+      allPatientStatus,
+      getAllReasonConsult,
+      getAllPatientStatus,
+    } = patientService();
+    onMounted(async () => {
+      getAllSpecialities();
+      getAllDxMainCode();
+      getAllReasonConsult();
+      getAllPatientStatus();
+    });
 
     return {
       hoursAllowed,
@@ -517,3 +531,5 @@ export default defineComponent({
     box-shadow: inherit
     box-shadow: 5px 5px 20px 5px rgba(0,0,0,0.3)
 </style>
+
+function getAllSpecialities() { throw new Error('Function not implemented.'); }

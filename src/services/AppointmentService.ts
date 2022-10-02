@@ -27,14 +27,9 @@ const store = useStoreAppointment();
 const storePatients = useStorePatients();
 const notification = new Notification();
 const message = new Constants.Messages();
-const router = useRouter();
 const storeCommon = useStoreModal();
 const serviceModal = modalService();
 const validator = new Validators();
-
-const { getAllReasonConsult, getAllPatientStatus } = patientService();
-const { getAllSpecialities } = specialityService();
-const { getAllDxMainCode } = dxMainCodeService();
 
 export function appointmentService() {
   const { hasArrowForExpanded, expanded, currentAppointment, currentPatient } =
@@ -54,13 +49,6 @@ export function appointmentService() {
   const dxMainCode = ref<IDXMainCodeResponse>();
   const reasonConsult = ref<IReasonConsult>();
   const show = ref(false);
-
-  onMounted(async () => {
-    getAllSpecialities();
-    getAllDxMainCode();
-    getAllReasonConsult();
-    getAllPatientStatus();
-  });
 
   function calculateAmountPaid(val: IConsultRequest) {
     if (currentAppointment.value.price == undefined) {

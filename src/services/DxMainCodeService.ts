@@ -1,5 +1,4 @@
 import { computed, ref } from 'vue';
-import { useRouter } from 'vue-router';
 import { QForm } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useStoreSettings } from 'src/stores/storeSettings';
@@ -9,21 +8,17 @@ import {
 } from 'src/interfaces/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { HttpResponse } from 'src/scripts/Request';
-import modalService from './ModalService';
-import { Modal } from 'src/scripts/Notifications';
+// import modalService from './ModalService';
+// import { Modal } from 'src/scripts/Notifications';
+import { routerInstance } from 'src/boot/globalRouter';
 
 const store = useStoreSettings();
-const router = useRouter();
-const serviceModal = modalService();
-const modal = new Modal();
+// const serviceModal = modalService();
+// const modal = new Modal();
 
 export function dxMainCodeService() {
-  const {
-    allDxMainCodes,
-    currentDxMainCode,
-    currentSpeciality,
-    testDxMainCode,
-  } = storeToRefs(store);
+  const { allDxMainCodes, currentDxMainCode, currentSpeciality } =
+    storeToRefs(store);
   const dxMainCode = ref<IDXMainCodeResponse>();
   const expanded = ref(false);
   const formDXMainCode = ref<QForm | null>(null);
@@ -74,7 +69,7 @@ export function dxMainCodeService() {
         description: data.description,
         speciality: currentSpeciality.value.id,
       };
-      serviceModal.testSw('test', 'other');
+      //serviceModal.testSw('test', 'other');
       // const responseUpdate = await store.updateDxMainCode(payload);
       // if (responseUpdate != null) {
       //   response = responseUpdate;
@@ -95,21 +90,23 @@ export function dxMainCodeService() {
       response = await store.retrieveAllDxMainCode();
     }
     if (response.status == HttpStatusCodes.NOT_FOUND) {
-      router.push('/:catchAll');
+      routerInstance.push('/:catchAll');
     }
   }
   const dxMainCodeofSpeciality = computed({
     get: () => {
       // clearDxMainCode({} as IDXMainCodeRequest);
       // return store.allDxMainCodes;
+      clearDxMainCode({} as IDXMainCodeRequest);
       if (store.allDxMainCodes === null) {
-        return {} as Array<IDXMainCodeResponse>;
+        return [] as Array<IDXMainCodeResponse>;
       }
-      const result = store.allDxMainCodes.filter(
-        (dxMainCode) => dxMainCode.speciality.id == store.currentSpeciality?.id
-      );
-      //clearDxMainCode({} as IDXMainCodeRequest);
-      return result;
+      return store.allDxMainCodes;
+      // const result = store.allDxMainCodes.filter(
+      //   (dxMainCode) => dxMainCode.speciality.id == store.currentSpeciality?.id
+      // );
+
+      // return result;
     },
     set: (value) => {
       store.allDxMainCodes = value;
@@ -126,7 +123,6 @@ export function dxMainCodeService() {
     expanded,
     error,
     dxMainCodeofSpeciality,
-    testDxMainCode,
 
     //! Computed
     // dxMainCodeofSpeciality: computed(() => {

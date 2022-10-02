@@ -103,7 +103,12 @@ export default defineComponent({
       edit,
       confirmChanges,
       clearSpeciality,
+      getAllSpecialities,
     } = specialityService();
+
+    onMounted(async () => {
+      await getAllSpecialities();
+    });
 
     return {
       expanded,

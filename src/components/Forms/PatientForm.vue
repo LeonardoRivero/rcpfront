@@ -259,7 +259,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted } from 'vue';
 import { patientService } from 'src/services/PatientService';
 import { insuranceService } from 'src/services/InsuranceService';
 import 'src/css/app.sass';
@@ -280,12 +280,21 @@ export default defineComponent({
       isValidEmail,
       idTypeChanged,
       genderChanged,
+      getAllIDTypes,
+      getAllGenders,
       searchPatient,
       identificationPatient,
       disable,
       enableEdition,
     } = patientService();
-    const { allInsurance, insuranceChanged } = insuranceService();
+    const { allInsurance, insuranceChanged, getAllInsurance } =
+      insuranceService();
+
+    onMounted(async () => {
+      await getAllIDTypes();
+      await getAllInsurance();
+      await getAllGenders();
+    });
 
     return {
       patient,
