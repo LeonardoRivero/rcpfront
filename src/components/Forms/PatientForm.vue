@@ -28,8 +28,13 @@
                       dense
                       icon="search"
                       class="q-mr-xs"
-                      @click="searchPatient" /></template
-                ></q-input>
+                      @click="searchPatient"
+                    />
+                    <q-tooltip transition-show="scale" transition-hide="scale">
+                      Buscar paciente por N° identificacion
+                    </q-tooltip></template
+                  ></q-input
+                >
               </q-toolbar>
             </div>
             <q-form @submit="confirmChanges" ref="formPatient">
@@ -143,7 +148,7 @@
                           :readonly="disable"
                           v-model="currentPatient.dateBirth"
                           dense
-                          hint="Fecha Nacimiento *"
+                          label="Fecha Nacimiento *"
                           :rules="[
                             (val) =>
                               (val && val.length > 0) ||
@@ -226,13 +231,21 @@
                           dense
                           v-model="currentPatient.email"
                           type="email"
-                          :rules="[isValidEmail]"
+                          :error="error"
+                          @blur="(evt) => isValidEmail(evt.target.value)"
                         />
                       </div>
                     </div>
                   </q-item-section>
                 </q-item>
-                <div>Campos Obligatorios *</div>
+                <div>
+                  <small>
+                    <cite>* = Campos Obligatorios</cite>
+                    <q-tooltip anchor="bottom left" self="top left">
+                      Los campos marcados con * son obligatorios
+                    </q-tooltip>
+                  </small>
+                </div>
               </q-list>
               <q-card-actions align="right" class="text-teal">
                 <q-btn
@@ -286,6 +299,7 @@ export default defineComponent({
       identificationPatient,
       disable,
       enableEdition,
+      error,
     } = patientService();
     const { allInsurance, insuranceChanged, getAllInsurance } =
       insuranceService();
@@ -297,6 +311,7 @@ export default defineComponent({
     });
 
     return {
+      error,
       patient,
       gender,
       currentPatient,

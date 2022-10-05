@@ -66,7 +66,7 @@
                 disable
                 v-model="currentSpeciality.description"
                 label="Especialidad"
-                :error="error"
+                :error="errorSpeciality"
               />
               <q-input
                 dense
@@ -74,7 +74,7 @@
                 disable
                 v-model="currentDxMainCode.description"
                 label="Codigo Principal"
-                :error="error"
+                :error="errorDxMainCode"
               />
               <q-input
                 dense
@@ -124,7 +124,8 @@ export default defineComponent({
       relationCode,
       expanded,
       formDXMainCode,
-      error,
+      errorDxMainCode,
+      errorSpeciality,
       relationCodeChanged,
       clearRelationCode,
       edit,
@@ -150,7 +151,8 @@ export default defineComponent({
       currentDxMainCode,
       expanded,
       formDXMainCode,
-      error,
+      errorDxMainCode,
+      errorSpeciality,
       edit,
       add,
       confirmChanges,

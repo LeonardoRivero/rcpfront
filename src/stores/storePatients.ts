@@ -12,11 +12,13 @@ import {
   IIDType,
   IGender,
 } from 'src/interfaces/IPatients';
-import { EndPoints } from 'src/scripts/Constants';
+import { EndPoints, Messages } from 'src/scripts/Constants';
 import HttpStatusCode from 'src/scripts/HttpStatusCodes';
 import { IPatientStatus, IReasonConsult } from 'src/interfaces/IConsults';
+import { QForm } from 'quasar';
 
 const endpoint = new EndPoints();
+const messages = new Messages();
 
 export const useStorePatients = defineStore('patients', {
   state: () => ({
@@ -27,6 +29,7 @@ export const useStorePatients = defineStore('patients', {
     currentGender: {} as IGender | null,
     allPatientStatus: [] as Array<IPatientStatus>,
     allReasonConsult: [] as Array<IReasonConsult>,
+    formPatient: null as QForm | null,
   }),
   actions: {
     async retrieveAllIDTypes(): Promise<HttpResponse<unknown>> {
@@ -45,6 +48,17 @@ export const useStorePatients = defineStore('patients', {
       const url = endpoint.getORcreatePatient;
       const response = await POST(url, data);
       handleResponse(response);
+      return response;
+    },
+    async updatePatient(
+      data: IPatientRequest
+    ): Promise<HttpResponse<unknown> | null> {
+      if (data.id == null) {
+        return null;
+      }
+      const url = endpoint.updatePatient(data.id);
+      const response = await PUT(url, data);
+      handleResponse(response, messages.updateSuccesfully);
       return response;
     },
     async getPatientByIdentification(

@@ -29,6 +29,7 @@ export const useStoreSettings = defineStore('settings', {
     currentSpeciality: {} as ISpeciality | null,
     allDxMainCodes: null as Array<IDXMainCodeResponse> | null,
     currentDxMainCode: {} as IDXMainCodeResponse | null,
+    dxMainCode: null as IDXMainCodeResponse | null,
     // listDxMainCodesBySpeciality: null as Array<IDXMainCodeResponse> | null,
     allRelationCodes: null as Array<IRelationCodeResponse> | null,
     currentRelationCode: {} as IRelationCodeResponse | null,
@@ -143,7 +144,7 @@ export const useStoreSettings = defineStore('settings', {
       const response = await GET(url);
       this.allRelationCodes =
         response.parsedBody as Array<IRelationCodeResponse>;
-      handleResponse(response);
+      //handleResponse(response);
       const columnsr = [
         {
           name: 'id',
@@ -152,14 +153,7 @@ export const useStoreSettings = defineStore('settings', {
           align: 'left',
           field: 'id',
           sortable: true,
-        },
-        {
-          name: 'descripcionDX',
-          required: true,
-          align: 'center',
-          label: 'Nombre Especialidad',
-          field: 'descripcionDX',
-          sortable: true,
+          style: 'max-width: 10px',
         },
         {
           name: 'speciality',
@@ -168,17 +162,37 @@ export const useStoreSettings = defineStore('settings', {
           label: 'Nombre Especialidad',
           field: 'speciality',
           sortable: true,
+          style: 'max-width: 40px',
+        },
+        {
+          name: 'descripcionDX',
+          required: true,
+          align: 'center',
+          label: 'Codigo Principal',
+          field: 'descripcionDX',
+          sortable: true,
+          style: 'display:grid',
+        },
+        {
+          name: 'relationCode',
+          required: true,
+          align: 'center',
+          label: 'Codigo Relacionado',
+          field: 'relationCode',
+          sortable: true,
+          style: 'max-width: 70px',
         },
       ] as Array<IColumnsDataTable>;
       const r = this.allRelationCodes.map((row) => {
         return {
           id: row.id,
-          descripcionDX: row.dxmaincode.description,
           speciality: row.dxmaincode.speciality.description,
+          descripcionDX: row.dxmaincode.description,
+          relationCode: row.description,
         };
       });
       console.log(r);
-      titleTable.value = 'Examples fulss';
+      titleTable.value = 'Resumen';
       setData(columnsr, r);
       return response;
     },

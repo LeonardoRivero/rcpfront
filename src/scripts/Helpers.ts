@@ -1,11 +1,11 @@
 import { date } from 'quasar';
+import { BASE_YEAR, MININUM_AGE } from './Constants';
 export class Validators {
   dateGreater(dateString: string): boolean | null {
     if (!date.isValid(dateString)) {
       return null;
     }
     const timeStamp = Date.now();
-    console.log(dateString);
     const years = 'years';
 
     const diffYear = date.getDateDiff(dateString, timeStamp, years);
@@ -45,5 +45,20 @@ export class Validators {
       return false;
     }
     return true;
+  }
+  email(email: string): boolean {
+    const emailPattern =
+      /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
+    return emailPattern.test(email);
+  }
+  isAdult(birthday: Date): boolean {
+    const dateBirthday = new Date(birthday);
+    const ageDifMs = Date.now() - dateBirthday.getTime();
+    const ageDate = new Date(ageDifMs);
+    const result = Math.abs(ageDate.getUTCFullYear() - BASE_YEAR);
+    if (result > MININUM_AGE) {
+      return true;
+    }
+    return false;
   }
 }

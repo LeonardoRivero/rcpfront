@@ -49,6 +49,8 @@ export function appointmentService() {
   const dxMainCode = ref<IDXMainCodeResponse>();
   const reasonConsult = ref<IReasonConsult>();
   const show = ref(false);
+  const currentYearMonth = Constants.CURRENTYEAR_MONTH;
+  const formatDatetime = Constants.FORMAT_DATETIME;
 
   function calculateAmountPaid(val: IConsultRequest) {
     if (currentAppointment.value.price == undefined) {
@@ -107,7 +109,6 @@ export function appointmentService() {
 
     const data = (await response.parsedBody) as IPatientResponse;
     store.currentPatient = data;
-    console.log(data);
   }
   // verificar si es necesaria esta funcion o sino simplificar
   async function cardIsExpandible(isExpansible: boolean): Promise<void> {
@@ -119,11 +120,9 @@ export function appointmentService() {
       store.settest(!isExpansible);
       store.setother(false);
     }
-    console.log(isExpansible);
   }
   async function confirmChanges(): Promise<void> {
     const isValid = await formAppointment.value?.validate();
-    console.log(isValid);
     if (isValid == false) {
       return;
     }
@@ -140,11 +139,8 @@ export function appointmentService() {
       identificationPatient.value
     );
     const patient = (await responsePatient.parsedBody) as IPatientResponse;
-    console.log(currentAppointment.value, currentPatient.value, patient);
-
     if (!currentAppointment.value) return;
 
-    console.log(data);
     if (currentAppointment.value.id == undefined) {
       const payload = {
         copayment: currentAppointment.value.copayment,
@@ -157,13 +153,10 @@ export function appointmentService() {
         patient: currentPatient.value.id,
         doctor: 1,
       } as IConsultRequest;
-      console.log('first', payload);
       const response = await store.createAppointment(payload);
-      console.log('first', response);
     }
 
     if (currentAppointment.value.id != undefined) {
-      console.log('see');
       // const payload = {
       //   id: data.id,
       //   name: data.name,
@@ -180,10 +173,12 @@ export function appointmentService() {
     }
   }
   return {
-    // //! Properties
+    // Properties
+    currentYearMonth,
     show,
     formAppointment,
     formattedTime,
+    formatDatetime,
     dxMainCode,
     reasonConsult,
     currentPatient,
@@ -193,22 +188,7 @@ export function appointmentService() {
     expanded,
     hoursAllowed,
     minutesAllowed,
-    // error,
-    // //! Computed
-    // dxMainCodeofSpeciality: computed(() => {
-    //   if (store.allDxMainCodes === null) {
-    //     return null;
-    //   }
-    //   const result = store.allDxMainCodes.filter(
-    //     (dxMainCode) => dxMainCode.speciality.id == store.currentSpeciality?.id
-    //   );
-    //   clearDxMainCode({} as IDXMainCodeRequest);
-    //   return result;
-    // }),
-    // //! Metodos
-    // add,
-    // edit,
-    // dxMainCodeChanged,
+    // Metodos
     confirmChanges,
     calculateAmountPaid,
     cardIsExpandible,

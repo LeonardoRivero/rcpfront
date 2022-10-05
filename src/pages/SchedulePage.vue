@@ -2,7 +2,7 @@
   <div class="row q-col-gutter-x-md">
     <div class="col-12 col-md">
       <Schedule />
-      <ConsultForm />
+      <!-- <ConsultForm /> -->
     </div>
   </div>
 </template>
@@ -12,7 +12,7 @@ import Schedule from 'src/components/ScheduleAppointment.vue';
 import ConsultForm from 'src/components/Forms/ConsultForm.vue';
 import { appointmentService } from 'src/services/AppointmentService';
 export default defineComponent({
-  components: { Schedule, ConsultForm },
+  components: { Schedule },
   setup() {
     const { cardIsExpandible } = appointmentService();
     test: ref(false);

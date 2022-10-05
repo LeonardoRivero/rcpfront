@@ -9,6 +9,11 @@ import {
 } from 'src/interfaces/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { HttpResponse } from 'src/scripts/Request';
+import modalService from './ModalService';
+import { Messages } from 'src/scripts/Constants';
+
+const serviceModal = modalService();
+const messages = new Messages();
 
 export function relationCodeService() {
   const router = useRouter();
@@ -22,17 +27,17 @@ export function relationCodeService() {
   const relationCode = ref<IRelationCodeResponse>();
   const expanded = ref(false);
   const formDXMainCode = ref<QForm | null>(null);
-  const error = ref(false);
+  const errorDxMainCode = ref(false);
+  const errorSpeciality = ref(false);
 
   function clearRelationCode(val: IRelationCodeRequest) {
-    console.log(val);
     relationCode.value = undefined;
     currentRelationCode.value = {} as IRelationCodeResponse;
   }
   async function relationCodeChanged(
     val: IRelationCodeResponse
   ): Promise<void> {
-    store.currentRelationCode = val;
+    currentRelationCode.value = val;
     // if (val.id === undefined) {
     //   return;
     // }
@@ -57,39 +62,69 @@ export function relationCodeService() {
     if (isValid == false) {
       return;
     }
-    if (!currentRelationCode.value || currentDxMainCode.value?.id === undefined)
-      return;
+    if (!currentRelationCode.value) return;
     if (currentSpeciality.value?.id === undefined) {
-      error.value = true;
+      errorSpeciality.value = true;
       return;
     }
+    errorSpeciality.value = false;
+    if (currentDxMainCode.value?.id === undefined) {
+      errorDxMainCode.value = true;
+      return;
+    }
+    errorDxMainCode.value = false;
     const data = currentRelationCode.value;
-    console.log(data);
     let payload = {} as IRelationCodeRequest;
+    let response = {} as HttpResponse<unknown>;
+    let confirmCreate = false;
     if (currentRelationCode.value.id == undefined) {
+      confirmCreate = await serviceModal.showModal(
+        'Atención',
+        messages.newRegister
+      );
+      if (confirmCreate === false) {
+        return;
+      }
+    }
+
+    if (confirmCreate == true) {
       payload = {
         code: data.code,
         description: data.description,
         dxmaincode: currentDxMainCode.value.id,
       };
-      const response = await store.createRelationCode(payload);
-      currentRelationCode.value =
-        (await response.parsedBody) as IRelationCodeResponse;
+      const responseCreate = await store.createRelationCode(payload);
+      if (responseCreate == null) {
+        return;
+      }
+      response = responseCreate;
     }
+    let confirmUpdate = false;
     if (currentRelationCode.value.id != undefined) {
+      confirmUpdate = await serviceModal.showModal(
+        'Atención',
+        messages.updateRegister
+      );
+      if (confirmUpdate == false) {
+        return;
+      }
+    }
+    if (confirmUpdate == true) {
       payload = {
         id: data.id,
         code: data.code,
         description: data.description,
         dxmaincode: currentDxMainCode.value.id,
       };
-      await store.updateRelationCode(payload);
+      const responseUpdate = await store.updateRelationCode(payload);
+      if (responseUpdate == null) {
+        return;
+      }
+      response = responseUpdate;
     }
-    const response = await store.retrieveAllRelationCodeByDxMainId(
-      currentDxMainCode.value.id
-    );
-    relationCodeOfMainCode.value =
-      (await response.parsedBody) as Array<IRelationCodeResponse>;
+    currentRelationCode.value = response.parsedBody as IRelationCodeResponse;
+    await store.retrieveAllRelationCodeByDxMainId(currentDxMainCode.value.id);
+    expanded.value = false;
   }
   async function getAllRelationCodes() {
     let response = {} as HttpResponse<unknown>;
@@ -127,7 +162,8 @@ export function relationCodeService() {
     allRelationCodes,
     currentRelationCode,
     expanded,
-    error,
+    errorDxMainCode,
+    errorSpeciality,
     //! Computed
     relationCodeOfMainCode,
     //! Metodos

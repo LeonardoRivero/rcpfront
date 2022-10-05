@@ -30,8 +30,8 @@
                       <q-date
                         today-btn
                         v-model="currentAppointment.date"
-                        navigation-min-year-month="2022/09"
-                        mask="YYYY-MM-DD HH:mm"
+                        :navigation-min-year-month="currentYearMonth"
+                        :mask="formatDatetime"
                       />
                     </q-popup-proxy>
                   </q-icon>
@@ -45,7 +45,7 @@
                     >
                       <q-time
                         v-model="currentAppointment.date"
-                        mask="YYYY-MM-DD HH:mm"
+                        :mask="formatDatetime"
                         :minute-options="minutesAllowed"
                         :hour-options="hoursAllowed"
                       >
@@ -369,11 +369,13 @@ export default defineComponent({
       formAppointment,
       currentPatient,
       formattedTime,
+      formatDatetime,
       dxMainCode,
       reasonConsult,
       show, //verificar si se esta usando sino borrar
       hoursAllowed,
       minutesAllowed,
+      currentYearMonth,
       searchPatient,
       confirmChanges,
       calculateAmountPaid,
@@ -400,6 +402,7 @@ export default defineComponent({
     });
 
     return {
+      currentYearMonth,
       hoursAllowed,
       minutesAllowed,
       show, //verificar si se esta usando sino borrar
@@ -408,6 +411,7 @@ export default defineComponent({
       allPatientStatus,
       dxMainCode,
       formattedTime,
+      formatDatetime,
       formAppointment,
       currentAppointment,
       identificationPatient,

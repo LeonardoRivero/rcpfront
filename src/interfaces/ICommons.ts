@@ -20,4 +20,5 @@ export interface IColumnsDataTable {
   align?: string;
   field: string;
   sortable: boolean;
+  style?: string;
 }

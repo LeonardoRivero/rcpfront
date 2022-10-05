@@ -1,3 +1,6 @@
+import { date } from 'quasar';
+const timeStamp = Date.now();
+
 export class EndPoints {
   private domine = 'https://leonardorivero.pythonanywhere.com';
   //private domine = 'http://127.0.0.1:8000';
@@ -42,6 +45,9 @@ export class EndPoints {
   }
   updateRelationCode(id: number): string {
     return `${this.domine}/api/relationcode/${id}/`;
+  }
+  updatePatient(id: number): string {
+    return `${this.domine}/api/patient/${id}/`;
   }
   urlQueryParameter(urlBase: string, parameters: object): string {
     urlBase = urlBase.concat('?');
@@ -91,3 +97,4 @@ export const FORMAT_HOUR = 'HH:mm';
 export const FORMAT_DATETIME = 'YYYY-MM-DD HH:mm';
 export const OPTIONS_MINUTES = [0, 20, 40];
 export const OPTIONS_HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+export const CURRENTYEAR_MONTH = date.formatDate(timeStamp, 'YYYY/MM');

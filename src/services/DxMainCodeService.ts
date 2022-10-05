@@ -8,28 +8,31 @@ import {
 } from 'src/interfaces/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { HttpResponse } from 'src/scripts/Request';
-// import modalService from './ModalService';
+import modalService from './ModalService';
 // import { Modal } from 'src/scripts/Notifications';
 import { routerInstance } from 'src/boot/globalRouter';
+import { Messages } from 'src/scripts/Constants';
 
 const store = useStoreSettings();
-// const serviceModal = modalService();
+const serviceModal = modalService();
+const messages = new Messages();
 // const modal = new Modal();
 
 export function dxMainCodeService() {
-  const { allDxMainCodes, currentDxMainCode, currentSpeciality } =
+  const { allDxMainCodes, currentDxMainCode, currentSpeciality, dxMainCode } =
     storeToRefs(store);
-  const dxMainCode = ref<IDXMainCodeResponse>();
+  // const dxMainCode = ref<IDXMainCodeResponse>();
   const expanded = ref(false);
   const formDXMainCode = ref<QForm | null>(null);
   const error = ref(false);
 
   function clearDxMainCode(val: IDXMainCodeRequest) {
-    dxMainCode.value = undefined;
+    dxMainCode.value = null;
     currentDxMainCode.value = {} as IDXMainCodeResponse;
+    error.value = false;
   }
   function dxMainCodeChanged(val: IDXMainCodeResponse): void {
-    store.currentDxMainCode = val;
+    currentDxMainCode.value = val;
   }
   function add(): void {
     expanded.value = !expanded.value;
@@ -54,35 +57,55 @@ export function dxMainCodeService() {
     const data = currentDxMainCode.value;
     let payload = {} as IDXMainCodeRequest;
     let response = {} as HttpResponse<unknown>;
+    let confirmCreate = false;
     if (currentDxMainCode.value.id == undefined) {
+      confirmCreate = await serviceModal.showModal(
+        'Atención',
+        messages.newRegister
+      );
+      if (confirmCreate === false) {
+        return;
+      }
+    }
+    if (confirmCreate == true) {
       payload = {
         CUP: data.CUP,
         description: data.description,
         speciality: currentSpeciality.value.id,
       };
-      response = await store.createDxMainCode(payload);
+      const responseCreate = await store.createDxMainCode(payload);
+      if (responseCreate == null) {
+        return;
+      }
+      response = responseCreate;
     }
+    let confirmUpdate = false;
     if (currentDxMainCode.value.id != undefined) {
+      confirmUpdate = await serviceModal.showModal(
+        'Atención',
+        messages.updateRegister
+      );
+      if (confirmUpdate == false) {
+        return;
+      }
+    }
+
+    if (confirmUpdate == true) {
       payload = {
         id: data.id,
         CUP: data.CUP,
         description: data.description,
         speciality: currentSpeciality.value.id,
       };
-      //serviceModal.testSw('test', 'other');
-      // const responseUpdate = await store.updateDxMainCode(payload);
-      // if (responseUpdate != null) {
-      //   response = responseUpdate;
-      // }
-      return;
+      const responseUpdate = await store.updateDxMainCode(payload);
+      if (responseUpdate == null) {
+        return;
+      }
+      response = responseUpdate;
     }
     currentDxMainCode.value = response.parsedBody as IDXMainCodeResponse;
-    response = await store.retrieveAllDxMainCodeBySpecialityId(
-      currentSpeciality.value.id
-    );
-    // dxMainCodeofSpeciality.value =
-    //   (await response.parsedBody) as Array<IDXMainCodeResponse>;
-    //clearDxMainCode({} as IDXMainCodeRequest);
+    await store.retrieveAllDxMainCodeBySpecialityId(currentSpeciality.value.id);
+    expanded.value = false;
   }
   async function getAllDxMainCode(): Promise<void> {
     let response = {} as HttpResponse<unknown>;
@@ -95,9 +118,8 @@ export function dxMainCodeService() {
   }
   const dxMainCodeofSpeciality = computed({
     get: () => {
-      // clearDxMainCode({} as IDXMainCodeRequest);
+      //clearDxMainCode({} as IDXMainCodeRequest);
       // return store.allDxMainCodes;
-      clearDxMainCode({} as IDXMainCodeRequest);
       if (store.allDxMainCodes === null) {
         return [] as Array<IDXMainCodeResponse>;
       }

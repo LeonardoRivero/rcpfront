@@ -34,5 +34,5 @@ export interface IPatientResponse {
   phoneNumber: number;
   insurance: IHealthInsurance;
   gender: IGender;
-  email: string;
+  email?: string;
 }
