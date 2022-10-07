@@ -54,7 +54,7 @@ const linksList = [
     title: 'Agenda',
     caption: 'Administra Agenda',
     icon: 'mdi-calendar',
-    link: '/consults',
+    link: '/schedule',
   },
   {
     title: 'Pacientes',

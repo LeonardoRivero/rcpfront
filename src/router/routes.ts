@@ -11,7 +11,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('src/pages/AppointmentPage.vue'),
       },
       {
-        path: 'consults',
+        path: 'schedule',
         component: () => import('src/pages/SchedulePage.vue'),
       },
       {

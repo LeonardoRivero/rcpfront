@@ -67,16 +67,16 @@ export const useStorePatients = defineStore('patients', {
       const urlBase = endpoint.getORcreatePatient;
       const queriesParameters = { identification: idPatient };
       const url = endpoint.urlQueryParameter(urlBase, queriesParameters);
-      console.log(url);
+      // console.log(url);
       const response = await GET(url);
-      console.log(response);
+      // console.log(response);
       //this.currentPatient = (await response.parsedBody) as IPatientResponse;
       return response;
     },
     async retrieveAllPatientStatus(): Promise<HttpResponse<unknown>> {
       const url = endpoint.getORcreatePatientStatus;
       const response = await GET(url);
-      console.log(response);
+      // console.log(response);
       this.allPatientStatus = response.parsedBody as Array<IPatientStatus>;
       handleResponse(response);
       return response;
@@ -85,7 +85,7 @@ export const useStorePatients = defineStore('patients', {
       const url = endpoint.getORcreateReasonConsult;
       const response = await GET(url);
       this.allReasonConsult = response.parsedBody as Array<IReasonConsult>;
-      console.log(response);
+      // console.log(response);
       handleResponse(response);
       return response;
     },

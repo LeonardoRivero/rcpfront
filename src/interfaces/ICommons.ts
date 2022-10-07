@@ -1,3 +1,5 @@
+import { IPatientRequest, IPatientResponse } from './IPatients';
+
 export interface IQueryParameters {
   parameter: string;
   value: string;
@@ -7,11 +9,19 @@ export interface Forms {
   title: string;
   data: object;
 }
-export interface EventSchedule {
+export interface EventScheduleRequest {
   id?: number;
   title: string;
   start: string;
   end: string;
+  patient: number;
+}
+export interface EventScheduleResponse {
+  id?: number;
+  title: string;
+  start: string;
+  end: string;
+  patient: IPatientRequest;
 }
 export interface IColumnsDataTable {
   name: string;

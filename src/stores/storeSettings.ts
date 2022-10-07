@@ -30,12 +30,10 @@ export const useStoreSettings = defineStore('settings', {
     allDxMainCodes: null as Array<IDXMainCodeResponse> | null,
     currentDxMainCode: {} as IDXMainCodeResponse | null,
     dxMainCode: null as IDXMainCodeResponse | null,
-    // listDxMainCodesBySpeciality: null as Array<IDXMainCodeResponse> | null,
     allRelationCodes: null as Array<IRelationCodeResponse> | null,
     currentRelationCode: {} as IRelationCodeResponse | null,
     allInsurance: undefined as Array<IHealthInsurance> | undefined,
     currentInsurance: {} as IHealthInsurance,
-    // specialityForm: {} as Forms | undefined,
   }),
   getters: {},
   actions: {

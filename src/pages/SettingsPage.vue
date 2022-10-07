@@ -11,8 +11,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
-import { useStoreSettings } from 'src/stores/storeSettings';
+import { defineComponent } from 'vue';
 import SpecialityForm from 'src/components/Forms/SpecialityForm.vue';
 import DxMainCode from 'src/components/Forms/DxMainCodeForm.vue';
 import RelationCode from 'src/components/Forms/RelationCode.vue';
@@ -29,19 +28,7 @@ export default defineComponent({
   },
 
   setup() {
-    const store = useStoreSettings();
-
-    onMounted(async () => {
-      // if (store.allSpecialities == undefined) {
-      //   const response = await store.retrieveAllSpecialities();
-      //   if (response.status == HttpStatusCodes.NOT_FOUND) {
-      //     router.push('/:catchAll');
-      //   }
-      // }
-    });
-    return {
-      store,
-    };
+    return {};
   },
 });
 </script>

@@ -114,7 +114,7 @@
           </div>
         </q-item-section>
       </q-item>
-      <div v-if="hasArrowForExpanded">
+      <!-- <div v-if="hasArrowForExpanded">
         <q-card-actions align="right" class="text-teal">
           <q-btn
             color="grey"
@@ -125,7 +125,7 @@
             @click="expanded = !expanded"
           />
         </q-card-actions>
-      </div>
+      </div> -->
       <q-slide-transition>
         <div v-show="expanded">
           <q-item>
@@ -535,5 +535,3 @@ export default defineComponent({
     box-shadow: inherit
     box-shadow: 5px 5px 20px 5px rgba(0,0,0,0.3)
 </style>
-
-function getAllSpecialities() { throw new Error('Function not implemented.'); }

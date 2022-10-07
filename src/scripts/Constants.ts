@@ -34,6 +34,9 @@ export class EndPoints {
   get getORcreateReasonConsult() {
     return `${this.domine}/api/reasonconsult/all/`;
   }
+  get getORcreateSchedule() {
+    return `${this.domine}/api/schedule/all/`;
+  }
   updateInsurance(id: number): string {
     return `${this.domine}/api/insurance/${id}/`;
   }
@@ -48,6 +51,9 @@ export class EndPoints {
   }
   updatePatient(id: number): string {
     return `${this.domine}/api/patient/${id}/`;
+  }
+  updateSchedule(id: number): string {
+    return `${this.domine}/api/schedule/${id}/`;
   }
   urlQueryParameter(urlBase: string, parameters: object): string {
     urlBase = urlBase.concat('?');

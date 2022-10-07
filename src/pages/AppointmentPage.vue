@@ -25,7 +25,7 @@ import { defineComponent, ref, onMounted } from 'vue';
 import ConsultForm from 'src/components/Forms/ConsultForm.vue';
 import AppointmentForm from 'src/components/Forms/AppointmentForm.vue';
 import { appointmentService } from 'src/services/AppointmentService';
-
+import 'src/css/app.sass';
 export default defineComponent({
   components: { AppointmentForm },
   setup() {
@@ -37,13 +37,3 @@ export default defineComponent({
   },
 });
 </script>
-<style lang="sass" scoped>
-.my-card
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2)
-    transition: all ease 0.2s
-
-.my-card:hover
-    transition: all ease 0.2s
-    box-shadow: inherit
-    box-shadow: 5px 5px 20px 5px rgba(0,0,0,0.3)
-</style>

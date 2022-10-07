@@ -160,11 +160,8 @@ export function patientService() {
         phoneNumber: currentPatient.value.phoneNumber,
         insurance: currentPatient.value.insurance.id,
         gender: currentPatient.value.gender.id,
-        email:
-          currentPatient.value.email == undefined
-            ? ''
-            : currentPatient.value.email,
-      };
+        email: currentPatient.value.email,
+      } as IPatientRequest;
       const responseUpdate = await store.updatePatient(payload);
       if (responseUpdate == null) {
         return;

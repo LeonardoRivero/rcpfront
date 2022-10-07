@@ -22,8 +22,10 @@ import { routerInstance } from 'src/boot/globalRouter';
 import { patientService } from './PatientService';
 import { specialityService } from './SpecialityService';
 import { dxMainCodeService } from './DxMainCodeService';
+import { useStoreSchedule } from 'src/stores/storeSchedule';
 
 const store = useStoreAppointment();
+const storeSchedule = useStoreSchedule();
 const storePatients = useStorePatients();
 const notification = new Notification();
 const message = new Constants.Messages();
@@ -80,7 +82,7 @@ export function appointmentService() {
       // serviceModal.setObject(message.notFoundInfoPatient);
       // serviceModal.withRedirect('/patient');
       // serviceModal.showModal(true);
-
+      storeSchedule.card = false;
       const confirm = await serviceModal.showModal(
         'Atención',
         message.notFoundInfoPatient
