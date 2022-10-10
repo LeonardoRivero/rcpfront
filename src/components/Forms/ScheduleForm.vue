@@ -13,7 +13,7 @@
             </small>
           </q-item-label>
           <div class="row q-col-gutter-x-md">
-            <div class="col-6 col-md">
+            <div class="col-6 col-md col-sm-12 col-xs-12">
               <q-input
                 dense
                 outlined
@@ -63,7 +63,7 @@
                 </template>
               </q-input>
             </div>
-            <div class="col-6 col-md">
+            <div class="col-6 col-md col-sm-12 col-xs-12">
               <q-input
                 dense
                 type="number"
@@ -95,7 +95,7 @@
       <q-item>
         <q-item-section>
           <div class="row q-col-gutter-x-md">
-            <div class="col-6 col-md">
+            <div class="col-6 col-md col-sm-12 col-xs-12">
               <q-input
                 dense
                 outlined
@@ -103,7 +103,7 @@
                 label="Nombre Paciente"
               />
             </div>
-            <div class="col-6 col-md">
+            <div class="col-6 col-md col-sm-12 col-xs-12">
               <q-input
                 dense
                 outlined

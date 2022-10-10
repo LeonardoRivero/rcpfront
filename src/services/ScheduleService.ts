@@ -93,12 +93,6 @@ export function scheduleService() {
     if (isValid == false) {
       return;
     }
-    const dateIsValid = validator.dateGreater(currentAppointment.value.date);
-    if (dateIsValid === false) {
-      notification.setMessage(messages.dateOrHourNotValid);
-      notification.showError();
-      return;
-    }
     const responsePatient = await storePatients.getPatientByIdentification(
       identificationPatient.value
     );
@@ -114,6 +108,12 @@ export function scheduleService() {
       if (confirm == false) {
         return;
       }
+    }
+    const dateIsValid = validator.dateGreater(currentAppointment.value.date);
+    if (dateIsValid === false) {
+      notification.setMessage(messages.dateOrHourNotValid);
+      notification.showError();
+      return;
     }
     if (patient.id == null) return;
     if (!currentAppointment.value) return;
