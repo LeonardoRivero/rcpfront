@@ -3,8 +3,15 @@ import { useRouter } from 'vue-router';
 import { QForm, date } from 'quasar';
 import { useQuasar, QSpinnerGears } from 'quasar';
 import { storeToRefs } from 'pinia';
+import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import {
+  CalendarOptions,
+  EventApi,
+  DateSelectArg,
+  EventClickArg,
+} from '@fullcalendar/vue3';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
 import esLocale from '@fullcalendar/core/locales/es';
@@ -22,6 +29,7 @@ import {
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { routerInstance } from 'src/boot/globalRouter';
 import modalService from './ModalService';
+import { EventChangeArg, EventAddArg, CalendarApi } from '@fullcalendar/core';
 
 const notification = new Notification();
 const messages = new Messages();
@@ -44,21 +52,26 @@ export function scheduleService() {
   } = storeToRefs(store);
   const $q = useQuasar();
   // const id = ref(lastConsult.value.id);
-  const id = ref(10);
+  const id = ref<number>();
   const formSchedule = ref<QForm | null>(null);
+  const calendar = ref<CalendarApi>();
   // const identificationPatient = ref<string>('');
-  const timeStamp = Date.now();
-  const formattedDate = ref(
-    date.formatDate(timeStamp, Constants.FORMAT_DATETIME)
-  );
-  currentAppointment.value.date = formattedDate.value;
+  // const timeStamp = Date.now();
+  // const formattedDate = ref(
+  //   date.formatDate(timeStamp, Constants.FORMAT_DATETIME)
+  // );
+  //currentAppointment.value.date = formattedDate.value;
 
   const START_TIME = '07:00';
   const END_TIME = '18:00';
   const DURATION_APPOINTMENT = '00:20';
+  const MINUTES_APPOINTMENT = parseInt(DURATION_APPOINTMENT.split(':')[1]);
 
   async function getLastIdConsult(): Promise<number | undefined> {
     const response = await store.getLastConsult();
+    // const v = calendar.value?.getApi();
+    // await v.refetchEvents();
+    // console.log(v.refetchEvents(), v);
     if (response == undefined) {
       return 0;
     }
@@ -120,13 +133,22 @@ export function scheduleService() {
     let payload = {} as EventScheduleRequest;
 
     if (currentSchedule.value.id == undefined) {
+      const endAppointment = date.addToDate(currentAppointment.value.date, {
+        minutes: MINUTES_APPOINTMENT,
+      });
+      const formattedD = date.formatDate(
+        endAppointment,
+        Constants.FORMAT_DATETIME
+      );
       payload = {
         title: `${patient.name} ${patient.lastName}`,
         start: currentAppointment.value.date,
-        end: currentAppointment.value.date,
+        end: formattedD,
         patient: patient.id,
       };
       const response = await store.createSchedule(payload);
+      card.value = false;
+      routerInstance.push('/appointment');
     }
     // if (currentAppointment.value.id != undefined) {
     //   // const payload = {
@@ -155,6 +177,20 @@ export function scheduleService() {
     currentPatient.value.name = data.patient.name;
     currentPatient.value.lastName = data.patient.lastName;
     identificationPatient.value = data.patient.identification.toString();
+  }
+  async function handleDateSelect(selectInfo: DateSelectArg) {
+    const calendarApi = selectInfo.view.calendar;
+    calendar.value = selectInfo.view.calendar;
+    calendarApi.unselect();
+    const formattedDa = date.formatDate(selectInfo.start, 'YYYY-MM-DD HH:mm');
+    currentAppointment.value.date = formattedDa;
+    card.value = true;
+    calendarApi.refetchEvents();
+  }
+  async function testChange(selectInfo: EventAddArg) {
+    console.log('object', selectInfo);
+    const calendarApi = selectInfo.event;
+    //calendarApi.refetchEvents();
   }
   const options = reactive({
     plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
@@ -244,24 +280,26 @@ export function scheduleService() {
     editable: true,
     selectable: true,
     weekends: true,
-    select: async (arg: any) => {
-      // let id = await getLastIdConsult();
-      if (id.value == undefined) {
-        notification.setMessage('Ocurrio un error al obtener los datos!');
-        notification.showError();
-        return;
-      }
-      id.value = id.value + 1;
-      const cal = arg.view.calendar;
-      cal.unselect();
-      cal.addEvent({
-        id: `${id.value}`,
-        title: 'Nueva Cita',
-        start: arg.start,
-        end: arg.end,
-        allDay: false,
-      });
-    },
+    select: handleDateSelect,
+    // select: async (arg: any) => {
+    //   id.value = await getLastIdConsult();
+    //   if (id.value == undefined) {
+    //     notification.setMessage('Ocurrio un error al obtener los datos!');
+    //     notification.showError();
+    //     return;
+    //   }
+    //   id.value = id.value + 1;
+    //   const cal = arg.view.calendar;
+    //   cal.unselect();
+    //   cal.addEvent({
+    //     id: `${id.value}`,
+    //     title: 'Nueva Cita',
+    //     start: arg.start,
+    //     end: arg.end,
+    //     allDay: false,
+    //   });
+    // },
+    eventAdd: testChange,
     eventClick: (arg: any) => {
       console.log(arg);
       console.log(arg.event.startStr);
@@ -270,8 +308,14 @@ export function scheduleService() {
       // if (!currentAppointment.value) {
       //   getScheduleById(arg.event.id);
       // }
-      getScheduleById(arg.event.id);
       card.value = true;
+      const formattedDa = date.formatDate(
+        arg.event.startStr,
+        'YYYY-MM-DD HH:mm'
+      );
+      console.log(formattedDa);
+      currentAppointment.value.date = formattedDa;
+      //getScheduleById(arg.event.id);
 
       // const cal = arg.view.calendar;
       // const eventcurrent = cal.getEventById(11);
@@ -297,7 +341,7 @@ export function scheduleService() {
         buttonText: 'Año',
       },
     },
-  });
+  }) as CalendarOptions;
 
   return {
     //! Properties
@@ -305,6 +349,7 @@ export function scheduleService() {
     options,
     card,
     formSchedule,
+    calendar,
     currentAppointment,
     currentPatient,
     identificationPatient,

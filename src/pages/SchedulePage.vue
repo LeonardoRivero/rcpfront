@@ -1,7 +1,7 @@
 <template>
   <div class="row q-col-gutter-x-md">
     <div class="col-lg-12 col-12 col-md-12">
-      <FullCalendar :options="options" />
+      <FullCalendar :options="options" ref="calendar" />
       <div class="row q-col-gutter-sm q-ma-xs q-mr-sm">
         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
           <q-dialog v-model="card" persistent>
@@ -52,7 +52,8 @@ export default defineComponent({
   components: { FullCalendar, ScheduleForm },
 
   setup() {
-    const { getLastIdConsult, lastConsult, options, card } = scheduleService();
+    const { getLastIdConsult, lastConsult, options, card, calendar } =
+      scheduleService();
 
     onMounted(async () => {
       getLastIdConsult();
@@ -204,6 +205,7 @@ export default defineComponent({
     return {
       options,
       card,
+      calendar,
       // visible,
     };
   },
