@@ -23,8 +23,9 @@ export const useStoreSchedule = defineStore('schedule', {
     card: false,
     currentAppointment: {} as IConsultRequest,
     currentPatient: {} as IPatientResponse,
-    currentSchedule: {} as EventScheduleResponse,
+    currentSchedule: {} as EventScheduleRequest,
     identificationPatient: '',
+    availableButton: true,
   }),
   actions: {
     async getLastConsult(): Promise<IConsultResponse> {
@@ -45,9 +46,9 @@ export const useStoreSchedule = defineStore('schedule', {
     async retrieveScheduleById(
       scheduleId: number
     ): Promise<HttpResponse<unknown>> {
-      const url = endpoint.updateSchedule(scheduleId);
+      const url = endpoint.updateOrGetScheduleById(scheduleId);
       const response = await GET(url);
-      this.currentSchedule = response.parsedBody as EventScheduleResponse;
+      //this.scheduleResponse = response.parsedBody as EventScheduleResponse;
       //handleResponse(response);
       return response;
     },

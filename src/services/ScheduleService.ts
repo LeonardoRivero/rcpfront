@@ -1,5 +1,4 @@
 import { computed, ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
 import { QForm, date } from 'quasar';
 import { useQuasar, QSpinnerGears } from 'quasar';
 import { storeToRefs } from 'pinia';
@@ -49,12 +48,14 @@ export function scheduleService() {
     currentPatient,
     currentSchedule,
     identificationPatient,
+    availableButton,
   } = storeToRefs(store);
   const $q = useQuasar();
   // const id = ref(lastConsult.value.id);
   const id = ref<number>();
   const formSchedule = ref<QForm | null>(null);
   const calendar = ref<CalendarApi>();
+
   // const identificationPatient = ref<string>('');
   // const timeStamp = Date.now();
   // const formattedDate = ref(
@@ -122,31 +123,36 @@ export function scheduleService() {
         return;
       }
     }
-    const dateIsValid = validator.dateGreater(currentAppointment.value.date);
+    const dateIsValid = validator.dateGreater(currentSchedule.value.start);
     if (dateIsValid === false) {
       notification.setMessage(messages.dateOrHourNotValid);
       notification.showError();
       return;
     }
     if (patient.id == null) return;
-    if (!currentAppointment.value) return;
+    if (!currentSchedule.value) return;
     let payload = {} as EventScheduleRequest;
 
     if (currentSchedule.value.id == undefined) {
-      const endAppointment = date.addToDate(currentAppointment.value.date, {
+      const endAppointment = date.addToDate(currentSchedule.value.start, {
         minutes: MINUTES_APPOINTMENT,
       });
-      const formattedD = date.formatDate(
+      currentSchedule.value.end = date.formatDate(
         endAppointment,
         Constants.FORMAT_DATETIME
       );
       payload = {
         title: `${patient.name} ${patient.lastName}`,
-        start: currentAppointment.value.date,
-        end: formattedD,
+        start: currentSchedule.value.start,
+        end: currentSchedule.value.end,
         patient: patient.id,
       };
       const response = await store.createSchedule(payload);
+      if (response.status == HttpStatusCodes.BAD_REQUEST) {
+        notification.setMessage(messages.scheduleExisting);
+        notification.showError();
+        return;
+      }
       card.value = false;
       routerInstance.push('/appointment');
     }
@@ -182,8 +188,10 @@ export function scheduleService() {
     const calendarApi = selectInfo.view.calendar;
     calendar.value = selectInfo.view.calendar;
     calendarApi.unselect();
-    const formattedDa = date.formatDate(selectInfo.start, 'YYYY-MM-DD HH:mm');
-    currentAppointment.value.date = formattedDa;
+    currentSchedule.value.start = date.formatDate(
+      selectInfo.start,
+      Constants.FORMAT_DATETIME
+    );
     card.value = true;
     calendarApi.refetchEvents();
   }
@@ -300,7 +308,7 @@ export function scheduleService() {
     //   });
     // },
     eventAdd: testChange,
-    eventClick: (arg: any) => {
+    eventClick: async (arg: any) => {
       console.log(arg);
       console.log(arg.event.startStr);
       console.log(arg.event.id);
@@ -308,17 +316,29 @@ export function scheduleService() {
       // if (!currentAppointment.value) {
       //   getScheduleById(arg.event.id);
       // }
-      card.value = true;
-      const formattedDa = date.formatDate(
-        arg.event.startStr,
-        'YYYY-MM-DD HH:mm'
-      );
-      console.log(formattedDa);
-      currentAppointment.value.date = formattedDa;
+      // currentAppointment.value.date = date.formatDate(
+      //   arg.event.startStr,
+      //   Constants.FORMAT_DATETIME
+      // );
       //getScheduleById(arg.event.id);
 
+      const response = await store.retrieveScheduleById(arg.event.id);
+      const schedule = response.parsedBody as EventScheduleResponse;
+      const dateIsValid = validator.dateGreater(schedule.start);
+      availableButton.value = true;
+      if (dateIsValid == false) {
+        availableButton.value = dateIsValid;
+      }
+      currentPatient.value.name = schedule.patient.name;
+      currentPatient.value.lastName = schedule.patient.lastName;
+      identificationPatient.value = schedule.patient.identification.toString();
+      currentSchedule.value.start = date.formatDate(
+        schedule.start,
+        Constants.FORMAT_DATETIME
+      );
+      card.value = true;
       // const cal = arg.view.calendar;
-      // const eventcurrent = cal.getEventById(11);
+      // const eventcurrent = cal.getEventById(arg.event.id);
       // console.log(eventcurrent);
       // eventcurrent.remove();
     },
@@ -354,6 +374,7 @@ export function scheduleService() {
     currentPatient,
     identificationPatient,
     currentSchedule,
+    availableButton,
     //!Metodos
     getLastIdConsult,
     confirmChanges,

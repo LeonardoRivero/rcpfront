@@ -52,7 +52,7 @@ export class EndPoints {
   updatePatient(id: number): string {
     return `${this.domine}/api/patient/${id}/`;
   }
-  updateSchedule(id: number): string {
+  updateOrGetScheduleById(id: number): string {
     return `${this.domine}/api/schedule/${id}/`;
   }
   urlQueryParameter(urlBase: string, parameters: object): string {
@@ -94,6 +94,9 @@ export class Messages {
   }
   get updateRegister(): string {
     return '¿Deseas actualizar los datos ingresados?';
+  }
+  get scheduleExisting(): string {
+    return 'Ya existe una cita agendada para esa hora.';
   }
 }
 export const MININUM_AGE = 18;
