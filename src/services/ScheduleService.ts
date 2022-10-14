@@ -70,9 +70,6 @@ export function scheduleService() {
 
   async function getLastIdConsult(): Promise<number | undefined> {
     const response = await store.getLastConsult();
-    // const v = calendar.value?.getApi();
-    // await v.refetchEvents();
-    // console.log(v.refetchEvents(), v);
     if (response == undefined) {
       return 0;
     }
@@ -82,6 +79,7 @@ export function scheduleService() {
     const response = await storePatients.getPatientByIdentification(
       identificationPatient.value
     );
+
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       notification.setMessage(messages.notInfoFound);
       notification.showWarning();
@@ -99,6 +97,7 @@ export function scheduleService() {
       routerInstance.push('/patient');
       return;
     }
+
     const data = (await response.parsedBody) as IPatientResponse;
     store.currentPatient = data;
   }
@@ -107,10 +106,12 @@ export function scheduleService() {
     if (isValid == false) {
       return;
     }
+
     const responsePatient = await storePatients.getPatientByIdentification(
       identificationPatient.value
     );
     const patient = (await responsePatient.parsedBody) as IPatientResponse;
+
     if (patient == null) {
       notification.setMessage(messages.notInfoFound);
       notification.showWarning();
@@ -119,18 +120,21 @@ export function scheduleService() {
         'Atención',
         message.notFoundInfoPatient
       );
+
       if (confirm == false) {
         return;
       }
     }
+
     const dateIsValid = validator.dateGreater(currentSchedule.value.start);
     if (dateIsValid === false) {
       notification.setMessage(messages.dateOrHourNotValid);
       notification.showError();
       return;
     }
-    if (patient.id == null) return;
-    if (!currentSchedule.value) return;
+
+    if (patient.id == null || !currentSchedule.value) return;
+
     let payload = {} as EventScheduleRequest;
 
     if (currentSchedule.value.id == undefined) {
@@ -147,7 +151,9 @@ export function scheduleService() {
         end: currentSchedule.value.end,
         patient: patient.id,
       };
+
       const response = await store.createSchedule(payload);
+
       if (response.status == HttpStatusCodes.BAD_REQUEST) {
         notification.setMessage(messages.scheduleExisting);
         notification.showError();
@@ -156,21 +162,40 @@ export function scheduleService() {
       card.value = false;
       routerInstance.push('/appointment');
     }
-    // if (currentAppointment.value.id != undefined) {
-    //   // const payload = {
-    //   //   id: data.id,
-    //   //   name: data.name,
-    //   //   lastName: data.lastName,
-    //   //   IDType: idType.value?.id,
-    //   //   identification: data.identification,
-    //   //   dateBirth: data.dateBirth,
-    //   //   phoneNumber: data.phoneNumber,
-    //   //   insurance: insurance.value?.id,
-    //   //   gender: gender.value?.id,
-    //   //   email: data.email,
-    //   // } as IPatientRequest;
-    //   // store.updateRelationCode(payload);
-    // }
+
+    let confirmUpdate = false;
+
+    if (currentSchedule.value.id != undefined) {
+      card.value = false;
+      confirmUpdate = await serviceModal.showModal(
+        'Atención',
+        messages.updateRegister
+      );
+
+      if (confirmUpdate === false) {
+        return;
+      }
+    }
+    if (confirmUpdate == true) {
+      payload = {
+        id: currentSchedule.value.id,
+        title: `${patient.name} ${patient.lastName}`,
+        start: currentSchedule.value.start,
+        end: currentSchedule.value.end,
+        patient: patient.id,
+      };
+    }
+    const response = await store.updateSchedule(payload);
+    if (response == null) {
+      return;
+    }
+    if (response.status == HttpStatusCodes.BAD_REQUEST) {
+      notification.setMessage(messages.scheduleExisting);
+      notification.showError();
+      return;
+    }
+    card.value = false;
+    routerInstance.push('/appointment');
   }
   async function getScheduleById(scheduleId: number): Promise<void> {
     const response = await store.retrieveScheduleById(scheduleId);
@@ -188,6 +213,7 @@ export function scheduleService() {
     const calendarApi = selectInfo.view.calendar;
     calendar.value = selectInfo.view.calendar;
     calendarApi.unselect();
+    currentSchedule.value.id = undefined;
     currentSchedule.value.start = date.formatDate(
       selectInfo.start,
       Constants.FORMAT_DATETIME
@@ -332,8 +358,13 @@ export function scheduleService() {
       currentPatient.value.name = schedule.patient.name;
       currentPatient.value.lastName = schedule.patient.lastName;
       identificationPatient.value = schedule.patient.identification.toString();
+      currentSchedule.value.id = schedule.id;
       currentSchedule.value.start = date.formatDate(
         schedule.start,
+        Constants.FORMAT_DATETIME
+      );
+      currentSchedule.value.end = date.formatDate(
+        schedule.end,
         Constants.FORMAT_DATETIME
       );
       card.value = true;

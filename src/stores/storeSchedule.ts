@@ -7,7 +7,7 @@ import {
   HttpResponse,
 } from 'src/scripts/Request';
 import { IPatientResponse } from 'src/interfaces/IPatients';
-import { EndPoints } from 'src/scripts/Constants';
+import { EndPoints, Messages } from 'src/scripts/Constants';
 import { IConsultRequest, IConsultResponse } from 'src/interfaces/IConsults';
 import HttpStatusCode from 'src/scripts/HttpStatusCodes';
 import {
@@ -16,6 +16,7 @@ import {
 } from 'src/interfaces/ICommons';
 
 const endpoint = new EndPoints();
+const messages = new Messages();
 
 export const useStoreSchedule = defineStore('schedule', {
   state: () => ({
@@ -23,7 +24,7 @@ export const useStoreSchedule = defineStore('schedule', {
     card: false,
     currentAppointment: {} as IConsultRequest,
     currentPatient: {} as IPatientResponse,
-    currentSchedule: {} as EventScheduleRequest,
+    currentSchedule: {} as EventScheduleResponse,
     identificationPatient: '',
     availableButton: true,
   }),
@@ -50,6 +51,17 @@ export const useStoreSchedule = defineStore('schedule', {
       const response = await GET(url);
       //this.scheduleResponse = response.parsedBody as EventScheduleResponse;
       //handleResponse(response);
+      return response;
+    },
+    async updateSchedule(
+      data: EventScheduleRequest
+    ): Promise<HttpResponse<unknown> | null> {
+      if (data.id == null) {
+        return null;
+      }
+      const url = endpoint.updateOrGetScheduleById(data.id);
+      const response = await PUT(url, data);
+      handleResponse(response, messages.updateSuccesfully);
       return response;
     },
   },

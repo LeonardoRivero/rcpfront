@@ -7,7 +7,7 @@
           <q-dialog v-model="card" persistent>
             <q-card class="my-card" bordered>
               <q-card-section class="row items-center q-pb-none">
-                <div class="text-h6">Agendar Cita</div>
+                <div class="text-h6">Agenda de Citas</div>
                 <q-space />
                 <q-btn icon="close" flat round dense v-close-popup />
               </q-card-section>
@@ -30,30 +30,29 @@
     /> -->
 </template>
 <script lang="ts">
-import { defineComponent, reactive, ref, onMounted } from 'vue';
+import { defineComponent, onMounted } from 'vue';
 
-import { useQuasar, QSpinnerGears } from 'quasar';
+// import { useQuasar, QSpinnerGears } from 'quasar';
 import '@fullcalendar/core/vdom';
 import FullCalendar from '@fullcalendar/vue3';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import listPlugin from '@fullcalendar/list';
-import interactionPlugin from '@fullcalendar/interaction';
-import esLocale from '@fullcalendar/core/locales/es';
+// import dayGridPlugin from '@fullcalendar/daygrid';
+// import timeGridPlugin from '@fullcalendar/timegrid';
+// import listPlugin from '@fullcalendar/list';
+// import interactionPlugin from '@fullcalendar/interaction';
+// import esLocale from '@fullcalendar/core/locales/es';
 import { Notification } from 'src/scripts/Notifications';
 import { EndPoints } from 'src/scripts/Constants';
 import { scheduleService } from 'src/services/ScheduleService';
-import Appointment from 'src/components/Forms/AppointmentForm.vue';
+//import Appointment from 'src/components/Forms/AppointmentForm.vue';
 import ScheduleForm from 'src/components/Forms/ScheduleForm.vue';
 
-const endpoint = new EndPoints();
-const notification = new Notification();
+// const endpoint = new EndPoints();
+// const notification = new Notification();
 export default defineComponent({
   components: { FullCalendar, ScheduleForm },
 
   setup() {
-    const { getLastIdConsult, lastConsult, options, card, calendar } =
-      scheduleService();
+    const { getLastIdConsult, options, card, calendar } = scheduleService();
 
     onMounted(async () => {
       getLastIdConsult();

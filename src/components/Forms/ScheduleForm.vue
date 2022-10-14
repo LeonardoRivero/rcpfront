@@ -17,9 +17,12 @@
               <q-input
                 dense
                 outlined
-                v-model="currentAppointment.date"
+                v-model="currentSchedule.start"
                 label="Fecha Cita"
-                hint="Finalizacion Cita"
+                :hint="`Finalizacion Cita: ${dates.formatDate(
+                  dates.addToDate(currentSchedule.start, { minutes: 20 }),
+                  'YYYY-MM-DD HH:mm'
+                )}`"
               >
                 <template v-slot:prepend>
                   <q-icon name="event">
@@ -29,7 +32,7 @@
                     >
                       <q-date
                         today-btn
-                        v-model="currentAppointment.date"
+                        v-model="currentSchedule.start"
                         :navigation-min-year-month="currentYearMonth"
                         :mask="formatDatetime"
                       />
@@ -44,7 +47,7 @@
                       transition-hide="scale"
                     >
                       <q-time
-                        v-model="currentAppointment.date"
+                        v-model="currentSchedule.start"
                         :mask="formatDatetime"
                         :minute-options="minutesAllowed"
                         :hour-options="hoursAllowed"
@@ -116,13 +119,19 @@
       </q-item>
     </q-list>
     <q-card-actions align="right" class="text-teal">
-      <q-btn label="Guardar" type="submit" color="primary" />
+      <q-btn
+        v-if="availableButton"
+        label="Guardar"
+        type="submit"
+        color="primary"
+      />
     </q-card-actions>
   </q-form>
   <ModalCommon />
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted } from 'vue';
+import { date } from 'quasar';
 import { appointmentService } from 'src/services/AppointmentService';
 import { scheduleService } from 'src/services/ScheduleService';
 import ModalCommon from 'src/components/commons/ModalCommon.vue';
@@ -133,6 +142,7 @@ import { IPatientRequest, IPatientResponse } from 'src/interfaces/IPatients';
 export default defineComponent({
   components: { ModalCommon },
   setup() {
+    const dates = date;
     const {
       formattedTime,
       formatDatetime,
@@ -143,8 +153,10 @@ export default defineComponent({
     const {
       formSchedule,
       currentAppointment,
+      currentSchedule,
       identificationPatient,
       currentPatient,
+      availableButton,
       confirmChanges,
       searchPatient,
     } = scheduleService();
@@ -169,10 +181,13 @@ export default defineComponent({
       formatDatetime,
       formSchedule,
       currentAppointment,
+      currentSchedule,
       identificationPatient,
+      currentPatient,
+      availableButton,
       confirmChanges,
       searchPatient,
-      currentPatient,
+      dates,
     };
   },
 });
