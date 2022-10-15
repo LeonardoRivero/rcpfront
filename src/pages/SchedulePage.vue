@@ -55,7 +55,7 @@ export default defineComponent({
     const { getLastIdConsult, options, card, calendar } = scheduleService();
 
     onMounted(async () => {
-      getLastIdConsult();
+      //getLastIdConsult();
     });
     // const $q = useQuasar();
     // // const id = ref(lastConsult.value.id);

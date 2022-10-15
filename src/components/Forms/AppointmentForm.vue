@@ -114,20 +114,8 @@
           </div>
         </q-item-section>
       </q-item>
-      <!-- <div v-if="hasArrowForExpanded">
-        <q-card-actions align="right" class="text-teal">
-          <q-btn
-            color="grey"
-            round
-            flat
-            dense
-            :icon="expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_up'"
-            @click="expanded = !expanded"
-          />
-        </q-card-actions>
-      </div> -->
       <q-slide-transition>
-        <div v-show="expanded">
+        <div>
           <q-item>
             <q-item-section>
               <q-item-label class="q-pb-xs">Datos Consulta</q-item-label>
@@ -143,7 +131,6 @@
                     option-label="description"
                     map-options
                     label="Especialidad"
-                    @update:model-value="(val) => specialityChanged(val)"
                     @clear="(val) => clearSpeciality(val)"
                     :rules="[
                       (val) =>
@@ -152,24 +139,7 @@
                   >
                   </q-select>
                 </div>
-                <div class="col-12 col-md-8">
-                  <q-select
-                    dense
-                    clearable
-                    outlined
-                    v-model="dxMainCode"
-                    :options="dxMainCodeofSpeciality"
-                    option-value="id"
-                    option-label="description"
-                    map-options
-                    label="Codigo Principal"
-                    hint="Codigo"
-                    :rules="[
-                      (val) =>
-                        (val && val != null) || 'Codigo Principal es requerido',
-                    ]"
-                  ></q-select>
-                </div>
+                <div class="col-12 col-md-8"></div>
               </div>
               <div class="row q-col-gutter-x-md">
                 <div class="col-12 col-md-4">
@@ -350,29 +320,28 @@
   <!-- </q-page> -->
 </template>
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
-import Patients from 'src/components/Forms/PatientForm.vue';
+import { defineComponent, onMounted, onUnmounted } from 'vue';
+// import Patients from 'src/components/Forms/PatientForm.vue';
 import { appointmentService } from 'src/services/AppointmentService';
 import { patientService } from 'src/services/PatientService';
 import { specialityService } from 'src/services/SpecialityService';
-import { dxMainCodeService } from 'src/services/DxMainCodeService';
+// import { dxMainCodeService } from 'src/services/DxMainCodeService';
 import ModalCommon from 'src/components/commons/ModalCommon.vue';
+import 'src/css/app.sass';
+import { IPatientRequest, IPatientResponse } from 'src/interfaces/IPatients';
 
 export default defineComponent({
   components: { ModalCommon },
   setup() {
     const {
-      hasArrowForExpanded,
-      expanded,
       identificationPatient,
       currentAppointment,
       formAppointment,
       currentPatient,
       formattedTime,
       formatDatetime,
-      dxMainCode,
       reasonConsult,
-      show, //verificar si se esta usando sino borrar
+      // show, //verificar si se esta usando sino borrar
       hoursAllowed,
       minutesAllowed,
       currentYearMonth,
@@ -380,14 +349,15 @@ export default defineComponent({
       confirmChanges,
       calculateAmountPaid,
     } = appointmentService();
-    const {
-      allSpecialities,
-      speciality,
-      specialityChanged,
-      clearSpeciality,
-      getAllSpecialities,
-    } = specialityService();
-    const { dxMainCodeofSpeciality, getAllDxMainCode } = dxMainCodeService();
+    const { allSpecialities, speciality, clearSpeciality, getAllSpecialities } =
+      specialityService();
+    // const {
+    //   dxMainCodeofSpeciality,
+    //   getAllDxMainCode,
+    //   dxMainCode,
+    //   currentDxMainCode,
+    //   dxMainCodeChanged,
+    // } = dxMainCodeService();
     const {
       allReasonConsult,
       allPatientStatus,
@@ -396,20 +366,25 @@ export default defineComponent({
     } = patientService();
     onMounted(async () => {
       getAllSpecialities();
-      getAllDxMainCode();
+      // getAllDxMainCode();
       getAllReasonConsult();
       getAllPatientStatus();
     });
+    onUnmounted(async () => {
+      currentPatient.value = {} as IPatientRequest;
+    });
 
     return {
+      // dxMainCodeChanged,
+      // currentDxMainCode,
       currentYearMonth,
       hoursAllowed,
       minutesAllowed,
-      show, //verificar si se esta usando sino borrar
+      // show, //verificar si se esta usando sino borrar
       reasonConsult,
       allReasonConsult,
       allPatientStatus,
-      dxMainCode,
+      // dxMainCode,
       formattedTime,
       formatDatetime,
       formAppointment,
@@ -418,61 +393,58 @@ export default defineComponent({
       confirmChanges,
       calculateAmountPaid,
       searchPatient,
-      hasArrowForExpanded,
-      expanded,
       // date,
       allSpecialities,
       speciality,
       clearSpeciality,
-      specialityChanged,
+      // specialityChanged,
       // saveAppointment,
       currentPatient,
-      dxMainCodeofSpeciality,
+      // dxMainCodeofSpeciality,
       filter: '',
       mode: 'list',
       deposit: {},
       pagination: {
         rowsPerPage: 10,
       },
-      options: ['Primera Vez', 'Control', 'Post-Quirurgico '],
-      columns: [
-        {
-          name: 'description',
-          align: 'left',
-          label: 'Description',
-          field: 'description',
-          sortable: true,
-        },
-        {
-          name: 'amount',
-          label: 'Amount',
-          align: 'left',
-          field: 'amount',
-          sortable: true,
-        },
-      ],
-      data: [
-        {
-          description: 'Invoice 10 Payment',
-          amount: '$ 200',
-        },
-        {
-          description: 'Pvt Ltd Invoice',
-          amount: '$ 300',
-        },
-        {
-          description: 'Invoice 6 Payment',
-          amount: '$ 250',
-        },
-        {
-          description: 'Invoice 18 Payment',
-          amount: '$ 400',
-        },
-        {
-          description: 'John and company Payment',
-          amount: '$ 500',
-        },
-      ],
+      // columns: [
+      //   {
+      //     name: 'description',
+      //     align: 'left',
+      //     label: 'Description',
+      //     field: 'description',
+      //     sortable: true,
+      //   },
+      //   {
+      //     name: 'amount',
+      //     label: 'Amount',
+      //     align: 'left',
+      //     field: 'amount',
+      //     sortable: true,
+      //   },
+      // ],
+      // data: [
+      //   {
+      //     description: 'Invoice 10 Payment',
+      //     amount: '$ 200',
+      //   },
+      //   {
+      //     description: 'Pvt Ltd Invoice',
+      //     amount: '$ 300',
+      //   },
+      //   {
+      //     description: 'Invoice 6 Payment',
+      //     amount: '$ 250',
+      //   },
+      //   {
+      //     description: 'Invoice 18 Payment',
+      //     amount: '$ 400',
+      //   },
+      //   {
+      //     description: 'John and company Payment',
+      //     amount: '$ 500',
+      //   },
+      // ],
     };
   },
   // methods: {
@@ -525,13 +497,3 @@ export default defineComponent({
   // },
 });
 </script>
-<style lang="sass" scoped>
-.my-card
-    box-shadow: 0px 5px 5px 0px rgba(0, 0, 0, 0.2)
-    transition: all ease 0.2s
-
-.my-card:hover
-    transition: all ease 0.2s
-    box-shadow: inherit
-    box-shadow: 5px 5px 20px 5px rgba(0,0,0,0.3)
-</style>

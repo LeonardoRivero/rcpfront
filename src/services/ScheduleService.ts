@@ -50,18 +50,9 @@ export function scheduleService() {
     identificationPatient,
     availableButton,
   } = storeToRefs(store);
-  const $q = useQuasar();
-  // const id = ref(lastConsult.value.id);
-  const id = ref<number>();
+
   const formSchedule = ref<QForm | null>(null);
   const calendar = ref<CalendarApi>();
-
-  // const identificationPatient = ref<string>('');
-  // const timeStamp = Date.now();
-  // const formattedDate = ref(
-  //   date.formatDate(timeStamp, Constants.FORMAT_DATETIME)
-  // );
-  //currentAppointment.value.date = formattedDate.value;
 
   const START_TIME = '07:00';
   const END_TIME = '18:00';
@@ -211,7 +202,6 @@ export function scheduleService() {
   }
   async function handleDateSelect(selectInfo: DateSelectArg) {
     const calendarApi = selectInfo.view.calendar;
-    calendar.value = selectInfo.view.calendar;
     calendarApi.unselect();
     currentSchedule.value.id = undefined;
     currentSchedule.value.start = date.formatDate(
@@ -223,8 +213,17 @@ export function scheduleService() {
   }
   async function testChange(selectInfo: EventAddArg) {
     console.log('object', selectInfo);
-    const calendarApi = selectInfo.event;
+    const calendarApi = selectInfo;
+    // calendarApi.addEvent({
+    //   title: currentPatient.value.name,
+    //   start: currentSchedule.value.start,
+    //   end: currentSchedule.value.end,
+    //   allDay: false,
+    // });
     //calendarApi.refetchEvents();
+  }
+  async function handleEvents(events: EventApi[]) {
+    console.log(events);
   }
   const options = reactive({
     plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
@@ -244,72 +243,16 @@ export function scheduleService() {
       right: 'dayGridMonth,timeGridWeek,listWeek,timeGridForYear',
     },
     events: {
-      //visitar esta url para mas info:https://fullcalendar.io/docs/events-json-feed
       url: endpoint.getORcreateSchedule,
       method: 'GET',
-      // extraParams: {
-      //   month: 'june',
-      //   day: '28',
-      // },
       failure: function () {
         notification.setMessage('error al obtener los datos!');
         notification.showError();
       },
-      color: 'yellow', // a non-ajax option
+      color: '#378006', // a non-ajax option
       textColor: 'black', // a non-ajax option
     },
-    // loading: function (bool: boolean) {
-    //   let dialog = Object();
-    //   if (bool) {
-    //     // notification.setMessage('other bool');
-    //     // notification.showError();
-    //     visible.value = bool;
-    //     const dialog = $q.dialog({
-    //       title: 'Cargando. Por favor espere...',
-    //       dark: true,
-    //       message: '0%',
-    //       progress: {
-    //         spinner: QSpinnerGears,
-    //         color: 'amber',
-    //       },
-    //       persistent: bool, // we want the user to not be able to close it
-    //       ok: true, // we want the user to not be able to close it
-    //     });
-    //   } else {
-    //     // notification.setMessage('bool');
-    //     // notification.showError();
-    //     visible.value = bool;
-    //     dialog.update;
-    //   }
-    // },
-    // events: [
-    //   {
-    //     title: 'Reunion',
-    //     start: '2022-08-12T14:30:00',
-    //     extendedProps: {
-    //       status: 'done',
-    //     },
-    //   },
-    //   {
-    //     title: 'Birthday Party',
-    //     start: '2022-08-13T08:10:00',
-    //     backgroundColor: 'green',
-    //     borderColor: 'green',
-    //   },
-    //   {
-    //     title: 'Birthday Party',
-    //     start: '2022-08-13T07:10:00',
-    //     backgroundColor: 'green',
-    //     borderColor: 'green',
-    //   },
-
-    //   {
-    //     title: 'Cumpleaños Mamasita Milena',
-    //     start: '2022-09-08T07:10:00',
-    //     backgroundColor: 'green',
-    //     borderColor: 'green',
-    //   },
-    // ],
+    eventsSet: handleEvents,
     locale: esLocale,
     editable: true,
     selectable: true,
@@ -339,15 +282,6 @@ export function scheduleService() {
       console.log(arg.event.startStr);
       console.log(arg.event.id);
       console.log(currentAppointment.value);
-      // if (!currentAppointment.value) {
-      //   getScheduleById(arg.event.id);
-      // }
-      // currentAppointment.value.date = date.formatDate(
-      //   arg.event.startStr,
-      //   Constants.FORMAT_DATETIME
-      // );
-      //getScheduleById(arg.event.id);
-
       const response = await store.retrieveScheduleById(arg.event.id);
       const schedule = response.parsedBody as EventScheduleResponse;
       const dateIsValid = validator.dateGreater(schedule.start);
@@ -368,10 +302,6 @@ export function scheduleService() {
         Constants.FORMAT_DATETIME
       );
       card.value = true;
-      // const cal = arg.view.calendar;
-      // const eventcurrent = cal.getEventById(arg.event.id);
-      // console.log(eventcurrent);
-      // eventcurrent.remove();
     },
     views: {
       // timelineCustom: {

@@ -1,4 +1,5 @@
 import { IPatientResponse } from 'src/interfaces/IPatients';
+import { EventScheduleResponse } from './ICommons';
 export interface IPatientStatus {
   id?: number;
   code: string;
@@ -59,7 +60,7 @@ export interface IConsultRequest {
   authorizationNumber?: string;
   patientStatus?: number;
   reasonConsult?: number;
-  dxMainCode?: number;
+  schedule?: number;
   patient: number;
   doctor?: number;
 }
@@ -72,7 +73,7 @@ export interface IConsultResponse {
   authorizationNumber: number;
   patientStatus?: IPatientStatus;
   reasonConsult?: IReasonConsult;
-  dxMainCode?: IDXMainCodeResponse;
+  schedule?: EventScheduleResponse;
   patient?: IPatientResponse;
   doctor?: IDoctorResponse;
 }

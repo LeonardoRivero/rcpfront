@@ -29,10 +29,10 @@ import 'src/css/app.sass';
 export default defineComponent({
   components: { AppointmentForm },
   setup() {
-    const { cardIsExpandible } = appointmentService();
+    // const { cardIsExpandible } = appointmentService();
     test: ref(false);
     onMounted(async () => {
-      await cardIsExpandible(false);
+      // await cardIsExpandible(false);
     });
   },
 });

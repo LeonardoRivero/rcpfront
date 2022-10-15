@@ -1,5 +1,4 @@
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 import { QForm, date } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useStoreAppointment } from 'src/stores/storeAppointment';
@@ -7,22 +6,18 @@ import { useStorePatients } from 'src/stores/storePatients';
 import {
   IConsultRequest,
   IConsultResponse,
-  IDXMainCodeResponse,
   IReasonConsult,
 } from 'src/interfaces/IConsults';
-import { IPatientResponse } from 'src/interfaces/IPatients';
+import { IPatientRequest, IPatientResponse } from 'src/interfaces/IPatients';
 import * as Constants from 'src/scripts/Constants';
-import { Modal, Notification } from 'src/scripts/Notifications';
+import { Notification } from 'src/scripts/Notifications';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { useStoreModal } from 'src/stores/storeCommon';
-import table from 'src/components/Forms/RelationCode.vue';
 import modalService from './ModalService';
 import { Validators } from 'src/scripts/Helpers';
 import { routerInstance } from 'src/boot/globalRouter';
-import { patientService } from './PatientService';
-import { specialityService } from './SpecialityService';
-import { dxMainCodeService } from './DxMainCodeService';
 import { useStoreSchedule } from 'src/stores/storeSchedule';
+import { EventScheduleResponse } from 'src/interfaces/ICommons';
 
 const store = useStoreAppointment();
 const storeSchedule = useStoreSchedule();
@@ -34,8 +29,7 @@ const serviceModal = modalService();
 const validator = new Validators();
 
 export function appointmentService() {
-  const { hasArrowForExpanded, expanded, currentAppointment, currentPatient } =
-    storeToRefs(store);
+  const { currentAppointment, currentPatient } = storeToRefs(store);
   const hoursAllowed = Constants.OPTIONS_HOURS;
   const minutesAllowed = Constants.OPTIONS_MINUTES;
   const timeStamp = Date.now();
@@ -48,7 +42,7 @@ export function appointmentService() {
   currentAppointment.value.date = formattedDate.value;
   const formAppointment = ref<QForm | null>(null);
   const identificationPatient = ref<string>('');
-  const dxMainCode = ref<IDXMainCodeResponse>();
+  // const dxMainCode = ref<IDXMainCodeResponse>();
   const reasonConsult = ref<IReasonConsult>();
   const show = ref(false);
   const currentYearMonth = Constants.CURRENTYEAR_MONTH;
@@ -71,17 +65,15 @@ export function appointmentService() {
       notification.showError();
       return;
     }
-    const response = await storePatients.getPatientByIdentification(
+    // const response = await storePatients.getPatientByIdentification(
+    //   identificationPatient.value
+    // );
+    const response = await storeSchedule.getScheduleByPatientIdentification(
       identificationPatient.value
     );
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       notification.setMessage(message.notInfoFound);
       notification.showWarning();
-
-      // serviceModal.setTitle('Atención');
-      // serviceModal.setObject(message.notFoundInfoPatient);
-      // serviceModal.withRedirect('/patient');
-      // serviceModal.showModal(true);
       storeSchedule.card = false;
       const confirm = await serviceModal.showModal(
         'Atención',
@@ -96,51 +88,52 @@ export function appointmentService() {
         identification: parseInt(identificationPatient.value),
       } as IPatientResponse;
       routerInstance.push('/patient');
-      // const modal = new Modal();
-      // modal.withRedirectPage(
-      //   'Atencion',
-      //   'Desea crear el paciente ahora mismo?',
-      //   '/patient'
-      // );
-      //show.value = true;
       return;
     }
     // const patient = (await response.parsedBody) as IPatientResponse;
     // currentAppointment.value.id = patient.id;
     // console.log(patient);
-
-    const data = (await response.parsedBody) as IPatientResponse;
-    store.currentPatient = data;
+    const data = (await response.parsedBody) as Array<EventScheduleResponse>;
+    const lastSchedule = data.pop();
+    if (lastSchedule?.start == undefined) {
+      return;
+    }
+    currentAppointment.value.schedule = lastSchedule.id;
+    currentAppointment.value.date = date.formatDate(
+      lastSchedule.start,
+      Constants.FORMAT_DATETIME
+    );
+    currentPatient.value = lastSchedule?.patient as IPatientRequest;
   }
   // verificar si es necesaria esta funcion o sino simplificar
-  async function cardIsExpandible(isExpansible: boolean): Promise<void> {
-    if (isExpansible == false) {
-      store.settest(isExpansible);
-      store.setother(true);
-    }
-    if (isExpansible == true) {
-      store.settest(!isExpansible);
-      store.setother(false);
-    }
-  }
+  // async function cardIsExpandible(isExpansible: boolean): Promise<void> {
+  //   if (isExpansible == false) {
+  //     store.settest(isExpansible);
+  //     store.setother(true);
+  //   }
+  //   if (isExpansible == true) {
+  //     store.settest(!isExpansible);
+  //     store.setother(false);
+  //   }
+  // }
   async function confirmChanges(): Promise<void> {
     const isValid = await formAppointment.value?.validate();
     if (isValid == false) {
       return;
     }
-    const data = currentAppointment.value;
+    // const data = currentAppointment.value;
 
-    const dateIsValid = validator.dateGreater(data.date);
+    const dateIsValid = validator.dateGreater(currentAppointment.value.date);
     if (dateIsValid === false) {
       notification.setMessage(message.dateOrHourNotValid);
       notification.showError();
       return;
     }
 
-    const responsePatient = await storePatients.getPatientByIdentification(
-      identificationPatient.value
-    );
-    const patient = (await responsePatient.parsedBody) as IPatientResponse;
+    // const responsePatient = await storePatients.getPatientByIdentification(
+    //   identificationPatient.value
+    // );
+    // const patient = (await responsePatient.parsedBody) as IPatientResponse;
     if (!currentAppointment.value) return;
 
     if (currentAppointment.value.id == undefined) {
@@ -149,13 +142,19 @@ export function appointmentService() {
         amountPaid: currentAppointment.value.amountPaid,
         date: currentAppointment.value.date,
         authorizationNumber: currentAppointment.value.authorizationNumber,
-        patientStatus: 1,
+        patientStatus: currentAppointment.value.patientStatus,
         reasonConsult: reasonConsult.value?.id,
-        dxMainCode: dxMainCode.value?.id,
+        price: currentAppointment.value.price,
+        schedule: currentAppointment.value.schedule,
         patient: currentPatient.value.id,
         doctor: 1,
       } as IConsultRequest;
       const response = await store.createAppointment(payload);
+      if (response.status == HttpStatusCodes.BAD_REQUEST) {
+        notification.setMessage(message.errorMessage);
+        notification.showError();
+        return;
+      }
     }
 
     if (currentAppointment.value.id != undefined) {
@@ -181,19 +180,17 @@ export function appointmentService() {
     formAppointment,
     formattedTime,
     formatDatetime,
-    dxMainCode,
+    // dxMainCode,
     reasonConsult,
     currentPatient,
     currentAppointment,
     identificationPatient,
-    hasArrowForExpanded,
-    expanded,
     hoursAllowed,
     minutesAllowed,
     // Metodos
     confirmChanges,
     calculateAmountPaid,
-    cardIsExpandible,
+    // cardIsExpandible,
     searchPatient,
   };
 }

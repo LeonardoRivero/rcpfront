@@ -64,5 +64,15 @@ export const useStoreSchedule = defineStore('schedule', {
       handleResponse(response, messages.updateSuccesfully);
       return response;
     },
+    async getScheduleByPatientIdentification(
+      identification: string
+    ): Promise<HttpResponse<unknown>> {
+      const urlBase = endpoint.getORcreateSchedule;
+      const url = endpoint.urlQueryParameter(urlBase, {
+        patientIdentification: identification,
+      });
+      const response = await GET(url);
+      return response;
+    },
   },
 });

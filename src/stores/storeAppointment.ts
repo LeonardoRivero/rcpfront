@@ -21,17 +21,17 @@ const endpoint = new EndPoints();
 export const useStoreAppointment = defineStore('appointment', {
   state: () => ({
     currentAppointment: {} as IConsultRequest,
-    currentPatient: {} as IPatientResponse,
-    hasArrowForExpanded: false,
-    expanded: false,
+    currentPatient: {} as IPatientRequest,
+    // hasArrowForExpanded: false,
+    // expanded: false,
   }),
   actions: {
-    settest(isExpansible: boolean): void {
-      this.hasArrowForExpanded = isExpansible;
-    },
-    setother(isbool: boolean): void {
-      this.expanded = isbool;
-    },
+    // settest(isExpansible: boolean): void {
+    //   this.hasArrowForExpanded = isExpansible;
+    // },
+    // setother(isbool: boolean): void {
+    //   this.expanded = isbool;
+    // },
     async createAppointment(
       data: IConsultRequest
     ): Promise<HttpResponse<unknown>> {
