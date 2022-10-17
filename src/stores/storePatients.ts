@@ -44,7 +44,9 @@ export const useStorePatients = defineStore('patients', {
       this.allGenders = (await response.parsedBody) as Array<IGender>;
       return response;
     },
-    async createPatient(data: IPatientRequest): Promise<HttpResponse<unknown>> {
+    async createPatient(
+      data: IPatientRequest
+    ): Promise<HttpResponse<unknown> | null> {
       const url = endpoint.getORcreatePatient;
       const response = await POST(url, data);
       handleResponse(response);

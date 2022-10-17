@@ -6,9 +6,14 @@ import { useStorePatients } from 'src/stores/storePatients';
 import {
   IConsultRequest,
   IConsultResponse,
+  IPatientStatus,
   IReasonConsult,
 } from 'src/interfaces/IConsults';
-import { IPatientRequest, IPatientResponse } from 'src/interfaces/IPatients';
+import {
+  IHealthInsurance,
+  IPatientRequest,
+  IPatientResponse,
+} from 'src/interfaces/IPatients';
 import * as Constants from 'src/scripts/Constants';
 import { Notification } from 'src/scripts/Notifications';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
@@ -42,7 +47,8 @@ export function appointmentService() {
   currentAppointment.value.date = formattedDate.value;
   const formAppointment = ref<QForm | null>(null);
   const identificationPatient = ref<string>('');
-  // const dxMainCode = ref<IDXMainCodeResponse>();
+  const currentPatientStatus = ref<IPatientStatus>();
+  const currentHealthInsurance = ref<IHealthInsurance>({} as IHealthInsurance);
   const reasonConsult = ref<IReasonConsult>();
   const show = ref(false);
   const currentYearMonth = Constants.CURRENTYEAR_MONTH;
@@ -59,6 +65,10 @@ export function appointmentService() {
     currentAppointment.value.amountPaid =
       +currentAppointment.value.price + +currentAppointment.value.copayment;
   }
+  function patientStatusChanged(val: IPatientStatus): void {
+    currentPatientStatus.value = val;
+  }
+
   async function searchPatient(): Promise<void> {
     if (identificationPatient.value === '') {
       notification.setMessage(message.searchIncorrect);
@@ -103,26 +113,16 @@ export function appointmentService() {
       lastSchedule.start,
       Constants.FORMAT_DATETIME
     );
-    currentPatient.value = lastSchedule?.patient as IPatientRequest;
+    currentPatient.value = lastSchedule?.patient as IPatientResponse;
+    currentHealthInsurance.value = lastSchedule.patient
+      .insurance as IHealthInsurance;
   }
-  // verificar si es necesaria esta funcion o sino simplificar
-  // async function cardIsExpandible(isExpansible: boolean): Promise<void> {
-  //   if (isExpansible == false) {
-  //     store.settest(isExpansible);
-  //     store.setother(true);
-  //   }
-  //   if (isExpansible == true) {
-  //     store.settest(!isExpansible);
-  //     store.setother(false);
-  //   }
-  // }
+
   async function confirmChanges(): Promise<void> {
     const isValid = await formAppointment.value?.validate();
     if (isValid == false) {
       return;
     }
-    // const data = currentAppointment.value;
-
     const dateIsValid = validator.dateGreater(currentAppointment.value.date);
     if (dateIsValid === false) {
       notification.setMessage(message.dateOrHourNotValid);
@@ -135,22 +135,35 @@ export function appointmentService() {
     // );
     // const patient = (await responsePatient.parsedBody) as IPatientResponse;
     if (!currentAppointment.value) return;
-
+    let confirmCreate = false;
     if (currentAppointment.value.id == undefined) {
+      confirmCreate = await serviceModal.showModal(
+        'Atención',
+        message.newRegister
+      );
+      if (confirmCreate === false) {
+        return;
+      }
+    }
+
+    if (confirmCreate == true) {
       const payload = {
         copayment: currentAppointment.value.copayment,
         amountPaid: currentAppointment.value.amountPaid,
         date: currentAppointment.value.date,
         authorizationNumber: currentAppointment.value.authorizationNumber,
-        patientStatus: currentAppointment.value.patientStatus,
+        patientStatus: currentPatientStatus.value?.id,
         reasonConsult: reasonConsult.value?.id,
         price: currentAppointment.value.price,
         schedule: currentAppointment.value.schedule,
         patient: currentPatient.value.id,
         doctor: 1,
       } as IConsultRequest;
-      const response = await store.createAppointment(payload);
-      if (response.status == HttpStatusCodes.BAD_REQUEST) {
+      const responseCreate = await store.createAppointment(payload);
+      if (
+        responseCreate == null ||
+        responseCreate.status == HttpStatusCodes.BAD_REQUEST
+      ) {
         notification.setMessage(message.errorMessage);
         notification.showError();
         return;
@@ -184,12 +197,15 @@ export function appointmentService() {
     reasonConsult,
     currentPatient,
     currentAppointment,
+    currentPatientStatus,
+    currentHealthInsurance,
     identificationPatient,
     hoursAllowed,
     minutesAllowed,
     // Metodos
     confirmChanges,
     calculateAmountPaid,
+    patientStatusChanged,
     // cardIsExpandible,
     searchPatient,
   };

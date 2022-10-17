@@ -17,51 +17,10 @@
               <q-input
                 dense
                 outlined
-                v-model="currentAppointment.date"
-                label="Fecha Cita"
-                hint="Finalizacion Cita"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="event">
-                    <q-popup-proxy
-                      transition-show="scale"
-                      transition-hide="scale"
-                    >
-                      <q-date
-                        today-btn
-                        v-model="currentAppointment.date"
-                        :navigation-min-year-month="currentYearMonth"
-                        :mask="formatDatetime"
-                      />
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
-                <template v-slot:append>
-                  <q-icon name="access_time">
-                    <q-popup-proxy
-                      cover
-                      transition-show="scale"
-                      transition-hide="scale"
-                    >
-                      <q-time
-                        v-model="currentAppointment.date"
-                        :mask="formatDatetime"
-                        :minute-options="minutesAllowed"
-                        :hour-options="hoursAllowed"
-                      >
-                        <div class="row items-center justify-end">
-                          <q-btn
-                            v-close-popup
-                            label="Cerrar"
-                            color="primary"
-                            flat
-                          />
-                        </div>
-                      </q-time>
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
-              </q-input>
+                v-model="currentHealthInsurance.nameInsurance"
+                label="Entidad"
+                disable
+              />
             </div>
             <div class="col-6 col-md">
               <q-input
@@ -101,6 +60,7 @@
                 outlined
                 v-model="currentPatient.name"
                 label="Nombre Paciente"
+                disable
               />
             </div>
             <div class="col-6 col-md">
@@ -109,6 +69,7 @@
                 outlined
                 v-model="currentPatient.lastName"
                 label="Apellido Paciente"
+                disable
               />
             </div>
           </div>
@@ -120,7 +81,7 @@
             <q-item-section>
               <q-item-label class="q-pb-xs">Datos Consulta</q-item-label>
               <div class="row q-col-gutter-x-md">
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-6">
                   <q-select
                     dense
                     clearable
@@ -139,7 +100,56 @@
                   >
                   </q-select>
                 </div>
-                <div class="col-12 col-md-8"></div>
+                <div class="col-12 col-md-6">
+                  <q-input
+                    dense
+                    outlined
+                    v-model="currentAppointment.date"
+                    label="Fecha Cita"
+                    hint="Finalizacion Cita"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="event">
+                        <q-popup-proxy
+                          transition-show="scale"
+                          transition-hide="scale"
+                        >
+                          <q-date
+                            today-btn
+                            v-model="currentAppointment.date"
+                            :navigation-min-year-month="currentYearMonth"
+                            :mask="formatDatetime"
+                          />
+                        </q-popup-proxy>
+                      </q-icon>
+                    </template>
+                    <template v-slot:append>
+                      <q-icon name="access_time">
+                        <q-popup-proxy
+                          cover
+                          transition-show="scale"
+                          transition-hide="scale"
+                        >
+                          <q-time
+                            v-model="currentAppointment.date"
+                            :mask="formatDatetime"
+                            :minute-options="minutesAllowed"
+                            :hour-options="hoursAllowed"
+                          >
+                            <div class="row items-center justify-end">
+                              <q-btn
+                                v-close-popup
+                                label="Cerrar"
+                                color="primary"
+                                flat
+                              />
+                            </div>
+                          </q-time>
+                        </q-popup-proxy>
+                      </q-icon>
+                    </template>
+                  </q-input>
+                </div>
               </div>
               <div class="row q-col-gutter-x-md">
                 <div class="col-12 col-md-4">
@@ -175,13 +185,14 @@
                     dense
                     clearable
                     outlined
-                    v-model="currentAppointment.patientStatus"
+                    v-model="currentPatientStatus"
                     :options="allPatientStatus"
                     option-value="id"
                     option-label="description"
                     map-options
                     stack-label
                     label="Estado Paciente"
+                    @update:model-value="(val) => patientStatusChanged(val)"
                     :rules="[
                       (val) =>
                         (val && val != null) || 'Estado Paciente es requerido',
@@ -338,6 +349,8 @@ export default defineComponent({
       currentAppointment,
       formAppointment,
       currentPatient,
+      currentPatientStatus,
+      currentHealthInsurance,
       formattedTime,
       formatDatetime,
       reasonConsult,
@@ -348,6 +361,7 @@ export default defineComponent({
       searchPatient,
       confirmChanges,
       calculateAmountPaid,
+      patientStatusChanged,
     } = appointmentService();
     const { allSpecialities, speciality, clearSpeciality, getAllSpecialities } =
       specialityService();
@@ -371,7 +385,7 @@ export default defineComponent({
       getAllPatientStatus();
     });
     onUnmounted(async () => {
-      currentPatient.value = {} as IPatientRequest;
+      currentPatient.value = {} as IPatientResponse;
     });
 
     return {
@@ -380,7 +394,7 @@ export default defineComponent({
       currentYearMonth,
       hoursAllowed,
       minutesAllowed,
-      // show, //verificar si se esta usando sino borrar
+      currentHealthInsurance,
       reasonConsult,
       allReasonConsult,
       allPatientStatus,
@@ -389,10 +403,12 @@ export default defineComponent({
       formatDatetime,
       formAppointment,
       currentAppointment,
+      currentPatientStatus,
       identificationPatient,
       confirmChanges,
       calculateAmountPaid,
       searchPatient,
+      patientStatusChanged,
       // date,
       allSpecialities,
       speciality,

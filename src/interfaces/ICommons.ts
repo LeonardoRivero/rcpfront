@@ -21,7 +21,7 @@ export interface EventScheduleResponse {
   title: string;
   start: string;
   end: string;
-  patient: IPatientRequest;
+  patient: IPatientResponse;
 }
 export interface IColumnsDataTable {
   name: string;

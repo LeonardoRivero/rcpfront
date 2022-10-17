@@ -21,7 +21,7 @@ const endpoint = new EndPoints();
 export const useStoreAppointment = defineStore('appointment', {
   state: () => ({
     currentAppointment: {} as IConsultRequest,
-    currentPatient: {} as IPatientRequest,
+    currentPatient: {} as IPatientResponse,
     // hasArrowForExpanded: false,
     // expanded: false,
   }),
@@ -34,10 +34,9 @@ export const useStoreAppointment = defineStore('appointment', {
     // },
     async createAppointment(
       data: IConsultRequest
-    ): Promise<HttpResponse<unknown>> {
+    ): Promise<HttpResponse<unknown> | null> {
       const url = endpoint.getORcreateConsult;
       const response = await POST(url, data);
-      console.log(response);
       handleResponse(response);
       return response;
     },

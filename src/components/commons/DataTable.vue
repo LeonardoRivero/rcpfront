@@ -1,54 +1,48 @@
 <template>
-  <div class="q-pa-md">
-    <div class="my-card">
-      <q-table
-        :title="titleTable"
+  <q-table
+    :title="titleTable"
+    dense
+    virtual-scroll
+    :rows="dataToShow"
+    :columns="columnsTable"
+    row-key="id"
+    :filter="filter"
+    no-data-label="No hay datos para mostrar"
+    no-results-label="No hay resultados para la busqueda"
+  >
+    <template v-slot:header="props">
+      <q-tr :props="props">
+        <q-th
+          v-for="col in props.cols"
+          :key="col.name"
+          :props="props"
+          class="text-italic text-blue"
+        >
+          {{ col.label }}
+        </q-th>
+      </q-tr>
+    </template>
+    <template v-slot:no-data="{ icon, message, filter }">
+      <div class="full-width row flex-center text-accent q-gutter-sm text-blue">
+        <q-icon size="2em" name="sentiment_dissatisfied" />
+        <span> Lo sentimos.. {{ message }} </span>
+        <q-icon size="2em" :name="filter ? 'warning' : icon" />
+      </div>
+    </template>
+    <template v-slot:top-right>
+      <q-input
+        borderless
         dense
-        virtual-scroll
-        :rows="dataToShow"
-        :columns="columnsTable"
-        row-key="id"
-        :filter="filter"
-        no-data-label="No hay datos para mostrar"
-        no-results-label="No hay resultados para la busqueda"
+        debounce="300"
+        v-model="filter"
+        placeholder="Buscar"
       >
-        <template v-slot:header="props">
-          <q-tr :props="props">
-            <q-th
-              v-for="col in props.cols"
-              :key="col.name"
-              :props="props"
-              class="text-italic text-blue"
-            >
-              {{ col.label }}
-            </q-th>
-          </q-tr>
+        <template v-slot:append>
+          <q-icon name="search" />
         </template>
-        <template v-slot:no-data="{ icon, message, filter }">
-          <div
-            class="full-width row flex-center text-accent q-gutter-sm text-blue"
-          >
-            <q-icon size="2em" name="sentiment_dissatisfied" />
-            <span> Lo sentimos.. {{ message }} </span>
-            <q-icon size="2em" :name="filter ? 'warning' : icon" />
-          </div>
-        </template>
-        <template v-slot:top-right>
-          <q-input
-            borderless
-            dense
-            debounce="300"
-            v-model="filter"
-            placeholder="Buscar"
-          >
-            <template v-slot:append>
-              <q-icon name="search" />
-            </template>
-          </q-input>
-        </template>
-      </q-table>
-    </div>
-  </div>
+      </q-input>
+    </template>
+  </q-table>
 </template>
 
 <script lang="ts">
