@@ -76,6 +76,13 @@ export function scheduleService() {
       return;
     }
     const response = await store.deleteSchedule(scheduleId);
+    if (response.status == HttpStatusCodes.BAD_REQUEST) {
+      notification.setMessage(messages.notInfoFound);
+      notification.showWarning();
+      return;
+    }
+    const apiCalendar = calendar.value.getApi();
+    apiCalendar.refetchEvents();
   }
   async function searchPatient(): Promise<void> {
     const response = await storePatients.getPatientByIdentification(
@@ -219,6 +226,7 @@ export function scheduleService() {
       Constants.FORMAT_DATETIME
     );
     card.value = true;
+    allowToDelete.value = false;
     //cal.refetchEvents();
   }
   async function testChange(selectInfo: EventAddArg) {
@@ -298,13 +306,13 @@ export function scheduleService() {
       console.log(arg.event.startStr);
       console.log(arg.event.id);
       console.log(currentAppointment.value);
-      cal.addEvent({
-        id: 0,
-        title: 'Nueva Cita Editadad',
-        start: arg.start,
-        end: arg.end,
-        allDay: false,
-      });
+      // cal.addEvent({
+      //   id: 0,
+      //   title: 'Nueva Cita Editadad',
+      //   start: arg.start,
+      //   end: arg.end,
+      //   allDay: false,
+      // });
       let response = {} as HttpResponse<unknown>;
       response = await store.retrieveScheduleById(arg.event.id);
       const schedule = (await response.parsedBody) as EventScheduleResponse;
