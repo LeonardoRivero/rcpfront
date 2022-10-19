@@ -120,14 +120,19 @@
     </q-list>
     <q-card-actions align="right" class="text-teal">
       <q-btn
-        v-if="availableButton"
+        v-if="allowToUpdate"
         label="Guardar"
         type="submit"
         color="primary"
       />
+      <q-btn
+        v-if="allowToDelete"
+        label="Eliminar"
+        @click="confirmDeleteSchedule(currentSchedule.id)"
+        color="negative"
+      />
     </q-card-actions>
   </q-form>
-  <ModalCommon />
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted } from 'vue';
@@ -140,7 +145,7 @@ import { IConsultRequest } from 'src/interfaces/IConsults';
 import { IPatientRequest, IPatientResponse } from 'src/interfaces/IPatients';
 
 export default defineComponent({
-  components: { ModalCommon },
+  components: {},
   setup() {
     const dates = date;
     const {
@@ -156,9 +161,11 @@ export default defineComponent({
       currentSchedule,
       identificationPatient,
       currentPatient,
-      availableButton,
+      allowToUpdate,
+      allowToDelete,
       confirmChanges,
       searchPatient,
+      confirmDeleteSchedule,
     } = scheduleService();
 
     onMounted(async () => {
@@ -184,9 +191,11 @@ export default defineComponent({
       currentSchedule,
       identificationPatient,
       currentPatient,
-      availableButton,
+      allowToUpdate,
+      allowToDelete,
       confirmChanges,
       searchPatient,
+      confirmDeleteSchedule,
       dates,
     };
   },

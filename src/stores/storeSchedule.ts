@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia';
+import FullCalendar from '@fullcalendar/vue3';
 import {
   GET,
   POST,
   PUT,
   handleResponse,
   HttpResponse,
+  DELETE,
 } from 'src/scripts/Request';
 import { IPatientResponse } from 'src/interfaces/IPatients';
 import { EndPoints, Messages } from 'src/scripts/Constants';
@@ -26,7 +28,9 @@ export const useStoreSchedule = defineStore('schedule', {
     currentPatient: {} as IPatientResponse,
     currentSchedule: {} as EventScheduleResponse,
     identificationPatient: '',
-    availableButton: true,
+    allowToUpdate: true,
+    allowToDelete: false,
+    calendar: {} as InstanceType<typeof FullCalendar>,
   }),
   actions: {
     async getLastConsult(): Promise<IConsultResponse> {
@@ -49,8 +53,6 @@ export const useStoreSchedule = defineStore('schedule', {
     ): Promise<HttpResponse<unknown>> {
       const url = endpoint.updateOrGetScheduleById(scheduleId);
       const response = await GET(url);
-      //this.scheduleResponse = response.parsedBody as EventScheduleResponse;
-      //handleResponse(response);
       return response;
     },
     async updateSchedule(
@@ -72,6 +74,11 @@ export const useStoreSchedule = defineStore('schedule', {
         patientIdentification: identification,
       });
       const response = await GET(url);
+      return response;
+    },
+    async deleteSchedule(scheduleId: number): Promise<HttpResponse<unknown>> {
+      const url = endpoint.updateOrGetScheduleById(scheduleId);
+      const response = await DELETE(url);
       return response;
     },
   },

@@ -40,5 +40,12 @@ export const useStoreAppointment = defineStore('appointment', {
       handleResponse(response);
       return response;
     },
+    async getAppointmentByScheduleId(
+      scheduleId: number
+    ): Promise<HttpResponse<unknown>> {
+      const url = endpoint.updateOrGetAppointmentByScheduleId(scheduleId);
+      const response = await GET(url);
+      return response;
+    },
   },
 });

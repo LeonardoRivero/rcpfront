@@ -1,27 +1,25 @@
 <template>
-  <div class="row q-col-gutter-x-md">
-    <div class="col-lg-12 col-12 col-md-12">
-      <FullCalendar :options="options" ref="calendar" />
-      <div class="row q-col-gutter-sm q-ma-xs q-mr-sm">
-        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-          <q-dialog v-model="card" persistent>
-            <q-card class="my-card" bordered>
-              <q-card-section class="row items-center q-pb-none">
-                <div class="text-h6">Agenda de Citas</div>
-                <q-space />
-                <q-btn icon="close" flat round dense v-close-popup />
-              </q-card-section>
-              <q-separator inset></q-separator>
-              <q-card-section>
-                <!-- <Appointment /> -->
-                <ScheduleForm />
-              </q-card-section>
-            </q-card>
-          </q-dialog>
-        </div>
-      </div>
+  <FullCalendar :options="calOptions" ref="calendar" />
+
+  <div class="row q-col-gutter-sm q-ma-xs q-mr-sm">
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+      <q-dialog v-model="card" persistent>
+        <q-card class="my-card" bordered>
+          <q-card-section class="row items-center q-pb-none">
+            <div class="text-h6">Agenda de Citas</div>
+            <q-space />
+            <q-btn icon="close" flat round dense v-close-popup />
+          </q-card-section>
+          <q-separator inset></q-separator>
+          <q-card-section>
+            <!-- <Appointment /> -->
+            <ScheduleForm />
+          </q-card-section>
+        </q-card>
+      </q-dialog>
     </div>
   </div>
+
   <!-- <q-inner-loading
       :showing="visible"
       label="Por favor espere..."
@@ -52,7 +50,7 @@ export default defineComponent({
   components: { FullCalendar, ScheduleForm },
 
   setup() {
-    const { getLastIdConsult, options, card, calendar } = scheduleService();
+    const { calOptions, card, calendar } = scheduleService();
 
     onMounted(async () => {
       //getLastIdConsult();
@@ -202,7 +200,7 @@ export default defineComponent({
     // });
 
     return {
-      options,
+      calOptions,
       card,
       calendar,
       // visible,

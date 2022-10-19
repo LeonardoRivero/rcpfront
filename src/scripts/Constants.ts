@@ -52,6 +52,9 @@ export class EndPoints {
   updatePatient(id: number): string {
     return `${this.domine}/api/patient/${id}/`;
   }
+  updateOrGetAppointmentByScheduleId(id: number): string {
+    return `${this.domine}/api/consult/${id}/`;
+  }
   updateOrGetScheduleById(id: number): string {
     return `${this.domine}/api/schedule/${id}/`;
   }
@@ -94,6 +97,9 @@ export class Messages {
   }
   get updateRegister(): string {
     return '¿Deseas actualizar los datos ingresados?';
+  }
+  get deleteRegister(): string {
+    return '¿Estas seguro de borrar el registro seleccionado?.Esta acción no podra ser revertida';
   }
   get scheduleExisting(): string {
     return 'Ya existe una cita agendada para esa hora.';

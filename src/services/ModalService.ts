@@ -3,13 +3,17 @@ import { useRouter } from 'vue-router';
 import { routerInstance } from 'boot/globalRouter';
 import { storeToRefs } from 'pinia';
 import { useStoreModal } from 'src/stores/storeCommon';
-import Swal from 'sweetalert2';
+import Swal, {
+  SweetAlertIcon,
+  SweetAlertOptions,
+  SweetAlertResult,
+} from 'sweetalert2';
 import routes from 'src/router/routes';
 
 const storeCommon = useStoreModal();
 
 export default function modalService() {
-  let _type: string | null = null;
+  let _type: string | null = 'info';
   const { urlToRedirect, visible, redirect, objetToShow, title } =
     storeToRefs(storeCommon);
 
@@ -17,7 +21,7 @@ export default function modalService() {
     urlToRedirect.value = url;
     redirect.value = true;
   }
-  function setType(typeModal: string) {
+  function setType(typeModal: SweetAlertIcon) {
     _type = typeModal;
   }
   function setTitle(titleModal: string): void {
@@ -32,19 +36,25 @@ export default function modalService() {
   }
   async function showModal(
     titleModal: string,
-    textModal: string
+    textModal: string,
+    typeModal?: string
   ): Promise<boolean> {
-    const result = await Swal.fire({
+    let icon = 'info' as SweetAlertIcon;
+    if (typeModal != undefined) {
+      icon = typeModal as SweetAlertIcon;
+    }
+    const h = {
       title: titleModal,
       allowOutsideClick: false,
-      icon: 'info',
+      icon: icon,
       text: textModal,
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       cancelButtonText: 'Cancelar',
       confirmButtonText: 'Aceptar',
-    });
+    } as SweetAlertOptions;
+    const result = (await Swal.fire(h)) as SweetAlertResult;
     if (result.isConfirmed == true) {
       return true;
     }

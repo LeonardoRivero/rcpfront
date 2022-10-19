@@ -1,18 +1,14 @@
-import { computed, ref, reactive } from 'vue';
+import { ref, reactive } from 'vue';
+import '@fullcalendar/core/vdom';
+import { EventAddArg } from '@fullcalendar/core';
 import { QForm, date } from 'quasar';
 import { useQuasar, QSpinnerGears } from 'quasar';
 import { storeToRefs } from 'pinia';
-import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import {
-  CalendarOptions,
-  EventApi,
-  DateSelectArg,
-  EventClickArg,
-} from '@fullcalendar/vue3';
-import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import { CalendarOptions, DateSelectArg } from '@fullcalendar/vue3';
+import listPlugin from '@fullcalendar/list';
 import esLocale from '@fullcalendar/core/locales/es';
 import { useStoreSchedule } from 'src/stores/storeSchedule';
 import { Modal, Notification } from 'src/scripts/Notifications';
@@ -28,17 +24,19 @@ import {
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { routerInstance } from 'src/boot/globalRouter';
 import modalService from './ModalService';
-import { EventChangeArg, EventAddArg, CalendarApi } from '@fullcalendar/core';
+
+import { useStoreAppointment } from 'src/stores/storeAppointment';
+import { HttpResponse } from 'src/scripts/Request';
 
 const notification = new Notification();
 const messages = new Messages();
 const endpoint = new EndPoints();
 const store = useStoreSchedule();
+const storeAppointment = useStoreAppointment();
 const storePatients = useStorePatients();
 const validator = new Validators();
 const serviceModal = modalService();
 const storeSchedule = useStoreSchedule();
-const message = new Constants.Messages();
 
 export function scheduleService() {
   const {
@@ -48,11 +46,12 @@ export function scheduleService() {
     currentPatient,
     currentSchedule,
     identificationPatient,
-    availableButton,
+    allowToUpdate,
+    allowToDelete,
+    calendar,
   } = storeToRefs(store);
 
   const formSchedule = ref<QForm | null>(null);
-  const calendar = ref<CalendarApi>();
 
   const START_TIME = '07:00';
   const END_TIME = '18:00';
@@ -66,6 +65,18 @@ export function scheduleService() {
     }
     return response.id;
   }
+  async function confirmDeleteSchedule(scheduleId: number): Promise<void> {
+    storeSchedule.card = false;
+    const confirm = await serviceModal.showModal(
+      'Atención',
+      messages.deleteRegister,
+      'warning'
+    );
+    if (confirm == false) {
+      return;
+    }
+    const response = await store.deleteSchedule(scheduleId);
+  }
   async function searchPatient(): Promise<void> {
     const response = await storePatients.getPatientByIdentification(
       identificationPatient.value
@@ -77,7 +88,7 @@ export function scheduleService() {
       storeSchedule.card = false;
       const confirm = await serviceModal.showModal(
         'Atención',
-        message.notFoundInfoPatient
+        messages.notFoundInfoPatient
       );
       if (confirm == false) {
         return;
@@ -92,11 +103,9 @@ export function scheduleService() {
     const data = (await response.parsedBody) as IPatientResponse;
     store.currentPatient = data;
   }
-  async function confirmChanges(): Promise<void> {
+  async function confirmChanges(): Promise<boolean> {
     const isValid = await formSchedule.value?.validate();
-    if (isValid == false) {
-      return;
-    }
+    if (isValid == false) return false;
 
     const responsePatient = await storePatients.getPatientByIdentification(
       identificationPatient.value
@@ -109,22 +118,20 @@ export function scheduleService() {
       storeSchedule.card = false;
       const confirm = await serviceModal.showModal(
         'Atención',
-        message.notFoundInfoPatient
+        messages.notFoundInfoPatient
       );
 
-      if (confirm == false) {
-        return;
-      }
+      if (confirm == false) return false;
     }
 
     const dateIsValid = validator.dateGreater(currentSchedule.value.start);
     if (dateIsValid === false) {
       notification.setMessage(messages.dateOrHourNotValid);
       notification.showError();
-      return;
+      return false;
     }
 
-    if (patient.id == null || !currentSchedule.value) return;
+    if (patient.id == null || !currentSchedule.value) return false;
 
     let payload = {} as EventScheduleRequest;
 
@@ -144,14 +151,17 @@ export function scheduleService() {
       };
 
       const response = await store.createSchedule(payload);
+      const apiCalendar = calendar.value.getApi();
+      apiCalendar.refetchEvents();
 
       if (response.status == HttpStatusCodes.BAD_REQUEST) {
         notification.setMessage(messages.scheduleExisting);
         notification.showError();
-        return;
+        return false;
       }
       card.value = false;
-      routerInstance.push('/appointment');
+      return true;
+      //routerInstance.push('/appointment');
     }
 
     let confirmUpdate = false;
@@ -163,9 +173,7 @@ export function scheduleService() {
         messages.updateRegister
       );
 
-      if (confirmUpdate === false) {
-        return;
-      }
+      if (confirmUpdate === false) return false;
     }
     if (confirmUpdate == true) {
       payload = {
@@ -177,43 +185,43 @@ export function scheduleService() {
       };
     }
     const response = await store.updateSchedule(payload);
-    if (response == null) {
-      return;
-    }
+    if (response == null) return false;
+
     if (response.status == HttpStatusCodes.BAD_REQUEST) {
       notification.setMessage(messages.scheduleExisting);
       notification.showError();
-      return;
+      return false;
     }
     card.value = false;
-    routerInstance.push('/appointment');
+    const apiCalendar = calendar.value.getApi();
+    apiCalendar.refetchEvents();
+    //routerInstance.push('/appointment');
+    return true;
   }
-  async function getScheduleById(scheduleId: number): Promise<void> {
-    const response = await store.retrieveScheduleById(scheduleId);
-    const data = (await response.parsedBody) as EventScheduleResponse;
-    const formattedString = date.formatDate(
-      data.start,
-      Constants.FORMAT_DATETIME
-    );
-    currentAppointment.value.date = formattedString;
-    currentPatient.value.name = data.patient.name;
-    currentPatient.value.lastName = data.patient.lastName;
-    identificationPatient.value = data.patient.identification.toString();
-  }
+  // async function getScheduleById(scheduleId: number): Promise<void> {
+  //   const response = await store.retrieveScheduleById(scheduleId);
+  //   const data = (await response.parsedBody) as EventScheduleResponse;
+  //   const formattedString = date.formatDate(
+  //     data.start,
+  //     Constants.FORMAT_DATETIME
+  //   );
+  //   currentAppointment.value.date = formattedString;
+  //   currentPatient.value.name = data.patient.name;
+  //   currentPatient.value.lastName = data.patient.lastName;
+  //   identificationPatient.value = data.patient.identification.toString();
+  // }
   async function handleDateSelect(selectInfo: DateSelectArg) {
-    const calendarApi = selectInfo.view.calendar;
-    calendarApi.unselect();
+    //const cal = selectInfo.view.calendar;
+    // calendarApi.unselect();
     currentSchedule.value.id = undefined;
     currentSchedule.value.start = date.formatDate(
       selectInfo.start,
       Constants.FORMAT_DATETIME
     );
     card.value = true;
-    calendarApi.refetchEvents();
+    //cal.refetchEvents();
   }
   async function testChange(selectInfo: EventAddArg) {
-    console.log('object', selectInfo);
-    const calendarApi = selectInfo;
     // calendarApi.addEvent({
     //   title: currentPatient.value.name,
     //   start: currentSchedule.value.start,
@@ -222,10 +230,7 @@ export function scheduleService() {
     // });
     //calendarApi.refetchEvents();
   }
-  async function handleEvents(events: EventApi[]) {
-    console.log(events);
-  }
-  const options = reactive({
+  const calOptions = reactive({
     plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
     timeZone: 'local',
     nowIndicator: true,
@@ -235,6 +240,8 @@ export function scheduleService() {
       startTime: START_TIME,
       endTime: END_TIME,
     },
+    slotMinTime: START_TIME,
+    slotMaxTime: END_TIME,
     slotDuration: DURATION_APPOINTMENT,
     initialView: 'dayGridMonth',
     headerToolbar: {
@@ -252,7 +259,15 @@ export function scheduleService() {
       color: '#378006', // a non-ajax option
       textColor: 'black', // a non-ajax option
     },
-    eventsSet: handleEvents,
+    // dateClick(arg) {
+    //   card.value = true;
+    //   currentSchedule.value.id = undefined;
+    //   currentSchedule.value.start = date.formatDate(
+    //     arg.date,
+    //     Constants.FORMAT_DATETIME
+    //   );
+    //   //arg.dayEl.style.backgroundColor = 'red';
+    // },
     locale: esLocale,
     editable: true,
     selectable: true,
@@ -279,16 +294,29 @@ export function scheduleService() {
     eventAdd: testChange,
     eventClick: async (arg: any) => {
       console.log(arg);
+      const cal = arg.view.calendar;
       console.log(arg.event.startStr);
       console.log(arg.event.id);
       console.log(currentAppointment.value);
-      const response = await store.retrieveScheduleById(arg.event.id);
-      const schedule = response.parsedBody as EventScheduleResponse;
-      const dateIsValid = validator.dateGreater(schedule.start);
-      availableButton.value = true;
-      if (dateIsValid == false) {
-        availableButton.value = dateIsValid;
+      cal.addEvent({
+        id: 0,
+        title: 'Nueva Cita Editadad',
+        start: arg.start,
+        end: arg.end,
+        allDay: false,
+      });
+      let response = {} as HttpResponse<unknown>;
+      response = await store.retrieveScheduleById(arg.event.id);
+      const schedule = (await response.parsedBody) as EventScheduleResponse;
+      if (response.status == HttpStatusCodes.NOT_FOUND) {
+        return;
       }
+      const dateIsValid = validator.dateGreater(schedule.start);
+      allowToUpdate.value = true;
+      if (dateIsValid == false) {
+        allowToUpdate.value = dateIsValid;
+      }
+
       currentPatient.value.name = schedule.patient.name;
       currentPatient.value.lastName = schedule.patient.lastName;
       identificationPatient.value = schedule.patient.identification.toString();
@@ -301,21 +329,18 @@ export function scheduleService() {
         schedule.end,
         Constants.FORMAT_DATETIME
       );
+      if (schedule.id == undefined) {
+        return;
+      }
+      response = await storeAppointment.getAppointmentByScheduleId(schedule.id);
+      allowToDelete.value = false;
       card.value = true;
+      if (response.status == HttpStatusCodes.NOT_FOUND) {
+        allowToDelete.value = true;
+        return;
+      }
     },
     views: {
-      // timelineCustom: {
-      //   type: 'timeline',
-      //   buttonText: 'Year',
-      //   dateIncrement: { years: 1 },
-      //   slotDuration: { months: 1 },
-      //   visibleRange: function (currentDate: any) {
-      //     return {
-      //       start: currentDate.clone().startOf('year'),
-      //       end: currentDate.clone().endOf('year'),
-      //     };
-      //   },
-      // },
       timeGridForYear: {
         type: 'dayGridMonth',
         duration: { years: 1 },
@@ -327,7 +352,7 @@ export function scheduleService() {
   return {
     //! Properties
     lastConsult,
-    options,
+    calOptions,
     card,
     formSchedule,
     calendar,
@@ -335,10 +360,13 @@ export function scheduleService() {
     currentPatient,
     identificationPatient,
     currentSchedule,
-    availableButton,
+    allowToUpdate,
+    allowToDelete,
     //!Metodos
     getLastIdConsult,
     confirmChanges,
     searchPatient,
+    confirmDeleteSchedule,
+    handleDateSelect,
   };
 }

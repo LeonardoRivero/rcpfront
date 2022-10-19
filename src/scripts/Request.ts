@@ -65,8 +65,7 @@ export async function PUT<T>(
 }
 export async function DELETE<T>(
   path: string,
-  body: unknown,
-  args: RequestInit = { method: 'DELETE', body: JSON.stringify(body) }
+  args: RequestInit = { method: 'DELETE' }
 ): Promise<HttpResponse<T>> {
   return await http<T>(new Request(path, args));
 }
