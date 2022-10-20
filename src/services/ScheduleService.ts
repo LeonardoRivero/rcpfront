@@ -1,6 +1,6 @@
 import { ref, reactive } from 'vue';
 import '@fullcalendar/core/vdom';
-import { EventAddArg } from '@fullcalendar/core';
+import { EventAddArg, EventApi } from '@fullcalendar/core';
 import { QForm, date } from 'quasar';
 import { useQuasar, QSpinnerGears } from 'quasar';
 import { storeToRefs } from 'pinia';
@@ -229,6 +229,12 @@ export function scheduleService() {
     allowToDelete.value = false;
     //cal.refetchEvents();
   }
+  async function handleEventSet(evs: EventApi[]) {
+    // console.log(evs);
+    // evs.forEach((element) => {
+    //   element.setProp('color', 'red');
+    // });
+  }
   async function testChange(selectInfo: EventAddArg) {
     // calendarApi.addEvent({
     //   title: currentPatient.value.name,
@@ -264,18 +270,36 @@ export function scheduleService() {
         notification.setMessage('error al obtener los datos!');
         notification.showError();
       },
+      success: function (content) {
+        const timeStamp = Date.now();
+        content.forEach((element: any) => {
+          const diff = date.getDateDiff(element.start, timeStamp, 'days');
+          element.textColor = 'white';
+          if (diff < 0) {
+            element.color = 'red';
+          }
+          if (diff == 0) {
+            element.color = 'purple';
+          }
+          if (diff > 0) {
+            element.color = 'green';
+          }
+        });
+      },
       color: '#378006', // a non-ajax option
       textColor: 'black', // a non-ajax option
     },
-    // dateClick(arg) {
-    //   card.value = true;
-    //   currentSchedule.value.id = undefined;
-    //   currentSchedule.value.start = date.formatDate(
-    //     arg.date,
-    //     Constants.FORMAT_DATETIME
-    //   );
-    //   //arg.dayEl.style.backgroundColor = 'red';
-    // },
+    eventsSet: handleEventSet,
+    dateClick(arg) {
+      // card.value = true;
+      // currentSchedule.value.id = undefined;
+      // currentSchedule.value.start = date.formatDate(
+      //   arg.date,
+      //   Constants.FORMAT_DATETIME
+      // );
+      console.log(arg.dayEl.style);
+      // arg.dayEl.style.backgroundColor = 'red';
+    },
     locale: esLocale,
     editable: true,
     selectable: true,
@@ -319,12 +343,6 @@ export function scheduleService() {
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         return;
       }
-      const dateIsValid = validator.dateGreater(schedule.start);
-      allowToUpdate.value = true;
-      if (dateIsValid == false) {
-        allowToUpdate.value = dateIsValid;
-      }
-
       currentPatient.value.name = schedule.patient.name;
       currentPatient.value.lastName = schedule.patient.lastName;
       identificationPatient.value = schedule.patient.identification.toString();
@@ -338,6 +356,14 @@ export function scheduleService() {
         Constants.FORMAT_DATETIME
       );
       if (schedule.id == undefined) {
+        return;
+      }
+      const dateIsValid = validator.dateGreater(schedule.start);
+      allowToUpdate.value = true;
+      if (dateIsValid == false) {
+        allowToUpdate.value = false;
+        allowToDelete.value = false;
+        card.value = true;
         return;
       }
       response = await storeAppointment.getAppointmentByScheduleId(schedule.id);
