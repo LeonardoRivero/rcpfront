@@ -3,8 +3,8 @@ const timeStamp = Date.now();
 
 export class EndPoints {
   private static instance: EndPoints;
-  //private domine = 'https://leonardorivero.pythonanywhere.com';
-  private domine = 'http://127.0.0.1:8000';
+  private domine = 'https://leonardorivero.pythonanywhere.com';
+  //private domine = 'http://127.0.0.1:8000';
   // domine: string;
   private constructor() {
     // if (process.env.PUBLIC == undefined) {
