@@ -10,34 +10,42 @@ import {
 } from 'src/scripts/Request';
 import { IPatientResponse } from 'src/interfaces/IPatients';
 import { EndPoints, Messages } from 'src/scripts/Constants';
-import { IConsultRequest, IConsultResponse } from 'src/interfaces/IConsults';
-import HttpStatusCode from 'src/scripts/HttpStatusCodes';
+import {
+  IAppointmentRequest,
+  IAppointmentResponse,
+  IDoctorRequest,
+  IDoctorResponse,
+  ISpeciality,
+} from 'src/interfaces/IConsults';
 import {
   EventScheduleRequest,
   EventScheduleResponse,
 } from 'src/interfaces/ICommons';
 
-const endpoint = new EndPoints();
+const endpoint = EndPoints.getInstance();
 const messages = new Messages();
 
 export const useStoreSchedule = defineStore('schedule', {
   state: () => ({
-    lastConsult: {} as IConsultResponse,
+    lastConsult: {} as IAppointmentResponse,
     card: false,
-    currentAppointment: {} as IConsultRequest,
+    currentAppointment: {} as IAppointmentRequest,
     currentPatient: {} as IPatientResponse,
     currentSchedule: {} as EventScheduleResponse,
+    currentDoctor: null as IDoctorResponse | null,
+    allDoctors: [] as Array<IDoctorResponse>,
+    speciality: null as ISpeciality | null,
     identificationPatient: '',
     allowToUpdate: true,
     allowToDelete: false,
     calendar: {} as InstanceType<typeof FullCalendar>,
   }),
   actions: {
-    async getLastConsult(): Promise<IConsultResponse> {
+    async getLastConsult(): Promise<IAppointmentResponse> {
       const urlBase = endpoint.getORcreateConsult;
       const url = endpoint.urlQueryParameter(urlBase, { last: 'null' });
       const response = await GET(url);
-      this.lastConsult = (await response.parsedBody) as IConsultResponse;
+      this.lastConsult = (await response.parsedBody) as IAppointmentResponse;
       return this.lastConsult;
     },
     async createSchedule(

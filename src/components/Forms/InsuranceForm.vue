@@ -19,6 +19,11 @@
           label="Descripcion"
           @update:model-value="(val) => insuranceChanged(val)"
           @clear="(val) => clearInsurance(val)"
+          :hint="`Codigo Entidad: ${
+            currentInsurance.entityCode == undefined
+              ? ''
+              : currentInsurance.entityCode
+          }`"
         >
         </q-select>
       </q-card-section>

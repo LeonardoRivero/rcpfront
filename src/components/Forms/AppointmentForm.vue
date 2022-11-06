@@ -82,7 +82,15 @@
               <q-item-label class="q-pb-xs">Datos Consulta</q-item-label>
               <div class="row q-col-gutter-x-md">
                 <div class="col-12 col-md-6">
-                  <q-select
+                  <q-input
+                    dense
+                    type="text"
+                    outlined
+                    v-model="speciality.description"
+                    label="Especialidad"
+                    disable
+                  />
+                  <!-- <q-select
                     dense
                     clearable
                     outlined
@@ -98,7 +106,7 @@
                         (val && val != null) || 'Especialidad es requerida',
                     ]"
                   >
-                  </q-select>
+                  </q-select> -->
                 </div>
                 <div class="col-12 col-md-6">
                   <q-input
@@ -107,6 +115,7 @@
                     v-model="currentAppointment.date"
                     label="Fecha Cita"
                     hint="Finalizacion Cita"
+                    disable
                   >
                     <template v-slot:prepend>
                       <q-icon name="event">
@@ -117,8 +126,8 @@
                           <q-date
                             today-btn
                             v-model="currentAppointment.date"
-                            :navigation-min-year-month="currentYearMonth"
-                            :mask="formatDatetime"
+                            :navigation-min-year-month="CURRENTYEAR_MONTH"
+                            :mask="FORMAT_DATETIME"
                           />
                         </q-popup-proxy>
                       </q-icon>
@@ -132,9 +141,9 @@
                         >
                           <q-time
                             v-model="currentAppointment.date"
-                            :mask="formatDatetime"
-                            :minute-options="minutesAllowed"
-                            :hour-options="hoursAllowed"
+                            :mask="FORMAT_DATETIME"
+                            :minute-options="MINUTES_ALLOWED"
+                            :hour-options="HOURS_ALLOWED"
                           >
                             <div class="row items-center justify-end">
                               <q-btn
@@ -332,18 +341,21 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted } from 'vue';
-// import Patients from 'src/components/Forms/PatientForm.vue';
 import { appointmentService } from 'src/services/AppointmentService';
 import { patientService } from 'src/services/PatientService';
 import { specialityService } from 'src/services/SpecialityService';
-// import { dxMainCodeService } from 'src/services/DxMainCodeService';
 import ModalCommon from 'src/components/commons/ModalCommon.vue';
+import { IPatientResponse } from 'src/interfaces/IPatients';
+import * as Constants from 'src/scripts/Constants';
 import 'src/css/app.sass';
-import { IPatientRequest, IPatientResponse } from 'src/interfaces/IPatients';
 
 export default defineComponent({
   components: { ModalCommon },
   setup() {
+    const HOURS_ALLOWED = Constants.OPTIONS_HOURS;
+    const MINUTES_ALLOWED = Constants.OPTIONS_MINUTES;
+    const CURRENTYEAR_MONTH = Constants.CURRENTYEAR_MONTH;
+    const FORMAT_DATETIME = Constants.FORMAT_DATETIME;
     const {
       identificationPatient,
       currentAppointment,
@@ -351,19 +363,14 @@ export default defineComponent({
       currentPatient,
       currentPatientStatus,
       currentHealthInsurance,
-      formattedTime,
-      formatDatetime,
+      speciality,
       reasonConsult,
-      // show, //verificar si se esta usando sino borrar
-      hoursAllowed,
-      minutesAllowed,
-      currentYearMonth,
       searchPatient,
       confirmChanges,
       calculateAmountPaid,
       patientStatusChanged,
     } = appointmentService();
-    const { allSpecialities, speciality, clearSpeciality, getAllSpecialities } =
+    const { allSpecialities, clearSpeciality, getAllSpecialities } =
       specialityService();
     // const {
     //   dxMainCodeofSpeciality,
@@ -380,7 +387,6 @@ export default defineComponent({
     } = patientService();
     onMounted(async () => {
       getAllSpecialities();
-      // getAllDxMainCode();
       getAllReasonConsult();
       getAllPatientStatus();
     });
@@ -389,18 +395,14 @@ export default defineComponent({
     });
 
     return {
-      // dxMainCodeChanged,
-      // currentDxMainCode,
-      currentYearMonth,
-      hoursAllowed,
-      minutesAllowed,
+      CURRENTYEAR_MONTH,
+      HOURS_ALLOWED,
+      MINUTES_ALLOWED,
       currentHealthInsurance,
       reasonConsult,
       allReasonConsult,
       allPatientStatus,
-      // dxMainCode,
-      formattedTime,
-      formatDatetime,
+      FORMAT_DATETIME,
       formAppointment,
       currentAppointment,
       currentPatientStatus,
@@ -409,14 +411,10 @@ export default defineComponent({
       calculateAmountPaid,
       searchPatient,
       patientStatusChanged,
-      // date,
       allSpecialities,
       speciality,
       clearSpeciality,
-      // specialityChanged,
-      // saveAppointment,
       currentPatient,
-      // dxMainCodeofSpeciality,
       filter: '',
       mode: 'list',
       deposit: {},

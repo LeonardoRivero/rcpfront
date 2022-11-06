@@ -12,6 +12,8 @@ import {
   IDXMainCodeResponse,
   IRelationCodeRequest,
   IRelationCodeResponse,
+  IDoctorResponse,
+  IDoctorRequest,
 } from 'src/interfaces/IConsults';
 import { IHealthInsurance } from 'src/interfaces/IPatients';
 import { EndPoints, Messages } from 'src/scripts/Constants';
@@ -19,7 +21,7 @@ import { IColumnsDataTable } from 'src/interfaces/ICommons';
 import { serviceDataTable } from 'src/services/DataTableService';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 
-const endpoint = new EndPoints();
+const endpoint = EndPoints.getInstance();
 const messages = new Messages();
 const { setData, titleTable } = serviceDataTable();
 
@@ -34,6 +36,9 @@ export const useStoreSettings = defineStore('settings', {
     currentRelationCode: {} as IRelationCodeResponse | null,
     allInsurance: undefined as Array<IHealthInsurance> | undefined,
     currentInsurance: {} as IHealthInsurance,
+    allDoctors: [] as Array<IDoctorResponse>,
+    currentDoctor: {} as IDoctorRequest,
+    speciality: null as ISpeciality | null,
   }),
   getters: {},
   actions: {
@@ -142,7 +147,6 @@ export const useStoreSettings = defineStore('settings', {
       const response = await GET(url);
       this.allRelationCodes =
         response.parsedBody as Array<IRelationCodeResponse>;
-      //handleResponse(response);
       const columnsr = [
         {
           name: 'id',
@@ -189,7 +193,6 @@ export const useStoreSettings = defineStore('settings', {
           relationCode: row.description,
         };
       });
-      console.log(r);
       titleTable.value = 'Resumen';
       setData(columnsr, r);
       return response;
@@ -214,7 +217,12 @@ export const useStoreSettings = defineStore('settings', {
       const response = await GET(url);
       this.allRelationCodes =
         response.parsedBody as Array<IRelationCodeResponse>;
-      //handleResponse(response);
+      return response;
+    },
+    async retrieveAllDoctors(): Promise<HttpResponse<unknown>> {
+      const url = endpoint.getORcreateDoctor;
+      const response = await GET(url);
+      this.allDoctors = response.parsedBody as Array<IDoctorResponse>;
       return response;
     },
   },

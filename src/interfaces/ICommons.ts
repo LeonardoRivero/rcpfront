@@ -1,3 +1,4 @@
+import { IDoctorResponse, ISpeciality } from './IConsults';
 import { IPatientRequest, IPatientResponse } from './IPatients';
 
 export interface IQueryParameters {
@@ -15,6 +16,8 @@ export interface EventScheduleRequest {
   start: string;
   end: string;
   patient: number;
+  speciality: number;
+  doctor: number;
 }
 export interface EventScheduleResponse {
   id?: number;
@@ -22,6 +25,8 @@ export interface EventScheduleResponse {
   start: string;
   end: string;
   patient: IPatientResponse;
+  speciality: ISpeciality;
+  doctor: IDoctorResponse;
 }
 export interface IColumnsDataTable {
   name: string;

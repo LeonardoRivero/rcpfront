@@ -1,6 +1,24 @@
 import { date } from 'quasar';
-import { BASE_YEAR, MININUM_AGE } from './Constants';
+import {
+  BASE_YEAR,
+  MININUM_AGE,
+  OPTIONS_HOURS,
+  OPTIONS_MINUTES,
+} from './Constants';
 export class Validators {
+  private static instance: Validators;
+  private options_hours = OPTIONS_HOURS;
+  private options_minutes = OPTIONS_MINUTES;
+  private constructor() {
+    //
+  }
+  public static getInstance(): Validators {
+    if (!Validators.instance) {
+      Validators.instance = new Validators();
+    }
+
+    return Validators.instance;
+  }
   dateGreater(dateString: string): boolean | null {
     if (!date.isValid(dateString)) {
       return null;
@@ -15,7 +33,6 @@ export class Validators {
     const month = 'months';
     const diffMonth = date.getDateDiff(dateString, timeStamp, month);
     if (diffMonth < 0) {
-      this.hourGreater(dateString);
       return false;
     }
     const days = 'days';
@@ -23,28 +40,60 @@ export class Validators {
     if (diffDays < 0) {
       return false;
     }
-    const hourIsValid = this.hourGreater(dateString);
-    if (hourIsValid === false) {
-      return false;
+    let hourIsValid = null;
+    if (diffDays == 0) {
+      hourIsValid = this.hourGreater(dateString);
     }
+    if (diffDays > 0) {
+      hourIsValid = this.hourIsInRangeAllowed(dateString);
+    }
+    return hourIsValid == null || hourIsValid == false ? false : true;
     return true;
   }
+
+  hourIsInRangeAllowed(dateString: string): boolean | null {
+    if (!date.isValid(dateString)) {
+      return null;
+    }
+
+    const dateFormated = new Date(dateString);
+    const hour = dateFormated.getHours();
+    const minutes = dateFormated.getMinutes();
+
+    if (
+      this.options_hours.includes(hour) &&
+      this.options_minutes.includes(minutes)
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
   hourGreater(dateString: string): boolean | null {
     if (!date.isValid(dateString)) {
       return null;
     }
-    const timeStamp = Date.now();
-    const hours = 'hours';
-    const diffHour = date.getDateDiff(dateString, timeStamp, hours);
-    if (diffHour < 0) {
+
+    const dateFormated = new Date(dateString);
+    const hour = dateFormated.getHours();
+    const minutes = dateFormated.getMinutes();
+    const today = new Date();
+    const currentHour = today.getHours();
+    const currentMinutes = today.getMinutes();
+
+    if (
+      this.options_hours.includes(hour) &&
+      this.options_minutes.includes(minutes) &&
+      hour >= currentHour
+    ) {
+      if (minutes > currentMinutes) {
+        return true;
+      }
       return false;
     }
-    const minutes = 'minutes';
-    const diffMinutes = date.getDateDiff(dateString, timeStamp, minutes);
-    if (diffMinutes < 0) {
-      return false;
-    }
-    return true;
+
+    return false;
   }
   email(email: string): boolean {
     const emailPattern =

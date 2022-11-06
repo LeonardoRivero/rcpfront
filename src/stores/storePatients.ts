@@ -17,7 +17,7 @@ import HttpStatusCode from 'src/scripts/HttpStatusCodes';
 import { IPatientStatus, IReasonConsult } from 'src/interfaces/IConsults';
 import { QForm } from 'quasar';
 
-const endpoint = new EndPoints();
+const endpoint = EndPoints.getInstance();
 const messages = new Messages();
 
 export const useStorePatients = defineStore('patients', {
@@ -80,7 +80,7 @@ export const useStorePatients = defineStore('patients', {
       const response = await GET(url);
       // console.log(response);
       this.allPatientStatus = response.parsedBody as Array<IPatientStatus>;
-      handleResponse(response);
+      //handleResponse(response);
       return response;
     },
     async retrieveAllReasonConsult(): Promise<HttpResponse<unknown>> {
@@ -88,7 +88,7 @@ export const useStorePatients = defineStore('patients', {
       const response = await GET(url);
       this.allReasonConsult = response.parsedBody as Array<IReasonConsult>;
       // console.log(response);
-      handleResponse(response);
+      //handleResponse(response);
       return response;
     },
   },

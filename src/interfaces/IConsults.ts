@@ -42,7 +42,7 @@ export interface IDoctorRequest {
   codigo: string;
   name: string;
   lastName: string;
-  speciality: number;
+  speciality: Array<number>;
 }
 export interface IDoctorResponse {
   id?: number;
@@ -51,29 +51,29 @@ export interface IDoctorResponse {
   lastName: string;
   speciality: ISpeciality;
 }
-export interface IConsultRequest {
+export interface IAppointmentRequest {
   id?: number;
-  price?: number;
-  copayment?: number;
-  amountPaid?: number;
+  price: number;
+  copayment: number;
+  amountPaid: number;
   date: string;
-  authorizationNumber?: string;
-  patientStatus?: number;
-  reasonConsult?: number;
-  schedule?: number;
+  authorizationNumber: string;
+  patientStatus: number;
+  reasonConsult: number;
+  schedule: number;
   patient: number;
-  doctor?: number;
+  doctor: number;
 }
-export interface IConsultResponse {
+export interface IAppointmentResponse {
   id?: number;
   price: number;
   copayment: number;
   amountPaid: number;
   date: string;
   authorizationNumber: number;
-  patientStatus?: IPatientStatus;
-  reasonConsult?: IReasonConsult;
-  schedule?: EventScheduleResponse;
-  patient?: IPatientResponse;
-  doctor?: IDoctorResponse;
+  patientStatus: IPatientStatus;
+  reasonConsult: IReasonConsult;
+  schedule: EventScheduleResponse;
+  patient: IPatientResponse;
+  doctor: IDoctorResponse;
 }

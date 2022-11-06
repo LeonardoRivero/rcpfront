@@ -9,14 +9,12 @@ import {
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { HttpResponse } from 'src/scripts/Request';
 import modalService from './ModalService';
-// import { Modal } from 'src/scripts/Notifications';
 import { routerInstance } from 'src/boot/globalRouter';
 import { Messages } from 'src/scripts/Constants';
 
 const store = useStoreSettings();
 const serviceModal = modalService();
 const messages = new Messages();
-// const modal = new Modal();
 
 export function dxMainCodeService() {
   const { allDxMainCodes, currentDxMainCode, currentSpeciality, dxMainCode } =

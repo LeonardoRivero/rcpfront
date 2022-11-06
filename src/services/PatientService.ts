@@ -27,7 +27,7 @@ const serviceInsurance = insuranceService();
 const notification = new Notification();
 const serviceModal = modalService();
 const messages = new Messages();
-const validator = new Validators();
+const validator = Validators.getInstance();
 
 export function patientService() {
   const {

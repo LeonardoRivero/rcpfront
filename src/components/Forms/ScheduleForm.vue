@@ -33,8 +33,8 @@
                       <q-date
                         today-btn
                         v-model="currentSchedule.start"
-                        :navigation-min-year-month="currentYearMonth"
-                        :mask="formatDatetime"
+                        :navigation-min-year-month="MIN_YEAR_MONTH"
+                        :mask="FORMAT_DATETIME"
                       />
                     </q-popup-proxy>
                   </q-icon>
@@ -48,9 +48,9 @@
                     >
                       <q-time
                         v-model="currentSchedule.start"
-                        :mask="formatDatetime"
-                        :minute-options="minutesAllowed"
-                        :hour-options="hoursAllowed"
+                        :mask="FORMAT_DATETIME"
+                        :minute-options="MINUTES_ALLOWED"
+                        :hour-options="HOURS_ALLOWED"
                       >
                         <div class="row items-center justify-end">
                           <q-btn
@@ -117,6 +117,58 @@
           </div>
         </q-item-section>
       </q-item>
+      <q-item>
+        <q-item-section>
+          Datos Generales:
+          <div class="row q-col-gutter-x-md">
+            <div class="col-6 col-md col-sm-12 col-xs-12">
+              <q-select
+                dense
+                clearable
+                outlined
+                v-model="currentDoctor"
+                :options="allDoctors"
+                option-value="id"
+                label="Doctor"
+                lazy-rules
+                map-options
+                :rules="[(val) => val || 'Doctor es requerido']"
+                :display-value="`${currentDoctor ? currentDoctor.name : ''} ${
+                  currentDoctor ? currentDoctor.lastName : ''
+                }`"
+              >
+                <template v-slot:option="{ itemProps, opt }">
+                  <q-item v-bind="itemProps">
+                    <q-item-section>
+                      <q-item-label
+                        >{{ opt.name }} {{ opt.lastName }}</q-item-label
+                      >
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+            </div>
+            <div class="col-6 col-md col-sm-12 col-xs-12">
+              <q-select
+                dense
+                clearable
+                outlined
+                v-model="speciality"
+                :options="allSpecialities"
+                option-value="id"
+                option-label="description"
+                map-options
+                label="Especialidad"
+                lazy-rules
+                :rules="[(val) => val || 'Especialidad es requerida']"
+                @update:model-value="(val) => specialityChanged(val)"
+                @clear="(val) => clearSpeciality(val)"
+              >
+              </q-select>
+            </div>
+          </div>
+        </q-item-section>
+      </q-item>
     </q-list>
     <q-card-actions align="right" class="text-teal">
       <q-btn
@@ -137,55 +189,56 @@
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted } from 'vue';
 import { date } from 'quasar';
-import { appointmentService } from 'src/services/AppointmentService';
 import { scheduleService } from 'src/services/ScheduleService';
-import ModalCommon from 'src/components/commons/ModalCommon.vue';
+import { specialityService } from 'src/services/SpecialityService';
+import { IAppointmentRequest, ISpeciality } from 'src/interfaces/IConsults';
+import { IPatientResponse } from 'src/interfaces/IPatients';
+import * as Constants from 'src/scripts/Constants';
 import 'src/css/app.sass';
-import { IConsultRequest } from 'src/interfaces/IConsults';
-import { IPatientRequest, IPatientResponse } from 'src/interfaces/IPatients';
 
 export default defineComponent({
   components: {},
   setup() {
     const dates = date;
-    const {
-      formattedTime,
-      formatDatetime,
-      hoursAllowed,
-      minutesAllowed,
-      currentYearMonth,
-    } = appointmentService();
+    const FORMAT_DATETIME = Constants.FORMAT_DATETIME;
+    const MINUTES_ALLOWED = Constants.OPTIONS_MINUTES;
+    const HOURS_ALLOWED = Constants.OPTIONS_HOURS;
+    const MIN_YEAR_MONTH = Constants.CURRENTYEAR_MONTH;
     const {
       formSchedule,
       currentAppointment,
       currentSchedule,
       identificationPatient,
       currentPatient,
+      allDoctors,
+      currentDoctor,
       allowToUpdate,
       allowToDelete,
       confirmChanges,
       searchPatient,
       confirmDeleteSchedule,
+      getAllDoctors,
+      specialityChanged,
+      speciality,
     } = scheduleService();
+    const { getAllSpecialities, allSpecialities, clearSpeciality } =
+      specialityService();
 
     onMounted(async () => {
-      // getAllSpecialities();
-      // getAllDxMainCode();
-      // getAllReasonConsult();
-      // getAllPatientStatus();
+      await getAllDoctors();
+      await getAllSpecialities();
     });
     onUnmounted(async () => {
-      currentAppointment.value = {} as IConsultRequest;
+      currentAppointment.value = {} as IAppointmentRequest;
       currentPatient.value = {} as IPatientResponse;
       identificationPatient.value = '';
     });
 
     return {
-      currentYearMonth,
-      hoursAllowed,
-      minutesAllowed,
-      formattedTime,
-      formatDatetime,
+      MIN_YEAR_MONTH,
+      HOURS_ALLOWED,
+      MINUTES_ALLOWED,
+      FORMAT_DATETIME,
       formSchedule,
       currentAppointment,
       currentSchedule,
@@ -193,9 +246,15 @@ export default defineComponent({
       currentPatient,
       allowToUpdate,
       allowToDelete,
+      allDoctors,
+      allSpecialities,
+      speciality,
+      currentDoctor,
       confirmChanges,
       searchPatient,
       confirmDeleteSchedule,
+      specialityChanged,
+      clearSpeciality,
       dates,
     };
   },

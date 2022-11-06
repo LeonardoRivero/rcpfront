@@ -16,8 +16,7 @@ const messages = new Messages();
 const serviceDxMainCode = dxMainCodeService();
 
 export function specialityService() {
-  const { allSpecialities, currentSpeciality } = storeToRefs(store);
-  const speciality = ref<ISpeciality>();
+  const { allSpecialities, currentSpeciality, speciality } = storeToRefs(store);
   const expanded = ref(false);
   const formSpeciality = ref<QForm | null>(null);
 

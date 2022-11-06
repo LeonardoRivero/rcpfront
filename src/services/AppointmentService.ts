@@ -4,10 +4,14 @@ import { storeToRefs } from 'pinia';
 import { useStoreAppointment } from 'src/stores/storeAppointment';
 import { useStorePatients } from 'src/stores/storePatients';
 import {
-  IConsultRequest,
-  IConsultResponse,
+  IAppointmentRequest,
+  IAppointmentResponse,
+  IDoctorRequest,
+  IDoctorResponse,
+  IDXMainCodeResponse,
   IPatientStatus,
   IReasonConsult,
+  ISpeciality,
 } from 'src/interfaces/IConsults';
 import {
   IHealthInsurance,
@@ -31,30 +35,25 @@ const notification = new Notification();
 const message = new Constants.Messages();
 const storeCommon = useStoreModal();
 const serviceModal = modalService();
-const validator = new Validators();
+const validator = Validators.getInstance();
 
 export function appointmentService() {
   const { currentAppointment, currentPatient } = storeToRefs(store);
-  const hoursAllowed = Constants.OPTIONS_HOURS;
-  const minutesAllowed = Constants.OPTIONS_MINUTES;
-  const timeStamp = Date.now();
-  const formattedDate = ref(
-    date.formatDate(timeStamp, Constants.FORMAT_DATETIME)
-  );
-  const formattedTime = ref(
-    date.formatDate(timeStamp, Constants.FORMAT_DATETIME)
-  );
-  currentAppointment.value.date = formattedDate.value;
+  // const timeStamp = Date.now();
+  // const formattedDate = ref(
+  //   date.formatDate(timeStamp, Constants.FORMAT_DATETIME)
+  // );
+
+  // currentAppointment.value.date = formattedDate.value;
   const formAppointment = ref<QForm | null>(null);
   const identificationPatient = ref<string>('');
   const currentPatientStatus = ref<IPatientStatus>();
   const currentHealthInsurance = ref<IHealthInsurance>({} as IHealthInsurance);
   const reasonConsult = ref<IReasonConsult>();
-  const show = ref(false);
-  const currentYearMonth = Constants.CURRENTYEAR_MONTH;
-  const formatDatetime = Constants.FORMAT_DATETIME;
+  const speciality = ref<ISpeciality>({} as ISpeciality);
+  const currentDoctor = ref<IDoctorResponse>({} as IDoctorResponse);
 
-  function calculateAmountPaid(val: IConsultRequest) {
+  function calculateAmountPaid(val: IAppointmentRequest) {
     if (currentAppointment.value.price == undefined) {
       currentAppointment.value.price = 0;
     }
@@ -82,14 +81,13 @@ export function appointmentService() {
       identificationPatient.value
     );
     if (response.status == HttpStatusCodes.NO_CONTENT) {
-      notification.setMessage(message.notInfoFound);
+      notification.setMessage(message.patientNotSchedule);
       notification.showWarning();
       storeSchedule.card = false;
       const confirm = await serviceModal.showModal(
         'Atención',
         message.notFoundInfoPatient
       );
-      // const confirm = await serviceModal.simpleModal();
       if (confirm == false) {
         return;
       }
@@ -100,22 +98,33 @@ export function appointmentService() {
       routerInstance.push('/patient');
       return;
     }
-    // const patient = (await response.parsedBody) as IPatientResponse;
-    // currentAppointment.value.id = patient.id;
-    // console.log(patient);
+
     const data = (await response.parsedBody) as Array<EventScheduleResponse>;
-    const lastSchedule = data.pop();
-    if (lastSchedule?.start == undefined) {
+
+    if (data.length == 0) {
+      const confirm = await serviceModal.showModal(
+        'Atención',
+        message.patientNotSchedule
+      );
+      if (confirm == false) {
+        return;
+      }
+      routerInstance.push('/schedule');
       return;
     }
+
+    const lastSchedule = data.pop();
+    if (lastSchedule == undefined || !lastSchedule.id) return;
     currentAppointment.value.schedule = lastSchedule.id;
     currentAppointment.value.date = date.formatDate(
       lastSchedule.start,
       Constants.FORMAT_DATETIME
     );
-    currentPatient.value = lastSchedule?.patient as IPatientResponse;
+    currentPatient.value = lastSchedule.patient as IPatientResponse;
     currentHealthInsurance.value = lastSchedule.patient
       .insurance as IHealthInsurance;
+    speciality.value = lastSchedule.speciality;
+    currentDoctor.value = lastSchedule.doctor;
   }
 
   async function confirmChanges(): Promise<void> {
@@ -123,12 +132,12 @@ export function appointmentService() {
     if (isValid == false) {
       return;
     }
-    const dateIsValid = validator.dateGreater(currentAppointment.value.date);
-    if (dateIsValid === false) {
-      notification.setMessage(message.dateOrHourNotValid);
-      notification.showError();
-      return;
-    }
+    // const dateIsValid = validator.dateGreater(currentAppointment.value.date);
+    // if (dateIsValid === false) {
+    //   notification.setMessage(message.dateOrHourNotValid);
+    //   notification.showError();
+    //   return;
+    // }
 
     // const responsePatient = await storePatients.getPatientByIdentification(
     //   identificationPatient.value
@@ -157,8 +166,8 @@ export function appointmentService() {
         price: currentAppointment.value.price,
         schedule: currentAppointment.value.schedule,
         patient: currentPatient.value.id,
-        doctor: 1,
-      } as IConsultRequest;
+        doctor: currentDoctor.value.id,
+      } as IAppointmentRequest;
       const responseCreate = await store.createAppointment(payload);
       if (
         responseCreate == null ||
@@ -186,27 +195,21 @@ export function appointmentService() {
       // store.updateRelationCode(payload);
     }
   }
+
   return {
     // Properties
-    currentYearMonth,
-    show,
     formAppointment,
-    formattedTime,
-    formatDatetime,
-    // dxMainCode,
     reasonConsult,
     currentPatient,
     currentAppointment,
     currentPatientStatus,
     currentHealthInsurance,
     identificationPatient,
-    hoursAllowed,
-    minutesAllowed,
+    speciality,
     // Metodos
     confirmChanges,
     calculateAmountPaid,
     patientStatusChanged,
-    // cardIsExpandible,
     searchPatient,
   };
 }

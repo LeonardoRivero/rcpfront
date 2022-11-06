@@ -2,7 +2,6 @@ import { ref, reactive } from 'vue';
 import '@fullcalendar/core/vdom';
 import { EventAddArg, EventApi } from '@fullcalendar/core';
 import { QForm, date } from 'quasar';
-import { useQuasar, QSpinnerGears } from 'quasar';
 import { storeToRefs } from 'pinia';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -15,6 +14,8 @@ import { Modal, Notification } from 'src/scripts/Notifications';
 import { EndPoints, Messages } from 'src/scripts/Constants';
 import { Validators } from 'src/scripts/Helpers';
 import { useStorePatients } from 'src/stores/storePatients';
+import { useStoreSettings } from 'src/stores/storeSettings';
+import { useStoreAppointment } from 'src/stores/storeAppointment';
 import { IPatientResponse } from 'src/interfaces/IPatients';
 import * as Constants from 'src/scripts/Constants';
 import {
@@ -25,18 +26,18 @@ import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { routerInstance } from 'src/boot/globalRouter';
 import modalService from './ModalService';
 
-import { useStoreAppointment } from 'src/stores/storeAppointment';
 import { HttpResponse } from 'src/scripts/Request';
+import { IDoctorResponse, ISpeciality } from 'src/interfaces/IConsults';
 
 const notification = new Notification();
 const messages = new Messages();
-const endpoint = new EndPoints();
+const endpoint = EndPoints.getInstance();
 const store = useStoreSchedule();
 const storeAppointment = useStoreAppointment();
 const storePatients = useStorePatients();
-const validator = new Validators();
+const storeSettings = useStoreSettings();
+const validator = Validators.getInstance();
 const serviceModal = modalService();
-const storeSchedule = useStoreSchedule();
 
 export function scheduleService() {
   const {
@@ -46,17 +47,24 @@ export function scheduleService() {
     currentPatient,
     currentSchedule,
     identificationPatient,
+    speciality,
     allowToUpdate,
     allowToDelete,
     calendar,
+    currentDoctor,
+    allDoctors,
   } = storeToRefs(store);
 
   const formSchedule = ref<QForm | null>(null);
-
+  //const speciality = ref<ISpeciality>();
   const START_TIME = '07:00';
   const END_TIME = '18:00';
   const DURATION_APPOINTMENT = '00:20';
   const MINUTES_APPOINTMENT = parseInt(DURATION_APPOINTMENT.split(':')[1]);
+
+  async function specialityChanged(val: ISpeciality): Promise<void> {
+    speciality.value = val;
+  }
 
   async function getLastIdConsult(): Promise<number | undefined> {
     const response = await store.getLastConsult();
@@ -66,7 +74,7 @@ export function scheduleService() {
     return response.id;
   }
   async function confirmDeleteSchedule(scheduleId: number): Promise<void> {
-    storeSchedule.card = false;
+    store.card = false;
     const confirm = await serviceModal.showModal(
       'Atención',
       messages.deleteRegister,
@@ -84,6 +92,10 @@ export function scheduleService() {
     const apiCalendar = calendar.value.getApi();
     apiCalendar.refetchEvents();
   }
+  async function getAllDoctors() {
+    const response = await storeSettings.retrieveAllDoctors();
+    allDoctors.value = response.parsedBody as Array<IDoctorResponse>;
+  }
   async function searchPatient(): Promise<void> {
     const response = await storePatients.getPatientByIdentification(
       identificationPatient.value
@@ -92,7 +104,7 @@ export function scheduleService() {
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       notification.setMessage(messages.notInfoFound);
       notification.showWarning();
-      storeSchedule.card = false;
+      store.card = false;
       const confirm = await serviceModal.showModal(
         'Atención',
         messages.notFoundInfoPatient
@@ -122,7 +134,7 @@ export function scheduleService() {
     if (patient == null) {
       notification.setMessage(messages.notInfoFound);
       notification.showWarning();
-      storeSchedule.card = false;
+      store.card = false;
       const confirm = await serviceModal.showModal(
         'Atención',
         messages.notFoundInfoPatient
@@ -138,7 +150,13 @@ export function scheduleService() {
       return false;
     }
 
-    if (patient.id == null || !currentSchedule.value) return false;
+    if (
+      patient.id == null ||
+      !currentSchedule.value ||
+      !currentDoctor.value?.id ||
+      !speciality.value?.id
+    )
+      return false;
 
     let payload = {} as EventScheduleRequest;
 
@@ -155,6 +173,8 @@ export function scheduleService() {
         start: currentSchedule.value.start,
         end: currentSchedule.value.end,
         patient: patient.id,
+        speciality: speciality.value.id,
+        doctor: currentDoctor.value.id,
       };
 
       const response = await store.createSchedule(payload);
@@ -168,7 +188,6 @@ export function scheduleService() {
       }
       card.value = false;
       return true;
-      //routerInstance.push('/appointment');
     }
 
     let confirmUpdate = false;
@@ -189,6 +208,8 @@ export function scheduleService() {
         start: currentSchedule.value.start,
         end: currentSchedule.value.end,
         patient: patient.id,
+        speciality: speciality.value.id,
+        doctor: currentDoctor.value.id,
       };
     }
     const response = await store.updateSchedule(payload);
@@ -227,6 +248,7 @@ export function scheduleService() {
     );
     card.value = true;
     allowToDelete.value = false;
+    allowToUpdate.value = true;
     //cal.refetchEvents();
   }
   async function handleEventSet(evs: EventApi[]) {
@@ -355,9 +377,12 @@ export function scheduleService() {
         schedule.end,
         Constants.FORMAT_DATETIME
       );
+      if (schedule.speciality == null) return;
       if (schedule.id == undefined) {
         return;
       }
+      speciality.value = schedule.speciality;
+      currentDoctor.value = schedule.doctor;
       const dateIsValid = validator.dateGreater(schedule.start);
       allowToUpdate.value = true;
       if (dateIsValid == false) {
@@ -392,15 +417,20 @@ export function scheduleService() {
     calendar,
     currentAppointment,
     currentPatient,
+    currentDoctor,
+    allDoctors,
+    speciality,
     identificationPatient,
     currentSchedule,
     allowToUpdate,
     allowToDelete,
     //!Metodos
     getLastIdConsult,
+    getAllDoctors,
     confirmChanges,
     searchPatient,
     confirmDeleteSchedule,
     handleDateSelect,
+    specialityChanged,
   };
 }

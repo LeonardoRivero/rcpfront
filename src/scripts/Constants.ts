@@ -2,8 +2,24 @@ import { date } from 'quasar';
 const timeStamp = Date.now();
 
 export class EndPoints {
-  private domine = 'https://leonardorivero.pythonanywhere.com';
-  //private domine = 'http://127.0.0.1:8000';
+  private static instance: EndPoints;
+  //private domine = 'https://leonardorivero.pythonanywhere.com';
+  private domine = 'http://127.0.0.1:8000';
+  // domine: string;
+  private constructor() {
+    // if (process.env.PUBLIC == undefined) {
+    //   this.domine = 'http://127.0.0.1:8000';
+    //   return;
+    // }
+    // this.domine = process.env.PUBLIC;
+  }
+  public static getInstance(): EndPoints {
+    if (!EndPoints.instance) {
+      EndPoints.instance = new EndPoints();
+    }
+
+    return EndPoints.instance;
+  }
   get getAllIDType() {
     return `${this.domine}/api/idtype/all/`;
   }
@@ -36,6 +52,9 @@ export class EndPoints {
   }
   get getORcreateSchedule() {
     return `${this.domine}/api/schedule/all/`;
+  }
+  get getORcreateDoctor() {
+    return `${this.domine}/api/doctor/all/`;
   }
   updateInsurance(id: number): string {
     return `${this.domine}/api/insurance/${id}/`;
@@ -104,6 +123,9 @@ export class Messages {
   get scheduleExisting(): string {
     return 'Ya existe una cita agendada para esa hora.';
   }
+  get patientNotSchedule(): string {
+    return 'Paciente no posee una consulta agendada para hoy. Deseas agendarla ahora mismo?';
+  }
 }
 export const MININUM_AGE = 18;
 export const BASE_YEAR = 1970;
@@ -111,5 +133,7 @@ export const FORMAT_DATE = 'YYYY/MM/DD';
 export const FORMAT_HOUR = 'HH:mm';
 export const FORMAT_DATETIME = 'YYYY-MM-DD HH:mm';
 export const OPTIONS_MINUTES = [0, 20, 40];
-export const OPTIONS_HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+export const OPTIONS_HOURS = [
+  7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+];
 export const CURRENTYEAR_MONTH = date.formatDate(timeStamp, 'YYYY/MM');
