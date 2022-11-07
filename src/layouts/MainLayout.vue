@@ -45,6 +45,12 @@ const linksList = [
     link: '/',
   },
   {
+    title: 'Historia Clinica',
+    caption: 'Gestiona Historia Pacientes',
+    icon: 'mdi-notebook',
+    link: '/clinichistory',
+  },
+  {
     title: 'Citas',
     caption: 'Gestiona Citas Pacientes',
     icon: 'mdi-calendar-multiple-check',

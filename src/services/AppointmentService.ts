@@ -5,37 +5,29 @@ import { useStoreAppointment } from 'src/stores/storeAppointment';
 import { useStorePatients } from 'src/stores/storePatients';
 import {
   IAppointmentRequest,
-  IAppointmentResponse,
-  IDoctorRequest,
   IDoctorResponse,
-  IDXMainCodeResponse,
   IPatientStatus,
   IReasonConsult,
   ISpeciality,
 } from 'src/interfaces/IConsults';
-import {
-  IHealthInsurance,
-  IPatientRequest,
-  IPatientResponse,
-} from 'src/interfaces/IPatients';
+import { IHealthInsurance, IPatientResponse } from 'src/interfaces/IPatients';
 import * as Constants from 'src/scripts/Constants';
 import { Notification } from 'src/scripts/Notifications';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
-import { useStoreModal } from 'src/stores/storeCommon';
 import modalService from './ModalService';
-import { Validators } from 'src/scripts/Helpers';
+// import { Validators } from 'src/scripts/Helpers';
 import { routerInstance } from 'src/boot/globalRouter';
 import { useStoreSchedule } from 'src/stores/storeSchedule';
 import { EventScheduleResponse } from 'src/interfaces/ICommons';
+import { HttpResponse } from 'src/scripts/Request';
 
 const store = useStoreAppointment();
 const storeSchedule = useStoreSchedule();
 const storePatients = useStorePatients();
 const notification = new Notification();
 const message = new Constants.Messages();
-const storeCommon = useStoreModal();
 const serviceModal = modalService();
-const validator = Validators.getInstance();
+// const validator = Validators.getInstance();
 
 export function appointmentService() {
   const { currentAppointment, currentPatient } = storeToRefs(store);
@@ -67,22 +59,17 @@ export function appointmentService() {
   function patientStatusChanged(val: IPatientStatus): void {
     currentPatientStatus.value = val;
   }
-
   async function searchPatient(): Promise<void> {
     if (identificationPatient.value === '') {
       notification.setMessage(message.searchIncorrect);
       notification.showError();
       return;
     }
-    // const response = await storePatients.getPatientByIdentification(
-    //   identificationPatient.value
-    // );
-    const response = await storeSchedule.getScheduleByPatientIdentification(
+    let response = {} as HttpResponse<unknown>;
+    response = await storePatients.getPatientByIdentification(
       identificationPatient.value
     );
     if (response.status == HttpStatusCodes.NO_CONTENT) {
-      notification.setMessage(message.patientNotSchedule);
-      notification.showWarning();
       storeSchedule.card = false;
       const confirm = await serviceModal.showModal(
         'Atención',
@@ -96,6 +83,14 @@ export function appointmentService() {
         identification: parseInt(identificationPatient.value),
       } as IPatientResponse;
       routerInstance.push('/patient');
+      return;
+    }
+    response = await storeSchedule.getScheduleByPatientIdentification(
+      identificationPatient.value
+    );
+    if (response.status == HttpStatusCodes.NO_CONTENT) {
+      notification.setMessage(message.patientNotSchedule);
+      notification.showWarning();
       return;
     }
 
@@ -126,7 +121,6 @@ export function appointmentService() {
     speciality.value = lastSchedule.speciality;
     currentDoctor.value = lastSchedule.doctor;
   }
-
   async function confirmChanges(): Promise<void> {
     const isValid = await formAppointment.value?.validate();
     if (isValid == false) {

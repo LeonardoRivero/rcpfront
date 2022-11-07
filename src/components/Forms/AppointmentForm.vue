@@ -89,24 +89,8 @@
                     v-model="speciality.description"
                     label="Especialidad"
                     disable
+                    hint=" "
                   />
-                  <!-- <q-select
-                    dense
-                    clearable
-                    outlined
-                    v-model="speciality"
-                    :options="allSpecialities"
-                    option-value="id"
-                    option-label="description"
-                    map-options
-                    label="Especialidad"
-                    @clear="(val) => clearSpeciality(val)"
-                    :rules="[
-                      (val) =>
-                        (val && val != null) || 'Especialidad es requerida',
-                    ]"
-                  >
-                  </q-select> -->
                 </div>
                 <div class="col-12 col-md-6">
                   <q-input
@@ -117,46 +101,6 @@
                     hint="Finalizacion Cita"
                     disable
                   >
-                    <template v-slot:prepend>
-                      <q-icon name="event">
-                        <q-popup-proxy
-                          transition-show="scale"
-                          transition-hide="scale"
-                        >
-                          <q-date
-                            today-btn
-                            v-model="currentAppointment.date"
-                            :navigation-min-year-month="CURRENTYEAR_MONTH"
-                            :mask="FORMAT_DATETIME"
-                          />
-                        </q-popup-proxy>
-                      </q-icon>
-                    </template>
-                    <template v-slot:append>
-                      <q-icon name="access_time">
-                        <q-popup-proxy
-                          cover
-                          transition-show="scale"
-                          transition-hide="scale"
-                        >
-                          <q-time
-                            v-model="currentAppointment.date"
-                            :mask="FORMAT_DATETIME"
-                            :minute-options="MINUTES_ALLOWED"
-                            :hour-options="HOURS_ALLOWED"
-                          >
-                            <div class="row items-center justify-end">
-                              <q-btn
-                                v-close-popup
-                                label="Cerrar"
-                                color="primary"
-                                flat
-                              />
-                            </div>
-                          </q-time>
-                        </q-popup-proxy>
-                      </q-icon>
-                    </template>
                   </q-input>
                 </div>
               </div>
@@ -348,6 +292,7 @@ import ModalCommon from 'src/components/commons/ModalCommon.vue';
 import { IPatientResponse } from 'src/interfaces/IPatients';
 import * as Constants from 'src/scripts/Constants';
 import 'src/css/app.sass';
+import { IAppointmentRequest } from 'src/interfaces/IConsults';
 
 export default defineComponent({
   components: { ModalCommon },
@@ -392,6 +337,7 @@ export default defineComponent({
     });
     onUnmounted(async () => {
       currentPatient.value = {} as IPatientResponse;
+      currentAppointment.value = {} as IAppointmentRequest;
     });
 
     return {
@@ -511,3 +457,7 @@ export default defineComponent({
   // },
 });
 </script>
+<style lang="sass" scoped>
+.my-content
+  padding: 15px 0px
+</style>

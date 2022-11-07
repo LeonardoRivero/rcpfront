@@ -3,21 +3,20 @@ const timeStamp = Date.now();
 
 export class EndPoints {
   private static instance: EndPoints;
-  private domine = 'https://leonardorivero.pythonanywhere.com';
+  //private domine = 'https://leonardorivero.pythonanywhere.com';
   //private domine = 'http://127.0.0.1:8000';
-  // domine: string;
+  private domine: string;
   private constructor() {
-    // if (process.env.PUBLIC == undefined) {
-    //   this.domine = 'http://127.0.0.1:8000';
-    //   return;
-    // }
-    // this.domine = process.env.PUBLIC;
+    if (process.env.NODE_ENV == 'development') {
+      this.domine = process.env.LOCAL == undefined ? '' : process.env.LOCAL;
+      return;
+    }
+    this.domine = process.env.PUBLIC == undefined ? '' : process.env.PUBLIC;
   }
   public static getInstance(): EndPoints {
     if (!EndPoints.instance) {
       EndPoints.instance = new EndPoints();
     }
-
     return EndPoints.instance;
   }
   get getAllIDType() {

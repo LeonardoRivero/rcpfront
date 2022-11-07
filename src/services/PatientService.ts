@@ -1,5 +1,4 @@
 import { ref } from 'vue';
-import { QForm, date } from 'quasar';
 import { storeToRefs } from 'pinia';
 import { useStorePatients } from 'src/stores/storePatients';
 import {
@@ -10,20 +9,16 @@ import {
   IGender,
 } from 'src/interfaces/IPatients';
 import { HttpResponse } from 'src/scripts/Request';
-import * as Constants from 'src/scripts/Constants';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
-import { Messages, FORMAT_DATE } from 'src/scripts/Constants';
-import { Modal, Notification } from 'src/scripts/Notifications';
+import { Messages } from 'src/scripts/Constants';
+import { Notification } from 'src/scripts/Notifications';
 import { useStoreSettings } from 'src/stores/storeSettings';
 import modalService from './ModalService';
-import { useStoreModal } from 'src/stores/storeCommon';
-import { insuranceService } from './InsuranceService';
+
 import { routerInstance } from 'src/boot/globalRouter';
 import { Validators } from 'src/scripts/Helpers';
 const store = useStorePatients();
 const storeInsurance = useStoreSettings();
-const storeCommon = useStoreModal();
-const serviceInsurance = insuranceService();
 const notification = new Notification();
 const serviceModal = modalService();
 const messages = new Messages();
