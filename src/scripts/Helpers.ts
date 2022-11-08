@@ -100,14 +100,11 @@ export class Validators {
       /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
     return emailPattern.test(email);
   }
-  isAdult(birthday: Date): boolean {
+  calculateAge(birthday: string): number {
     const dateBirthday = new Date(birthday);
     const ageDifMs = Date.now() - dateBirthday.getTime();
     const ageDate = new Date(ageDifMs);
     const result = Math.abs(ageDate.getUTCFullYear() - BASE_YEAR);
-    if (result > MININUM_AGE) {
-      return true;
-    }
-    return false;
+    return result;
   }
 }

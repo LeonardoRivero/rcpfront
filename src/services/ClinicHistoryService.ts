@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { QForm } from 'quasar';
+import { date, QForm } from 'quasar';
 import { routerInstance } from 'boot/globalRouter';
 import { storeToRefs } from 'pinia';
 import { useStorePatients } from 'src/stores/storePatients';
@@ -8,13 +8,17 @@ import { HttpResponse } from 'src/scripts/Request';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import modalService from './ModalService';
 import * as Constants from 'src/scripts/Constants';
+import { Validators } from 'src/scripts/Helpers';
 
 const message = new Constants.Messages();
 const storePatients = useStorePatients();
 const serviceModal = modalService();
+const validator = Validators.getInstance();
 
 export function clinicHistoryService() {
   const identificationPatient = ref<string>('');
+  const iconAvatar = ref<string>('');
+  const age = ref<number>(0);
   const currentPatient = ref<IPatientResponse>({} as IPatientResponse);
 
   async function searchPatient(val: string): Promise<void> {
@@ -29,6 +33,8 @@ export function clinicHistoryService() {
       );
       if (confirm == false) {
         currentPatient.value = {} as IPatientResponse;
+        age.value = 0;
+        iconAvatar.value = '';
         return;
       }
 
@@ -38,12 +44,18 @@ export function clinicHistoryService() {
       routerInstance.push('/patient');
       return;
     }
-    currentPatient.value = response.parsedBody as IPatientResponse;
-    return;
+    currentPatient.value = (await response.parsedBody) as IPatientResponse;
+    const dateBirth = currentPatient.value.dateBirth.replaceAll('-', '/');
+    currentPatient.value.dateBirth = date.formatDate(dateBirth, 'YYYY/MMM/DD');
+    iconAvatar.value =
+      currentPatient.value.gender.nameGender == 'Femenino' ? 'woman' : 'man';
+    age.value = validator.calculateAge(currentPatient.value.dateBirth);
   }
   return {
     searchPatient,
     identificationPatient,
     currentPatient,
+    iconAvatar,
+    age,
   };
 }
