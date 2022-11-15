@@ -14,6 +14,7 @@
               v-model="identificationPatient"
               @keydown.enter.prevent="searchPatient"
               label="N° Identificacion"
+              type="number"
             >
               <template v-slot:append>
                 <q-btn

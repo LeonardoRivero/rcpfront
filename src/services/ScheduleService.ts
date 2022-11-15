@@ -323,7 +323,7 @@ export function scheduleService() {
       // arg.dayEl.style.backgroundColor = 'red';
     },
     locale: esLocale,
-    editable: true,
+    editable: false,
     selectable: true,
     weekends: true,
     select: handleDateSelect,

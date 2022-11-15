@@ -29,9 +29,7 @@ export function specialityService() {
       return;
     }
     const specialityId = val.id;
-    const response = await store.retrieveAllDxMainCodeBySpecialityId(
-      specialityId
-    );
+    await store.retrieveAllDxMainCodeBySpecialityId(specialityId);
     serviceDxMainCode.clearDxMainCode({} as IDXMainCodeRequest);
     // dxMainCode.value = {} as IDXMainCodeResponse;
     // currentDxMainCode.value = {} as IDXMainCodeResponse;

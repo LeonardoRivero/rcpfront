@@ -1,6 +1,3 @@
-import { Ref, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { routerInstance } from 'boot/globalRouter';
 import { storeToRefs } from 'pinia';
 import { useStoreModal } from 'src/stores/storeCommon';
 import Swal, {
@@ -8,7 +5,6 @@ import Swal, {
   SweetAlertOptions,
   SweetAlertResult,
 } from 'sweetalert2';
-import routes from 'src/router/routes';
 
 const storeCommon = useStoreModal();
 
