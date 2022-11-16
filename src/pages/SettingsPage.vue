@@ -1,5 +1,5 @@
 <template>
-  <div class="q-pa-md">
+  <div>
     <div class="q-gutter-y-md">
       <q-card>
         <q-tabs
@@ -19,7 +19,7 @@
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="Insurance">
             <div class="row">
-              <div class="col-6 col-md offset-6"><Insurance /></div>
+              <div class="col-6 col-md-6 col-xs-12"><Insurance /></div>
             </div>
           </q-tab-panel>
 
@@ -38,7 +38,58 @@
             <DataTable />
           </q-tab-panel>
           <q-tab-panel name="MedicalHistory">
-            <div class="row"><ClinicHistorySetting2 /></div>
+            <div style="min-width: 100%">
+              <q-list>
+                <q-expansion-item
+                  popup
+                  default-opened
+                  :icon="icon"
+                  :caption="PARAMETERS_PHYSICAL_EXAM"
+                  label="Examen Fisico"
+                >
+                  <q-separator />
+                  <q-card>
+                    <q-card-section>
+                      <ClinicHistorySetting />
+                    </q-card-section>
+                  </q-card>
+                </q-expansion-item>
+
+                <q-expansion-item
+                  popup
+                  icon="send"
+                  label="Outbox"
+                  caption="Empty"
+                >
+                  <q-separator />
+                  <q-card>
+                    <q-card-section>
+                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                      Quidem, eius reprehenderit eos corrupti commodi magni
+                      quaerat ex numquam, dolorum officiis modi facere maiores
+                      architecto suscipit iste eveniet doloribus ullam aliquid.
+                    </q-card-section>
+                  </q-card>
+                </q-expansion-item>
+
+                <q-expansion-item
+                  popup
+                  icon="drafts"
+                  label="Draft"
+                  caption="Draft a new email"
+                >
+                  <q-separator />
+                  <q-card>
+                    <q-card-section>
+                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                      Quidem, eius reprehenderit eos corrupti commodi magni
+                      quaerat ex numquam, dolorum officiis modi facere maiores
+                      architecto suscipit iste eveniet doloribus ullam aliquid.
+                    </q-card-section>
+                  </q-card>
+                </q-expansion-item>
+              </q-list>
+            </div>
           </q-tab-panel>
         </q-tab-panels>
       </q-card>
@@ -53,7 +104,8 @@ import DxMainCode from 'src/components/Forms/DxMainCodeForm.vue';
 import RelationCode from 'src/components/Forms/RelationCode.vue';
 import Insurance from 'src/components/Forms/InsuranceForm.vue';
 import DataTable from 'src/components/commons/DataTable.vue';
-import ClinicHistorySetting2 from 'src/components/Forms/ClinicHistorySetting2.vue';
+import ClinicHistorySetting from 'src/components/Forms/ClinicHistorySettings.vue';
+import * as Constants from 'src/scripts/Constants';
 
 export default defineComponent({
   components: {
@@ -62,13 +114,18 @@ export default defineComponent({
     RelationCode,
     Insurance,
     DataTable,
-    ClinicHistorySetting2,
+    ClinicHistorySetting,
   },
 
   setup() {
+    const iconSVG = Constants.IconSVG.getInstance();
+    const PARAMETERS_PHYSICAL_EXAM =
+      'En esta seccion puedes modificar los parametros que desea implementar en su examen fisico';
     return {
       tab: ref('Insurance'),
       splitterModel: ref(20),
+      PARAMETERS_PHYSICAL_EXAM,
+      icon: iconSVG.stethoscope,
     };
   },
 });

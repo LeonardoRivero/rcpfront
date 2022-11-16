@@ -14,6 +14,7 @@ const message = new Constants.Messages();
 const storePatients = useStorePatients();
 const serviceModal = modalService();
 const validator = Validators.getInstance();
+const iconSVG = Constants.IconSVG.getInstance();
 
 export function clinicHistoryService() {
   const identificationPatient = ref<string>('');
@@ -46,9 +47,14 @@ export function clinicHistoryService() {
     }
     currentPatient.value = (await response.parsedBody) as IPatientResponse;
     const dateBirth = currentPatient.value.dateBirth.replaceAll('-', '/');
-    currentPatient.value.dateBirth = date.formatDate(dateBirth, 'YYYY/MMM/DD');
+    currentPatient.value.dateBirth = date.formatDate(
+      dateBirth,
+      Constants.FORMAT_DATE
+    );
     iconAvatar.value =
-      currentPatient.value.gender.nameGender == 'Femenino' ? 'woman' : 'man';
+      currentPatient.value.gender.id == Constants.Gender.FEMALE
+        ? iconSVG.female_avatar
+        : iconSVG.male_avatar;
     age.value = validator.calculateAge(currentPatient.value.dateBirth);
   }
   return {

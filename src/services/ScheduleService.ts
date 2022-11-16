@@ -56,7 +56,6 @@ export function scheduleService() {
   } = storeToRefs(store);
 
   const formSchedule = ref<QForm | null>(null);
-  //const speciality = ref<ISpeciality>();
   const START_TIME = '07:00';
   const END_TIME = '18:00';
   const DURATION_APPOINTMENT = '00:20';
@@ -377,10 +376,7 @@ export function scheduleService() {
         schedule.end,
         Constants.FORMAT_DATETIME
       );
-      if (schedule.speciality == null) return;
-      if (schedule.id == undefined) {
-        return;
-      }
+      if (schedule.speciality == null || schedule.id == undefined) return;
       speciality.value = schedule.speciality;
       currentDoctor.value = schedule.doctor;
       const dateIsValid = validator.dateGreater(schedule.start);

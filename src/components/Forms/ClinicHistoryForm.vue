@@ -34,11 +34,7 @@
           <q-separator inset></q-separator>
 
           <q-card-section horizontal>
-            <q-avatar
-              :icon="iconAvatar"
-              color="primary"
-              text-color="white"
-            ></q-avatar>
+            <q-avatar :icon="iconAvatar" color="white" size="4rem"></q-avatar>
             <q-card-section class="col-7 q-pt-xs">
               <b>Nombre Completo:</b>
               <div class="text-h6">

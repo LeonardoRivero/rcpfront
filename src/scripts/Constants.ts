@@ -126,6 +126,34 @@ export class Messages {
     return 'Paciente no posee una consulta agendada para hoy. Deseas agendarla ahora mismo?';
   }
 }
+export class IconSVG {
+  private static instance: IconSVG;
+  private constructor() {
+    return;
+  }
+  public static getInstance(): IconSVG {
+    if (!IconSVG.instance) {
+      IconSVG.instance = new IconSVG();
+    }
+    return IconSVG.instance;
+  }
+  get stethoscope() {
+    return 'img:src/assets/stethoscope.svg';
+  }
+  get female_avatar() {
+    return 'img:src/assets/female-avatar.svg';
+  }
+  get male_avatar() {
+    return 'img:src/assets/male-user.svg';
+  }
+  get outpatient() {
+    return 'img:src/assets/outpatient.svg';
+  }
+}
+export enum Gender {
+  FEMALE = 1,
+  MALE = 2,
+}
 export const MININUM_AGE = 18;
 export const BASE_YEAR = 1970;
 export const FORMAT_DATE = 'YYYY/MM/DD';
