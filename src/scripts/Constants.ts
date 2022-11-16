@@ -147,7 +147,7 @@ export class IconSVG {
     return 'img:src/assets/male-user.svg';
   }
   get outpatient() {
-    return 'img:src/assets/outpatient.svg';
+    return 'img:../outpatient.svg';
   }
 }
 export enum Gender {
