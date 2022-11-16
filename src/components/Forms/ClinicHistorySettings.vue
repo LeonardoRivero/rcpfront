@@ -2,7 +2,7 @@
   <q-list style="max-width: 600px">
     <q-item>
       <q-item-section avatar top>
-        <q-icon :name="icon" color="black" size="34px" />
+        <q-icon name="img:outpatient.svg" color="black" size="34px" />
       </q-item-section>
       <q-item-section top>
         <q-select
