@@ -98,7 +98,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import SpecialityForm from 'src/components/Forms/SpecialityForm.vue';
 import DxMainCode from 'src/components/Forms/DxMainCodeForm.vue';
 import RelationCode from 'src/components/Forms/RelationCode.vue';
@@ -119,13 +119,19 @@ export default defineComponent({
 
   setup() {
     const iconSVG = Constants.IconSVG.getInstance();
-    const PARAMETERS_PHYSICAL_EXAM =
-      'En esta seccion puedes modificar los parametros que desea implementar en su examen fisico';
+    const icon = ref('');
+    const PARAMETERS_PHYSICAL_EXAM = ref<string>('');
+    onMounted(async () => {
+      icon.value = iconSVG.stethoscope;
+      PARAMETERS_PHYSICAL_EXAM.value =
+        'En esta seccion puedes modificar los parametros que desea implementar en su examen fisico';
+    });
+
     return {
       tab: ref('Insurance'),
       splitterModel: ref(20),
       PARAMETERS_PHYSICAL_EXAM,
-      icon: iconSVG.stethoscope,
+      icon,
     };
   },
 });

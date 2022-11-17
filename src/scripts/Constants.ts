@@ -138,7 +138,7 @@ export class IconSVG {
     return IconSVG.instance;
   }
   get stethoscope() {
-    return 'https://www.svgrepo.com/show/93801/stethoscope.svg';
+    return 'svguse:stethoscope.svg#Capa_1|0 0 180.586 180.586';
   }
   get female_avatar() {
     return 'https://www.svgrepo.com/show/82208/female-avatar.svg';
