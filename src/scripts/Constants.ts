@@ -138,7 +138,7 @@ export class IconSVG {
     return IconSVG.instance;
   }
   get stethoscope() {
-    return 'svguse:stethoscope.svg#Capa_1|0 0 180.586 180.586';
+    return 'svguse:stethoscope.svg#icon-1';
   }
   get female_avatar() {
     return 'https://www.svgrepo.com/show/82208/female-avatar.svg';
@@ -147,7 +147,7 @@ export class IconSVG {
     return 'https://www.svgrepo.com/show/1382/male-user.svg';
   }
   get outpatient() {
-    return 'https://www.svgrepo.com/show/326007/outpatient.svg';
+    return 'img:outpatientpng.png';
   }
 }
 export enum Gender {
