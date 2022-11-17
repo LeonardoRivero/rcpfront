@@ -138,16 +138,16 @@ export class IconSVG {
     return IconSVG.instance;
   }
   get stethoscope() {
-    return 'img:src/assets/stethoscope.svg';
+    return 'https://www.svgrepo.com/show/93801/stethoscope.svg';
   }
   get female_avatar() {
-    return 'img:src/assets/female-avatar.svg';
+    return 'https://www.svgrepo.com/show/82208/female-avatar.svg';
   }
   get male_avatar() {
-    return 'img:src/assets/male-user.svg';
+    return 'https://www.svgrepo.com/show/1382/male-user.svg';
   }
   get outpatient() {
-    return 'svguse:outpatient.svg#icon-1';
+    return 'https://www.svgrepo.com/show/326007/outpatient.svg';
   }
 }
 export enum Gender {
