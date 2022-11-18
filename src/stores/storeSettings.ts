@@ -14,8 +14,9 @@ import {
   IRelationCodeResponse,
   IDoctorResponse,
   IDoctorRequest,
+  IPhysicalExamRequest,
 } from 'src/interfaces/IConsults';
-import { IHealthInsurance } from 'src/interfaces/IPatients';
+import { IHealthInsurance, IPatientRequest } from 'src/interfaces/IPatients';
 import { EndPoints, Messages } from 'src/scripts/Constants';
 import { IColumnsDataTable } from 'src/interfaces/ICommons';
 import { serviceDataTable } from 'src/services/DataTableService';
@@ -223,6 +224,14 @@ export const useStoreSettings = defineStore('settings', {
       const url = endpoint.getORcreateDoctor;
       const response = await GET(url);
       this.allDoctors = response.parsedBody as Array<IDoctorResponse>;
+      return response;
+    },
+    async createPhysicalExam(
+      data: IPhysicalExamRequest
+    ): Promise<HttpResponse<unknown>> {
+      const url = endpoint.getORcreatePhysicalExam;
+      const response = await POST(url, data);
+      handleResponse(response);
       return response;
     },
   },

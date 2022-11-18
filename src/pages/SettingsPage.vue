@@ -50,7 +50,7 @@
                   <q-separator />
                   <q-card>
                     <q-card-section>
-                      <ClinicHistorySetting />
+                      <PhysicalExamForm />
                     </q-card-section>
                   </q-card>
                 </q-expansion-item>
@@ -104,7 +104,7 @@ import DxMainCode from 'src/components/Forms/DxMainCodeForm.vue';
 import RelationCode from 'src/components/Forms/RelationCode.vue';
 import Insurance from 'src/components/Forms/InsuranceForm.vue';
 import DataTable from 'src/components/commons/DataTable.vue';
-import ClinicHistorySetting from 'src/components/Forms/ClinicHistorySettings.vue';
+import PhysicalExamForm from 'src/components/Forms/PhysicalExamForm.vue';
 import * as Constants from 'src/scripts/Constants';
 
 export default defineComponent({
@@ -114,7 +114,7 @@ export default defineComponent({
     RelationCode,
     Insurance,
     DataTable,
-    ClinicHistorySetting,
+    PhysicalExamForm,
   },
 
   setup() {
@@ -122,7 +122,7 @@ export default defineComponent({
     const icon = ref('');
     const PARAMETERS_PHYSICAL_EXAM = ref<string>('');
     onMounted(async () => {
-      icon.value = iconSVG.stethoscope;
+      icon.value = iconSVG.outpatient;
       PARAMETERS_PHYSICAL_EXAM.value =
         'En esta seccion puedes modificar los parametros que desea implementar en su examen fisico';
     });

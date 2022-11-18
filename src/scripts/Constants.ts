@@ -55,6 +55,9 @@ export class EndPoints {
   get getORcreateDoctor() {
     return `${this.domine}/api/doctor/all/`;
   }
+  get getORcreatePhysicalExam() {
+    return `${this.domine}/api/physicalexam/all/`;
+  }
   updateInsurance(id: number): string {
     return `${this.domine}/api/insurance/${id}/`;
   }
@@ -141,13 +144,13 @@ export class IconSVG {
     return 'svguse:stethoscope.svg#icon-1';
   }
   get female_avatar() {
-    return 'https://www.svgrepo.com/show/82208/female-avatar.svg';
+    return 'img:female-avatar.svg';
   }
   get male_avatar() {
-    return 'https://www.svgrepo.com/show/1382/male-user.svg';
+    return 'img:male-user.svg';
   }
   get outpatient() {
-    return 'img:outpatientpng.png';
+    return 'img:outpatient.svg';
   }
 }
 export enum Gender {

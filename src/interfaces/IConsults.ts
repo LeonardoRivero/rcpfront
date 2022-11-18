@@ -77,3 +77,13 @@ export interface IAppointmentResponse {
   patient: IPatientResponse;
   doctor: IDoctorResponse;
 }
+export interface IPhysicalExamRequest {
+  id?: number;
+  description: string;
+  speciality: number;
+}
+export interface IPhysicalExamResponse {
+  id?: number;
+  description: string;
+  speciality: ISpeciality;
+}
