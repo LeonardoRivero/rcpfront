@@ -118,7 +118,6 @@
         <q-item> -->
       <div class="q-pa-md">
         <q-table
-          style="height: 300px; width: 100%"
           title="Parametros Examen Fisico"
           :hide-bottom="true"
           :rows="rows"
@@ -127,8 +126,9 @@
           virtual-scroll
           :rows-per-page-options="[0]"
           selection="single"
-          :grid="$q.screen.xs"
+          :dense="$q.screen.lt.xs"
           v-model:selected="selected"
+          class="table-responsive link-cursor"
         >
         </q-table>
       </div>
@@ -168,6 +168,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
+import { useQuasar } from 'quasar';
 import { specialityService } from 'src/services/SpecialityService';
 import { physicalExamService } from 'src/services/PhysicalExamService';
 import * as Constants from 'src/scripts/Constants';
@@ -177,6 +178,7 @@ import { IPhysicalExamResponse } from 'src/interfaces/IConsults';
 export default defineComponent({
   name: 'PhysicalExamForm',
   setup() {
+    const $q = useQuasar();
     const { allSpecialities, clearSpeciality, getAllSpecialities } =
       specialityService();
     const iconSVG = Constants.IconSVG.getInstance();
