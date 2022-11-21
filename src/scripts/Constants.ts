@@ -3,8 +3,6 @@ const timeStamp = Date.now();
 
 export class EndPoints {
   private static instance: EndPoints;
-  //private domine = 'https://leonardorivero.pythonanywhere.com';
-  //private domine = 'http://127.0.0.1:8000';
   private domine: string;
   private constructor() {
     if (process.env.NODE_ENV == 'development') {
@@ -55,8 +53,8 @@ export class EndPoints {
   get getORcreateDoctor() {
     return `${this.domine}/api/doctor/all/`;
   }
-  get getORcreatePhysicalExam() {
-    return `${this.domine}/api/physicalexam/all/`;
+  get getORcreatePhysicalExamParameter() {
+    return `${this.domine}/api/physicalexamparameter/all/`;
   }
   updateInsurance(id: number): string {
     return `${this.domine}/api/insurance/${id}/`;
@@ -151,6 +149,9 @@ export class IconSVG {
   }
   get outpatient() {
     return 'img:outpatient.svg';
+  }
+  get womanAndMan() {
+    return 'woman-and-man.svg';
   }
 }
 export enum Gender {

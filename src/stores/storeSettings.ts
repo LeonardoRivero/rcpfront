@@ -15,8 +15,9 @@ import {
   IDoctorResponse,
   IDoctorRequest,
   IPhysicalExamRequest,
+  IPhysicalExamResponse,
 } from 'src/interfaces/IConsults';
-import { IHealthInsurance, IPatientRequest } from 'src/interfaces/IPatients';
+import { IHealthInsurance } from 'src/interfaces/IPatients';
 import { EndPoints, Messages } from 'src/scripts/Constants';
 import { IColumnsDataTable } from 'src/interfaces/ICommons';
 import { serviceDataTable } from 'src/services/DataTableService';
@@ -40,6 +41,8 @@ export const useStoreSettings = defineStore('settings', {
     allDoctors: [] as Array<IDoctorResponse>,
     currentDoctor: {} as IDoctorRequest,
     speciality: null as ISpeciality | null,
+    currentPhysicalMedicalParameter: {} as IPhysicalExamRequest,
+    allPhysicalMedicalParameter: [] as Array<IPhysicalExamResponse>,
   }),
   getters: {},
   actions: {
@@ -229,9 +232,20 @@ export const useStoreSettings = defineStore('settings', {
     async createPhysicalExam(
       data: IPhysicalExamRequest
     ): Promise<HttpResponse<unknown>> {
-      const url = endpoint.getORcreatePhysicalExam;
+      const url = endpoint.getORcreatePhysicalExamParameter;
       const response = await POST(url, data);
       handleResponse(response);
+      return response;
+    },
+    async retrieveAllPhysicalMedicalParameterBySpecialityId(
+      specialityId: number
+    ): Promise<HttpResponse<unknown>> {
+      const urlBase = endpoint.getORcreatePhysicalExamParameter;
+      const queryParameters = { speciality: specialityId };
+      const url = endpoint.urlQueryParameter(urlBase, queryParameters);
+      const response = await GET(url);
+      this.allPhysicalMedicalParameter =
+        response.parsedBody as Array<IPhysicalExamResponse>;
       return response;
     },
   },

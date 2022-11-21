@@ -4,7 +4,14 @@
       <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <q-card class="my-card" bordered>
           <q-card-section>
-            <div class="text-h4 text_bold">Pacientes</div>
+            <q-item>
+              <q-item-section avatar>
+                <q-avatar>
+                  <img :src="icon" />
+                </q-avatar>
+              </q-item-section>
+              <div class="text-h4 text_bold">Pacientes</div>
+            </q-item>
           </q-card-section>
           <q-separator inset></q-separator>
           <q-card-section>
@@ -272,13 +279,16 @@
 </template>
 
 <script>
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import { patientService } from 'src/services/PatientService';
 import { insuranceService } from 'src/services/InsuranceService';
+import * as Constants from 'src/scripts/Constants';
 import 'src/css/app.sass';
 
 export default defineComponent({
   setup() {
+    const iconSVG = Constants.IconSVG.getInstance();
+    const icon = ref('');
     const {
       patient,
       gender,
@@ -308,6 +318,7 @@ export default defineComponent({
       await getAllIDTypes();
       await getAllInsurance();
       await getAllGenders();
+      icon.value = iconSVG.womanAndMan;
     });
 
     return {
@@ -331,6 +342,7 @@ export default defineComponent({
       searchPatient,
       enableEdition,
       allGenders,
+      icon,
     };
   },
 });

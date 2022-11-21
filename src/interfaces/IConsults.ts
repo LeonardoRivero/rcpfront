@@ -81,9 +81,11 @@ export interface IPhysicalExamRequest {
   id?: number;
   description: string;
   speciality: number;
+  active: boolean;
 }
 export interface IPhysicalExamResponse {
   id?: number;
   description: string;
   speciality: ISpeciality;
+  active: boolean;
 }

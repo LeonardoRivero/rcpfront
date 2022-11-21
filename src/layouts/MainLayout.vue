@@ -45,16 +45,10 @@ const linksList = [
     link: '/',
   },
   {
-    title: 'Historia Clinica',
-    caption: 'Gestiona Historia Pacientes',
-    icon: 'mdi-notebook',
-    link: '/clinichistory',
-  },
-  {
-    title: 'Citas',
-    caption: 'Gestiona Citas Pacientes',
-    icon: 'mdi-calendar-multiple-check',
-    link: '/appointment',
+    title: 'Pacientes',
+    caption: 'Gestion Pacientes',
+    icon: 'mdi-human-wheelchair',
+    link: '/patient',
   },
   {
     title: 'Agenda',
@@ -63,23 +57,17 @@ const linksList = [
     link: '/schedule',
   },
   {
-    title: 'Pacientes',
-    caption: 'Gestion Pacientes',
-    icon: 'mdi-human-wheelchair',
-    link: '/patient',
+    title: 'Citas',
+    caption: 'Gestiona Citas Pacientes',
+    icon: 'mdi-calendar-multiple-check',
+    link: '/appointment',
   },
-  // {
-  //   title: 'Twitter',
-  //   caption: '@quasarframework',
-  //   icon: 'rss_feed',
-  //   link: 'https://twitter.quasar.dev',
-  // },
-  // {
-  //   title: 'Facebook',
-  //   caption: '@QuasarFramework',
-  //   icon: 'public',
-  //   link: 'https://facebook.quasar.dev',
-  // },
+  {
+    title: 'Historia Clinica',
+    caption: 'Gestiona Historia Pacientes',
+    icon: 'mdi-notebook',
+    link: '/clinichistory',
+  },
   {
     title: 'Configuraciones',
     caption: 'Configuraciones Generales',
@@ -109,33 +97,7 @@ export default defineComponent({
 });
 </script>
 <style>
-/* .q-drawer {
-  background-image: url('/statics/images/lake.jpg') !important;
-  background-size: cover !important;
-} */
-/* .drawer_normal {
-  background-color: rgba(1, 1, 1, 0.75);
-}
-.drawer_dark {
-  background-color: #010101f2;
-}
-.navigation-item {
-  border-radius: 5px;
-}
-.tab-active {
-  background-color: green;
-} */
 body {
   background: #f1f1f1 !important;
 }
-/* .header_normal {
-  background: linear-gradient(
-    145deg,
-    rgb(32, 106, 80) 15%,
-    rgb(21, 57, 102) 70%
-  );
-}
-.header_dark {
-  background: linear-gradient(145deg, rgb(61, 14, 42) 15%, rgb(14, 43, 78) 70%);
-} */
 </style>

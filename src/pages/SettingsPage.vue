@@ -38,58 +38,56 @@
             <DataTable />
           </q-tab-panel>
           <q-tab-panel name="MedicalHistory">
-            <div style="min-width: 100%">
-              <q-list>
-                <q-expansion-item
-                  popup
-                  default-opened
-                  :icon="icon"
-                  :caption="PARAMETERS_PHYSICAL_EXAM"
-                  label="Examen Fisico"
-                >
-                  <q-separator />
-                  <q-card>
-                    <q-card-section>
-                      <PhysicalExamForm />
-                    </q-card-section>
-                  </q-card>
-                </q-expansion-item>
+            <q-list>
+              <q-expansion-item
+                popup
+                default-opened
+                :icon="icon"
+                :caption="PARAMETERS_PHYSICAL_EXAM"
+                label="Examen Fisico"
+              >
+                <q-separator />
+                <q-card>
+                  <q-card-section>
+                    <PhysicalExamForm />
+                  </q-card-section>
+                </q-card>
+              </q-expansion-item>
 
-                <q-expansion-item
-                  popup
-                  icon="send"
-                  label="Outbox"
-                  caption="Empty"
-                >
-                  <q-separator />
-                  <q-card>
-                    <q-card-section>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                      Quidem, eius reprehenderit eos corrupti commodi magni
-                      quaerat ex numquam, dolorum officiis modi facere maiores
-                      architecto suscipit iste eveniet doloribus ullam aliquid.
-                    </q-card-section>
-                  </q-card>
-                </q-expansion-item>
+              <q-expansion-item
+                popup
+                icon="send"
+                label="Outbox"
+                caption="Empty"
+              >
+                <q-separator />
+                <q-card>
+                  <q-card-section>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                    Quidem, eius reprehenderit eos corrupti commodi magni
+                    quaerat ex numquam, dolorum officiis modi facere maiores
+                    architecto suscipit iste eveniet doloribus ullam aliquid.
+                  </q-card-section>
+                </q-card>
+              </q-expansion-item>
 
-                <q-expansion-item
-                  popup
-                  icon="drafts"
-                  label="Draft"
-                  caption="Draft a new email"
-                >
-                  <q-separator />
-                  <q-card>
-                    <q-card-section>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                      Quidem, eius reprehenderit eos corrupti commodi magni
-                      quaerat ex numquam, dolorum officiis modi facere maiores
-                      architecto suscipit iste eveniet doloribus ullam aliquid.
-                    </q-card-section>
-                  </q-card>
-                </q-expansion-item>
-              </q-list>
-            </div>
+              <q-expansion-item
+                popup
+                icon="drafts"
+                label="Draft"
+                caption="Draft a new email"
+              >
+                <q-separator />
+                <q-card>
+                  <q-card-section>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                    Quidem, eius reprehenderit eos corrupti commodi magni
+                    quaerat ex numquam, dolorum officiis modi facere maiores
+                    architecto suscipit iste eveniet doloribus ullam aliquid.
+                  </q-card-section>
+                </q-card>
+              </q-expansion-item>
+            </q-list>
           </q-tab-panel>
         </q-tab-panels>
       </q-card>
@@ -128,7 +126,7 @@ export default defineComponent({
     });
 
     return {
-      tab: ref('Insurance'),
+      tab: ref('MedicalHistory'),
       splitterModel: ref(20),
       PARAMETERS_PHYSICAL_EXAM,
       icon,
