@@ -26,11 +26,11 @@ export function physicalExamService() {
   const icon = ref('');
   const physicalExamParameter = ref<IPhysicalExamResponse | null>(null);
   const formPhysicalExam = ref<QForm | null>(null);
-  const disable = ref<boolean>(true);
+  const disable = ref<boolean>(false);
   const columnsr = ref<Array<IColumnsDataTable>>(
     [] as Array<IColumnsDataTable>
   );
-  const rows = ref<any>({});
+  const rows = ref<any>([]);
 
   async function clearSpeciality(val: ISpeciality): Promise<void> {
     speciality.value = val;
@@ -41,6 +41,8 @@ export function physicalExamService() {
   function add(): void {
     disable.value = !disable.value;
     formPhysicalExam.value?.reset();
+    speciality.value = null;
+    currentPhysicalMedicalParameter.value = {} as IPhysicalExamRequest;
   }
   // function edit(): void {
   //   if (expanded.value === false) {
@@ -79,12 +81,10 @@ export function physicalExamService() {
         style: 'max-width: 70px',
       },
     ] as Array<IColumnsDataTable>;
-    const r = data.map((row) => {
-      return {
-        description: row.description,
-        active: row.active == true ? 'Activo' : 'Inactivo',
-      };
-    });
+    const r = data.map((row) => ({
+      description: row.description,
+      active: row.active == true ? 'Activo' : 'Inactivo',
+    }));
     rows.value = r;
     // currentPhysicalMedicalParameter.value = {} as IPhysicalExamRequest;
     // test.value = null;

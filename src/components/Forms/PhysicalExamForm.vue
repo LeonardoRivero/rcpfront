@@ -114,25 +114,25 @@
       </q-form>
     </div>
     <div class="col-6 col-md-6 col-sm-12 col-xs-12">
-      <q-list style="max-width: 800px">
-        <q-item>
-          <div class="q-pa-md">
-            <q-table
-              style="height: 300px; width: 450px"
-              title="Parametros Examen Fisico"
-              :hide-bottom="true"
-              :rows="rows"
-              :columns="columnsr"
-              row-key="description"
-              virtual-scroll
-              :rows-per-page-options="[0]"
-              selection="single"
-              :grid="$q.screen.xs"
-              v-model:selected="selected"
-            >
-            </q-table>
-          </div>
-          <!-- <q-item-section top>
+      <!-- <q-list style="max-width: 800px">
+        <q-item> -->
+      <div class="q-pa-md">
+        <q-table
+          style="height: 300px; width: 100%"
+          title="Parametros Examen Fisico"
+          :hide-bottom="true"
+          :rows="rows"
+          :columns="columnsr"
+          row-key="description"
+          virtual-scroll
+          :rows-per-page-options="[0]"
+          selection="single"
+          :grid="$q.screen.xs"
+          v-model:selected="selected"
+        >
+        </q-table>
+      </div>
+      <!-- <q-item-section top>
             <small>
               <cite title="Ayuda"
                 >Despliegue la lista para consultar los parametros disponibles
@@ -161,8 +161,8 @@
               </template>
             </q-select>
           </q-item-section> -->
-        </q-item>
-      </q-list>
+      <!-- </q-item>
+      </q-list> -->
     </div>
   </div>
 </template>
