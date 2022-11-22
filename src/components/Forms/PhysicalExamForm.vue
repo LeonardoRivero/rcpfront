@@ -26,9 +26,9 @@
                   flat
                   dense
                   round
-                  :disable="true"
                   icon="mdi-pencil"
                   align="right"
+                  v-if="selected.length != 0"
                 >
                   <q-tooltip transition-show="scale" transition-hide="scale">
                     Confirmar
@@ -129,7 +129,33 @@
           :dense="$q.screen.lt.xs"
           v-model:selected="selected"
           class="table-responsive link-cursor"
+          style="height: 300px"
+          @update:selected="(val) => toUpkir(val)"
         >
+          <template v-slot:top>
+            <small>
+              <cite title="Ayuda"
+                >(Seleccione una especialidad para detalles de los parametros
+                fisicos)</cite
+              >
+            </small>
+            Parametros Disponibles
+            <q-space />
+            <q-select
+              v-model="specialityTable"
+              outlined
+              dense
+              options-dense
+              map-options
+              :options="allSpecialities"
+              option-value="id"
+              option-label="description"
+              style="min-width: 50%"
+              label="Seleccione"
+              @update:model-value="(val) => specialityTableChanged(val)"
+              @clear="(val) => clearSpeciality(val)"
+            />
+          </template>
         </q-table>
       </div>
       <!-- <q-item-section top>
@@ -168,17 +194,14 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import { useQuasar } from 'quasar';
 import { specialityService } from 'src/services/SpecialityService';
 import { physicalExamService } from 'src/services/PhysicalExamService';
 import * as Constants from 'src/scripts/Constants';
 import 'src/css/app.sass';
-import { IPhysicalExamResponse } from 'src/interfaces/IConsults';
 
 export default defineComponent({
   name: 'PhysicalExamForm',
   setup() {
-    const $q = useQuasar();
     const { allSpecialities, clearSpeciality, getAllSpecialities } =
       specialityService();
     const iconSVG = Constants.IconSVG.getInstance();
@@ -187,14 +210,18 @@ export default defineComponent({
       formPhysicalExam,
       icon,
       speciality,
+      specialityTable,
       allPhysicalMedicalParameter,
       currentPhysicalMedicalParameter,
       confirmChanges,
       specialityChanged,
+      specialityTableChanged,
       add,
       disable,
       rows,
       columnsr,
+      selected,
+      toUpkir,
     } = physicalExamService();
 
     onMounted(async () => {
@@ -207,16 +234,19 @@ export default defineComponent({
       allPhysicalMedicalParameter,
       allSpecialities,
       speciality,
+      specialityTable,
       formPhysicalExam,
       clearSpeciality,
       confirmChanges,
       specialityChanged,
+      specialityTableChanged,
       disable,
       add,
       currentPhysicalMedicalParameter,
       rows,
       columnsr,
-      selected: ref([]),
+      selected,
+      toUpkir,
     };
   },
 });
