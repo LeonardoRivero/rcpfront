@@ -77,6 +77,9 @@ export class EndPoints {
   updateOrGetScheduleById(id: number): string {
     return `${this.domine}/api/schedule/${id}/`;
   }
+  updateOrGetPhysicalExamParameterById(id: number): string {
+    return `${this.domine}/api/physicalexamparameter/${id}/`;
+  }
   urlQueryParameter(urlBase: string, parameters: object): string {
     urlBase = urlBase.concat('?');
     for (const [key, value] of Object.entries(parameters)) {

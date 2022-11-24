@@ -244,8 +244,21 @@ export const useStoreSettings = defineStore('settings', {
       const queryParameters = { speciality: specialityId };
       const url = endpoint.urlQueryParameter(urlBase, queryParameters);
       const response = await GET(url);
-      this.allPhysicalMedicalParameter =
-        response.parsedBody as Array<IPhysicalExamResponse>;
+      if (response.status != HttpStatusCodes.NO_CONTENT) {
+        this.allPhysicalMedicalParameter =
+          response.parsedBody as Array<IPhysicalExamResponse>;
+      }
+      return response;
+    },
+    async updatePhysicalMedicalParameter(
+      data: IPhysicalExamRequest
+    ): Promise<HttpResponse<unknown> | null> {
+      if (data.id == null) {
+        return null;
+      }
+      const url = endpoint.updateOrGetPhysicalExamParameterById(data.id);
+      const response = await PUT(url, data);
+      handleResponse(response, messages.updateSuccesfully);
       return response;
     },
   },

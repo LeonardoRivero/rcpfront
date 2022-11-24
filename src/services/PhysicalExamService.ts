@@ -34,6 +34,7 @@ export function physicalExamService() {
   const rows = ref<any>([]);
   const specialityTable = ref<ISpeciality | null>(null);
   const selected = ref([]);
+  const statusPhysicalMedicalParameter = ref(false);
 
   async function clearSpeciality(val: ISpeciality): Promise<void> {
     speciality.value = val;
@@ -45,18 +46,28 @@ export function physicalExamService() {
     disable.value = !disable.value;
     formPhysicalExam.value?.reset();
     speciality.value = null;
-    currentPhysicalMedicalParameter.value = {} as IPhysicalExamRequest;
+    currentPhysicalMedicalParameter.value = {
+      active: true,
+    } as IPhysicalExamRequest;
   }
-  // function edit(): void {
-  //   if (expanded.value === false) {
-  //     expanded.value = !expanded.value;
-  //   }
-  //   currentSpeciality.value = speciality.value as ISpeciality;
-  // }
-  async function toUpkir(val: Array<IPhysicalExamRequest>) {
-    currentPhysicalMedicalParameter.value.description = val[0].description;
-    currentPhysicalMedicalParameter.value.active = val[0].active;
+  function edit(): void {
+    disable.value = !disable.value;
+  }
+  async function rowClicked(val: Array<IPhysicalExamRequest>) {
+    const id = val[0].id;
+    const item = allPhysicalMedicalParameter.value.find((obj) => {
+      return obj.id === id;
+    });
+    if (item === undefined || item.speciality.id === undefined) {
+      return;
+    }
+    currentPhysicalMedicalParameter.value.description = item.description;
+    currentPhysicalMedicalParameter.value.active = item.active;
+    currentPhysicalMedicalParameter.value.id = item.id;
+    currentPhysicalMedicalParameter.value.speciality = item.speciality.id;
+
     speciality.value = specialityTable.value;
+    disable.value = true;
   }
   async function specialityChanged(val: ISpeciality): Promise<void> {
     speciality.value = val;
@@ -67,7 +78,7 @@ export function physicalExamService() {
     await store.retrieveAllPhysicalMedicalParameterBySpecialityId(specialityId);
   }
   async function specialityTableChanged(val: ISpeciality): Promise<void> {
-    // speciality.value = val;
+    speciality.value = null;
     selected.value = [];
     if (val.id === undefined) {
       return;
@@ -98,6 +109,7 @@ export function physicalExamService() {
         },
       ] as Array<IColumnsDataTable>;
       const r = data.map((row) => ({
+        id: row.id,
         description: row.description,
         active: row.active == true ? 'Activo' : 'Inactivo',
       }));
@@ -105,7 +117,7 @@ export function physicalExamService() {
       return;
     }
     columnsr.value = [] as Array<IColumnsDataTable>;
-    rows.value = {};
+    rows.value = [];
 
     // currentPhysicalMedicalParameter.value = {} as IPhysicalExamRequest;
     // test.value = null;
@@ -138,13 +150,38 @@ export function physicalExamService() {
       payload = {
         description: currentPhysicalMedicalParameter.value.description,
         speciality: speciality.value.id,
-        active: true,
+        active: currentPhysicalMedicalParameter.value.active,
       };
       const responseCreate = await store.createPhysicalExam(payload);
       if (responseCreate == null) {
         return;
       }
       response = responseCreate;
+    }
+    let confirmUpdate = false;
+    if (currentPhysicalMedicalParameter.value.id != undefined) {
+      confirmUpdate = await serviceModal.showModal(
+        'Atención',
+        messages.updateRegister
+      );
+      if (confirmUpdate == false) {
+        return;
+      }
+    }
+    if (confirmUpdate == true) {
+      payload = {
+        id: currentPhysicalMedicalParameter.value.id,
+        description: currentPhysicalMedicalParameter.value.description,
+        active: currentPhysicalMedicalParameter.value.active,
+        speciality: currentPhysicalMedicalParameter.value.speciality,
+      };
+      const responseUpdate = await store.updatePhysicalMedicalParameter(
+        payload
+      );
+      if (responseUpdate == null) {
+        return;
+      }
+      response = responseUpdate;
     }
     currentPhysicalMedicalParameter.value =
       response.parsedBody as IPhysicalExamRequest;
@@ -154,6 +191,14 @@ export function physicalExamService() {
     );
     const data = response.parsedBody as Array<IPhysicalExamResponse>;
     columnsr.value = [
+      {
+        name: 'id',
+        required: true,
+        align: 'center',
+        label: 'Id',
+        field: 'id',
+        sortable: true,
+      },
       {
         name: 'description',
         required: true,
@@ -172,6 +217,7 @@ export function physicalExamService() {
       },
     ] as Array<IColumnsDataTable>;
     const r = data.map((row) => ({
+      id: row.id,
       description: row.description,
       active: row.active == true ? 'Activo' : 'Inactivo',
     }));
@@ -184,11 +230,13 @@ export function physicalExamService() {
     physicalExamParameter,
     allPhysicalMedicalParameter,
     currentPhysicalMedicalParameter,
+    statusPhysicalMedicalParameter,
     formPhysicalExam,
     speciality,
     specialityTable,
     disable,
     add,
+    edit,
     columnsr,
     rows,
     selected,
@@ -197,6 +245,6 @@ export function physicalExamService() {
     specialityTableChanged,
     specialityChanged,
     clearSpeciality,
-    toUpkir,
+    rowClicked,
   };
 }

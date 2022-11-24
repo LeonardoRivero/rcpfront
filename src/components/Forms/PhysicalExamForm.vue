@@ -29,6 +29,7 @@
                   icon="mdi-pencil"
                   align="right"
                   v-if="selected.length != 0"
+                  @click="edit"
                 >
                   <q-tooltip transition-show="scale" transition-hide="scale">
                     Confirmar
@@ -65,7 +66,7 @@
           <q-item>
             <q-item-section top>
               <div class="row q-col-gutter-x-md">
-                <div class="col-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="col-5 col-md-5 col-sm-12 col-xs-12">
                   <q-input
                     :disable="disable"
                     v-model="currentPhysicalMedicalParameter.description"
@@ -78,7 +79,7 @@
                     ]"
                   />
                 </div>
-                <div class="col-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="col-5 col-md-5 col-sm-12 col-xs-12">
                   <q-select
                     :disable="disable"
                     dense
@@ -95,6 +96,13 @@
                     @clear="(val) => clearSpeciality(val)"
                   >
                   </q-select>
+                </div>
+                <div class="col-2 col-md-2 col-sm-12 col-xs-12">
+                  <q-checkbox
+                    :disable="disable"
+                    v-model="currentPhysicalMedicalParameter.active"
+                    label="Estado"
+                  />
                 </div>
               </div>
             </q-item-section>
@@ -122,7 +130,7 @@
           :hide-bottom="true"
           :rows="rows"
           :columns="columnsr"
-          row-key="description"
+          row-key="id"
           virtual-scroll
           :rows-per-page-options="[0]"
           selection="single"
@@ -130,7 +138,7 @@
           v-model:selected="selected"
           class="table-responsive link-cursor"
           style="height: 300px"
-          @update:selected="(val) => toUpkir(val)"
+          @update:selected="(val) => rowClicked(val)"
         >
           <template v-slot:top>
             <small>
@@ -213,15 +221,17 @@ export default defineComponent({
       specialityTable,
       allPhysicalMedicalParameter,
       currentPhysicalMedicalParameter,
+      statusPhysicalMedicalParameter,
       confirmChanges,
       specialityChanged,
       specialityTableChanged,
       add,
+      edit,
       disable,
       rows,
       columnsr,
       selected,
-      toUpkir,
+      rowClicked,
     } = physicalExamService();
 
     onMounted(async () => {
@@ -242,11 +252,13 @@ export default defineComponent({
       specialityTableChanged,
       disable,
       add,
+      edit,
       currentPhysicalMedicalParameter,
+      statusPhysicalMedicalParameter,
       rows,
       columnsr,
       selected,
-      toUpkir,
+      rowClicked,
     };
   },
 });
