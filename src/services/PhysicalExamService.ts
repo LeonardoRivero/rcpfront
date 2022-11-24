@@ -75,6 +75,7 @@ export function physicalExamService() {
       return;
     }
     const specialityId = val.id;
+    currentPhysicalMedicalParameter.value.speciality = val.id;
     await store.retrieveAllPhysicalMedicalParameterBySpecialityId(specialityId);
   }
   async function specialityTableChanged(val: ISpeciality): Promise<void> {
