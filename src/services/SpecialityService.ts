@@ -1,125 +1,263 @@
 import { ref } from 'vue';
 import { QForm } from 'quasar';
 import { routerInstance } from 'boot/globalRouter';
-import { storeToRefs } from 'pinia';
+import { defineStore, storeToRefs } from 'pinia';
 import { useStoreSettings } from 'src/stores/storeSettings';
-import { IDXMainCodeRequest, ISpeciality } from 'src/interfaces/IConsults';
+import { IDXMainCodeRequest, ISpeciality } from 'src/models/IConsults';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import modalService from './ModalService';
 import { Messages } from 'src/scripts/Constants';
 import { HttpResponse } from 'src/scripts/Request';
-import { dxMainCodeService } from './DxMainCodeService';
+import { SpecialityRepository } from 'src/patterns/Repository/SettingsRepository';
+import { dxMainCodeService } from 'src/services/DxMainCodeService';
 
-const store = useStoreSettings();
-const serviceModal = modalService();
-const messages = new Messages();
-const serviceDxMainCode = dxMainCodeService();
+interface IStoreSpeciality {
+  allSpecialities: Array<ISpeciality>;
+  currentSpeciality: ISpeciality | null;
+  form: QForm | null;
+  expanded: boolean;
+  speciality: ISpeciality | null;
+}
 
-export function specialityService() {
-  const { allSpecialities, currentSpeciality, speciality } = storeToRefs(store);
-  const expanded = ref(false);
-  const formSpeciality = ref<QForm | null>(null);
+export const useStoreSpeciality = defineStore('storeSpeciality', {
+  state: () =>
+    ({
+      allSpecialities: [] as Array<ISpeciality>,
+      currentSpeciality: {} as ISpeciality,
+      expanded: false,
+      speciality: null,
+      form: null,
+    } as IStoreSpeciality),
+});
 
-  function clearSpeciality(val: ISpeciality) {
-    currentSpeciality.value = {} as ISpeciality;
+export class specialityService {
+  private store = useStoreSpeciality();
+  private dxMainService = dxMainCodeService.getInstance();
+  private serviceModal = modalService();
+  private messages = Messages.getInstance();
+  private repository = SpecialityRepository.getInstance();
+  private static instance: specialityService;
+
+  private constructor() {
+    return;
   }
-  async function specialityChanged(val: ISpeciality): Promise<void> {
-    currentSpeciality.value = val;
+
+  public static getInstance(): specialityService {
+    if (!specialityService.instance) {
+      specialityService.instance = new specialityService();
+    }
+    return specialityService.instance;
+  }
+  public clear(): void {
+    this.store.currentSpeciality = {} as ISpeciality;
+  }
+  public async specialityChanged(val: ISpeciality | null): Promise<void> {
+    if (val === null) return;
+    this.store.currentSpeciality = val;
+
     if (val.id === undefined) {
       return;
     }
-    const specialityId = val.id;
-    await store.retrieveAllDxMainCodeBySpecialityId(specialityId);
-    serviceDxMainCode.clearDxMainCode({} as IDXMainCodeRequest);
-    // dxMainCode.value = {} as IDXMainCodeResponse;
-    // currentDxMainCode.value = {} as IDXMainCodeResponse;
+
+    const queryParameters = { speciality: this.store.currentSpeciality.id };
+    const response = await this.dxMainService.findByParameters(queryParameters);
+    this.dxMainService.clear();
+    this.dxMainService.listDxMainCodes = response;
   }
-  function add(): void {
-    expanded.value = !expanded.value;
-    currentSpeciality.value = {} as ISpeciality;
+
+  public add(): void {
+    this.store.expanded = true;
+    this.store.currentSpeciality = {} as ISpeciality;
+    this.store.form?.reset();
   }
-  function edit(): void {
-    if (expanded.value === false) {
-      expanded.value = !expanded.value;
+
+  public edit(): void {
+    if (this.store.expanded === false) {
+      this.store.expanded = !this.store.expanded;
     }
-    currentSpeciality.value = speciality.value as ISpeciality;
+
+    this.store.currentSpeciality = this.store.speciality as ISpeciality;
   }
-  async function confirmChanges(): Promise<void> {
-    const isValid = await formSpeciality.value?.validate();
+
+  public async processRequest(): Promise<void> {
+    const isValid = await this.store.form?.validate();
     if (isValid == false) {
       return;
     }
-    if (!currentSpeciality.value) return;
-    let response = {} as HttpResponse<unknown>;
-    let confirmCreate = false;
-    if (currentSpeciality.value.id == undefined) {
-      confirmCreate = await serviceModal.showModal(
-        'Atención',
-        messages.newRegister
-      );
-      if (confirmCreate === false) {
-        return;
-      }
+
+    if (!this.store.currentSpeciality) return;
+    let response = null;
+
+    if (this.store.currentSpeciality.id == undefined) {
+      response = await this.save(this.store.currentSpeciality);
     }
-    if (confirmCreate === true) {
-      const responseCreate = await store.createSpeciality(
-        currentSpeciality.value
-      );
-      if (responseCreate == null) {
-        return;
-      }
-      response = responseCreate;
+
+    if (this.store.currentSpeciality.id != undefined) {
+      response = await this.update(this.store.currentSpeciality);
     }
-    let confirmUpdate = false;
-    if (currentSpeciality.value.id != undefined) {
-      confirmUpdate = await serviceModal.showModal(
-        'Atención',
-        messages.updateRegister
-      );
-      if (confirmUpdate === false) {
-        return;
-      }
-    }
-    if (confirmUpdate == true) {
-      const responseUpdate = await store.updateSpeciality(
-        currentSpeciality.value
-      );
-      if (responseUpdate == null) {
-        return;
-      }
-      response = responseUpdate;
-    }
-    currentSpeciality.value = response.parsedBody as ISpeciality;
-    await store.retrieveAllSpecialities();
-    expanded.value = false;
+
+    if (response == null) return;
+    this.store.currentSpeciality = response;
+    await this.repository.getAll();
+    this.store.expanded = false;
   }
-  async function getAllSpecialities() {
-    if (allSpecialities.value == undefined) {
-      const response = await store.retrieveAllSpecialities();
-      if (response.status == HttpStatusCodes.NOT_FOUND) {
-        routerInstance.push('/:catchAll');
-      }
-      return (await response.parsedBody) as Array<ISpeciality>;
+
+  private async save(payload: ISpeciality): Promise<ISpeciality | null> {
+    const confirm = await this.serviceModal.showModal(
+      'Atención',
+      this.messages.newRegister
+    );
+
+    if (confirm === false) {
+      return null;
     }
-    const response = allSpecialities.value;
+
+    const response = await this.repository.create(payload);
     return response;
   }
 
-  return {
-    //! Properties
-    getAllSpecialities,
-    clearSpeciality,
-    formSpeciality,
-    speciality,
-    allSpecialities,
-    currentSpeciality,
-    expanded,
-    //! Computed
+  private async update(payload: ISpeciality): Promise<ISpeciality | null> {
+    const confirm = await this.serviceModal.showModal(
+      'Atención',
+      this.messages.updateRegister
+    );
+    if (confirm === false) {
+      return null;
+    }
 
-    //! Metodos
-    add,
-    edit,
-    specialityChanged,
-    confirmChanges,
-  };
+    const response = await this.repository.update(payload);
+    return response;
+  }
+
+  public async getAll(): Promise<Array<ISpeciality>> {
+    if (this.store.allSpecialities.length != 0) {
+      return this.store.allSpecialities;
+    }
+    const response = await this.repository.getAll();
+
+    if (response == null) return [];
+    this.store.allSpecialities = response;
+    return response;
+  }
 }
+
+// const store = useStoreSettings();
+// const serviceModal = modalService();
+// const messages = Messages.getInstance();
+// const serviceDxMainCode = dxMainCodeService();
+// const specialityRepository = SpecialityRepository.getInstance();
+// const dxMainCodeRepository = DxMainCodeRepository.getInstance();
+
+// export function specialityService() {
+//   const {
+//     allSpecialities,
+//     currentSpeciality,
+//     speciality,
+//     allDxMainCodes,
+//     expanded,
+//     formSpeciality,
+//   } = storeToRefs(store);
+//   // const expanded = ref(false);
+//   // const formSpeciality = ref<QForm | null>(null);
+
+//   function clearSpeciality(val: ISpeciality) {
+//     currentSpeciality.value = {} as ISpeciality;
+//   }
+//   async function specialityChanged(val: ISpeciality): Promise<void> {
+//     currentSpeciality.value = val;
+//     if (val.id === undefined) {
+//       return;
+//     }
+//     const queryParameters = { speciality: currentSpeciality.value.id };
+//     allDxMainCodes.value = await dxMainCodeRepository.findByParameters(
+//       queryParameters
+//     );
+//     serviceDxMainCode.clearDxMainCode({} as IDXMainCodeRequest);
+//   }
+//   function add(): void {
+//     expanded.value = !expanded.value;
+//     currentSpeciality.value = {} as ISpeciality;
+//   }
+//   function edit(): void {
+//     if (expanded.value === false) {
+//       expanded.value = !expanded.value;
+//     }
+//     currentSpeciality.value = speciality.value as ISpeciality;
+//   }
+//   async function confirmChanges(): Promise<void> {
+//     const isValid = await formSpeciality.value?.validate();
+//     if (isValid == false) {
+//       return;
+//     }
+//     if (!currentSpeciality.value) return;
+//     let response = {} as ISpeciality;
+//     let confirmCreate = false;
+//     if (currentSpeciality.value.id == undefined) {
+//       confirmCreate = await serviceModal.showModal(
+//         'Atención',
+//         messages.newRegister
+//       );
+//       if (confirmCreate === false) {
+//         return;
+//       }
+//     }
+//     if (confirmCreate === true) {
+//       const responseCreate = await specialityRepository.create(
+//         currentSpeciality.value
+//       );
+//       if (responseCreate == null) {
+//         return;
+//       }
+//       response = responseCreate;
+//     }
+//     let confirmUpdate = false;
+//     if (currentSpeciality.value.id != undefined) {
+//       confirmUpdate = await serviceModal.showModal(
+//         'Atención',
+//         messages.updateRegister
+//       );
+//       if (confirmUpdate === false) {
+//         return;
+//       }
+//     }
+//     if (confirmUpdate == true) {
+//       const responseUpdate = await specialityRepository.update(
+//         currentSpeciality.value
+//       );
+//       if (responseUpdate == null) {
+//         return;
+//       }
+//       response = responseUpdate;
+//     }
+//     currentSpeciality.value = response as ISpeciality;
+//     await specialityRepository.getAll();
+//     expanded.value = false;
+//   }
+//   async function getAllSpecialities() {
+//     if (allSpecialities.value == undefined) {
+//       const response = await specialityRepository.getAll();
+//       if (response == null) return;
+//       allSpecialities.value = response;
+//       return response;
+//     }
+//     return allSpecialities.value;
+//   }
+
+//   return {
+//     //! Properties
+//     getAllSpecialities,
+//     clearSpeciality,
+//     formSpeciality,
+//     speciality,
+//     allSpecialities,
+//     currentSpeciality,
+//     expanded,
+//     //! Computed
+
+//     //! Metodos
+//     add,
+//     edit,
+//     specialityChanged,
+//     confirmChanges,
+//   };
+// }

@@ -3,14 +3,14 @@ import { date, QForm } from 'quasar';
 import { routerInstance } from 'boot/globalRouter';
 import { storeToRefs } from 'pinia';
 import { useStorePatients } from 'src/stores/storePatients';
-import { IPatientResponse } from 'src/interfaces/IPatients';
+import { IPatientResponse } from 'src/models/IPatients';
 import { HttpResponse } from 'src/scripts/Request';
 import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import modalService from './ModalService';
 import * as Constants from 'src/scripts/Constants';
 import { Validators } from 'src/scripts/Helpers';
 
-const message = new Constants.Messages();
+const message = Constants.Messages.getInstance();
 const storePatients = useStorePatients();
 const serviceModal = modalService();
 const validator = Validators.getInstance();

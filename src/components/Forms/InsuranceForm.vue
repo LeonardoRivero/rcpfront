@@ -58,7 +58,7 @@
       <div v-show="expanded">
         <q-separator />
         <q-card-section class="text-subitle2">
-          <q-form @submit="confirmChanges" ref="formInsurance">
+          <q-form @submit="confirmChanges" ref="form">
             <q-input
               dense
               outlined
@@ -91,42 +91,46 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
-import { insuranceService } from 'src/services/InsuranceService';
+import {
+  insuranceService,
+  useStoreInsurance,
+} from 'src/services/InsuranceService';
 import 'src/css/app.sass';
+import { IHealthInsurance } from 'src/models/IPatients';
+import { storeToRefs } from 'pinia';
 
 export default defineComponent({
   name: 'InsuranceForm',
   setup() {
-    const {
-      currentInsurance,
-      insurance,
-      expanded,
-      formInsurance,
-      error,
-      insuranceChanged,
-      clearInsurance,
-      edit,
-      add,
-      confirmChanges,
-      getAllInsurance,
-      allInsurance,
-    } = insuranceService();
+    const { currentInsurance, insurance, expanded, form, error, allInsurance } =
+      storeToRefs(useStoreInsurance());
+    const service = insuranceService.getInstance();
     onMounted(async () => {
-      await getAllInsurance();
+      await service.getAll();
     });
 
     return {
       insurance,
-      clearInsurance,
-      insuranceChanged,
       allInsurance,
       currentInsurance,
       expanded,
-      formInsurance,
+      form,
       error,
-      edit,
-      add,
-      confirmChanges,
+      clearInsurance() {
+        service.clear();
+      },
+      insuranceChanged(val: IHealthInsurance) {
+        service.insuranceChanged(val);
+      },
+      edit() {
+        service.edit();
+      },
+      add() {
+        service.add();
+      },
+      async confirmChanges() {
+        await service.processRequest();
+      },
     };
   },
 });

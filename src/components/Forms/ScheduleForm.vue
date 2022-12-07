@@ -1,5 +1,5 @@
 <template>
-  <q-form @submit="confirmChanges" ref="formSchedule">
+  <q-form @submit="confirmChanges" ref="form">
     <q-list>
       <q-item>
         <q-item-section>
@@ -161,7 +161,6 @@
                 label="Especialidad"
                 lazy-rules
                 :rules="[(val) => val || 'Especialidad es requerida']"
-                @update:model-value="(val) => specialityChanged(val)"
                 @clear="(val) => clearSpeciality(val)"
               >
               </q-select>
@@ -188,11 +187,18 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted } from 'vue';
+import { storeToRefs } from 'pinia';
 import { date } from 'quasar';
-import { scheduleService } from 'src/services/ScheduleService';
-import { specialityService } from 'src/services/SpecialityService';
-import { IAppointmentRequest, ISpeciality } from 'src/interfaces/IConsults';
-import { IPatientResponse } from 'src/interfaces/IPatients';
+import {
+  ScheduleService,
+  useStoreSchedule,
+} from 'src/services/ScheduleService';
+import {
+  specialityService,
+  useStoreSpeciality,
+} from 'src/services/SpecialityService';
+import { IAppointmentRequest, ISpeciality } from 'src/models/IConsults';
+import { IPatientResponse } from 'src/models/IPatients';
 import * as Constants from 'src/scripts/Constants';
 import 'src/css/app.sass';
 
@@ -204,8 +210,9 @@ export default defineComponent({
     const MINUTES_ALLOWED = Constants.OPTIONS_MINUTES;
     const HOURS_ALLOWED = Constants.OPTIONS_HOURS;
     const MIN_YEAR_MONTH = Constants.CURRENTYEAR_MONTH;
+    const store = useStoreSchedule();
     const {
-      formSchedule,
+      form,
       currentAppointment,
       currentSchedule,
       identificationPatient,
@@ -214,19 +221,23 @@ export default defineComponent({
       currentDoctor,
       allowToUpdate,
       allowToDelete,
-      confirmChanges,
-      searchPatient,
-      confirmDeleteSchedule,
-      getAllDoctors,
-      specialityChanged,
+      // confirmChanges,
+      // searchPatient,
+      // confirmDeleteSchedule,
+      // getAllDoctors,
+      // specialityChanged,
       speciality,
-    } = scheduleService();
-    const { getAllSpecialities, allSpecialities, clearSpeciality } =
-      specialityService();
+    } = storeToRefs(store);
+    const service = new ScheduleService();
+    const serviceSpeciality = specialityService.getInstance();
+    // const { getAllSpecialities, allSpecialities, clearSpeciality } =
+    //   specialityService();
+    const storeSpeciality = useStoreSpeciality();
+    const { allSpecialities } = storeToRefs(storeSpeciality);
 
     onMounted(async () => {
-      await getAllDoctors();
-      await getAllSpecialities();
+      await service.getAllDoctors();
+      await serviceSpeciality.getAll();
     });
     onUnmounted(async () => {
       currentAppointment.value = {} as IAppointmentRequest;
@@ -239,7 +250,7 @@ export default defineComponent({
       HOURS_ALLOWED,
       MINUTES_ALLOWED,
       FORMAT_DATETIME,
-      formSchedule,
+      form,
       currentAppointment,
       currentSchedule,
       identificationPatient,
@@ -250,11 +261,21 @@ export default defineComponent({
       allSpecialities,
       speciality,
       currentDoctor,
-      confirmChanges,
-      searchPatient,
-      confirmDeleteSchedule,
-      specialityChanged,
-      clearSpeciality,
+      async confirmChanges() {
+        await service.confirmChanges();
+      },
+      async searchPatient() {
+        await service.searchPatient();
+      },
+      async confirmDeleteSchedule(val: number) {
+        await service.confirmDeleteSchedule(val);
+      },
+      async specialityChanged() {
+        await serviceSpeciality.specialityChanged(speciality.value);
+      },
+      async clearSpeciality() {
+        serviceSpeciality.clear();
+      },
       dates,
     };
   },

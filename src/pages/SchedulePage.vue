@@ -21,16 +21,18 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { storeToRefs } from 'pinia';
 import '@fullcalendar/core/vdom';
 import FullCalendar from '@fullcalendar/vue3';
-import { scheduleService } from 'src/services/ScheduleService';
+import { useStoreSchedule } from 'src/services/ScheduleService';
 import ScheduleForm from 'src/components/Forms/ScheduleForm.vue';
 
 export default defineComponent({
   components: { FullCalendar, ScheduleForm },
 
   setup() {
-    const { calOptions, card, calendar } = scheduleService();
+    const storeSchedule = useStoreSchedule();
+    const { calOptions, card, calendar } = storeToRefs(storeSchedule);
     return {
       calOptions,
       card,

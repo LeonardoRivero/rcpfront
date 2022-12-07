@@ -1,16 +1,11 @@
 import { date } from 'quasar';
-import {
-  BASE_YEAR,
-  MININUM_AGE,
-  OPTIONS_HOURS,
-  OPTIONS_MINUTES,
-} from './Constants';
+import { BASE_YEAR, OPTIONS_HOURS, OPTIONS_MINUTES } from './Constants';
 export class Validators {
   private static instance: Validators;
   private options_hours = OPTIONS_HOURS;
   private options_minutes = OPTIONS_MINUTES;
   private constructor() {
-    //
+    return;
   }
   public static getInstance(): Validators {
     if (!Validators.instance) {
@@ -19,7 +14,7 @@ export class Validators {
 
     return Validators.instance;
   }
-  dateGreater(dateString: string): boolean | null {
+  public dateGreater(dateString: string): boolean | null {
     if (!date.isValid(dateString)) {
       return null;
     }
@@ -51,7 +46,7 @@ export class Validators {
     return true;
   }
 
-  hourIsInRangeAllowed(dateString: string): boolean | null {
+  public hourIsInRangeAllowed(dateString: string): boolean | null {
     if (!date.isValid(dateString)) {
       return null;
     }
@@ -70,7 +65,7 @@ export class Validators {
     return false;
   }
 
-  hourGreater(dateString: string): boolean | null {
+  public hourGreater(dateString: string): boolean | null {
     if (!date.isValid(dateString)) {
       return null;
     }

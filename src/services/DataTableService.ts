@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import { IColumnsDataTable } from 'src/interfaces/ICommons';
+import { IColumnsDataTable } from 'src/models/ICommons';
 import { useStoreModal } from 'src/stores/storeCommon';
 import { storeToRefs } from 'pinia';
 

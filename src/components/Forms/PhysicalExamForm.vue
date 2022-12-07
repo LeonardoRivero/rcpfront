@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col-6 col-md-6 col-sm-12 col-xs-12">
-      <q-form @submit="confirmChanges" ref="formPhysicalExam">
+      <q-form @submit="confirmChanges" ref="form">
         <q-list>
           <q-item>
             <div class="fit row justify-end">
@@ -69,7 +69,7 @@
                 <div class="col-5 col-md-5 col-sm-12 col-xs-12">
                   <q-input
                     :disable="disable"
-                    v-model="currentPhysicalMedicalParameter.description"
+                    v-model="currentPhysicalExamParameter.description"
                     label="Parametro Examen Fisico"
                     dense
                     lazy-rules
@@ -100,7 +100,7 @@
                 <div class="col-2 col-md-2 col-sm-12 col-xs-12">
                   <q-checkbox
                     :disable="disable"
-                    v-model="currentPhysicalMedicalParameter.active"
+                    v-model="currentPhysicalExamParameter.active"
                     label="Estado"
                   />
                 </div>
@@ -202,63 +202,85 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import { specialityService } from 'src/services/SpecialityService';
-import { physicalExamService } from 'src/services/PhysicalExamService';
+import {
+  specialityService,
+  useStoreSpeciality,
+} from 'src/services/SpecialityService';
+import {
+  PhysicalExamParameterService,
+  useStorePhysicalExamParameter,
+} from 'src/services/PhysicalExamService';
 import * as Constants from 'src/scripts/Constants';
 import 'src/css/app.sass';
+import { storeToRefs } from 'pinia';
+import { IPhysicalExamRequest } from 'src/models/IConsults';
 
 export default defineComponent({
   name: 'PhysicalExamForm',
   setup() {
-    const { allSpecialities, clearSpeciality, getAllSpecialities } =
-      specialityService();
+    const { allSpecialities } = storeToRefs(useStoreSpeciality());
     const iconSVG = Constants.IconSVG.getInstance();
     const {
-      physicalExamParameter,
-      formPhysicalExam,
+      // physicalExamParameter,
+      form,
       icon,
       speciality,
       specialityTable,
       allPhysicalMedicalParameter,
-      currentPhysicalMedicalParameter,
-      statusPhysicalMedicalParameter,
-      confirmChanges,
-      specialityChanged,
-      specialityTableChanged,
-      add,
-      edit,
+      currentPhysicalExamParameter,
+      status,
+      // confirmChanges,
+      // specialityChanged,
+      // specialityTableChanged,
+      // add,
+      // edit,
       disable,
       rows,
       columnsr,
       selected,
-      rowClicked,
-    } = physicalExamService();
+      // rowClicked,
+    } = storeToRefs(useStorePhysicalExamParameter());
+
+    const service = new PhysicalExamParameterService();
+    const serviceSpeciality = specialityService.getInstance();
 
     onMounted(async () => {
-      await getAllSpecialities();
+      await serviceSpeciality.getAll();
       icon.value = iconSVG.outpatient;
     });
     return {
       icon,
-      physicalExamParameter,
+      // physicalExamParameter,
       allPhysicalMedicalParameter,
       allSpecialities,
       speciality,
       specialityTable,
-      formPhysicalExam,
-      clearSpeciality,
-      confirmChanges,
-      specialityChanged,
-      specialityTableChanged,
+      form,
       disable,
-      add,
-      edit,
-      currentPhysicalMedicalParameter,
-      statusPhysicalMedicalParameter,
+      //clearSpeciality,
+      confirmChanges() {
+        service.processRequest();
+      },
+      specialityChanged() {
+        service.specialityChanged(speciality.value);
+      },
+      specialityTableChanged(val: any) {
+        console.log(val);
+      },
+      add() {
+        service.add();
+      },
+      edit() {
+        service.edit();
+      },
+      currentPhysicalExamParameter,
+      status,
       rows,
       columnsr,
       selected,
-      rowClicked,
+      rowClicked(val: Array<IPhysicalExamRequest>) {
+        console.log(val);
+      },
     };
   },
 });

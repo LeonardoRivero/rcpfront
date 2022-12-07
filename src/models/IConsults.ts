@@ -1,4 +1,4 @@
-import { IPatientResponse } from 'src/interfaces/IPatients';
+import { IPatientResponse } from 'src/models/IPatients';
 import { EventScheduleResponse } from './ICommons';
 export interface IPatientStatus {
   id?: number;

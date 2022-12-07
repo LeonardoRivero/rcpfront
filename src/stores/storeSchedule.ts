@@ -8,7 +8,7 @@ import {
   HttpResponse,
   DELETE,
 } from 'src/scripts/Request';
-import { IPatientResponse } from 'src/interfaces/IPatients';
+import { IPatientResponse } from 'src/models/IPatients';
 import { EndPoints, Messages } from 'src/scripts/Constants';
 import {
   IAppointmentRequest,
@@ -16,14 +16,14 @@ import {
   IDoctorRequest,
   IDoctorResponse,
   ISpeciality,
-} from 'src/interfaces/IConsults';
+} from 'src/models/IConsults';
 import {
   EventScheduleRequest,
   EventScheduleResponse,
-} from 'src/interfaces/ICommons';
+} from 'src/models/ICommons';
 
 const endpoint = EndPoints.getInstance();
-const messages = new Messages();
+const messages = Messages.getInstance();
 
 export const useStoreSchedule = defineStore('schedule', {
   state: () => ({

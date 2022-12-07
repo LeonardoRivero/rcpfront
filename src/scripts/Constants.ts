@@ -6,7 +6,7 @@ export class EndPoints {
   private domine: string;
   private constructor() {
     if (process.env.NODE_ENV == 'development') {
-      this.domine = process.env.LOCAL == undefined ? '' : process.env.LOCAL;
+      this.domine = process.env.PUBLIC == undefined ? '' : process.env.PUBLIC;
       return;
     }
     this.domine = process.env.PUBLIC == undefined ? '' : process.env.PUBLIC;
@@ -90,6 +90,16 @@ export class EndPoints {
   }
 }
 export class Messages {
+  private static instance: Messages;
+  private constructor() {
+    return;
+  }
+  public static getInstance(): Messages {
+    if (!Messages.instance) {
+      Messages.instance = new Messages();
+    }
+    return Messages.instance;
+  }
   get successMessage(): string {
     return 'Datos Guardados Exitosamente';
   }

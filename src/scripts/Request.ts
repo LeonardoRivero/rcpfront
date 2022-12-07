@@ -3,7 +3,7 @@ import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
 import { Messages } from 'src/scripts/Constants';
 import { Modal } from 'src/scripts/Notifications';
 
-const messages = new Messages();
+const messages = Messages.getInstance();
 const modal = new Modal();
 export interface HttpResponse<T> extends Response {
   parsedBody?: T;

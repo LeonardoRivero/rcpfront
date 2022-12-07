@@ -5,16 +5,14 @@
         <div class="text-h5 q-mt-sm q-mb-xs">Codigos CUPS</div>
         <div class="text-caption text-grey">
           CUPS existentes:
-          {{
-            dxMainCodeofSpeciality == null ? '' : dxMainCodeofSpeciality.length
-          }}
+          {{ allDxMainCodes == null ? '' : allDxMainCodes.length }}
         </div>
         <q-select
           dense
           clearable
           outlined
           v-model="dxMainCode"
-          :options="dxMainCodeofSpeciality"
+          :options="allDxMainCodes"
           option-value="id"
           option-label="description"
           map-options
@@ -59,7 +57,7 @@
         <div v-show="expanded">
           <q-separator />
           <q-card-section class="text-subitle2">
-            <q-form @submit="confirmChanges" ref="formDXMainCode">
+            <q-form @submit="confirmChanges" ref="form">
               <q-input
                 dense
                 outlined
@@ -104,42 +102,55 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { dxMainCodeService } from 'src/services/DxMainCodeService';
-import { specialityService } from 'src/services/SpecialityService';
+import { storeToRefs } from 'pinia';
+import {
+  dxMainCodeService,
+  useStoreDxMainCode,
+} from 'src/services/DxMainCodeService';
+import { useStoreSpeciality } from 'src/services/SpecialityService';
 import ModalCommon from 'src/components/commons/ModalCommon.vue';
 import 'src/css/app.sass';
+import { IDXMainCodeResponse } from 'src/models/IConsults';
 
 export default defineComponent({
   name: 'DxMainCodeForm',
   components: { ModalCommon },
   setup() {
     const {
-      dxMainCodeofSpeciality,
+      error,
       currentDxMainCode,
       dxMainCode,
       expanded,
-      formDXMainCode,
-      error,
-      clearDxMainCode,
-      dxMainCodeChanged,
-      edit,
-      add,
-      confirmChanges,
-    } = dxMainCodeService();
-    const { currentSpeciality } = specialityService();
+      form,
+      allDxMainCodes,
+    } = storeToRefs(useStoreDxMainCode());
+    const { currentSpeciality } = storeToRefs(useStoreSpeciality());
+
+    const service = dxMainCodeService.getInstance();
     return {
       dxMainCode,
-      clearDxMainCode,
-      dxMainCodeChanged,
       currentDxMainCode,
-      dxMainCodeofSpeciality,
+      allDxMainCodes,
+      // dxMainCodeofSpeciality: service.dxMainCodeofSpeciality,
       currentSpeciality,
       expanded,
-      formDXMainCode,
+      form,
       error,
-      edit,
-      add,
-      confirmChanges,
+      clearDxMainCode() {
+        service.clear();
+      },
+      dxMainCodeChanged(val: IDXMainCodeResponse) {
+        service.dxMainCodeChanged(val);
+      },
+      edit() {
+        service.edit();
+      },
+      add() {
+        service.add();
+      },
+      async confirmChanges() {
+        await service.processRequest();
+      },
     };
   },
 });

@@ -1,7 +1,5 @@
-import { useRouter } from 'vue-router';
 import { Notify, Dialog } from 'quasar';
 import { Loading, QSpinnerGears } from 'quasar';
-import route from 'src/router/index';
 
 export class Notification {
   private _message = '' as string;

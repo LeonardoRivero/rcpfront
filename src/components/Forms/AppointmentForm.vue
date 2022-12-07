@@ -1,5 +1,5 @@
 <template>
-  <q-form @submit="confirmChanges" :ref="formAppointment">
+  <q-form @submit="confirmChanges" ref="form">
     <q-list>
       <q-item>
         <q-item-section>
@@ -136,7 +136,6 @@
                 <div class="col-12 col-md-4">
                   <q-select
                     dense
-                    clearable
                     outlined
                     v-model="currentPatientStatus"
                     :options="allPatientStatus"
@@ -145,7 +144,6 @@
                     map-options
                     stack-label
                     label="Estado Paciente"
-                    @update:model-value="(val) => patientStatusChanged(val)"
                     :rules="[
                       (val) =>
                         (val && val != null) || 'Estado Paciente es requerido',
@@ -285,14 +283,18 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted } from 'vue';
-import { appointmentService } from 'src/services/AppointmentService';
-import { patientService } from 'src/services/PatientService';
-import { specialityService } from 'src/services/SpecialityService';
+import { storeToRefs } from 'pinia';
+import {
+  appointmentServices,
+  useStoreAppointments,
+} from 'src/services/AppointmentService';
+import { patientService, useStorePatient } from 'src/services/PatientService';
+// import { specialityService } from 'src/services/SpecialityService';
 import ModalCommon from 'src/components/commons/ModalCommon.vue';
-import { IPatientResponse } from 'src/interfaces/IPatients';
+import { IPatientResponse } from 'src/models/IPatients';
 import * as Constants from 'src/scripts/Constants';
+import { IAppointmentRequest } from 'src/models/IConsults';
 import 'src/css/app.sass';
-import { IAppointmentRequest } from 'src/interfaces/IConsults';
 
 export default defineComponent({
   components: { ModalCommon },
@@ -301,22 +303,25 @@ export default defineComponent({
     const MINUTES_ALLOWED = Constants.OPTIONS_MINUTES;
     const CURRENTYEAR_MONTH = Constants.CURRENTYEAR_MONTH;
     const FORMAT_DATETIME = Constants.FORMAT_DATETIME;
+    const store = useStoreAppointments();
+    const storePatient = useStorePatient();
     const {
       identificationPatient,
       currentAppointment,
-      formAppointment,
+      form,
       currentPatient,
       currentPatientStatus,
       currentHealthInsurance,
       speciality,
       reasonConsult,
-      searchPatient,
-      confirmChanges,
-      calculateAmountPaid,
-      patientStatusChanged,
-    } = appointmentService();
-    const { allSpecialities, clearSpeciality, getAllSpecialities } =
-      specialityService();
+      // searchPatient,
+      // confirmChanges,
+      // calculateAmountPaid,
+      // patientStatusChanged,
+    } = storeToRefs(store);
+    const service = new appointmentServices();
+    // const { allSpecialities, clearSpeciality, getAllSpecialities } =
+    //   specialityService();
     // const {
     //   dxMainCodeofSpeciality,
     //   getAllDxMainCode,
@@ -327,13 +332,14 @@ export default defineComponent({
     const {
       allReasonConsult,
       allPatientStatus,
-      getAllReasonConsult,
-      getAllPatientStatus,
-    } = patientService();
+      // getAllReasonConsult,
+      // getAllPatientStatus,
+    } = storeToRefs(storePatient);
+    const servicePatient = patientService.getInstance();
     onMounted(async () => {
-      getAllSpecialities();
-      getAllReasonConsult();
-      getAllPatientStatus();
+      // getAllSpecialities();
+      await servicePatient.getAllReasonConsult();
+      await servicePatient.getAllPatientStatus();
     });
     onUnmounted(async () => {
       currentPatient.value = {} as IPatientResponse;
@@ -349,17 +355,25 @@ export default defineComponent({
       allReasonConsult,
       allPatientStatus,
       FORMAT_DATETIME,
-      formAppointment,
+      form,
       currentAppointment,
       currentPatientStatus,
       identificationPatient,
-      confirmChanges,
-      calculateAmountPaid,
-      searchPatient,
-      patientStatusChanged,
-      allSpecialities,
+      confirmChanges() {
+        service.processRequest();
+      },
+      calculateAmountPaid() {
+        service.calculateAmountPaid();
+      },
+      searchPatient() {
+        service.searchPatient();
+      },
+      // patientStatusChanged() {
+      //   service.patientStatusChanged(currentPatientStatus.value);
+      // },
+      // allSpecialities,
       speciality,
-      clearSpeciality,
+      // clearSpeciality,
       currentPatient,
       filter: '',
       mode: 'list',

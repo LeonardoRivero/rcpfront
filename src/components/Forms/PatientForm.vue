@@ -44,7 +44,7 @@
                 >
               </q-toolbar>
             </div>
-            <q-form @submit="confirmChanges" ref="formPatient">
+            <q-form @submit="confirmChanges" ref="form">
               <q-list>
                 <q-item>
                   <q-item-section>
@@ -278,52 +278,58 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import { patientService } from 'src/services/PatientService';
-import { insuranceService } from 'src/services/InsuranceService';
+import { patientService, useStorePatient } from 'src/services/PatientService';
+import { IIDType, IHealthInsurance, IGender } from 'src/models/IPatients';
+import {
+  insuranceService,
+  useStoreInsurance,
+} from 'src/services/InsuranceService';
 import * as Constants from 'src/scripts/Constants';
 import 'src/css/app.sass';
+import { storeToRefs } from 'pinia';
 
 export default defineComponent({
   setup() {
     const iconSVG = Constants.IconSVG.getInstance();
     const icon = ref('');
     const {
-      patient,
+      // patient,
       gender,
       currentPatient,
       currentIDType,
-      formPatient,
+      form,
       allIDTypes,
       idType,
       allGenders,
       insurance,
-      confirmChanges,
-      isValidEmail,
-      idTypeChanged,
-      genderChanged,
-      getAllIDTypes,
-      getAllGenders,
-      searchPatient,
+      // confirmChanges,
+      // isValidEmail,
+      // idTypeChanged,
+      // genderChanged,
+      // getAllIDTypes,
+      // getAllGenders,
+      // searchPatient,
       identificationPatient,
       disable,
-      enableEdition,
+      // enableEdition,
       error,
-    } = patientService();
-    const { allInsurance, insuranceChanged, getAllInsurance } =
-      insuranceService();
+    } = storeToRefs(useStorePatient());
+    const { allInsurance } = storeToRefs(useStoreInsurance());
+    const service = patientService.getInstance();
+    const serviceInsurance = insuranceService.getInstance();
 
     onMounted(async () => {
-      await getAllIDTypes();
-      await getAllInsurance();
-      await getAllGenders();
+      await service.getAllIDTypes();
+      await service.getAllGenders();
+      await serviceInsurance.getAll();
       icon.value = iconSVG.womanAndMan;
+      console.log('object', currentPatient.value);
     });
 
     return {
       error,
-      patient,
       gender,
       currentPatient,
       currentIDType,
@@ -331,18 +337,35 @@ export default defineComponent({
       allIDTypes,
       idType,
       insurance,
-      formPatient,
+      form,
       identificationPatient,
       disable,
-      confirmChanges,
-      isValidEmail,
-      idTypeChanged,
-      insuranceChanged,
-      genderChanged,
-      searchPatient,
-      enableEdition,
       allGenders,
       icon,
+      confirmChanges() {
+        service.processRequest();
+      },
+      isValidEmail(val: string) {
+        service.isValidEmail(val);
+      },
+      idTypeChanged(val: IIDType) {
+        return;
+        service.idTypeChanged(val);
+      },
+      insuranceChanged(val: IHealthInsurance) {
+        return;
+        serviceInsurance.insuranceChanged(val);
+      },
+      genderChanged(val: IGender) {
+        return;
+        service.genderChanged(val);
+      },
+      searchPatient() {
+        service.searchByIdentificacion(identificationPatient.value);
+      },
+      enableEdition() {
+        service.enableEdition();
+      },
     };
   },
 });

@@ -57,11 +57,7 @@
         <div v-show="expanded">
           <q-separator />
           <q-card-section class="text-subitle2">
-            <q-form
-              @submit="confirmChanges"
-              class="q-gutter-md"
-              ref="formSpeciality"
-            >
+            <q-form @submit="confirmChanges" class="q-gutter-md" ref="form">
               <q-input
                 dense
                 outlined
@@ -87,40 +83,46 @@
 
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
-import { specialityService } from 'src/services/SpecialityService';
+import { storeToRefs } from 'pinia';
+import { ISpeciality } from 'src/models/IConsults';
+import {
+  specialityService,
+  useStoreSpeciality,
+} from 'src/services/SpecialityService';
 import 'src/css/app.sass';
+
 export default defineComponent({
   name: 'SpecialityForm',
   setup() {
-    const {
-      allSpecialities,
-      currentSpeciality,
-      speciality,
-      expanded,
-      formSpeciality,
-      specialityChanged,
-      add,
-      edit,
-      confirmChanges,
-      clearSpeciality,
-      getAllSpecialities,
-    } = specialityService();
-
+    const store = useStoreSpeciality();
+    const { allSpecialities, currentSpeciality, speciality, expanded, form } =
+      storeToRefs(store);
+    const service = specialityService.getInstance();
     onMounted(async () => {
-      await getAllSpecialities();
+      await service.getAll();
     });
 
     return {
       expanded,
       speciality,
       allSpecialities,
-      add,
-      edit,
       currentSpeciality,
-      formSpeciality,
-      confirmChanges,
-      specialityChanged,
-      clearSpeciality,
+      form,
+      add() {
+        service.add();
+      },
+      edit() {
+        service.edit();
+      },
+      async confirmChanges() {
+        await service.processRequest();
+      },
+      async specialityChanged(val: ISpeciality) {
+        await service.specialityChanged(val);
+      },
+      clearSpeciality() {
+        service.clear();
+      },
     };
   },
 });

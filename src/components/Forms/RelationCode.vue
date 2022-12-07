@@ -59,7 +59,7 @@
         <div v-show="expanded">
           <q-separator />
           <q-card-section class="text-subitle2">
-            <q-form @submit="confirmChanges" ref="formDXMainCode">
+            <q-form @submit="confirmChanges" ref="form">
               <q-input
                 dense
                 outlined
@@ -110,52 +110,71 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted } from 'vue';
-import { specialityService } from 'src/services/SpecialityService';
-import { relationCodeService } from 'src/services/RelationCodeService';
-import { dxMainCodeService } from 'src/services/DxMainCodeService';
+import { storeToRefs } from 'pinia';
+import { useStoreSpeciality } from 'src/services/SpecialityService';
+import {
+  relationCodeService,
+  useStoreRelationCode,
+} from 'src/services/RelationCodeService';
+import { useStoreDxMainCode } from 'src/services/DxMainCodeService';
+import { IRelationCodeResponse } from 'src/models/IConsults';
 import 'src/css/app.sass';
 
 export default defineComponent({
   name: 'RelationCodeForm',
   setup() {
+    const store = useStoreRelationCode();
+
     const {
-      relationCodeOfMainCode,
+      // relationCodeOfMainCode,
       currentRelationCode,
       relationCode,
       expanded,
-      formDXMainCode,
+      form,
       errorDxMainCode,
       errorSpeciality,
-      relationCodeChanged,
-      clearRelationCode,
-      edit,
-      add,
-      confirmChanges,
-      getAllRelationCodes,
-    } = relationCodeService();
-
+      // relationCodeChanged,
+      // clearRelationCode,
+      // edit,
+      // add,
+      // confirmChanges,
+      // getAllRelationCodes,
+    } = storeToRefs(store);
+    const service = relationCodeService.getInstance();
     onMounted(async () => {
-      getAllRelationCodes();
+      service.getAll();
     });
 
-    const { currentSpeciality } = specialityService();
-    const { currentDxMainCode } = dxMainCodeService();
+    const storeSpeciality = useStoreSpeciality();
+    const storeDxMainCode = useStoreDxMainCode();
+    const { currentSpeciality } = storeToRefs(storeSpeciality);
+    const { currentDxMainCode } = storeToRefs(storeDxMainCode);
 
     return {
       relationCode,
-      clearRelationCode,
-      relationCodeChanged,
       currentRelationCode,
-      relationCodeOfMainCode,
+      relationCodeOfMainCode: service.relationCodeOfMainCode,
       currentSpeciality,
       currentDxMainCode,
       expanded,
-      formDXMainCode,
+      form,
       errorDxMainCode,
       errorSpeciality,
-      edit,
-      add,
-      confirmChanges,
+      edit() {
+        service.edit();
+      },
+      add() {
+        service.add();
+      },
+      async confirmChanges() {
+        await service.processRequest();
+      },
+      clearRelationCode() {
+        service.clear();
+      },
+      async relationCodeChanged(val: IRelationCodeResponse) {
+        await service.relationCodeChanged(val);
+      },
     };
   },
 });

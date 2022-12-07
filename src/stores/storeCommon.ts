@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { IColumnsDataTable } from 'src/interfaces/ICommons';
+import { IColumnsDataTable } from 'src/models/ICommons';
 
 export const useStoreModal = defineStore('modal', {
   state: () => ({
