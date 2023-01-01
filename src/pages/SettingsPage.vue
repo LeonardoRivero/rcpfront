@@ -35,7 +35,6 @@
                 <RelationCode />
               </div>
             </div>
-            <DataTable />
           </q-tab-panel>
           <q-tab-panel name="MedicalHistory">
             <q-list>
@@ -49,7 +48,9 @@
                 <q-separator />
                 <q-card>
                   <q-card-section>
-                    <PhysicalExamForm />
+                    <div class="row q-col-gutter-x-md">
+                      <PhysicalExamForm />
+                    </div>
                   </q-card-section>
                 </q-card>
               </q-expansion-item>
@@ -101,9 +102,17 @@ import SpecialityForm from 'src/components/Forms/SpecialityForm.vue';
 import DxMainCode from 'src/components/Forms/DxMainCodeForm.vue';
 import RelationCode from 'src/components/Forms/RelationCode.vue';
 import Insurance from 'src/components/Forms/InsuranceForm.vue';
-import DataTable from 'src/components/commons/DataTable.vue';
+
 import PhysicalExamForm from 'src/components/Forms/PhysicalExamForm.vue';
 import * as Constants from 'src/scripts/Constants';
+import {
+  IColumnsDataTable,
+  TableSelect,
+  TableOptions,
+  SelectionType,
+} from 'src/models/ICommons';
+import { useStoreSpeciality } from 'src/services/SpecialityService';
+import { storeToRefs } from 'pinia';
 
 export default defineComponent({
   components: {
@@ -111,7 +120,6 @@ export default defineComponent({
     DxMainCode,
     RelationCode,
     Insurance,
-    DataTable,
     PhysicalExamForm,
   },
 
@@ -119,10 +127,31 @@ export default defineComponent({
     const iconSVG = Constants.IconSVG.getInstance();
     const icon = ref('');
     const PARAMETERS_PHYSICAL_EXAM = ref<string>('');
+    const r = ref();
+    // const table = ref<TableOptions>();
+    const { allSpecialities } = storeToRefs(useStoreSpeciality());
+
     onMounted(async () => {
       icon.value = iconSVG.outpatient;
       PARAMETERS_PHYSICAL_EXAM.value =
         'En esta seccion puedes modificar los parametros que desea implementar en su examen fisico';
+
+      r.value = allSpecialities.value.map((row) => ({
+        id: row.id,
+        description: row.description,
+      }));
+
+      // const pp = new TableOptions(columnsPrueba, r);
+      // pp.selectionRow = 'none' as SelectionType;
+      // pp.title = 'Nueva Tabla';
+      // pp.enableSelect = true;
+      // pp.enableSearch = true;
+      const optionsSelect = new TableSelect();
+      optionsSelect.listOptions = allSpecialities.value;
+      optionsSelect.optionValue = 'id';
+      optionsSelect.optionLabel = 'description';
+      // pp.setSelect(optionsSelect);
+      // table.value = pp;
     });
 
     return {

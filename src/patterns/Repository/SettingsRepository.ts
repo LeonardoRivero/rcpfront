@@ -75,7 +75,7 @@ export class PhysicalExamParameterRepository implements IRepository<IPhysical> {
     const urlBase = endpoint.getORcreatePhysicalExamParameter;
     const url = endpoint.urlQueryParameter(urlBase, parameters);
     const response = await GET(url);
-    if (response.status != HttpStatusCodes.NO_CONTENT) {
+    if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
     }
     return response.parsedBody as Array<IPhysicalExamResponse>;

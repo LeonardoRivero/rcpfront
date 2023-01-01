@@ -1,13 +1,9 @@
-import { ref } from 'vue';
 import { QForm } from 'quasar';
 import { routerInstance } from 'boot/globalRouter';
-import { defineStore, storeToRefs } from 'pinia';
-import { useStoreSettings } from 'src/stores/storeSettings';
-import { IDXMainCodeRequest, ISpeciality } from 'src/models/IConsults';
-import HttpStatusCodes from 'src/scripts/HttpStatusCodes';
+import { defineStore } from 'pinia';
+import { ISpeciality } from 'src/models/IConsults';
 import modalService from './ModalService';
 import { Messages } from 'src/scripts/Constants';
-import { HttpResponse } from 'src/scripts/Request';
 import { SpecialityRepository } from 'src/patterns/Repository/SettingsRepository';
 import { dxMainCodeService } from 'src/services/DxMainCodeService';
 

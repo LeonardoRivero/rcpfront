@@ -1,6 +1,6 @@
 <template>
-  <div class="row">
-    <div class="col-6 col-md-6 col-sm-12 col-xs-12">
+  <div class="col-6 col-md-6 col-sm-12 col-xs-12">
+    <div class="my-card">
       <q-form @submit="confirmChanges" ref="form">
         <q-list>
           <q-item>
@@ -28,45 +28,38 @@
                   round
                   icon="mdi-pencil"
                   align="right"
-                  v-if="selected.length != 0"
-                  @click="edit"
+                  v-if="currentPhysicalExamParameter.description != ''"
+                  @click="edit()"
                 >
                   <q-tooltip transition-show="scale" transition-hide="scale">
-                    Confirmar
+                    Editar
                   </q-tooltip>
                 </q-btn>
               </div>
             </div>
           </q-item>
-          <!-- <q-item>
-            <q-item-section top>
-              <small>
-                <cite title="Ayuda"
-                  >(Seleccione una especialidad a asociar con tu parametro del
-                  examen fisico)</cite
-                >
-              </small>
-              <q-select
-                dense
-                clearable
-                outlined
-                v-model="speciality"
-                :options="allSpecialities"
-                option-value="id"
-                option-label="description"
-                map-options
-                label="Especialidad"
-                :rules="[(val) => val || 'Especialidad es requerida']"
-                @update:model-value="(val) => specialityChanged(val)"
-                @clear="(val) => clearSpeciality(val)"
-              >
-              </q-select>
-            </q-item-section>
-          </q-item> -->
           <q-item>
             <q-item-section top>
               <div class="row q-col-gutter-x-md">
-                <div class="col-5 col-md-5 col-sm-12 col-xs-12">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                  <q-select
+                    :disable="disable"
+                    dense
+                    outlined
+                    v-model="speciality"
+                    :options="allSpecialities"
+                    option-value="id"
+                    option-label="description"
+                    map-options
+                    label="Especialidad"
+                    :rules="[(val) => val || 'Especialidad es requerida']"
+                    @update:model-value="(val) => specialityChanged(val)"
+                  >
+                  </q-select>
+                </div>
+              </div>
+              <div class="row q-col-gutter-x-md">
+                <div class="col-9 col-md-9 col-sm-12 col-xs-12">
                   <q-input
                     :disable="disable"
                     v-model="currentPhysicalExamParameter.description"
@@ -79,30 +72,20 @@
                     ]"
                   />
                 </div>
-                <div class="col-5 col-md-5 col-sm-12 col-xs-12">
-                  <q-select
-                    :disable="disable"
-                    dense
-                    clearable
-                    outlined
-                    v-model="speciality"
-                    :options="allSpecialities"
-                    option-value="id"
-                    option-label="description"
-                    map-options
-                    label="Especialidad"
-                    :rules="[(val) => val || 'Especialidad es requerida']"
-                    @update:model-value="(val) => specialityChanged(val)"
-                    @clear="(val) => clearSpeciality(val)"
-                  >
-                  </q-select>
-                </div>
-                <div class="col-2 col-md-2 col-sm-12 col-xs-12">
+                <div class="col-3 col-md-3 col-sm-12 col-xs-12">
                   <q-checkbox
                     :disable="disable"
                     v-model="currentPhysicalExamParameter.active"
                     label="Estado"
-                  />
+                    :rules="[
+                      (val) =>
+                        (val && val == undefined) || 'Estado es requerido',
+                    ]"
+                  >
+                    <q-tooltip transition-show="scale" transition-hide="scale">
+                      Activo/Inactivo
+                    </q-tooltip>
+                  </q-checkbox>
                 </div>
               </div>
             </q-item-section>
@@ -121,87 +104,15 @@
         </q-list>
       </q-form>
     </div>
-    <div class="col-6 col-md-6 col-sm-12 col-xs-12">
-      <!-- <q-list style="max-width: 800px">
-        <q-item> -->
-      <div class="q-pa-md">
-        <q-table
-          title="Parametros Examen Fisico"
-          :hide-bottom="true"
-          :rows="rows"
-          :columns="columnsr"
-          row-key="id"
-          virtual-scroll
-          :rows-per-page-options="[0]"
-          selection="single"
-          :dense="$q.screen.lt.xs"
-          v-model:selected="selected"
-          class="table-responsive link-cursor"
-          style="height: 300px"
-          @update:selected="(val) => rowClicked(val)"
-        >
-          <template v-slot:top>
-            <small>
-              <cite title="Ayuda"
-                >(Seleccione una especialidad para detalles de los parametros
-                fisicos)</cite
-              >
-            </small>
-            Parametros Disponibles
-            <q-space />
-            <q-select
-              v-model="specialityTable"
-              outlined
-              dense
-              options-dense
-              map-options
-              :options="allSpecialities"
-              option-value="id"
-              option-label="description"
-              style="min-width: 50%"
-              label="Seleccione"
-              @update:model-value="(val) => specialityTableChanged(val)"
-              @clear="(val) => clearSpeciality(val)"
-            />
-          </template>
-        </q-table>
-      </div>
-      <!-- <q-item-section top>
-            <small>
-              <cite title="Ayuda"
-                >Despliegue la lista para consultar los parametros disponibles
-                en su examen fisico</cite
-              >
-            </small>
-            {{ physicalMedicalParameter }}
-            <q-select
-              dense
-              clearable
-              outlined
-              fill-input
-              v-model="physicalExamParameter"
-              :options="allPhysicalMedicalParameter"
-              option-value="id"
-              option-label="description"
-              map-options
-              label="Parametros Disponibles"
-            >
-              <template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-grey">
-                    No results
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
-          </q-item-section> -->
-      <!-- </q-item>
-      </q-list> -->
-    </div>
+  </div>
+  <div class="col-6 col-md-6 col-sm-12 col-xs-12">
+    <DataTable :tableOptions="tableOptions" />
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
+import { storeToRefs } from 'pinia';
+import 'src/css/app.sass';
 import {
   specialityService,
   useStoreSpeciality,
@@ -211,12 +122,19 @@ import {
   useStorePhysicalExamParameter,
 } from 'src/services/PhysicalExamService';
 import * as Constants from 'src/scripts/Constants';
-import 'src/css/app.sass';
-import { storeToRefs } from 'pinia';
 import { IPhysicalExamRequest } from 'src/models/IConsults';
+import DataTable from 'src/components/commons/DataTable.vue';
+import { TableObserver } from 'src/patterns/Observer/Observer';
+import {
+  DataTableService,
+  useStoreDataTable,
+} from 'src/services/DataTableService';
 
 export default defineComponent({
   name: 'PhysicalExamForm',
+  components: {
+    DataTable,
+  },
   setup() {
     const { allSpecialities } = storeToRefs(useStoreSpeciality());
     const iconSVG = Constants.IconSVG.getInstance();
@@ -233,23 +151,53 @@ export default defineComponent({
       // specialityChanged,
       // specialityTableChanged,
       // add,
-      // edit,
       disable,
       rows,
       columnsr,
+      titleTable,
       selected,
       // rowClicked,
     } = storeToRefs(useStorePhysicalExamParameter());
 
+    const { tableOptions } = storeToRefs(useStoreDataTable());
+    // const repository = PhysicalExamParameterRepository.getInstance();
     const service = new PhysicalExamParameterService();
     const serviceSpeciality = specialityService.getInstance();
+    // const queryParameters = { speciality: 1 };
 
     onMounted(async () => {
       await serviceSpeciality.getAll();
       icon.value = iconSVG.outpatient;
+      const dataTableService = DataTableService.getInstance();
+      // const response = await repository.findByParameters(queryParameters);
+      // const columnsPrueba = [
+      //   {
+      //     name: 'id',
+      //     required: true,
+      //     align: 'center',
+      //     label: 'Id',
+      //     field: 'id',
+      //     sortable: true,
+      //   },
+      //   {
+      //     name: 'description',
+      //     required: true,
+      //     align: 'center',
+      //     label: 'Descripcion Parametro',
+      //     field: 'description',
+      //     sortable: true,
+      //   },
+      // ] as Array<IColumnsDataTable>;
+      const builder = dataTableService.getBuilder();
+      builder.setData(columnsr.value, rows.value, titleTable.value);
+      builder.hasSearchField(true);
+      builder.setSelectionRow('single');
+      tableOptions.value = builder.getResult();
+      dataTableService.attach(service);
     });
     return {
       icon,
+      tableOptions,
       // physicalExamParameter,
       allPhysicalMedicalParameter,
       allSpecialities,
@@ -257,16 +205,19 @@ export default defineComponent({
       specialityTable,
       form,
       disable,
-      //clearSpeciality,
+      async clearSpeciality() {
+        await service.clearSpeciality();
+        await service.clear();
+      },
       confirmChanges() {
         service.processRequest();
       },
       specialityChanged() {
         service.specialityChanged(speciality.value);
       },
-      specialityTableChanged(val: any) {
-        console.log(val);
-      },
+      // specialityTableChanged(val: unknown) {
+      //   console.log(val);
+      // },
       add() {
         service.add();
       },
@@ -278,9 +229,9 @@ export default defineComponent({
       rows,
       columnsr,
       selected,
-      rowClicked(val: Array<IPhysicalExamRequest>) {
-        console.log(val);
-      },
+      // rowClicked(val: Array<IPhysicalExamRequest>) {
+      //   console.log(val);
+      // },
     };
   },
 });
