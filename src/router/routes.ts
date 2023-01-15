@@ -3,29 +3,39 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('src/Infraestructure/layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('src/pages/IndexPage.vue') },
+      // {
+      //   path: '',
+      //   component: () => import('src/Infraestructure/pages/IndexPage.vue'),
+      // },
       {
         path: 'clinichistory',
-        component: () => import('src/pages/ClinicHistoryPage.vue'),
+        component: () =>
+          import(
+            'src/Infraestructure/pages/ClinicHistory/ClinicHistoryPage.vue'
+          ),
       },
       {
         path: 'appointment',
-        component: () => import('src/pages/AppointmentPage.vue'),
+        component: () =>
+          import('src/Infraestructure/pages/Appointment/AppointmentPage.vue'),
       },
       {
         path: 'schedule',
-        component: () => import('src/pages/SchedulePage.vue'),
+        component: () =>
+          import('src/Infraestructure/pages/Schedule/SchedulePage.vue'),
       },
       {
         path: 'patient',
         name: 'patients',
-        component: () => import('src/pages/PatientsPage.vue'),
+        component: () =>
+          import('src/Infraestructure/pages/Patients/PatientsPage.vue'),
       },
       {
         path: 'settings',
-        component: () => import('src/pages/SettingsPage.vue'),
+        component: () =>
+          import('src/Infraestructure/pages/Settings/SettingsPage.vue'),
       },
     ],
   },

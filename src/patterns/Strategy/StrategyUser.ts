@@ -1,4 +1,4 @@
-import { useStoreModal } from 'src/stores/storeCommon';
+import { useStoreModal } from 'src/Infraestructure/stores/storeCommon';
 
 export class ContextUser {
   private strategy: StrategyUser;

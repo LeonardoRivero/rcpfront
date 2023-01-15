@@ -2,7 +2,7 @@ import {
   IPhysicalExamRequest,
   IPhysicalExamResponse,
   ISpeciality,
-} from 'src/models/IConsults';
+} from 'src/Domine/models/IConsults';
 import { DataTableService } from 'src/services/DataTableService';
 import { useStorePhysicalExamParameter } from 'src/services/PhysicalExamService';
 
