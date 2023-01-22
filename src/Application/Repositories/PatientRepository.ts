@@ -36,7 +36,7 @@ export class PatientRepository
     try {
       const response = await POST(url, entity);
       if (!response.ok) return null;
-      // handleResponse(response);
+      handleResponse(response);
       const data = (await response.parsedBody) as PatientResponse;
       return data;
     } catch (error) {

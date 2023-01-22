@@ -6,57 +6,28 @@ import {
   TableOptions,
   TableSelect,
 } from 'src/Domine/ICommons';
+import {
+  IDataTableStore,
+  useStoreDataTable,
+} from 'src/Infraestructure/stores/Common/DatatableStore';
 import { Observer, Subject } from 'src/patterns/Observer/Observer';
 
-interface IDataTable {
-  title: string;
-  columns: Array<IColumnsDataTable>;
-  data: object;
-  listOptions: Array<unknown>;
-  option: unknown | null;
-  selected: Array<unknown>;
-  tableOptions: ITableOptions;
-}
-
-export const useStoreDataTable = defineStore({
-  id: 'storeDataTable',
-  state: () =>
-    ({
-      title: '',
-      visible: false,
-      columns: [] as Array<IColumnsDataTable>,
-      data: [],
-      listOptions: [],
-      option: null,
-      selected: [] as Array<unknown>,
-      tableOptions: {
-        virtualScroll: false,
-        title: '',
-        columns: [] as Array<IColumnsDataTable>,
-        data: [] as Array<unknown>,
-        enableSearch: false,
-        enableSelect: false,
-        selectionRow: 'none',
-        select: new TableSelect(),
-        textCite: '',
-      } as ITableOptions,
-    } as IDataTable),
-});
-export class DataTableService implements Subject {
-  public store = useStoreDataTable();
+export class DataTableAdapter implements Subject {
+  public store: IDataTableStore;
   private observers: Observer[] = [];
-  private static instance: DataTableService;
+  private static instance: DataTableAdapter;
 
-  private constructor() {
+  private constructor(store: IDataTableStore) {
+    this.store = store;
     return;
   }
 
-  public static getInstance(): DataTableService {
-    if (!DataTableService.instance) {
-      DataTableService.instance = new DataTableService();
+  public static getInstance(store: IDataTableStore): DataTableAdapter {
+    if (!DataTableAdapter.instance) {
+      DataTableAdapter.instance = new DataTableAdapter(store);
     }
-    DataTableService;
-    return DataTableService.instance;
+    DataTableAdapter;
+    return DataTableAdapter.instance;
   }
 
   public attach(observer: Observer): void {

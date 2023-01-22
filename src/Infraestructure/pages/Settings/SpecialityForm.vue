@@ -17,8 +17,8 @@
           option-label="description"
           map-options
           label="Especialidad"
-          :hint="`Especialidad Id:${
-            speciality == undefined ? '' : speciality.id
+          :hint="`Codigo Especialidad: ${
+            speciality == undefined ? '' : speciality.code
           }`"
           @update:model-value="(val) => specialityChanged(val)"
           @clear="(val) => clearSpeciality(val)"
@@ -68,6 +68,18 @@
                 :rules="[
                   (val) =>
                     (val && val.length > 0) || 'Descripcion es requerida',
+                ]"
+              />
+              <q-input
+                dense
+                outlined
+                v-model="currentSpeciality.code"
+                label="Codigo Especialidad"
+                hint="Codigo Especialidad"
+                lazy-rules
+                type="number"
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Codigo es requerido',
                 ]"
               />
               <div>

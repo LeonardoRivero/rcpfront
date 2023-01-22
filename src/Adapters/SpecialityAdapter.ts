@@ -74,7 +74,7 @@ export class SpecialityAdapter {
 
     if (response == null) return;
     this.store.currentSpeciality = response;
-    await this.service.getAll();
+    this.store.allSpecialities = await this.service.getAll();
     this.store.expanded = false;
   }
 

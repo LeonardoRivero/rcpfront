@@ -28,7 +28,7 @@
                   round
                   icon="mdi-pencil"
                   align="right"
-                  v-if="currentPhysicalExamParameter.description != ''"
+                  v-if="userCanEdit"
                   @click="edit()"
                 >
                   <q-tooltip transition-show="scale" transition-hide="scale">
@@ -46,11 +46,12 @@
                     :disable="disable"
                     dense
                     outlined
-                    v-model="speciality"
+                    v-model="currentPhysicalExamParameter.speciality"
                     :options="allSpecialities"
-                    option-value="id"
                     option-label="description"
                     map-options
+                    emit-value
+                    :option-value="(item) => (item === null ? null : item.id)"
                     label="Especialidad"
                     :rules="[(val) => val || 'Especialidad es requerida']"
                     @update:model-value="(val) => specialityChanged(val)"
@@ -112,23 +113,16 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
+import DataTable from 'src/Infraestructure/components/commons/DataTable.vue';
+import { SpecialityAdapter } from 'src/Adapters';
+import { useStoreSpeciality } from 'src/Infraestructure/stores/SettingsPage/SpecialityStore';
+import { IconSVG } from 'src/Application/Utilities/Constants';
+import { useStorePhysicalExamParameter } from 'src/Infraestructure/stores/SettingsPage/PhysicalExamStore';
+import { PhysicalExamParameterAdapter } from 'src/Adapters/PhysicalExamAdapter';
+import { IPhysicalExam } from 'src/Domine/ModelsDB';
+import { DataTableAdapter } from 'src/Adapters/DataTableAdapter';
+import { useStoreDataTable } from 'src/Infraestructure/stores/Common/DatatableStore';
 import 'src/css/app.sass';
-import {
-  specialityService,
-  useStoreSpeciality,
-} from 'src/services/SpecialityService';
-import {
-  PhysicalExamParameterService,
-  useStorePhysicalExamParameter,
-} from 'src/services/PhysicalExamService';
-import * as Constants from 'src/scripts/Constants';
-import { IPhysicalExamRequest } from 'src/models/IConsults';
-import DataTable from 'src/components/commons/DataTable.vue';
-import { TableObserver } from 'src/patterns/Observer/Observer';
-import {
-  DataTableService,
-  useStoreDataTable,
-} from 'src/services/DataTableService';
 
 export default defineComponent({
   name: 'PhysicalExamForm',
@@ -136,8 +130,10 @@ export default defineComponent({
     DataTable,
   },
   setup() {
-    const { allSpecialities } = storeToRefs(useStoreSpeciality());
-    const iconSVG = Constants.IconSVG.getInstance();
+    const specialityAdapter = SpecialityAdapter.getInstance(
+      useStoreSpeciality()
+    );
+    const iconSVG = IconSVG.getInstance();
     const {
       // physicalExamParameter,
       form,
@@ -147,6 +143,7 @@ export default defineComponent({
       allPhysicalMedicalParameter,
       currentPhysicalExamParameter,
       status,
+      allSpecialities,
       // confirmChanges,
       // specialityChanged,
       // specialityTableChanged,
@@ -156,44 +153,48 @@ export default defineComponent({
       columnsr,
       titleTable,
       selected,
+      userCanEdit,
       // rowClicked,
     } = storeToRefs(useStorePhysicalExamParameter());
 
-    const { tableOptions } = storeToRefs(useStoreDataTable());
+    const storeDataTable = useStoreDataTable();
+    const { tableOptions } = storeToRefs(storeDataTable);
     // const repository = PhysicalExamParameterRepository.getInstance();
-    const service = new PhysicalExamParameterService();
-    const serviceSpeciality = specialityService.getInstance();
+    const adapter = PhysicalExamParameterAdapter.getInstance(
+      useStorePhysicalExamParameter()
+    );
+    // const serviceSpeciality = specialityService.getInstance();
     // const queryParameters = { speciality: 1 };
+    const dataTableAdapter = DataTableAdapter.getInstance(storeDataTable);
 
     onMounted(async () => {
-      await serviceSpeciality.getAll();
+      allSpecialities.value = await specialityAdapter.getAll();
       icon.value = iconSVG.outpatient;
-      const dataTableService = DataTableService.getInstance();
-      // const response = await repository.findByParameters(queryParameters);
-      // const columnsPrueba = [
-      //   {
-      //     name: 'id',
-      //     required: true,
-      //     align: 'center',
-      //     label: 'Id',
-      //     field: 'id',
-      //     sortable: true,
-      //   },
-      //   {
-      //     name: 'description',
-      //     required: true,
-      //     align: 'center',
-      //     label: 'Descripcion Parametro',
-      //     field: 'description',
-      //     sortable: true,
-      //   },
-      // ] as Array<IColumnsDataTable>;
-      const builder = dataTableService.getBuilder();
+      // // const response = await repository.findByParameters(queryParameters);
+      // // const columnsPrueba = [
+      // //   {
+      // //     name: 'id',
+      // //     required: true,
+      // //     align: 'center',
+      // //     label: 'Id',
+      // //     field: 'id',
+      // //     sortable: true,
+      // //   },
+      // //   {
+      // //     name: 'description',
+      // //     required: true,
+      // //     align: 'center',
+      // //     label: 'Descripcion Parametro',
+      // //     field: 'description',
+      // //     sortable: true,
+      // //   },
+      // // ] as Array<IColumnsDataTable>;
+      const builder = dataTableAdapter.getBuilder();
       builder.setData(columnsr.value, rows.value, titleTable.value);
       builder.hasSearchField(true);
       builder.setSelectionRow('single');
       tableOptions.value = builder.getResult();
-      dataTableService.attach(service);
+      dataTableAdapter.attach(adapter);
     });
     return {
       icon,
@@ -205,25 +206,42 @@ export default defineComponent({
       specialityTable,
       form,
       disable,
-      async clearSpeciality() {
-        await service.clearSpeciality();
-        await service.clear();
+      userCanEdit,
+      // async clearSpeciality() {
+      //   await adapter.clearSpeciality();
+      //   await adapter.clear();
+      // },
+      async confirmChanges() {
+        const isValid = await form.value?.validate();
+        if (isValid == false) return;
+        const response = await adapter.saveOrUpdate(
+          currentPhysicalExamParameter.value
+        );
+        if (response != null) {
+          currentPhysicalExamParameter.value = {
+            active: true,
+          } as IPhysicalExam;
+          form.value?.reset();
+        }
       },
-      confirmChanges() {
-        service.processRequest();
+
+      async specialityChanged(id: number) {
+        const response = await adapter.specialityChanged(id);
+        const [columns, dataRows] = adapter.getColumnsAndRows(response);
+        dataTableAdapter.updateData(columns, dataRows);
       },
-      specialityChanged() {
-        service.specialityChanged(speciality.value);
-      },
+
       // specialityTableChanged(val: unknown) {
       //   console.log(val);
       // },
       add() {
-        service.add();
+        adapter.add();
       },
+
       edit() {
-        service.edit();
+        adapter.edit();
       },
+
       currentPhysicalExamParameter,
       status,
       rows,

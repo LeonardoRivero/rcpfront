@@ -81,12 +81,11 @@
 <script lang="ts">
 import { defineComponent, onMounted, PropType, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import {
-  DataTableService,
-  useStoreDataTable,
-} from 'src/services/DataTableService';
-import { IColumnsDataTable, TableOptions } from 'src/models/ICommons';
+
 import 'src/css/app.sass';
+import { TableOptions } from 'src/Domine/ICommons';
+import { useStoreDataTable } from 'src/Infraestructure/stores/Common/DatatableStore';
+import { DataTableAdapter } from 'src/Adapters/DataTableAdapter';
 
 export default defineComponent({
   name: 'DataTable',
@@ -98,10 +97,9 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const { data, columns, listOptions, option, selected } = storeToRefs(
-      useStoreDataTable()
-    );
-    const service = DataTableService.getInstance();
+    const store = useStoreDataTable();
+    const { data, columns, listOptions, option, selected } = storeToRefs(store);
+    const adapter = DataTableAdapter.getInstance(store);
     let selectionRow = ref<string>();
 
     onMounted(async () => {
@@ -121,7 +119,7 @@ export default defineComponent({
       filter: ref(''),
       rows: [],
       selectChanged(val: object) {
-        service.notify(val);
+        adapter.notify(val);
       },
       clear(val: object) {
         option.value = null;
@@ -133,7 +131,7 @@ export default defineComponent({
         console.log('remove');
       },
       rowClicked(val: Array<object>) {
-        service.notify(val[0]);
+        adapter.notify(val[0]);
       },
     };
   },

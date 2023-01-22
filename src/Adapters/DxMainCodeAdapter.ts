@@ -13,7 +13,6 @@ export class DxMainCodeAdapter {
   private service = new DxMainCodeService();
   private serviceModal = modalService();
   private messages = Messages.getInstance();
-
   private static instance: DxMainCodeAdapter;
 
   private constructor(store: IStoreDxMainCode) {

@@ -96,15 +96,12 @@
         </div>
       </q-slide-transition>
     </q-card>
-    <!-- <ModalCommon /> -->
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { storeToRefs } from 'pinia';
-
-// import ModalCommon from 'src/components/commons/ModalCommon.vue';
 import { useStoreSpeciality } from 'src/Infraestructure/stores/SettingsPage/SpecialityStore';
 import { useStoreDxMainCode } from 'src/Infraestructure/stores/SettingsPage/DxMainCodeStore';
 import { DxMainCodeAdapter } from 'src/Adapters/DxMainCodeAdapter';
@@ -116,7 +113,6 @@ import { useStoreRelationCode } from 'src/Infraestructure/stores/SettingsPage/Re
 
 export default defineComponent({
   name: 'DxMainCodeForm',
-  // components: { ModalCommon },
   setup() {
     const {
       error,

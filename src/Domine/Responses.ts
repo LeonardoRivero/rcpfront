@@ -1,6 +1,7 @@
 export interface SpecialityResponse {
   id: number;
   description: string;
+  code: number;
 }
 export interface DXMainCodeResponse {
   id: number;
@@ -48,6 +49,8 @@ export interface AppointmentResponse {
   schedule: EventScheduleResponse;
   patient: PatientResponse;
   doctor: DoctorResponse;
+  paymentMethod: PaymentOptionsResponse;
+  codeTransaction: string;
 }
 export interface EventScheduleResponse {
   id: number;
@@ -83,4 +86,9 @@ export interface PatientResponse {
   insurance: HealthInsuranceResponse;
   gender: GenderResponse;
   email: string;
+}
+export interface PaymentOptionsResponse {
+  id: number;
+  description: string;
+  code: string;
 }

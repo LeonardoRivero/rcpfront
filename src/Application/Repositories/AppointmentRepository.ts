@@ -1,9 +1,12 @@
-import { IAppointment } from 'src/Domine/ModelsDB';
+import { IAppointment, IPaymentOptions } from 'src/Domine/ModelsDB';
 import { EndPoints, Messages } from 'src/Application/Utilities';
 import HttpStatusCodes from 'src/Application/Utilities/HttpStatusCodes';
 import { GET, handleResponse } from 'src/Infraestructure/Utilities/Request';
 import { IRepository } from './Interface';
-import { AppointmentResponse } from 'src/Domine/Responses';
+import {
+  AppointmentResponse,
+  PaymentOptionsResponse,
+} from 'src/Domine/Responses';
 
 const endpoint = EndPoints.getInstance();
 const messages = Messages.getInstance();
@@ -58,5 +61,39 @@ export class AppointmentRepository
     }
     const data = (await response.parsedBody) as Array<AppointmentResponse>;
     return data;
+  }
+}
+
+export class PaymentOptionsRepository
+  implements IRepository<IPaymentOptions, PaymentOptionsResponse>
+{
+  getById(id: number): Promise<PaymentOptionsResponse | null> {
+    throw new Error('Method not implemented.');
+  }
+  async getAll(): Promise<PaymentOptionsResponse[] | null> {
+    const url = endpoint.getAllPaymentOptions;
+    try {
+      const response = await GET<Array<PaymentOptionsResponse>>(url);
+      if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
+        return null;
+      const data = response.parsedBody as Array<PaymentOptionsResponse>;
+      return data;
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
+  }
+  create(entity: IPaymentOptions): Promise<PaymentOptionsResponse | null> {
+    throw new Error('Method not implemented.');
+  }
+  update(
+    entity: Partial<IPaymentOptions>
+  ): Promise<PaymentOptionsResponse | null> {
+    throw new Error('Method not implemented.');
+  }
+  delete(id: number): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
+  findByParameters(parameters: object): Promise<PaymentOptionsResponse[]> {
+    throw new Error('Method not implemented.');
   }
 }

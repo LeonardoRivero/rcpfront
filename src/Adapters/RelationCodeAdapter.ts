@@ -1,5 +1,3 @@
-import { computed } from 'vue';
-
 import modalService from './ModalService';
 import { RelationCodeRepository } from 'src/Application/Repositories/SettingsRepository';
 import { IStoreRelationCode } from 'src/Infraestructure/stores/SettingsPage/RelationCodeStore';

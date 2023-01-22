@@ -1,10 +1,7 @@
-import {
-  IPhysicalExamRequest,
-  IPhysicalExamResponse,
-  ISpeciality,
-} from 'src/Domine/models/IConsults';
-import { DataTableService } from 'src/services/DataTableService';
-import { useStorePhysicalExamParameter } from 'src/services/PhysicalExamService';
+import { DataTableAdapter } from 'src/Adapters/DataTableAdapter';
+import { IPhysicalExam, ISpeciality } from 'src/Domine/ModelsDB';
+import { PhysicalExamResponse } from 'src/Domine/Responses';
+import { useStorePhysicalExamParameter } from 'src/Infraestructure/stores/SettingsPage/PhysicalExamStore';
 
 export abstract class Subject {
   attach(observer: Observer): void {
@@ -71,14 +68,14 @@ export class TableObserver implements Observer {
   // }
   private store = useStorePhysicalExamParameter();
   public handleNotification(subject: Subject, data: object): void {
-    const isInstance = subject instanceof DataTableService;
+    const isInstance = subject instanceof DataTableAdapter;
     if (isInstance == false) {
       throw Error('Instancia no admitida');
     }
-    this.store.currentPhysicalExamParameter = data as IPhysicalExamRequest;
+    this.store.currentPhysicalExamParameter = data as IPhysicalExam;
     // console.log('ConcreteObserverA', subject.store);
     // const t = subject.store.option;
-    if (<IPhysicalExamResponse>data === ({} as IPhysicalExamResponse)) {
+    if (<PhysicalExamResponse>data === ({} as PhysicalExamResponse)) {
       console.log('object', 'ok');
     }
     if (<Array<ISpeciality>>data == ([] as Array<ISpeciality>)) {

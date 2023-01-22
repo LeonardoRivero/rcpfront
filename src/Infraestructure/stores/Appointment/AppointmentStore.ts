@@ -8,7 +8,12 @@ import {
   IReasonConsult,
   ISpeciality,
 } from 'src/Domine/ModelsDB';
-import { PatientResponse } from 'src/Domine/Responses';
+import {
+  PatientResponse,
+  PatientStatusResponse,
+  PaymentOptionsResponse,
+  ReasonConsultResponse,
+} from 'src/Domine/Responses';
 
 export interface IStoreAppointment {
   form: QForm | null;
@@ -20,6 +25,10 @@ export interface IStoreAppointment {
   currentDoctor: IDoctor;
   currentAppointment: IAppointment;
   currentPatient: PatientResponse;
+  currentPaymentOption: PaymentOptionsResponse | null;
+  allPaymentOptions: Array<PaymentOptionsResponse>;
+  allReasonConsult: Array<ReasonConsultResponse>;
+  allPatientStatus: Array<PatientStatusResponse>;
 }
 
 export const useStoreAppointments = defineStore({
@@ -35,5 +44,9 @@ export const useStoreAppointments = defineStore({
       currentDoctor: {} as IDoctor,
       currentAppointment: {} as IAppointment,
       currentPatient: {} as PatientResponse,
+      allPaymentOptions: [],
+      allReasonConsult: [],
+      allPatientStatus: [],
+      currentPaymentOption: null,
     } as IStoreAppointment),
 });

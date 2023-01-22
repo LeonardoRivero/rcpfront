@@ -246,8 +246,9 @@ export class PatientAdapter {
 
   public async patientNotFound(): Promise<void> {
     const confirm = await this.serviceModal.showModal(
-      'Atención',
-      this.messages.notFoundInfoPatient
+      'Error',
+      this.messages.notFoundInfoPatient,
+      'error'
     );
     if (confirm == false) {
       return;

@@ -104,3 +104,15 @@ export class Validators {
     return result;
   }
 }
+
+export class Convert {
+  public allWordsToCapitalize(sentence: string): string {
+    const stringLowered = sentence.toLowerCase();
+    const words = stringLowered.split(' ');
+    for (let i = 0; i < words.length; i++) {
+      words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+    }
+    const result = words.join(' ');
+    return result;
+  }
+}

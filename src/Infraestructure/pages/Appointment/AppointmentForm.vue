@@ -121,11 +121,12 @@
                     dense
                     label="Razon Consulta"
                     outlined
-                    v-model="reasonConsult"
+                    v-model="currentAppointment.reasonConsult"
                     :options="allReasonConsult"
-                    option-value="id"
+                    :option-value="(item) => (item === null ? null : item.id)"
                     option-label="abbreviation"
                     map-options
+                    emit-value
                     stack-label
                     :rules="[
                       (val) =>
@@ -137,11 +138,12 @@
                   <q-select
                     dense
                     outlined
-                    v-model="currentPatientStatus"
+                    v-model="currentAppointment.patientStatus"
                     :options="allPatientStatus"
-                    option-value="id"
+                    :option-value="(item) => (item === null ? null : item.id)"
                     option-label="description"
                     map-options
+                    emit-value
                     stack-label
                     label="Estado Paciente"
                     :rules="[
@@ -167,6 +169,35 @@
                 </div>
                 <div class="col-12 col-md-4">
                   <q-input
+                    dense
+                    type="text"
+                    outlined
+                    label="Codigo Transaccion"
+                    v-model="currentAppointment.codeTransaction"
+                  />
+                </div>
+                <div class="col-12 col-md-4">
+                  <q-select
+                    dense
+                    label="Metodo Pago"
+                    outlined
+                    v-model="currentAppointment.paymentMethod"
+                    :options="allPaymentOptions"
+                    :option-value="(item) => (item === null ? null : item.id)"
+                    option-label="description"
+                    map-options
+                    emit-value
+                    stack-label
+                    :rules="[
+                      (val) =>
+                        (val && val != null) || 'Razon consulta es requerida',
+                    ]"
+                  ></q-select>
+                </div>
+              </div>
+              <div class="row q-col-gutter-x-md">
+                <div class="col-12 col-md-4">
+                  <q-input
                     prefix="$"
                     dense
                     type="number"
@@ -178,10 +209,39 @@
                     :rules="[(val) => val >= 0 || 'Valor consulta invalido']"
                   />
                 </div>
+              </div>
+              <div class="row q-col-gutter-x-md">
+                <!-- <div class="col-12 col-md-4">
+                  <q-input
+                    prefix="$"
+                    dense
+                    type="number"
+                    outlined
+                    v-model="currentAppointment.copayment"
+                    label="Copago"
+                    @update:model-value="(val) => calculateAmountPaid(val)"
+                    lazy-rules
+                    :rules="[(val) => val >= 0 || 'Valor copago invalido']"
+                  />
+                </div>
                 <div class="col-12 col-md-4">
                   <q-input
+                    prefix="$"
+                    dense
+                    type="number"
                     outlined
-                    disable
+                    v-model="currentAppointment.price"
+                    label="Valor Consulta"
+                    @update:model-value="(val) => calculateAmountPaid(val)"
+                    lazy-rules
+                    :rules="[(val) => val >= 0 || 'Valor consulta invalido']"
+                  />
+                </div> -->
+                <div class="col-12 col-md-4 align-xright">
+                  <q-input
+                    outlined
+                    bg-color="green"
+                    readonly
                     dense
                     hint="Total monto a pagar"
                     v-model="currentAppointment.amountPaid"
@@ -200,92 +260,13 @@
       <q-btn label="Guardar" type="submit" color="primary" />
     </q-card-actions>
   </q-form>
-  <!-- <ModalCommon /> -->
-  <!-- </q-card-section>
-        </q-card> -->
-  <!-- </div> -->
-  <!-- <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-        <q-card class="my-card" bordered>
-          <q-card-section>
-            <div class="text-h6">Historial Citas Paciente</div>
-          </q-card-section>
-          <q-separator inset></q-separator>
-          <q-card-section>
-            <q-table
-              :data="data"
-              :hide-header="mode === 'grid'"
-              :columns="columns"
-              row-key="name"
-              :grid="mode == 'grid'"
-              :filter="filter"
-              :pagination="pagination"
-            >
-              <template v-slot:top-right="props">
-                <q-input
-                  outlined
-                  dense
-                  debounce="300"
-                  v-model="filter"
-                  placeholder="Search"
-                >
-                  <template v-slot:append>
-                    <q-icon name="search" />
-                  </template>
-                </q-input>
-
-                <q-btn
-                  flat
-                  round
-                  dense
-                  :icon="props.inFullscreen ? 'fullscreen_exit' : 'fullscreen'"
-                  @click="props.toggleFullscreen"
-                  v-if="mode === 'list'"
-                >
-                  <q-tooltip :disable="$q.platform.is.mobile" v-close-popup
-                    >{{
-                      props.inFullscreen
-                        ? 'Exit Fullscreen'
-                        : 'Toggle Fullscreen'
-                    }}
-                  </q-tooltip>
-                </q-btn>
-
-                <q-btn
-                  flat
-                  round
-                  dense
-                  :icon="mode === 'grid' ? 'list' : 'grid_on'"
-                  @click="
-                    mode = mode === 'grid' ? 'list' : 'grid';
-                    separator = mode === 'grid' ? 'none' : 'horizontal';
-                  "
-                  v-if="!props.inFullscreen"
-                >
-                  <q-tooltip :disable="$q.platform.is.mobile" v-close-popup
-                    >{{ mode === 'grid' ? 'List' : 'Grid' }}
-                  </q-tooltip>
-                </q-btn>
-
-                <q-btn
-                  color="primary"
-                  icon-right="archive"
-                  label="Export to csv"
-                  no-caps
-                  @click="exportDepositsTable"
-                />
-              </template>
-            </q-table>
-          </q-card-section>
-        </q-card>
-      </div> -->
-  <!-- </div> -->
-  <!-- </q-page> -->
 </template>
 <script lang="ts">
+import { date } from 'quasar';
 import { defineComponent, onMounted, onUnmounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { PatientResponse } from 'src/Domine/Responses';
-import { IAppointment } from 'src/Domine/ModelsDB';
+import { PatientResponse, PaymentOptionsResponse } from 'src/Domine/Responses';
+import { IAppointment, IPaymentOptions } from 'src/Domine/ModelsDB';
 import {
   OPTIONS_HOURS,
   OPTIONS_MINUTES,
@@ -299,9 +280,12 @@ import {
 } from 'src/Adapters';
 import { useStorePatient } from 'src/Infraestructure/stores/PatientsPage/PatientStore';
 import { useStoreAppointments } from 'src/Infraestructure/stores/Appointment/AppointmentStore';
-import 'src/css/app.sass';
 import { useStoreSchedule } from 'src/Infraestructure/stores/SchedulePage/ScheduleStore';
-import { date } from 'quasar';
+import { CommonService } from 'src/Application/Services/CommonTest';
+import { PaymentOptionsService } from 'src/Application/Services/PaymentOptionsService';
+import { ReasonConsultService } from 'src/Application/Services/ReasonConsultService';
+import { PatientStatusService } from 'src/Application/Services/PatientStatusService';
+import 'src/css/app.sass';
 
 export default defineComponent({
   setup() {
@@ -321,6 +305,10 @@ export default defineComponent({
       speciality,
       reasonConsult,
       currentDoctor,
+      allPaymentOptions,
+      allReasonConsult,
+      allPatientStatus,
+      currentPaymentOption,
       // searchPatient,
       // confirmChanges,
       // calculateAmountPaid,
@@ -345,7 +333,20 @@ export default defineComponent({
     // const servicePatient = patientService.getInstance();
     const patientAdapter = PatientAdapter.getInstance(useStorePatient());
     const scheduleAdapter = ScheduleAdapter.getInstance(useStoreSchedule());
+    const servicePaymentOptions = PaymentOptionsService.getInstance();
+    const serviceReasonConsult = ReasonConsultService.getInstance();
+    const servicePatienStatus = PatientStatusService.getInstance();
+
     onMounted(async () => {
+      // const repo = new PaymentOptionsRepository();
+      // const repositoryPaymentOption = new CommonService<
+      //   IPaymentOptions,
+      //   PaymentOptionsResponse
+      // >(repo);
+
+      allPaymentOptions.value = await servicePaymentOptions.getAll();
+      allReasonConsult.value = await serviceReasonConsult.getAll();
+      allPatientStatus.value = await servicePatienStatus.getAll();
       // getAllSpecialities();
       // await servicePatient.getAllReasonConsult();
       // await servicePatient.getAllPatientStatus();
@@ -359,13 +360,15 @@ export default defineComponent({
       CURRENTYEAR_MONTH,
       HOURS_ALLOWED,
       MINUTES_ALLOWED,
+      FORMAT_DATETIME,
       currentHealthInsurance,
       reasonConsult,
-      allReasonConsult: null,
-      allPatientStatus: null,
-      FORMAT_DATETIME,
+      allReasonConsult,
+      allPatientStatus,
+      currentPaymentOption,
       form,
       currentAppointment,
+      allPaymentOptions,
       currentPatientStatus,
       identificationPatient,
       confirmChanges() {

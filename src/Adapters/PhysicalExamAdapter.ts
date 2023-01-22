@@ -1,11 +1,11 @@
 import { QForm } from 'quasar';
 import { defineStore } from 'pinia';
 // import { useStoreSettings } from 'src/stores/storeSettings';
-import {
-  IPhysicalExamRequest,
-  IPhysicalExamResponse,
-  ISpeciality,
-} from 'src/Domine/models/IConsults';
+// import {
+//   IPhysicalExamRequest,
+//   IPhysicalExamResponse,
+//   ISpeciality,
+// } from 'src/Domine/models/IConsults';
 // import { HttpResponse } from 'src/scripts/Request';
 // import modalService from './ModalService';
 // import { Messages } from 'src/scripts/Constants';
@@ -13,74 +13,62 @@ import { IColumnsDataTable, TableOptions } from 'src/Domine/ICommons';
 // import HttpStatusCode from 'src/scripts/HttpStatusCodes';
 import { PhysicalExamParameterRepository } from 'src/Application/Repositories/SettingsRepository';
 import modalService from './ModalService';
-import { Messages } from 'src/Application/Utilities/Constants';
-import { DataTableService } from './DataTableService';
+// import { Messages } from 'src/Application/Utilities/Constants';
+// import { DataTableService } from './DataTableAdapter';
 import { Observer, Subject } from 'src/patterns/Observer/Observer';
+import { PhysicalExamResponse } from 'src/Domine/Responses';
+import { IPhysicalExam, ISpeciality } from 'src/Domine/ModelsDB';
+import { DataTableAdapter } from './DataTableAdapter';
+import { IStorePhysicalExamParameter } from 'src/Infraestructure/stores/SettingsPage/PhysicalExamStore';
+import { Messages } from 'src/Application/Utilities';
+import { PhysicalExamService } from 'src/Application/Services/PhysicalExamService';
 
 // const store = useStoreSettings();
 // const serviceModal = modalService();
 // const messages = Messages.getInstance();
 
-interface IStorePhysicalExamParameter {
-  currentPhysicalExamParameter: IPhysicalExamRequest;
-  allPhysicalMedicalParameter: Array<IPhysicalExamResponse>;
-  speciality: ISpeciality | null;
-  form: QForm | null;
-  disable: boolean;
-  icon: string;
-  columnsr: Array<IColumnsDataTable>;
-  rows: Array<unknown>;
-  specialityTable: ISpeciality | null;
-  selected: Array<unknown>;
-  status: boolean;
-  titleTable: string;
-}
-export const useStorePhysicalExamParameter = defineStore(
-  'storePhysicalExamParameter',
-  {
-    state: () =>
-      ({
-        currentPhysicalExamParameter: {
-          active: false,
-          description: '',
-        } as IPhysicalExamRequest,
-        allPhysicalMedicalParameter: [] as Array<IPhysicalExamResponse>,
-        speciality: null,
-        form: null,
-        disable: false,
-        icon: '',
-        columnsr: [] as Array<IColumnsDataTable>,
-        rows: [] as Array<unknown>,
-        specialityTable: null,
-        selected: [] as Array<unknown>,
-        status: false,
-        titleTable: 'Parametros Examen Fisico',
-      } as IStorePhysicalExamParameter),
-  }
-);
-export class PhysicalExamParameterService implements Observer {
-  private store = useStorePhysicalExamParameter();
-  private repository = PhysicalExamParameterRepository.getInstance();
+export class PhysicalExamParameterAdapter implements Observer {
+  private store: IStorePhysicalExamParameter;
+  private service = PhysicalExamService.getInstance();
   private serviceModal = modalService();
   private messages = Messages.getInstance();
-  private serviceDataTable = DataTableService.getInstance();
+  // private serviceDataTable = DataTableService.getInstance();
+  private static instance: PhysicalExamParameterAdapter;
 
-  public async clear(): Promise<void> {
-    this.store.currentPhysicalExamParameter = {} as IPhysicalExamRequest;
+  private constructor(store: IStorePhysicalExamParameter) {
+    this.store = store;
+    // this.repository = new PatientRepository();
+    return;
   }
-  public async clearSpeciality(): Promise<void> {
-    this.store.speciality = null;
-    this.store.form?.reset();
+
+  public static getInstance(
+    store: IStorePhysicalExamParameter
+  ): PhysicalExamParameterAdapter {
+    if (!PhysicalExamParameterAdapter.instance) {
+      PhysicalExamParameterAdapter.instance = new PhysicalExamParameterAdapter(
+        store
+      );
+    }
+    return PhysicalExamParameterAdapter.instance;
   }
+
+  // public async clear(): Promise<void> {
+  //   this.store.currentPhysicalExamParameter = {} as IPhysicalExam;
+  // }
+  // public async clearSpeciality(): Promise<void> {
+  //   this.store.speciality = null;
+  //   this.store.form?.reset();
+  // }
 
   public handleNotification(subject: Subject, data: object): void {
-    const isInstance = subject instanceof DataTableService;
+    const isInstance = subject instanceof DataTableAdapter;
     if (isInstance == false) {
       throw Error('Instancia no admitida');
     }
-    const payload = data as IPhysicalExamRequest;
+    const payload = data as IPhysicalExam;
     this.store.currentPhysicalExamParameter = payload;
     this.store.disable = true;
+    this.store.userCanEdit = true;
   }
 
   public add(): void {
@@ -88,7 +76,8 @@ export class PhysicalExamParameterService implements Observer {
     this.store.speciality = null;
     this.store.currentPhysicalExamParameter = {
       active: true,
-    } as IPhysicalExamRequest;
+    } as IPhysicalExam;
+    this.store.userCanEdit = false;
     this.store.form?.reset();
   }
 
@@ -117,15 +106,25 @@ export class PhysicalExamParameterService implements Observer {
   //   this.store.speciality = this.store.specialityTable;
   // }
 
-  public async specialityChanged(val: ISpeciality | null): Promise<void> {
-    this.store.speciality = val;
-    if (val === null || val.id === undefined) return;
+  public async specialityChanged(
+    idSpeciality: number
+  ): Promise<PhysicalExamResponse[]> {
+    // this.store.speciality = val;
+    // if (val === null || val.id === undefined) return;
 
-    const queryParameters = { speciality: val.id };
-    this.store.currentPhysicalExamParameter.speciality = val.id;
-    const response = await this.repository.findByParameters(queryParameters);
+    const queryParameters = { speciality: idSpeciality };
+    // this.store.currentPhysicalExamParameter.speciality = idSpeciality;
+    const response = await this.service.findByParameters(queryParameters);
     this.store.allPhysicalMedicalParameter = response;
-    const columns = [
+    return response;
+    // this.serviceDataTable.updateData(columns, rows);
+    // this.store.currentPhysicalExamParameter.description = '';
+  }
+
+  public getColumnsAndRows(
+    response: PhysicalExamResponse[]
+  ): [Array<IColumnsDataTable>, Array<object>] {
+    const columns: Array<IColumnsDataTable> = [
       {
         name: 'description',
         required: true,
@@ -142,96 +141,89 @@ export class PhysicalExamParameterService implements Observer {
         field: 'active',
         sortable: true,
       },
-    ] as Array<IColumnsDataTable>;
-    const rows = this.store.allPhysicalMedicalParameter.map((row) => ({
+    ];
+    const rows = response.map((row) => ({
       description: row.description,
       active: row.active,
       id: row.id,
       speciality: row.speciality.id,
     }));
-    this.serviceDataTable.updateData(columns, rows);
-    this.store.currentPhysicalExamParameter.description = '';
+    return [columns, rows];
   }
 
-  public async processRequest(): Promise<void> {
-    const isValid = await this.store.form?.validate();
-    if (isValid == false) return;
-    if (
-      this.store.currentPhysicalExamParameter === null ||
-      !this.store.speciality ||
-      this.store.speciality.id == undefined
-    )
-      return;
+  public async saveOrUpdate(
+    payload: IPhysicalExam
+  ): Promise<PhysicalExamResponse | null> {
+    // if (!this.store.speciality || this.store.speciality.id == undefined) return;
 
-    let payload: IPhysicalExamRequest;
-    let response = null;
+    let response: PhysicalExamResponse | null = null;
 
-    if (this.store.currentPhysicalExamParameter.id == null) {
-      payload = {
-        description: this.store.currentPhysicalExamParameter.description,
-        speciality: this.store.speciality.id,
-        active: this.store.currentPhysicalExamParameter.active,
-      };
+    if (payload.id == undefined) {
+      // payload = {
+      //   description: payload.description,
+      //   speciality: payload.speciality,
+      //   active: this.store.currentPhysicalExamParameter.active,
+      // };
       response = await this.create(payload);
     }
 
-    if (this.store.currentPhysicalExamParameter.id != undefined) {
-      payload = {
-        id: this.store.currentPhysicalExamParameter.id,
-        description: this.store.currentPhysicalExamParameter.description,
-        active: this.store.currentPhysicalExamParameter.active,
-        speciality: this.store.currentPhysicalExamParameter.speciality,
-      };
+    if (payload.id != undefined) {
+      // payload = {
+      //   id: this.store.currentPhysicalExamParameter.id,
+      //   description: this.store.currentPhysicalExamParameter.description,
+      //   active: this.store.currentPhysicalExamParameter.active,
+      //   speciality: this.store.currentPhysicalExamParameter.speciality,
+      // };
       response = await this.update(payload);
     }
 
-    if (response == null) return;
+    return response;
 
-    if (this.store.currentPhysicalExamParameter.speciality == undefined) return;
-    const queryParameters = {
-      speciality: this.store.currentPhysicalExamParameter.speciality,
-    };
+    // if (this.store.currentPhysicalExamParameter.speciality == undefined) return;
+    // const queryParameters = {
+    //   speciality: this.store.currentPhysicalExamParameter.speciality,
+    // };
 
-    this.store.allPhysicalMedicalParameter =
-      await this.repository.findByParameters(queryParameters);
-    // const data = response.parsedBody as Array<IPhysicalExamResponse>;
-    // this.store.columnsr = [
-    //   {
-    //     name: 'id',
-    //     required: true,
-    //     align: 'center',
-    //     label: 'Id',
-    //     field: 'id',
-    //     sortable: true,
-    //   },
-    //   {
-    //     name: 'description',
-    //     required: true,
-    //     align: 'center',
-    //     label: 'Descripcion Parametro',
-    //     field: 'description',
-    //     sortable: true,
-    //   },
-    //   {
-    //     name: 'active',
-    //     required: true,
-    //     align: 'center',
-    //     label: 'Estado',
-    //     field: 'active',
-    //     sortable: true,
-    //   },
-    // ] as Array<IColumnsDataTable>;
-    // const r =  this.store.allPhysicalMedicalParameter.map((row) => ({
-    //   id: row.id,
-    //   description: row.description,
-    //   active: row.active == true ? 'Activo' : 'Inactivo',
-    // }));
-    // this.store.rows = r;
+    // this.store.allPhysicalMedicalParameter =
+    //   await this.repository.findByParameters(queryParameters);
+    // // const data = response.parsedBody as Array<IPhysicalExamResponse>;
+    // // this.store.columnsr = [
+    // //   {
+    // //     name: 'id',
+    // //     required: true,
+    // //     align: 'center',
+    // //     label: 'Id',
+    // //     field: 'id',
+    // //     sortable: true,
+    // //   },
+    // //   {
+    // //     name: 'description',
+    // //     required: true,
+    // //     align: 'center',
+    // //     label: 'Descripcion Parametro',
+    // //     field: 'description',
+    // //     sortable: true,
+    // //   },
+    // //   {
+    // //     name: 'active',
+    // //     required: true,
+    // //     align: 'center',
+    // //     label: 'Estado',
+    // //     field: 'active',
+    // //     sortable: true,
+    // //   },
+    // // ] as Array<IColumnsDataTable>;
+    // // const r =  this.store.allPhysicalMedicalParameter.map((row) => ({
+    // //   id: row.id,
+    // //   description: row.description,
+    // //   active: row.active == true ? 'Activo' : 'Inactivo',
+    // // }));
+    // // this.store.rows = r;
   }
 
   public async create(
-    payload: IPhysicalExamRequest
-  ): Promise<IPhysicalExamRequest | null> {
+    payload: IPhysicalExam
+  ): Promise<PhysicalExamResponse | null> {
     const confirm = await this.serviceModal.showModal(
       'Atención',
       this.messages.newRegister
@@ -240,13 +232,13 @@ export class PhysicalExamParameterService implements Observer {
       return null;
     }
 
-    const response = await this.repository.create(payload);
+    const response = await this.service.save(payload);
     return response;
   }
 
   public async update(
-    payload: IPhysicalExamRequest
-  ): Promise<IPhysicalExamResponse | null> {
+    payload: IPhysicalExam
+  ): Promise<PhysicalExamResponse | null> {
     const confirm = await this.serviceModal.showModal(
       'Atención',
       this.messages.updateRegister
@@ -255,7 +247,7 @@ export class PhysicalExamParameterService implements Observer {
       return null;
     }
 
-    const response = await this.repository.update(payload);
+    const response = await this.service.update(payload);
     return response;
   }
 }

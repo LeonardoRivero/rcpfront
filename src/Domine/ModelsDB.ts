@@ -1,6 +1,7 @@
 export interface ISpeciality {
   id?: number;
   description: string;
+  code: number;
 }
 export interface IDXMainCode {
   id?: number;
@@ -49,6 +50,8 @@ export interface IAppointment {
   schedule: number;
   patient: number;
   doctor: number;
+  paymentMethod: number;
+  codeTransaction: string;
 }
 export interface EventSchedule {
   id?: number;
@@ -84,6 +87,11 @@ export interface IPatient {
   insurance: number;
   gender: number;
   email: string;
+}
+export interface IPaymentOptions {
+  id: number;
+  description: string;
+  code: string;
 }
 // export interface IDXMainCodeResponse {
 //   id?: number;

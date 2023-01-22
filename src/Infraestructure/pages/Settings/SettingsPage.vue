@@ -36,11 +36,10 @@
               </div>
             </div>
           </q-tab-panel>
-          <!-- <q-tab-panel name="MedicalHistory">
+          <q-tab-panel name="MedicalHistory">
             <q-list>
               <q-expansion-item
                 popup
-                default-opened
                 :icon="icon"
                 :caption="PARAMETERS_PHYSICAL_EXAM"
                 label="Examen Fisico"
@@ -89,7 +88,7 @@
                 </q-card>
               </q-expansion-item>
             </q-list>
-          </q-tab-panel> -->
+          </q-tab-panel>
         </q-tab-panels>
       </q-card>
     </div>
@@ -111,7 +110,7 @@ export default defineComponent({
     DxMainCode,
     RelationCode,
     Insurance,
-    // PhysicalExamForm,
+    PhysicalExamForm,
   },
 
   setup() {

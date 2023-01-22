@@ -17,7 +17,7 @@ export default function modalService() {
     urlToRedirect.value = url;
     redirect.value = true;
   }
-  function setType(typeModal: SweetAlertIcon) {
+  async function setType(typeModal: SweetAlertIcon) {
     _type = typeModal;
   }
   function setTitle(titleModal: string): void {
@@ -87,5 +87,6 @@ export default function modalService() {
     setObject,
     setTitle,
     simpleModal,
+    setType,
   };
 }

@@ -53,6 +53,9 @@ export class EndPoints {
   get getORcreatePhysicalExamParameter() {
     return `${this.domine}/api/physicalexamparameter/all/`;
   }
+  get getAllPaymentOptions() {
+    return `${this.domine}/api/paymentoptions/all/`;
+  }
   updateInsurance(id: number): string {
     return `${this.domine}/api/insurance/${id}/`;
   }
