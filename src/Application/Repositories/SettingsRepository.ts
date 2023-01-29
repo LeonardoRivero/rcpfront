@@ -6,6 +6,7 @@ import {
   IRelationCode,
   ISpeciality,
   IHealthInsurance,
+  IPathologycalHistory,
 } from 'src/Domine/ModelsDB';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { EndPoints } from 'src/Application/Utilities/EndPoints';
@@ -21,6 +22,7 @@ import {
   DXMainCodeResponse,
   DoctorResponse,
   HealthInsuranceResponse,
+  PathologicalHistoryResponse,
   PhysicalExamResponse,
   RelationCodeResponse,
   SpecialityResponse,
@@ -51,10 +53,10 @@ export class PhysicalExamParameterRepository
   async create(entity: IPhysicalExam): Promise<PhysicalExamResponse | null> {
     const url = endpoint.getORcreatePhysicalExamParameter;
     try {
-      const response = await POST(url, entity);
+      const response = await POST<PhysicalExamResponse>(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
-      const data = response.parsedBody as PhysicalExamResponse;
+      const data = response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -68,10 +70,10 @@ export class PhysicalExamParameterRepository
     }
     try {
       const url = endpoint.updateOrGetPhysicalExamParameterById(entity.id);
-      const response = await PUT(url, entity);
+      const response = await PUT<PhysicalExamResponse>(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
-      const data = response.parsedBody as PhysicalExamResponse;
+      const data = response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
@@ -83,11 +85,11 @@ export class PhysicalExamParameterRepository
   async findByParameters(parameters: object): Promise<PhysicalExamResponse[]> {
     const urlBase = endpoint.getORcreatePhysicalExamParameter;
     const url = endpoint.urlQueryParameter(urlBase, parameters);
-    const response = await GET(url);
+    const response = await GET<Array<PhysicalExamResponse>>(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
     }
-    return response.parsedBody as Array<PhysicalExamResponse>;
+    return response.json();
   }
 }
 export class SpecialityRepository
@@ -111,11 +113,11 @@ export class SpecialityRepository
   public async getAll(): Promise<SpecialityResponse[] | null> {
     try {
       const url = endpoint.getORcreateSpeciality;
-      const response = await GET(url);
+      const response = await GET<Array<SpecialityResponse>>(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
       }
-      const data = (await response.parsedBody) as Array<SpecialityResponse>;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -128,7 +130,7 @@ export class SpecialityRepository
       const response = await POST<SpecialityResponse>(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
-      const data = response.parsedBody as SpecialityResponse;
+      const data = response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -143,10 +145,10 @@ export class SpecialityRepository
     }
     try {
       const url = endpoint.updateSpeciality(entity.id);
-      const response = await PUT(url, entity);
+      const response = await PUT<SpecialityResponse>(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
-      const data = response.parsedBody as SpecialityResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
@@ -197,12 +199,11 @@ export class InsuranceRepository
   async getAll(): Promise<HealthInsuranceResponse[] | null> {
     const url = endpoint.getORcreateInsurance;
     try {
-      const response = await GET(url);
+      const response = await GET<Array<HealthInsuranceResponse>>(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
       }
-      const data =
-        (await response.parsedBody) as Array<HealthInsuranceResponse>;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -213,13 +214,13 @@ export class InsuranceRepository
   ): Promise<HealthInsuranceResponse | null> {
     try {
       const url = endpoint.getORcreateInsurance;
-      const response = await POST(url, entity);
+      const response = await POST<HealthInsuranceResponse>(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
       if (response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
-      return response.parsedBody as HealthInsuranceResponse;
+      return await response.json();
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
@@ -232,13 +233,13 @@ export class InsuranceRepository
     }
     try {
       const url = endpoint.updateInsurance(entity.id);
-      const response = await PUT(url, entity);
+      const response = await PUT<HealthInsuranceResponse>(url, entity);
       handleResponse(response, messages.updateSuccesfully);
       if (!response.ok) return null;
       if (response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
-      const data = response.parsedBody as HealthInsuranceResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
@@ -267,8 +268,8 @@ export class DxMainCodeRepository
   ): Promise<DXMainCodeResponse[]> {
     const urlBase = endpoint.getORcreateDxMainCode;
     const url = endpoint.urlQueryParameter(urlBase, queryParameters);
-    const response = await GET(url);
-    const data = response.parsedBody as Array<DXMainCodeResponse>;
+    const response = await GET<Array<DXMainCodeResponse>>(url);
+    const data = await response.json();
     return data;
   }
   getById(id: number): Promise<DXMainCodeResponse | null> {
@@ -277,12 +278,12 @@ export class DxMainCodeRepository
   async getAll(): Promise<DXMainCodeResponse[] | null> {
     const url = endpoint.getORcreateDxMainCode;
     try {
-      const response = await GET(url);
+      const response = await GET<Array<DXMainCodeResponse>>(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
         return null;
       }
-      const data = (await response.parsedBody) as Array<DXMainCodeResponse>;
+      const data = await response.json();
       handleResponse(response);
       return data;
     } catch (error) {
@@ -292,12 +293,12 @@ export class DxMainCodeRepository
   async create(entity: IDXMainCode): Promise<DXMainCodeResponse | null> {
     const url = endpoint.getORcreateDxMainCode;
     try {
-      const response = await POST(url, entity);
+      const response = await POST<DXMainCodeResponse>(url, entity);
       handleResponse(response);
       if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
-      return response.parsedBody as DXMainCodeResponse;
+      return await response.json();
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
@@ -310,12 +311,12 @@ export class DxMainCodeRepository
     }
     try {
       const url = endpoint.updateDxMainCode(entity.id);
-      const response = await PUT(url, entity);
+      const response = await PUT<DXMainCodeResponse>(url, entity);
       handleResponse(response, messages.updateSuccesfully);
       if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
-      const data = response.parsedBody as DXMainCodeResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
@@ -345,7 +346,7 @@ export class RelationCodeRepository
   async getAll(): Promise<RelationCodeResponse[] | null> {
     try {
       const url = endpoint.getORcreateRelationCode;
-      const response = await GET(url);
+      const response = await GET<Array<RelationCodeResponse>>(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
       }
@@ -353,7 +354,7 @@ export class RelationCodeRepository
       if (response.status == HttpStatusCodes.NO_CONTENT) {
         return [];
       }
-      const data = (await response.parsedBody) as Array<RelationCodeResponse>;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -362,11 +363,11 @@ export class RelationCodeRepository
   async create(entity: IRelationCode): Promise<RelationCodeResponse | null> {
     const url = endpoint.getORcreateRelationCode;
     try {
-      const response = await POST(url, entity);
+      const response = await POST<RelationCodeResponse>(url, entity);
       handleResponse(response);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = response.parsedBody as RelationCodeResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -380,12 +381,12 @@ export class RelationCodeRepository
     }
     try {
       const url = endpoint.updateRelationCode(entity.id);
-      const response = await PUT(url, entity);
+      const response = await PUT<RelationCodeResponse>(url, entity);
       if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
       handleResponse(response, messages.updateSuccesfully);
-      const data = response.parsedBody as RelationCodeResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
@@ -399,8 +400,8 @@ export class RelationCodeRepository
   ): Promise<RelationCodeResponse[]> {
     const urlBase = endpoint.getORcreateRelationCode;
     const url = endpoint.urlQueryParameter(urlBase, parameters);
-    const response = await GET(url);
-    const data = response.parsedBody as Array<RelationCodeResponse>;
+    const response = await GET<Array<RelationCodeResponse>>(url);
+    const data = await response.json();
     return data;
   }
 }
@@ -420,12 +421,12 @@ export class DoctorRepository implements IRepository<IDoctor, DoctorResponse> {
   public async getById(id: number): Promise<DoctorResponse | null> {
     const url = endpoint.updateOrGetDoctorById(id);
     try {
-      const response = await GET(url);
+      const response = await GET<DoctorResponse>(url);
       if (!response.ok) return null;
       if (response.status == HttpStatusCodes.NOT_FOUND) return null;
       if (response.status == HttpStatusCodes.BAD_REQUEST) return null;
 
-      const data = (await response.parsedBody) as DoctorResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -439,7 +440,7 @@ export class DoctorRepository implements IRepository<IDoctor, DoctorResponse> {
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
       }
-      const data = (await response.parsedBody) as Array<DoctorResponse>;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -468,10 +469,71 @@ export class DoctorRepository implements IRepository<IDoctor, DoctorResponse> {
       if (response.status == HttpStatusCodes.INTERNAL_SERVER_ERROR) {
         return [];
       }
-      const data = response.parsedBody as Array<DoctorResponse>;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
+  }
+}
+
+export class PathologicalHistoryRepository
+  implements IRepository<IPathologycalHistory, PathologicalHistoryResponse>
+{
+  getById(id: number): Promise<IPathologycalHistory | null> {
+    throw new Error('Method not implemented.');
+  }
+  public async getAll(): Promise<PathologicalHistoryResponse[] | null> {
+    try {
+      const url = endpoint.getAllPathologicalHistory;
+      const response = await GET<Array<SpecialityResponse>>(url);
+      if (response.status == HttpStatusCodes.NOT_FOUND) {
+        routerInstance.push('/:catchAll');
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
+  }
+  async create(
+    entity: IPathologycalHistory
+  ): Promise<PathologicalHistoryResponse | null> {
+    const url = endpoint.getAllPathologicalHistory;
+    try {
+      const response = await POST<PathologicalHistoryResponse>(url, entity);
+      handleResponse(response);
+      if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
+        return null;
+      }
+      return response.json();
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
+  }
+  async update(
+    entity: Partial<PathologicalHistoryResponse>
+  ): Promise<IPathologycalHistory | null> {
+    if (entity.id == null) {
+      return null;
+    }
+    try {
+      const url = endpoint.updateOrGetPathologyById(entity.id);
+      const response = await PUT<RelationCodeResponse>(url, entity);
+      if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
+        return null;
+      }
+      handleResponse(response, messages.updateSuccesfully);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw Error(`Error in ${Object.name}:${error}`);
+    }
+  }
+  delete(id: number): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
+  findByParameters(parameters: object): Promise<IPathologycalHistory[]> {
+    throw new Error('Method not implemented.');
   }
 }

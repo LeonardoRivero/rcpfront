@@ -27,6 +27,9 @@ export class IconSVG {
   get womanAndMan() {
     return 'woman-and-man.svg';
   }
+  get medicalResults() {
+    return 'img:medical-results-folders.svg';
+  }
 }
 export enum Gender {
   FEMALE = 1,

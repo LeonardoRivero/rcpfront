@@ -13,7 +13,7 @@
       :selection="tableOptions.selectionRow"
       v-model:selected="selected"
       class="table-responsive link-cursor"
-      style="height: 300px"
+      style="height: 400px"
       @update:selected="(val) => rowClicked(val)"
       no-data-label="No hay datos para mostrar"
       no-results-label="No hay resultados para la busqueda"
@@ -131,7 +131,10 @@ export default defineComponent({
         console.log('remove');
       },
       rowClicked(val: Array<object>) {
-        adapter.notify(val[0]);
+        if (val === undefined) {
+          val = [];
+        }
+        adapter.notify(val);
       },
     };
   },

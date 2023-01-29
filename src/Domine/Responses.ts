@@ -92,3 +92,7 @@ export interface PaymentOptionsResponse {
   description: string;
   code: string;
 }
+export interface PathologicalHistoryResponse {
+  id: number;
+  description: string;
+}

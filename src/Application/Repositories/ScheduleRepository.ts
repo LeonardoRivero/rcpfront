@@ -21,12 +21,12 @@ export class ScheduleRepository
   public async getById(id: number): Promise<EventScheduleResponse | null> {
     const url = endpoint.updateOrGetScheduleById(id);
     try {
-      const response = await GET(url);
+      const response = await GET<EventScheduleResponse>(url);
       if (!response.ok) return null;
       if (response.status == HttpStatusCodes.NOT_FOUND) return null;
       if (response.status == HttpStatusCodes.BAD_REQUEST) return null;
 
-      const data = (await response.parsedBody) as EventScheduleResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -45,13 +45,13 @@ export class ScheduleRepository
   async create(entity: EventSchedule): Promise<EventScheduleResponse | null> {
     const url = endpoint.getORcreateSchedule;
     try {
-      const response = await POST(url, entity);
+      const response = await POST<EventScheduleResponse>(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
       if (response.status == HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
-      const data = (await response.parsedBody) as EventScheduleResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -67,13 +67,13 @@ export class ScheduleRepository
 
     try {
       const url = endpoint.updateOrGetScheduleById(entity.id);
-      const response = await PUT(url, entity);
+      const response = await PUT<EventScheduleResponse>(url, entity);
       if (!response.ok) return null;
       if (response.status == HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
       handleResponse(response, messages.updateSuccesfully);
-      const data = (await response.parsedBody) as EventScheduleResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
@@ -94,13 +94,11 @@ export class ScheduleRepository
   ): Promise<Array<EventScheduleResponse>> {
     const urlBase = endpoint.getORcreateSchedule;
     const url = endpoint.urlQueryParameter(urlBase, parameters);
-    const response = await GET(url);
+    const response = await GET<EventScheduleResponse>(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
     }
-    const data: EventScheduleResponse[] = [
-      (await response.parsedBody) as EventScheduleResponse,
-    ];
+    const data: EventScheduleResponse[] = [await response.json()];
     return data;
   }
 }

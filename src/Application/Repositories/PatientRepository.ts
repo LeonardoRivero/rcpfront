@@ -34,10 +34,10 @@ export class PatientRepository
   async create(entity: IPatient): Promise<PatientResponse | null> {
     const url = endpoint.getORcreatePatient;
     try {
-      const response = await POST(url, entity);
+      const response = await POST<PatientResponse>(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
-      const data = (await response.parsedBody) as PatientResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -50,10 +50,10 @@ export class PatientRepository
     }
     try {
       const url = endpoint.updatePatient(entity.id);
-      const response = await PUT(url, entity);
+      const response = await PUT<PatientResponse>(url, entity);
       if (!response.ok) return null;
       // handleResponse(response, messages.updateSuccesfully);
-      const data = (await response.parsedBody) as PatientResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
@@ -73,7 +73,7 @@ export class PatientRepository
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
     }
-    const data: PatientResponse[] = [response.parsedBody as PatientResponse];
+    const data: PatientResponse[] = [await response.json()];
     // const data = (await response.parsedBody) as Array<PatientResponse>;
     return data;
   }
@@ -86,10 +86,10 @@ export class IDTypesRepository implements IRepository<IIDType, IDTypeResponse> {
   async getAll(): Promise<IDTypeResponse[] | null> {
     const url = endpoint.getAllIDType;
     try {
-      const response = await GET(url);
+      const response = await GET<Array<IDTypeResponse>>(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = (await response.parsedBody) as Array<IDTypeResponse>;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -116,10 +116,10 @@ export class GenderRepository implements IRepository<IGender, GenderResponse> {
   async getAll(): Promise<GenderResponse[] | null> {
     const url = endpoint.getAllGender;
     try {
-      const response = await GET(url);
+      const response = await GET<Array<GenderResponse>>(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = (await response.parsedBody) as Array<GenderResponse>;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -148,10 +148,10 @@ export class PatientStatusRepository
   async getAll(): Promise<PatientStatusResponse[] | null> {
     const url = endpoint.getORcreatePatientStatus;
     try {
-      const response = await GET(url);
+      const response = await GET<Array<PatientStatusResponse>>(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = (await response.parsedBody) as Array<PatientStatusResponse>;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -182,10 +182,10 @@ export class ReasonConsultRepository
   async getAll(): Promise<ReasonConsultResponse[] | null> {
     const url = endpoint.getORcreateReasonConsult;
     try {
-      const response = await GET(url);
+      const response = await GET<Array<ReasonConsultResponse>>(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = (await response.parsedBody) as Array<ReasonConsultResponse>;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);

@@ -56,17 +56,14 @@
 
               <q-expansion-item
                 popup
-                icon="send"
-                label="Outbox"
-                caption="Empty"
+                :icon="iconPathologies"
+                label="Antecedentes Patologicos"
+                :caption="PATHOLOGYCAL_HISTORY"
               >
                 <q-separator />
                 <q-card>
                   <q-card-section>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    Quidem, eius reprehenderit eos corrupti commodi magni
-                    quaerat ex numquam, dolorum officiis modi facere maiores
-                    architecto suscipit iste eveniet doloribus ullam aliquid.
+                    <PathologicalHistoryForm />
                   </q-card-section>
                 </q-card>
               </q-expansion-item>
@@ -102,6 +99,7 @@ import DxMainCode from './DxMainCodeForm.vue';
 import RelationCode from './RelationCode.vue';
 import Insurance from './InsuranceForm.vue';
 import PhysicalExamForm from './PhysicalExamForm.vue';
+import PathologicalHistoryForm from './PathologicalHistoryForm.vue';
 import { IconSVG } from 'src/Application/Utilities/Constants';
 
 export default defineComponent({
@@ -111,20 +109,26 @@ export default defineComponent({
     RelationCode,
     Insurance,
     PhysicalExamForm,
+    PathologicalHistoryForm,
   },
 
   setup() {
     const iconSVG = IconSVG.getInstance();
     const icon = ref('');
+    const iconPathologies = ref<string>('');
     const PARAMETERS_PHYSICAL_EXAM = ref<string>('');
+    const PATHOLOGYCAL_HISTORY = ref<string>('');
     // const r = ref();
     // const table = ref<TableOptions>();
     // const { allSpecialities } = storeToRefs(useStoreSpeciality());
 
     onMounted(async () => {
       icon.value = iconSVG.outpatient;
+      iconPathologies.value = iconSVG.medicalResults;
       PARAMETERS_PHYSICAL_EXAM.value =
         'En esta seccion puedes modificar los parametros que desea implementar en su examen fisico';
+      PATHOLOGYCAL_HISTORY.value =
+        'Aqui podras ver el listado de enfermedades que podrian poseer los pacientes';
 
       // r.value = allSpecialities.value.map((row: ISpeciality) => ({
       //   id: row.id,
@@ -148,7 +152,9 @@ export default defineComponent({
       tab: ref('MedicalHistory'),
       splitterModel: ref(20),
       PARAMETERS_PHYSICAL_EXAM,
+      PATHOLOGYCAL_HISTORY,
       icon,
+      iconPathologies,
     };
   },
 });

@@ -93,30 +93,8 @@ export interface IPaymentOptions {
   description: string;
   code: string;
 }
-// export interface IDXMainCodeResponse {
-//   id?: number;
-//   CUP: string;
-//   description: string;
-//   speciality: ISpeciality;
-// }
-// export interface IRelationCodeResponse {
-//   id?: number;
-//   description: string;
-//   code: string;
-//   dxmaincode: IDXMainCodeResponse;
-// }
 
-// export interface IDoctorResponse {
-//   id?: number;
-//   codigo: string;
-//   name: string;
-//   lastName: string;
-//   speciality: ISpeciality;
-// }
-
-// export interface IPhysicalExamResponse {
-//   id?: number;
-//   description: string;
-//   speciality:ISpeciality ;
-//   active: boolean;
-// }
+export interface IPathologycalHistory {
+  id: number;
+  description: string;
+}

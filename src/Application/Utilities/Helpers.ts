@@ -106,7 +106,7 @@ export class Validators {
 }
 
 export class Convert {
-  public allWordsToCapitalize(sentence: string): string {
+  public toTitle(sentence: string): string {
     const stringLowered = sentence.toLowerCase();
     const words = stringLowered.split(' ');
     for (let i = 0; i < words.length; i++) {

@@ -60,12 +60,16 @@ export class PhysicalExamParameterAdapter implements Observer {
   //   this.store.form?.reset();
   // }
 
-  public handleNotification(subject: Subject, data: object): void {
+  public handleNotification(subject: Subject, data: Array<object>): void {
     const isInstance = subject instanceof DataTableAdapter;
     if (isInstance == false) {
       throw Error('Instancia no admitida');
     }
-    const payload = data as IPhysicalExam;
+    if (data.length === 0) {
+      this.store.disable = false;
+      return;
+    }
+    const payload = data[0] as IPhysicalExam;
     this.store.currentPhysicalExamParameter = payload;
     this.store.disable = true;
     this.store.userCanEdit = true;

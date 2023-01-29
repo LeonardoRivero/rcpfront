@@ -7,7 +7,7 @@ import { SpecialityResponse } from 'src/Domine/Responses';
 
 export class SpecialityAdapter {
   private store: IStoreSpeciality;
-  // private dxMainService = dxMainCodeService.getInstance();
+
   private serviceModal = modalService();
   private messages = Messages.getInstance();
   private service = new SpecialityService();

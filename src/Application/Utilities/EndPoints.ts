@@ -56,6 +56,9 @@ export class EndPoints {
   get getAllPaymentOptions() {
     return `${this.domine}/api/paymentoptions/all/`;
   }
+  get getAllPathologicalHistory() {
+    return `${this.domine}/api/pathologyhistory/all/`;
+  }
   updateInsurance(id: number): string {
     return `${this.domine}/api/insurance/${id}/`;
   }
@@ -82,6 +85,9 @@ export class EndPoints {
   }
   updateOrGetDoctorById(id: number): string {
     return `${this.domine}/api/doctor/${id}/`;
+  }
+  updateOrGetPathologyById(id: number): string {
+    return `${this.domine}/api/pathologyhistory/${id}/`;
   }
   urlQueryParameter(urlBase: string, parameters: object): string {
     urlBase = urlBase.concat('?');
