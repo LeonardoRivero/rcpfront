@@ -12,13 +12,12 @@ export interface IStoreInsurance {
 }
 export const useStoreInsurance = defineStore({
   id: 'storeStoreInsurance',
-  state: () =>
-    ({
-      allInsurance: [] as Array<IHealthInsurance>,
-      currentInsurance: {} as IHealthInsurance,
-      form: null,
-      expanded: false,
-      error: false,
-      insurance: null,
-    } as IStoreInsurance),
+  state: (): IStoreInsurance => ({
+    allInsurance: [] as Array<IHealthInsurance>,
+    currentInsurance: {} as IHealthInsurance,
+    form: null,
+    expanded: false,
+    error: false,
+    insurance: null,
+  }),
 });

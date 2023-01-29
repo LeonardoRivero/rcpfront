@@ -5,17 +5,17 @@ import { Modal } from 'src/Infraestructure/Utilities/Notifications';
 
 const messages = Messages.getInstance();
 const modal = new Modal();
-export interface HttpResponse<T> extends Response {
-  parsedBody?: T;
-}
+// export interface HttpResponse<T> extends Response {
+//   parsedBody?: T;
+// }
 
-export async function http<T>(request: RequestInfo): Promise<HttpResponse<T>> {
+export async function http<T>(request: RequestInfo): Promise<Response> {
   modal.showLoading();
-  const response: HttpResponse<T> = await fetch(request);
+  const response: Response = await fetch(request);
   console.log({ response });
   try {
-    response.parsedBody = await response.json();
-    console.log(response.parsedBody);
+    // response.parsedBody = await response.json();
+    // console.log(response.parsedBody);
     modal.hideLoading();
   } catch (ex) {
     console.log(ex);
@@ -31,7 +31,7 @@ export async function http<T>(request: RequestInfo): Promise<HttpResponse<T>> {
 export async function GET<T>(
   path: string,
   args: RequestInit = { method: 'GET' }
-): Promise<HttpResponse<T>> {
+): Promise<Response> {
   const response = await http<T>(new Request(path, args));
   return response;
 }
@@ -46,7 +46,7 @@ export async function POST<T>(
     },
     body: JSON.stringify(body),
   }
-): Promise<HttpResponse<T>> {
+): Promise<Response> {
   return await http<T>(new Request(path, args));
 }
 export async function PUT<T>(
@@ -60,13 +60,13 @@ export async function PUT<T>(
     },
     body: JSON.stringify(body),
   }
-): Promise<HttpResponse<T>> {
+): Promise<Response> {
   return await http<T>(new Request(path, args));
 }
 export async function DELETE<T>(
   path: string,
   args: RequestInit = { method: 'DELETE' }
-): Promise<HttpResponse<T>> {
+): Promise<Response> {
   return await http<T>(new Request(path, args));
 }
 
