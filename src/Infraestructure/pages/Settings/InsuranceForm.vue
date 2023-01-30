@@ -1,7 +1,9 @@
 <template>
   <q-card class="my-card" bordered>
     <q-card-section>
-      <div class="text-h5 q-mt-sm q-mb-xs">Entidades</div>
+      <div class="text-h5 q-mt-sm q-mb-xs">
+        <q-icon :name="icon" size="48px" /> Entidades
+      </div>
       <div class="text-caption text-grey">
         Entidades Registradas:
         {{ allInsurance == null ? '' : allInsurance.length }}
@@ -90,13 +92,14 @@
   </q-card>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 
 import 'src/css/app.sass';
 import { storeToRefs } from 'pinia';
 import { IHealthInsurance } from 'src/Domine/ModelsDB';
 import { InsuranceAdapter } from 'src/Adapters/InsuranceAdapter';
 import { useStoreInsurance } from 'src/Infraestructure/stores/SettingsPage/InsuranceStore';
+import { IconSVG } from 'src/Application/Utilities';
 
 export default defineComponent({
   name: 'InsuranceForm',
@@ -104,11 +107,14 @@ export default defineComponent({
     const { currentInsurance, insurance, expanded, form, error, allInsurance } =
       storeToRefs(useStoreInsurance());
     const service = InsuranceAdapter.getInstance(useStoreInsurance());
+    const iconSVG = IconSVG.getInstance();
+    const icon = ref<string>('');
     onMounted(async () => {
       await service.getAll();
+      icon.value = iconSVG.medicalHospital;
     });
-
     return {
+      icon,
       insurance,
       allInsurance,
       currentInsurance,

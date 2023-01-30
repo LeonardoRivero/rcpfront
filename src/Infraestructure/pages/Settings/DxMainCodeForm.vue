@@ -2,7 +2,9 @@
   <div class="q-pa-md">
     <q-card class="my-card" bordered>
       <q-card-section>
-        <div class="text-h5 q-mt-sm q-mb-xs">Codigos CUPS</div>
+        <div class="text-h5 q-mt-sm q-mb-xs">
+          <q-icon :name="icon" size="32px" /> Codigos CUPS
+        </div>
         <div class="text-caption text-grey">
           CUPS existentes:
           {{ allDxMainCodes == null ? '' : allDxMainCodes.length }}
@@ -100,16 +102,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useStoreSpeciality } from 'src/Infraestructure/stores/SettingsPage/SpecialityStore';
-import { useStoreDxMainCode } from 'src/Infraestructure/stores/SettingsPage/DxMainCodeStore';
+import { useStoreSpeciality } from '../../stores/SettingsPage/SpecialityStore';
+import { useStoreDxMainCode } from '../../stores/SettingsPage/DxMainCodeStore';
 import { DxMainCodeAdapter } from 'src/Adapters/DxMainCodeAdapter';
 import { DXMainCodeResponse } from 'src/Domine/Responses';
-
-import 'src/css/app.sass';
 import { RelationCodeAdapter } from 'src/Adapters';
-import { useStoreRelationCode } from 'src/Infraestructure/stores/SettingsPage/RelationCodeStore';
+import { useStoreRelationCode } from '../../stores/SettingsPage/RelationCodeStore';
+import { IconSVG } from 'src/Application/Utilities';
+import 'src/css/app.sass';
 
 export default defineComponent({
   name: 'DxMainCodeForm',
@@ -128,12 +130,18 @@ export default defineComponent({
     const storeRelationCode = useStoreRelationCode();
     const adapterRelationCode =
       RelationCodeAdapter.getInstance(storeRelationCode);
+    const iconSVG = IconSVG.getInstance();
+    const icon = ref<string>('');
+
+    onMounted(async () => {
+      icon.value = iconSVG.barCode;
+    });
 
     return {
       dxMainCode,
       currentDxMainCode,
       allDxMainCodes,
-      // dxMainCodeofSpeciality: service.dxMainCodeofSpeciality,
+      icon,
       currentSpeciality,
       expanded,
       form,

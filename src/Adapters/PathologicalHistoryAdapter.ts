@@ -43,6 +43,7 @@ export class PathologicalHistoryAdapter {
     if (payload.id != undefined) {
       response = await this.update(payload);
     }
+    this.store.allPathologies = await this.service.getAll();
     return response;
   }
 

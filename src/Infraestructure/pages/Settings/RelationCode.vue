@@ -2,7 +2,9 @@
   <div class="q-pa-md">
     <q-card class="my-card" bordered>
       <q-card-section>
-        <div class="text-h5 q-mt-sm q-mb-xs">Codigos Relacionados</div>
+        <div class="text-h5 q-mt-sm q-mb-xs">
+          <q-icon :name="icon" size="32px" /> Codigo Relacionado
+        </div>
         <div class="text-caption text-grey">
           Codigos Relacionados encontrados:
           {{ allRelationCodes.length }}
@@ -107,7 +109,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 
 import { useStoreRelationCode } from 'src/Infraestructure/stores/SettingsPage/RelationCodeStore';
@@ -116,6 +118,7 @@ import { useStoreSpeciality } from 'src/Infraestructure/stores/SettingsPage/Spec
 import { IRelationCode } from 'src/Domine/ModelsDB';
 import { RelationCodeAdapter } from 'src/Adapters';
 import 'src/css/app.sass';
+import { IconSVG } from 'src/Application/Utilities';
 
 export default defineComponent({
   name: 'RelationCodeForm',
@@ -124,7 +127,6 @@ export default defineComponent({
     const adapter = RelationCodeAdapter.getInstance(store);
 
     const {
-      // relationCodeOfMainCode,
       allRelationCodes,
       currentRelationCode,
       relationCode,
@@ -132,16 +134,11 @@ export default defineComponent({
       form,
       errorDxMainCode,
       errorSpeciality,
-      // relationCodeChanged,
-      // clearRelationCode,
-      // edit,
-      // add,
-      // confirmChanges,
-      // getAllRelationCodes,
     } = storeToRefs(store);
-    // const service = new RelationCodeService();
+    const iconSVG = IconSVG.getInstance();
+    const icon = ref<string>('');
     onMounted(async () => {
-      // adapter.getAll();
+      icon.value = iconSVG.barCodePrice;
     });
 
     const storeSpeciality = useStoreSpeciality();
@@ -153,7 +150,7 @@ export default defineComponent({
       allRelationCodes,
       relationCode,
       currentRelationCode,
-      // relationCodeOfMainCode: adapter.relationCodeOfMainCode,
+      icon,
       currentSpeciality,
       currentDxMainCode,
       expanded,

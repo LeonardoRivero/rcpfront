@@ -2,7 +2,9 @@
   <div class="q-pa-md">
     <q-card class="my-card" bordered>
       <q-card-section>
-        <div class="text-h5 q-mt-sm q-mb-xs">Especialidades</div>
+        <div class="text-h5 q-mt-sm q-mb-xs">
+          <q-icon :name="icon" size="32px" />Especialidades
+        </div>
         <div class="text-caption text-grey">
           Especialidades existentes:
           {{ allSpecialities == null ? '' : allSpecialities.length }}
@@ -94,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
@@ -107,6 +109,7 @@ import { useStoreDxMainCode } from 'src/Infraestructure/stores/SettingsPage/DxMa
 
 import 'src/css/app.sass';
 import { useStoreRelationCode } from 'src/Infraestructure/stores/SettingsPage/RelationCodeStore';
+import { IconSVG } from 'src/Application/Utilities';
 
 export default defineComponent({
   name: 'SpecialityForm',
@@ -122,12 +125,15 @@ export default defineComponent({
     const relationCodeAdapter = RelationCodeAdapter.getInstance(
       useStoreRelationCode()
     );
-
+    const iconSVG = IconSVG.getInstance();
+    const icon = ref<string>('');
     onMounted(async () => {
       await adapter.getAll();
+      icon.value = iconSVG.bookMedical;
     });
 
     return {
+      icon,
       expanded,
       speciality,
       allSpecialities,

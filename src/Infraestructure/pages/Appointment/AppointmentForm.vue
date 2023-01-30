@@ -240,7 +240,9 @@
                 <div class="col-12 col-md-4 align-xright">
                   <q-input
                     outlined
-                    bg-color="green"
+                    :bg-color="
+                      currentAppointment.amountPaid > 0 ? 'green' : 'red'
+                    "
                     readonly
                     dense
                     hint="Total monto a pagar"

@@ -131,7 +131,6 @@ export default defineComponent({
           return;
         }
         pathology.value = adapter.responseToEntity(response);
-        allPathologies.value = await adapter.getAll();
         currentPathology.value = {} as IPathologycalHistory;
         form.value?.reset();
         expanded.value = false;

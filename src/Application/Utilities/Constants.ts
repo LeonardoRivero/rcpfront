@@ -30,6 +30,18 @@ export class IconSVG {
   get medicalResults() {
     return 'img:medical-results-folders.svg';
   }
+  get bookMedical() {
+    return 'img:book-health-medical.svg';
+  }
+  get barCode() {
+    return 'img:barcode.svg';
+  }
+  get barCodePrice() {
+    return 'img:barcode-price.svg';
+  }
+  get medicalHospital() {
+    return 'img:medical-hospital-building.svg';
+  }
 }
 export enum Gender {
   FEMALE = 1,
