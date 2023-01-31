@@ -12,19 +12,19 @@ export class InsuranceService {
 
   public async create(
     payload: IHealthInsurance
-  ): Promise<IHealthInsurance | null> {
+  ): Promise<HealthInsuranceResponse | null> {
     const response = await this.repository.create(payload);
     return response;
   }
 
   public async update(
     payload: IHealthInsurance
-  ): Promise<IHealthInsurance | null> {
+  ): Promise<HealthInsuranceResponse | null> {
     const response = await this.repository.update(payload);
     return response;
   }
 
-  public async getAll(): Promise<Array<IHealthInsurance>> {
+  public async getAll(): Promise<Array<HealthInsuranceResponse>> {
     const response = await this.repository.getAll();
     if (response == null) return [];
     return response;

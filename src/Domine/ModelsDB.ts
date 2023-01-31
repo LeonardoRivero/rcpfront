@@ -70,6 +70,7 @@ export interface IHealthInsurance {
   id?: number;
   nameInsurance: string;
   entityCode: string;
+  takeCopayment: boolean;
 }
 export interface IIDType {
   id?: number;

@@ -32,10 +32,9 @@
             </q-input>
           </q-toolbar>
           <q-separator inset></q-separator>
-
           <q-card-section horizontal>
             <q-avatar :icon="iconAvatar" color="white" size="4rem"></q-avatar>
-            <q-card-section class="col-7 q-pt-xs">
+            <q-card-section class="col-6 q-pt-xs">
               <b>Nombre Completo:</b>
               <div class="text-h6">
                 {{ currentPatient.name }}
@@ -52,7 +51,7 @@
                 {{ currentPatient.email }}
               </div>
             </q-card-section>
-            <q-card-section class="col-4 q-pt-xs">
+            <q-card-section class="col-5 q-pt-xs">
               <b>Fecha Nacimiento:</b>
               <div v-if="age != 0">
                 {{ currentPatient.dateBirth }} <cite>({{ age }} años)</cite>

@@ -3,6 +3,8 @@ import { IStoreInsurance } from 'src/Infraestructure/stores/SettingsPage/Insuran
 import { InsuranceService } from 'src/Application/Services/InsuranceService';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { IHealthInsurance } from 'src/Domine/ModelsDB';
+import { Convert } from 'src/Application/Utilities';
+import { HealthInsuranceResponse } from 'src/Domine/Responses';
 
 export class InsuranceAdapter {
   private store: IStoreInsurance;
@@ -10,6 +12,7 @@ export class InsuranceAdapter {
   private messages = Messages.getInstance();
   private service = new InsuranceService();
   private static instance: InsuranceAdapter;
+  private convert = new Convert();
 
   private constructor(store: IStoreInsurance) {
     this.store = store;
@@ -28,48 +31,48 @@ export class InsuranceAdapter {
     this.store.currentInsurance = {} as IHealthInsurance;
   }
 
-  public insuranceChanged(val: IHealthInsurance): void {
-    this.store.currentInsurance = val;
-  }
+  // public insuranceChanged(val: IHealthInsurance): void {
+  //   this.store.currentInsurance = val;
+  // }
 
   public add(): void {
-    this.store.currentInsurance = {} as IHealthInsurance;
+    this.store.currentInsurance = { takeCopayment: false } as IHealthInsurance;
     this.store.expanded = true;
     this.store.form?.reset();
   }
 
-  public edit(): void {
-    if (this.store.expanded === false) {
-      this.store.expanded = !this.store.expanded;
-    }
+  // public edit(): void {
+  //   if (this.store.expanded === false) {
+  //     this.store.expanded = !this.store.expanded;
+  //   }
 
-    this.store.currentInsurance = this.store.insurance as IHealthInsurance;
-  }
+  //   this.store.currentInsurance = this.store.insurance as IHealthInsurance;
+  // }
 
-  public async saveOrUpdate(): Promise<void> {
+  public async saveOrUpdate(payload: IHealthInsurance): Promise<void> {
     const isValid = await this.store.form?.validate();
     if (isValid == false) {
       return;
     }
     if (!this.store.currentInsurance) return;
 
-    let payload: IHealthInsurance;
-    let response = null;
+    let response: IHealthInsurance | null = null;
+    payload.nameInsurance = this.convert.toTitle(payload.nameInsurance);
 
     if (this.store.currentInsurance.id == undefined) {
-      payload = {
-        nameInsurance: this.store.currentInsurance.nameInsurance,
-        entityCode: this.store.currentInsurance.entityCode,
-      };
+      // payload = {
+      //   nameInsurance: this.store.currentInsurance.nameInsurance,
+      //   entityCode: this.store.currentInsurance.entityCode,
+      // };
       response = await this.create(payload);
     }
 
     if (this.store.currentInsurance.id != undefined) {
-      payload = {
-        id: this.store.currentInsurance.id,
-        nameInsurance: this.store.currentInsurance.nameInsurance,
-        entityCode: this.store.currentInsurance.entityCode,
-      };
+      // payload = {
+      //   id: this.store.currentInsurance.id,
+      //   nameInsurance: this.store.currentInsurance.nameInsurance,
+      //   entityCode: this.store.currentInsurance.entityCode,
+      // };
       response = await this.update(payload);
     }
 
@@ -111,7 +114,7 @@ export class InsuranceAdapter {
     return response;
   }
 
-  public async getAll(): Promise<Array<IHealthInsurance>> {
+  public async getAll(): Promise<Array<HealthInsuranceResponse>> {
     if (this.store.allInsurance.length !== 0) {
       return this.store.allInsurance;
     }
@@ -119,118 +122,18 @@ export class InsuranceAdapter {
     this.store.allInsurance = response;
     return response;
   }
+  public responseToEntity(
+    payload: HealthInsuranceResponse | null
+  ): IHealthInsurance {
+    if (payload === null) {
+      return {} as IHealthInsurance;
+    }
+    const entity: HealthInsuranceResponse = {
+      nameInsurance: payload.nameInsurance,
+      id: payload.id,
+      entityCode: payload.entityCode,
+      takeCopayment: payload.takeCopayment,
+    };
+    return entity;
+  }
 }
-
-// export function insuranceServices() {
-//   const { allInsurance, currentInsurance } = storeToRefs(store);
-//   const insurance = ref<IHealthInsurance>();
-//   const expanded = ref(false);
-//   const formInsurance = ref<QForm | null>(null);
-//   const error = ref(false);
-
-//   function clearInsurance(val: IHealthInsurance) {
-//     insurance.value = undefined;
-//     currentInsurance.value = {} as IHealthInsurance;
-//   }
-//   function insuranceChanged(val: IHealthInsurance): void {
-//     store.currentInsurance = val;
-//   }
-//   function add(): void {
-//     expanded.value = !expanded.value;
-//     currentInsurance.value = {} as IHealthInsurance;
-//   }
-//   function edit(): void {
-//     if (expanded.value === false) {
-//       expanded.value = !expanded.value;
-//     }
-//     currentInsurance.value = insurance.value as IHealthInsurance;
-//   }
-//   async function confirmChanges(): Promise<void> {
-//     const isValid = await formInsurance.value?.validate();
-//     if (isValid == false) {
-//       return;
-//     }
-//     if (!currentInsurance.value) return;
-
-//     const data = currentInsurance.value;
-//     let response = {} as IHealthInsurance;
-//     let confirmCreate = false;
-//     if (currentInsurance.value.id == undefined) {
-//       confirmCreate = await serviceModal.showModal(
-//         'Atención',
-//         messages.newRegister
-//       );
-//       if (confirmCreate === false) {
-//         return;
-//       }
-//     }
-//     if (confirmCreate === true) {
-//       const payload = {
-//         nameInsurance: data.nameInsurance,
-//         entityCode: data.entityCode,
-//       } as IHealthInsurance;
-//       const responseCreate = await insuranceRepository.create(payload);
-//       if (responseCreate == null) {
-//         return;
-//       }
-//       response = responseCreate;
-//     }
-//     let confirmUpdate = false;
-//     if (currentInsurance.value.id != undefined) {
-//       confirmUpdate = await serviceModal.showModal(
-//         'Atención',
-//         messages.updateRegister
-//       );
-//       if (confirmUpdate === false) {
-//         return;
-//       }
-//     }
-//     if (confirmUpdate == true) {
-//       const payload = {
-//         id: data.id,
-//         nameInsurance: data.nameInsurance,
-//         entityCode: data.entityCode,
-//       } as IHealthInsurance;
-//       const responseUpdate = await insuranceRepository.update(payload);
-//       if (responseUpdate == null) {
-//         return;
-//       }
-//       response = responseUpdate;
-//     }
-
-//     currentInsurance.value = response;
-//     const allInsurances = await insuranceRepository.getAll();
-//     if (allInsurances == null) {
-//       allInsurance.value = [];
-//       return;
-//     }
-//     allInsurance.value = allInsurances;
-//   }
-//   async function getAllInsurance() {
-//     if (allInsurance.value == undefined) {
-//       const response = await insuranceRepository.getAll();
-//       if (response == null) return;
-//       allInsurance.value = response;
-//       return response;
-//     }
-//     return allInsurance.value;
-//   }
-
-//   return {
-//     //! Properties
-//     clearInsurance,
-//     formInsurance,
-//     insurance,
-//     allInsurance,
-//     currentInsurance,
-//     expanded,
-//     error,
-//     //! Computed
-//     //! Metodos
-//     add,
-//     edit,
-//     insuranceChanged,
-//     confirmChanges,
-//     getAllInsurance,
-//   };
-// }

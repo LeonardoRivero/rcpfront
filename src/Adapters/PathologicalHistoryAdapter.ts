@@ -98,13 +98,4 @@ export class PathologicalHistoryAdapter {
     };
     return entity;
   }
-  public entityToResponse(
-    payload: IPathologycalHistory
-  ): PathologicalHistoryResponse {
-    const response: PathologicalHistoryResponse = {
-      description: payload.description,
-      id: payload.id,
-    };
-    return response;
-  }
 }

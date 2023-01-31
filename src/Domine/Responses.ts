@@ -69,6 +69,7 @@ export interface HealthInsuranceResponse {
   id: number;
   nameInsurance: string;
   entityCode: string;
+  takeCopayment: boolean;
 }
 export interface IDTypeResponse {
   id: number;

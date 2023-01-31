@@ -5,8 +5,16 @@
         <q-icon :name="icon" size="48px" /> Entidades
       </div>
       <div class="text-caption text-grey">
-        Entidades Registradas:
-        {{ allInsurance == null ? '' : allInsurance.length }}
+        <q-checkbox
+          v-if="insurance != null"
+          v-model="insurance.takeCopayment"
+          checked-icon="task_alt"
+          unchecked-icon="highlight_off"
+          :disable="true"
+          label="Cita incluye copago:"
+          left-label
+        >
+        </q-checkbox>
       </div>
       <q-select
         dense
@@ -61,27 +69,45 @@
         <q-separator />
         <q-card-section class="text-subitle2">
           <q-form @submit="confirmChanges" ref="form">
-            <q-input
-              dense
-              outlined
-              v-model="currentInsurance.entityCode"
-              label="Codigo Entidad"
-              maxlength="10"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || 'Codigo es requerido',
-              ]"
-            />
-            <q-input
-              dense
-              outlined
-              v-model="currentInsurance.nameInsurance"
-              label="Descripcion Entidad"
-              lazy-rules
-              :rules="[
-                (val) => (val && val.length > 0) || 'Descripcion es requerida',
-              ]"
-            />
+            <div class="row q-col-gutter-x-md">
+              <div class="col-12 col-md-6">
+                <q-input
+                  dense
+                  outlined
+                  v-model="currentInsurance.entityCode"
+                  label="Codigo Entidad"
+                  maxlength="10"
+                  lazy-rules
+                  :rules="[
+                    (val) => (val && val.length > 0) || 'Codigo es requerido',
+                  ]"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <q-input
+                  dense
+                  outlined
+                  v-model="currentInsurance.nameInsurance"
+                  label="Descripcion Entidad"
+                  lazy-rules
+                  :rules="[
+                    (val) =>
+                      (val && val.length > 0) || 'Descripcion es requerida',
+                  ]"
+                />
+              </div>
+            </div>
+            <q-checkbox
+              v-model="currentInsurance.takeCopayment"
+              checked-icon="task_alt"
+              unchecked-icon="highlight_off"
+              label=" Valor de cita incluye Copago "
+              :rules="[(val) => (val && val == undefined) || 'Campo requerido']"
+            >
+              <small>
+                <cite title="Ayuda">(Segun acuerdo previo con entidad)</cite>
+              </small>
+            </q-checkbox>
             <div>
               <q-btn label="Guardar" type="submit" color="primary" />
             </div>
@@ -93,26 +119,28 @@
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-
-import 'src/css/app.sass';
 import { storeToRefs } from 'pinia';
 import { IHealthInsurance } from 'src/Domine/ModelsDB';
 import { InsuranceAdapter } from 'src/Adapters/InsuranceAdapter';
-import { useStoreInsurance } from 'src/Infraestructure/stores/SettingsPage/InsuranceStore';
+import { useStoreInsurance } from '../../stores/SettingsPage/InsuranceStore';
 import { IconSVG } from 'src/Application/Utilities';
+import 'src/css/app.sass';
+import { HealthInsuranceResponse } from 'src/Domine/Responses';
 
 export default defineComponent({
   name: 'InsuranceForm',
   setup() {
     const { currentInsurance, insurance, expanded, form, error, allInsurance } =
       storeToRefs(useStoreInsurance());
-    const service = InsuranceAdapter.getInstance(useStoreInsurance());
+    const adapter = InsuranceAdapter.getInstance(useStoreInsurance());
     const iconSVG = IconSVG.getInstance();
     const icon = ref<string>('');
+
     onMounted(async () => {
-      await service.getAll();
+      await adapter.getAll();
       icon.value = iconSVG.medicalHospital;
     });
+
     return {
       icon,
       insurance,
@@ -122,19 +150,22 @@ export default defineComponent({
       form,
       error,
       clearInsurance() {
-        service.clear();
+        adapter.clear();
       },
-      insuranceChanged(val: IHealthInsurance) {
-        service.insuranceChanged(val);
+      insuranceChanged(val: HealthInsuranceResponse) {
+        currentInsurance.value = val;
       },
       edit() {
-        service.edit();
+        if (expanded.value === false) {
+          expanded.value = !expanded.value;
+        }
+        currentInsurance.value = insurance.value as IHealthInsurance;
       },
       add() {
-        service.add();
+        adapter.add();
       },
       async confirmChanges() {
-        await service.saveOrUpdate();
+        await adapter.saveOrUpdate(currentInsurance.value);
       },
     };
   },
