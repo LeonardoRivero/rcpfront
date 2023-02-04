@@ -1,5 +1,8 @@
-import { IAppointment } from 'src/Domine/ModelsDB';
-import { AppointmentResponse } from 'src/Domine/Responses';
+import { IAppointment, IHealthInsurance } from 'src/Domine/ModelsDB';
+import {
+  AppointmentResponse,
+  HealthInsuranceResponse,
+} from 'src/Domine/Responses';
 import { AppointmentRepository, IRepository } from '../Repositories';
 
 export class AppointmentService {
@@ -45,5 +48,14 @@ export class AppointmentService {
     repository: IRepository<IAppointment, AppointmentResponse>
   ) {
     this.repository = repository;
+  }
+  public calculateAmountPaid(
+    insurance: HealthInsuranceResponse,
+    appointment: IAppointment
+  ): number {
+    if (insurance.takeCopayment == true) {
+      return +appointment.price - +appointment.copayment;
+    }
+    return appointment.price;
   }
 }

@@ -17,11 +17,6 @@ import { PatientResponse } from 'src/Domine/Responses';
 
 export class PatientAdapter {
   private store: IStorePatient;
-  // private repositoryIDTypes = new IDTypesRepository();
-  // private repositoryGender = new GenderRepository();
-  // private repositoryReasonConsult = new ReasonConsultRepository();
-  // private repositoryPatientStatus = new PatientStatusRepository();
-  // private repository: IRepository<IPatient, PatientResponse>;
   private serviceModal = modalService();
   private messages = Messages.getInstance();
   private notification = new Notification();
@@ -32,8 +27,6 @@ export class PatientAdapter {
 
   private constructor(store: IStorePatient) {
     this.store = store;
-    // this.repository = new PatientRepository();
-    return;
   }
 
   public static getInstance(store: IStorePatient): PatientAdapter {

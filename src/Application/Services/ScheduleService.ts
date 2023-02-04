@@ -27,6 +27,10 @@ export class ScheduleService {
   ): Promise<Array<EventScheduleResponse> | EventScheduleResponse> {
     const response = await this.repository.findByParameters(queryParameters);
     if (response == null) return [];
+    // let register = undefined;
+    // if (Array.isArray(response)) {
+    //   register = response.pop();
+    // }
     return response;
   }
 

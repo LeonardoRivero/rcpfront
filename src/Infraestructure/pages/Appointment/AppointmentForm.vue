@@ -6,7 +6,7 @@
           <q-item-label class="q-pb-xs"
             >Datos Paciente
             <small>
-              <cite title="Ayuda"
+              <cite
                 >(Antes de crear la cita,verifique la informacion del
                 paciente)</cite
               >
@@ -14,13 +14,20 @@
           </q-item-label>
           <div class="row q-col-gutter-x-md">
             <div class="col-6 col-md">
-              <q-input
+              <q-select
                 dense
-                outlined
-                v-model="currentHealthInsurance.nameInsurance"
                 label="Entidad"
-                disable
-              />
+                outlined
+                v-model="currentHealthInsurance"
+                :options="listInsurancePatient"
+                :option-value="(item) => (item === null ? null : item.id)"
+                option-label="nameInsurance"
+                map-options
+                stack-label
+                :disable="disableListInsurance"
+                @update:model-value="(val) => calculateAmountPaid(val)"
+                :rules="[(val) => (val && val != null) || FIELD_REQUIRED]"
+              ></q-select>
             </div>
             <div class="col-6 col-md">
               <q-input
@@ -28,7 +35,7 @@
                 type="number"
                 outlined
                 v-model="identificationPatient"
-                @keydown.enter.prevent="searchPatient"
+                @keydown.enter.prevent="searchPatient()"
                 label="N° Identificacion"
                 lazy-rules
                 :rules="[(val) => val > 0 || 'Numero invalido']"
@@ -40,7 +47,7 @@
                     dense
                     icon="search"
                     class="q-mr-xs"
-                    @click="searchPatient"
+                    @click="searchPatient()"
                   />
                   <q-tooltip transition-show="scale" transition-hide="scale">
                     Verificar Paciente
@@ -60,7 +67,7 @@
                 outlined
                 v-model="currentPatient.name"
                 label="Nombre Paciente"
-                disable
+                readonly
               />
             </div>
             <div class="col-6 col-md">
@@ -69,7 +76,7 @@
                 outlined
                 v-model="currentPatient.lastName"
                 label="Apellido Paciente"
-                disable
+                readonly
               />
             </div>
           </div>
@@ -88,7 +95,7 @@
                     outlined
                     v-model="speciality.description"
                     label="Especialidad"
-                    disable
+                    readonly
                     hint=" "
                   />
                 </div>
@@ -98,8 +105,12 @@
                     outlined
                     v-model="currentAppointment.date"
                     label="Fecha Cita"
-                    hint="Finalizacion Cita"
-                    disable
+                    :hint="`Finalizacion Cita: ${
+                      currentAppointment.end == undefined
+                        ? ''
+                        : currentAppointment.end
+                    }`"
+                    readonly
                   >
                   </q-input>
                 </div>
@@ -128,10 +139,7 @@
                     map-options
                     emit-value
                     stack-label
-                    :rules="[
-                      (val) =>
-                        (val && val != null) || 'Razon consulta es requerida',
-                    ]"
+                    :rules="[(val) => (val && val != null) || FIELD_REQUIRED]"
                   ></q-select>
                 </div>
                 <div class="col-12 col-md-4">
@@ -146,10 +154,7 @@
                     emit-value
                     stack-label
                     label="Estado Paciente"
-                    :rules="[
-                      (val) =>
-                        (val && val != null) || 'Estado Paciente es requerido',
-                    ]"
+                    :rules="[(val) => (val && val != null) || FIELD_REQUIRED]"
                   ></q-select>
                 </div>
               </div>
@@ -188,10 +193,7 @@
                     map-options
                     emit-value
                     stack-label
-                    :rules="[
-                      (val) =>
-                        (val && val != null) || 'Razon consulta es requerida',
-                    ]"
+                    :rules="[(val) => (val && val != null) || FIELD_REQUIRED]"
                   ></q-select>
                 </div>
               </div>
@@ -211,32 +213,6 @@
                 </div>
               </div>
               <div class="row q-col-gutter-x-md">
-                <!-- <div class="col-12 col-md-4">
-                  <q-input
-                    prefix="$"
-                    dense
-                    type="number"
-                    outlined
-                    v-model="currentAppointment.copayment"
-                    label="Copago"
-                    @update:model-value="(val) => calculateAmountPaid(val)"
-                    lazy-rules
-                    :rules="[(val) => val >= 0 || 'Valor copago invalido']"
-                  />
-                </div>
-                <div class="col-12 col-md-4">
-                  <q-input
-                    prefix="$"
-                    dense
-                    type="number"
-                    outlined
-                    v-model="currentAppointment.price"
-                    label="Valor Consulta"
-                    @update:model-value="(val) => calculateAmountPaid(val)"
-                    lazy-rules
-                    :rules="[(val) => val >= 0 || 'Valor consulta invalido']"
-                  />
-                </div> -->
                 <div class="col-12 col-md-4 align-xright">
                   <q-input
                     outlined
@@ -265,15 +241,16 @@
 </template>
 <script lang="ts">
 import { date } from 'quasar';
-import { defineComponent, onMounted, onUnmounted } from 'vue';
+import { defineComponent, onMounted, onUnmounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { PatientResponse, PaymentOptionsResponse } from 'src/Domine/Responses';
-import { IAppointment, IPaymentOptions } from 'src/Domine/ModelsDB';
+import { HealthInsuranceResponse, PatientResponse } from 'src/Domine/Responses';
+import { IAppointment, ISpeciality } from 'src/Domine/ModelsDB';
 import {
   OPTIONS_HOURS,
   OPTIONS_MINUTES,
   CURRENTYEAR_MONTH,
   FORMAT_DATETIME,
+  FIELD_REQUIRED,
 } from 'src/Application/Utilities';
 import {
   AppointmentAdapter,
@@ -288,6 +265,8 @@ import { PaymentOptionsService } from 'src/Application/Services/PaymentOptionsSe
 import { ReasonConsultService } from 'src/Application/Services/ReasonConsultService';
 import { PatientStatusService } from 'src/Application/Services/PatientStatusService';
 import 'src/css/app.sass';
+import { InsuranceAdapter } from 'src/Adapters/InsuranceAdapter';
+import { useStoreInsurance } from 'src/Infraestructure/stores/SettingsPage/InsuranceStore';
 
 export default defineComponent({
   setup() {
@@ -319,13 +298,6 @@ export default defineComponent({
     const service = AppointmentAdapter.getInstance(useStoreAppointments());
     // const { allSpecialities, clearSpeciality, getAllSpecialities } =
     //   specialityService();
-    // const {
-    //   dxMainCodeofSpeciality,
-    //   getAllDxMainCode,
-    //   dxMainCode,
-    //   currentDxMainCode,
-    //   dxMainCodeChanged,
-    // } = dxMainCodeService();
     const {
       // allReasonConsult,
       // allPatientStatus,
@@ -338,24 +310,22 @@ export default defineComponent({
     const servicePaymentOptions = PaymentOptionsService.getInstance();
     const serviceReasonConsult = ReasonConsultService.getInstance();
     const servicePatienStatus = PatientStatusService.getInstance();
+    const listInsurancePatient = ref<Array<HealthInsuranceResponse>>([]);
+    const insuranceAdapter = InsuranceAdapter.getInstance(useStoreInsurance());
 
+    const disableListInsurance = ref<boolean>(true);
     onMounted(async () => {
-      // const repo = new PaymentOptionsRepository();
-      // const repositoryPaymentOption = new CommonService<
-      //   IPaymentOptions,
-      //   PaymentOptionsResponse
-      // >(repo);
-
       allPaymentOptions.value = await servicePaymentOptions.getAll();
       allReasonConsult.value = await serviceReasonConsult.getAll();
       allPatientStatus.value = await servicePatienStatus.getAll();
-      // getAllSpecialities();
-      // await servicePatient.getAllReasonConsult();
-      // await servicePatient.getAllPatientStatus();
+      await insuranceAdapter.getAll();
     });
     onUnmounted(async () => {
       currentPatient.value = {} as PatientResponse;
       currentAppointment.value = {} as IAppointment;
+      identificationPatient.value = '';
+      currentHealthInsurance.value = null;
+      speciality.value = {} as ISpeciality;
     });
 
     return {
@@ -363,6 +333,7 @@ export default defineComponent({
       HOURS_ALLOWED,
       MINUTES_ALLOWED,
       FORMAT_DATETIME,
+      FIELD_REQUIRED,
       currentHealthInsurance,
       reasonConsult,
       allReasonConsult,
@@ -373,14 +344,14 @@ export default defineComponent({
       allPaymentOptions,
       currentPatientStatus,
       identificationPatient,
+      disableListInsurance,
       confirmChanges() {
-        service.processRequest();
+        service.saveOrUpdate();
       },
       calculateAmountPaid() {
         service.calculateAmountPaid();
       },
       async searchPatient() {
-        // service.searchPatient();
         const patient = await patientAdapter.searchByIdentificacion(
           identificationPatient.value
         );
@@ -388,9 +359,6 @@ export default defineComponent({
           await patientAdapter.patientNotFound();
           return;
         }
-        // const queryParameters = {
-        //   patientIdentification: patient.identification,
-        // };
         const schedule = await scheduleAdapter.findByIdentificationPatient(
           patient.identification.toString()
         );
@@ -399,29 +367,25 @@ export default defineComponent({
           return;
         }
         currentAppointment.value.schedule = schedule.id;
-        currentAppointment.value.date = date.formatDate(
-          schedule.start,
-          FORMAT_DATETIME
-        );
+        currentAppointment.value.date = new Date(
+          schedule.start
+        ).toLocaleString();
         currentPatient.value = schedule.patient;
         currentHealthInsurance.value = schedule.patient.insurance;
         speciality.value = schedule.speciality;
         currentDoctor.value = schedule.doctor;
-        // currentPatient.value = patient;
+        listInsurancePatient.value = insuranceAdapter.addToArrayDefault(
+          schedule.patient.insurance
+        );
+        disableListInsurance.value = false;
       },
       // patientStatusChanged() {
       //   service.patientStatusChanged(currentPatientStatus.value);
       // },
       // allSpecialities,
       speciality,
-      // clearSpeciality,
+      listInsurancePatient,
       currentPatient,
-      filter: '',
-      mode: 'list',
-      deposit: {},
-      pagination: {
-        rowsPerPage: 10,
-      },
     };
   },
 });

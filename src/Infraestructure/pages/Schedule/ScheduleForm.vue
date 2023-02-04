@@ -100,7 +100,7 @@
           <div class="row q-col-gutter-x-md">
             <div class="col-6 col-md col-sm-12 col-xs-12">
               <q-input
-                :readonly="isReadonly"
+                :readonly="true"
                 dense
                 outlined
                 v-model="currentPatient.name"
@@ -109,7 +109,7 @@
             </div>
             <div class="col-6 col-md col-sm-12 col-xs-12">
               <q-input
-                :readonly="isReadonly"
+                :readonly="true"
                 dense
                 outlined
                 v-model="currentPatient.lastName"
@@ -124,7 +124,7 @@
           <div class="row q-col-gutter-x-md">
             <div class="col-6 col-md col-sm-12 col-xs-12">
               <q-input
-                :readonly="isReadonly"
+                :readonly="true"
                 dense
                 outlined
                 v-model="currentPatient.phoneNumber"
@@ -133,7 +133,7 @@
             </div>
             <div class="col-6 col-md col-sm-12 col-xs-12">
               <q-input
-                :readonly="isReadonly"
+                :readonly="true"
                 dense
                 outlined
                 v-model="currentPatient.insurance.nameInsurance"
@@ -223,7 +223,7 @@ import {
   PatientResponse,
   SpecialityResponse,
 } from 'src/Domine/Responses';
-import { IAppointment } from 'src/Domine/ModelsDB';
+import { EventSchedule, IAppointment } from 'src/Domine/ModelsDB';
 import {
   SpecialityAdapter,
   ScheduleAdapter,
@@ -300,6 +300,7 @@ export default defineComponent({
       MINUTES_ALLOWED,
       FORMAT_DATETIME,
       form,
+      dates,
       currentAppointment,
       currentSchedule,
       identificationPatient,
@@ -321,7 +322,9 @@ export default defineComponent({
           return;
         }
         currentPatient.value = responsePatient;
-        await adapter.saveOrUpdate();
+        const isValid = await form.value?.validate();
+        if (isValid == false) return;
+        await adapter.saveOrUpdate(currentSchedule.value);
       },
 
       async searchPatient() {
@@ -336,8 +339,7 @@ export default defineComponent({
       },
 
       async confirmDeleteSchedule(val: number) {
-        return;
-        // await service.confirmDeleteSchedule(val);
+        await adapter.confirmDeleteSchedule(val);
       },
 
       async specialityChanged(val: SpecialityResponse) {
@@ -362,8 +364,6 @@ export default defineComponent({
       async clearSpeciality() {
         specialityAdapter.clear();
       },
-
-      dates,
     };
   },
 });

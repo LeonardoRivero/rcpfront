@@ -94,11 +94,11 @@ export class ScheduleRepository
   ): Promise<Array<EventScheduleResponse>> {
     const urlBase = endpoint.getORcreateSchedule;
     const url = endpoint.urlQueryParameter(urlBase, parameters);
-    const response = await GET<EventScheduleResponse>(url);
+    const response = await GET<Array<EventScheduleResponse>>(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
     }
-    const data: EventScheduleResponse[] = [await response.json()];
+    const data: EventScheduleResponse[] = await response.json();
     return data;
   }
 }

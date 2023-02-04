@@ -136,4 +136,13 @@ export class InsuranceAdapter {
     };
     return entity;
   }
+  public addToArrayDefault(
+    item: HealthInsuranceResponse
+  ): Array<HealthInsuranceResponse> {
+    const insuranceList = this.store.allInsurance.filter(
+      (x) => x.nameInsurance == 'Particular'
+    );
+    insuranceList.push(item);
+    return insuranceList;
+  }
 }

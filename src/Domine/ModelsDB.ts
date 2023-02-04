@@ -43,7 +43,7 @@ export interface IAppointment {
   price: number;
   copayment: number;
   amountPaid: number;
-  date: string | Date;
+  date: string;
   authorizationNumber: string;
   patientStatus: number;
   reasonConsult: number;

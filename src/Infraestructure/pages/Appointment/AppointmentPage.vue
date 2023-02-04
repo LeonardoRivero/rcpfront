@@ -6,7 +6,10 @@
           <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
             <q-card class="my-card" bordered>
               <q-card-section>
-                <div class="text-h6">Registrar o Actualizar Cita</div>
+                <div class="text-h6">
+                  <q-icon :name="icon" size="32px" /> Registrar o Actualizar
+                  Cita
+                </div>
               </q-card-section>
               <q-separator inset></q-separator>
               <q-card-section>
@@ -25,11 +28,22 @@
   </q-page>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import AppointmentForm from './AppointmentForm.vue';
 // import DataTable from 'src/components/commons/DataTable.vue';
 import 'src/css/app.sass';
+import { IconSVG } from 'src/Application/Utilities';
 export default defineComponent({
   components: { AppointmentForm },
+  setup() {
+    const iconSVG = IconSVG.getInstance();
+    const icon = ref<string>('');
+    onMounted(async () => {
+      icon.value = iconSVG.scheduleCalendar;
+    });
+    return {
+      icon,
+    };
+  },
 });
 </script>

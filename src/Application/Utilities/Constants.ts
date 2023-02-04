@@ -42,6 +42,12 @@ export class IconSVG {
   get medicalHospital() {
     return 'img:medical-hospital-building.svg';
   }
+  get calendarCheckMark() {
+    return 'img:calendar-checkmark.svg';
+  }
+  get scheduleCalendar() {
+    return 'img:schedule-calendar.svg';
+  }
 }
 export enum Gender {
   FEMALE = 1,
@@ -57,7 +63,7 @@ export const OPTIONS_HOURS = [
   7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 ];
 export const CURRENTYEAR_MONTH = date.formatDate(timeStamp, 'YYYY/MM');
-
+export const FIELD_REQUIRED = 'Campo Requerido';
 export const START_TIME = '07:00';
 export const END_TIME = '18:00';
 export const DURATION_APPOINTMENT = '00:20';

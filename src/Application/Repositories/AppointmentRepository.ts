@@ -17,12 +17,12 @@ export class AppointmentRepository
   async getById(id: number): Promise<AppointmentResponse | null> {
     const url = endpoint.updateOrGetAppointmentByScheduleId(id);
     try {
-      const response = await GET(url);
+      const response = await GET<AppointmentResponse>(url);
       if (!response.ok) return null;
       if (response.status == HttpStatusCodes.NOT_FOUND) return null;
       if (response.status == HttpStatusCodes.BAD_REQUEST) return null;
 
-      const data = (await response.parsedBody) as AppointmentResponse;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -55,11 +55,11 @@ export class AppointmentRepository
   ): Promise<Array<AppointmentResponse>> {
     const urlBase = endpoint.getORcreateConsult;
     const url = endpoint.urlQueryParameter(urlBase, parameters);
-    const response = await GET(url);
+    const response = await GET<Array<AppointmentResponse>>(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
     }
-    const data = (await response.parsedBody) as Array<AppointmentResponse>;
+    const data = await response.json();
     return data;
   }
 }
@@ -76,7 +76,7 @@ export class PaymentOptionsRepository
       const response = await GET<Array<PaymentOptionsResponse>>(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = response.parsedBody as Array<PaymentOptionsResponse>;
+      const data = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);

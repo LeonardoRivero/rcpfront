@@ -1,7 +1,6 @@
 import '@fullcalendar/core/vdom';
 import { EventAddArg, EventApi, EventClickArg } from '@fullcalendar/core';
 import { QForm, date } from 'quasar';
-import { defineStore, storeToRefs } from 'pinia';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -14,34 +13,19 @@ import {
   Modal,
   Notification,
 } from 'src/Infraestructure/Utilities/Notifications';
-import { EndPoints } from 'src/Application/Utilities/EndPoints';
-import { Messages } from 'src/Application/Utilities/Messages';
-import { Validators } from 'src/Application/Utilities/Helpers';
-// import { useStorePatients } from 'src/stores/storePatients';
-// import { useStoreSettings } from 'src/stores/storeSettings';
-// import { useStoreAppointment } from 'src/stores/storeAppointment';
-import { IPatient } from 'src/Domine/ModelsDB';
+import { EndPoints, Messages, Validators } from 'src/Application/Utilities';
 import * as Constants from 'src/Application/Utilities/Constants';
-import HttpStatusCodes from 'src/Application/Utilities/HttpStatusCodes';
 import { routerInstance } from 'src/boot/globalRouter';
 import modalService from './ModalService';
-
-import { HttpResponse } from 'src/Infraestructure/Utilities/Request';
-import {
-  IAppointment,
-  IDoctor,
-  ISpeciality,
-  EventSchedule,
-} from 'src/Domine/ModelsDB';
-// import { DoctorRepository } from 'src/Application/Repositories/SettingsRepository';
-import { PatientRepository } from 'src/Application/Repositories/PatientRepository';
+import { EventSchedule } from 'src/Domine/ModelsDB';
 import { ScheduleRepository } from 'src/Application/Repositories/ScheduleRepository';
 import { AppointmentRepository } from 'src/Application/Repositories/AppointmentRepository';
-import { EventScheduleResponse, PatientResponse } from 'src/Domine/Responses';
+import { EventScheduleResponse } from 'src/Domine/Responses';
 import { IStoreSchedule } from 'src/Infraestructure/stores/SchedulePage/ScheduleStore';
-import { useStorePatient } from 'src/Infraestructure/stores/PatientsPage/PatientStore';
+
 import { IRepository } from 'src/Application/Repositories';
 import { ScheduleService } from 'src/Application/Services/ScheduleService';
+import { IStorePatient } from 'src/Infraestructure/stores/PatientsPage/PatientStore';
 
 const notification = new Notification();
 
@@ -59,11 +43,8 @@ export class ScheduleAdapter {
   private messages = Messages.getInstance();
   private store: IStoreSchedule;
   private repository: IRepository<EventSchedule, EventScheduleResponse>;
-  // private repositoryPatients = new PatientRepository();
   private repositoryAppointment = new AppointmentRepository();
   private service = new ScheduleService();
-  // private storePatient = useStorePatient();
-  // private servicePatient = patientService.getInstance();
 
   private static instance: ScheduleAdapter;
 
@@ -114,14 +95,6 @@ export class ScheduleAdapter {
     routerInstance.push('/schedule');
     return;
   }
-  // public async getAllDoctors() {
-  //   const response = await doctorRepository.getAll();
-  //   if (response == null) {
-  //     this.store.allDoctors = [];
-  //     return;
-  //   }
-  //   this.store.allDoctors = response;
-  // }
 
   public async searchPatient(identification: string): Promise<void> {
     return;
@@ -145,9 +118,7 @@ export class ScheduleAdapter {
     // return;
   }
 
-  public async saveOrUpdate(): Promise<void> {
-    const isValid = await this.store.form?.validate();
-    if (isValid == false) return;
+  public async saveOrUpdate(schedule: EventSchedule): Promise<void> {
     // // const queriesParameters = {
     // //   identification: this.store.identificationPatient,
     // // };
@@ -161,7 +132,7 @@ export class ScheduleAdapter {
     //   await serviceModal.showModal('Atención', messages.notFoundInfoPatient);
     //   return;
     // }
-    const dateIsValid = validator.dateGreater(this.store.currentSchedule.start);
+    const dateIsValid = validator.dateAndHour(this.store.currentSchedule.start);
     if (dateIsValid === false) {
       notification.setMessage(this.messages.dateOrHourNotValid);
       notification.showError();
@@ -173,22 +144,19 @@ export class ScheduleAdapter {
       this.store.speciality === null
     )
       return;
-    let payload: EventSchedule;
     let response: EventScheduleResponse | null = null;
+    let payload: EventSchedule;
 
     const endAppointment = date.addToDate(this.store.currentSchedule.start, {
       minutes: Constants.MINUTES_APPOINTMENT,
     });
-    this.store.currentSchedule.end = date.formatDate(
-      endAppointment,
-      Constants.FORMAT_DATETIME
-    );
+    schedule.end = date.formatDate(endAppointment, Constants.FORMAT_DATETIME);
 
-    if (this.store.currentSchedule.id == undefined) {
+    if (schedule.id == undefined) {
       payload = {
         title: `${this.store.currentPatient.name} ${this.store.currentPatient.lastName}`,
-        start: this.store.currentSchedule.start,
-        end: this.store.currentSchedule.end,
+        start: schedule.start,
+        end: schedule.end,
         patient: this.store.currentPatient.id,
         speciality: this.store.speciality.id,
         doctor: this.store.currentDoctor.id,
@@ -280,7 +248,7 @@ export class ScheduleAdapter {
     if (schedule.speciality == null || schedule.id == undefined) return;
     this.store.speciality = schedule.speciality;
     this.store.currentDoctor = schedule.doctor;
-    const dateIsValid = validator.dateGreater(schedule.start);
+    const dateIsValid = validator.dateAndHour(schedule.start);
     this.store.allowToUpdate = true;
     if (dateIsValid == false) {
       this.store.allowToUpdate = false;
@@ -300,7 +268,7 @@ export class ScheduleAdapter {
   public async findByIdentificationPatient(
     identification: string
   ): Promise<EventScheduleResponse | null> {
-    const queryParameters = { identification: identification };
+    const queryParameters = { patientIdentification: identification };
     const response = await this.service.findByParameters(queryParameters);
     let register = undefined;
     if (Array.isArray(response)) {

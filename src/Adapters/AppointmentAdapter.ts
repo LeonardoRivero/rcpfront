@@ -4,6 +4,8 @@ import { Messages } from 'src/Application/Utilities/Messages';
 import { Notification } from 'src/Infraestructure/Utilities/Notifications';
 import modalService from './ModalService';
 import { IStoreAppointment } from 'src/Infraestructure/stores/Appointment/AppointmentStore';
+import { AppointmentService } from 'src/Application/Services';
+import { AppointmentResponse } from 'src/Domine/Responses';
 
 // const storeSchedule = useStoreSchedule();
 const notification = new Notification();
@@ -12,11 +14,7 @@ const serviceModal = modalService();
 
 export class AppointmentAdapter {
   private store: IStoreAppointment;
-  // private storePatient = useStorePatient();
-  // private repositoryPatient = new PatientRepository();
-  // private repository = new AppointmentRepository();
-  // private repositorySchedule = new ScheduleRepository();
-  // private servicePatient = patientService.getInstance();
+  private service = new AppointmentService();
   private static instance: AppointmentAdapter;
 
   private constructor(store: IStoreAppointment) {
@@ -35,13 +33,26 @@ export class AppointmentAdapter {
     if (this.store.currentAppointment.price == undefined) {
       this.store.currentAppointment.price = 0;
     }
-    if (this.store.currentAppointment.copayment == undefined) {
+    if (
+      this.store.currentAppointment.copayment == undefined ||
+      this.store.currentHealthInsurance?.nameInsurance == 'Particular'
+    ) {
       this.store.currentAppointment.copayment = 0;
     }
+    if (this.store.currentHealthInsurance == null) return;
 
-    this.store.currentAppointment.amountPaid =
-      +this.store.currentAppointment.price +
-      +this.store.currentAppointment.copayment;
+    this.store.currentAppointment.amountPaid = this.service.calculateAmountPaid(
+      this.store.currentHealthInsurance,
+      this.store.currentAppointment
+    );
+    // if (this.store.currentHealthInsurance.takeCopayment == true) {
+    //   this.store.currentAppointment.amountPaid =
+    //     +this.store.currentAppointment.price -
+    //     +this.store.currentAppointment.copayment;
+    //   return;
+    // }
+    // this.store.currentAppointment.amountPaid =
+    //   this.store.currentAppointment.price;
   }
 
   // public patientStatusChanged(val: IPatientStatus): void {
@@ -109,7 +120,7 @@ export class AppointmentAdapter {
     // this.store.currentDoctor = lastSchedule.doctor;
   }
 
-  public async processRequest(): Promise<void> {
+  public async saveOrUpdate(): Promise<void> {
     const isValid = await this.store.form?.validate();
     if (isValid == false) {
       return;
@@ -142,18 +153,19 @@ export class AppointmentAdapter {
     }
   }
 
-  public async save(payload: IAppointment): Promise<IAppointment | null> {
-    // const confirm = await serviceModal.showModal(
-    //   'Atención',
-    //   message.newRegister
-    // );
-    // if (confirm === false) {
-    //   return null;
-    // }
+  public async save(
+    payload: IAppointment
+  ): Promise<AppointmentResponse | null> {
+    const confirm = await serviceModal.showModal(
+      'Atención',
+      message.newRegister
+    );
+    if (confirm === false) {
+      return null;
+    }
 
-    // const response = await this.repository.create(payload);
-    // return response;
-    return null;
+    const response = await this.service.save(payload);
+    return response;
   }
 }
 

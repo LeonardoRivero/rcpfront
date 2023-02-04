@@ -15,36 +15,50 @@ export class Validators {
 
     return Validators.instance;
   }
-  public dateGreater(dateString: string): boolean | null {
+  public dateAndHour(dateString: string): boolean | null {
     if (!date.isValid(dateString)) {
       return null;
     }
     const timeStamp = Date.now();
-    const years = 'years';
+    const dateSchedule = new Date(dateString).getTime();
+    if (dateSchedule < timeStamp) {
+      return false;
+    }
+    if (dateSchedule > timeStamp) {
+      const response = this.hourIsInRangeAllowed(dateString);
+      return response;
+    }
 
-    const diffYear = date.getDateDiff(dateString, timeStamp, years);
-    if (diffYear < 0) {
-      return false;
+    const hourIsGreater = this.hourGreater(dateString);
+    if (hourIsGreater) {
+      const response = this.hourIsInRangeAllowed(dateString);
+      return response;
     }
-    const month = 'months';
-    const diffMonth = date.getDateDiff(dateString, timeStamp, month);
-    if (diffMonth < 0) {
-      return false;
-    }
-    const days = 'days';
-    const diffDays = date.getDateDiff(dateString, timeStamp, days);
-    if (diffDays < 0) {
-      return false;
-    }
-    let hourIsValid = null;
-    if (diffDays == 0) {
-      hourIsValid = this.hourGreater(dateString);
-    }
-    if (diffDays > 0) {
-      hourIsValid = this.hourIsInRangeAllowed(dateString);
-    }
-    return hourIsValid == null || hourIsValid == false ? false : true;
-    return true;
+    return false;
+    // const years = 'years';
+
+    // const diffYear = date.getDateDiff(dateString, timeStamp, years);
+    // if (diffYear < 0) {
+    //   return false;
+    // }
+    // const month = 'months';
+    // const diffMonth = date.getDateDiff(dateString, timeStamp, month);
+    // if (diffMonth < 0) {
+    //   return false;
+    // }
+    // const days = 'days';
+    // const diffDays = date.getDateDiff(dateString, timeStamp, days);
+    // if (diffDays < 0) {
+    //   return false;
+    // }
+    // let hourIsValid = null;
+    // if (diffDays == 0) {
+    //   hourIsValid = this.hourGreater(dateString);
+    // }
+    // if (diffDays > 0) {
+    //   hourIsValid = this.hourIsInRangeAllowed(dateString);
+    // }
+    // return hourIsValid == null || hourIsValid == false ? false : true;
   }
 
   public hourIsInRangeAllowed(dateString: string): boolean | null {
@@ -91,12 +105,12 @@ export class Validators {
 
     return false;
   }
-  email(email: string): boolean {
+  public email(email: string): boolean {
     const emailPattern =
       /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
     return emailPattern.test(email);
   }
-  calculateAge(birthday: string): number {
+  public calculateAge(birthday: string): number {
     const dateBirthday = new Date(birthday);
     const ageDifMs = Date.now() - dateBirthday.getTime();
     const ageDate = new Date(ageDifMs);
