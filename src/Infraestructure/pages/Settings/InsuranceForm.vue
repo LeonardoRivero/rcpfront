@@ -129,19 +129,25 @@ import { HealthInsuranceResponse } from 'src/Domine/Responses';
 
 export default defineComponent({
   name: 'InsuranceForm',
+
   setup() {
     const { currentInsurance, insurance, expanded, form, error, allInsurance } =
       storeToRefs(useStoreInsurance());
     const adapter = InsuranceAdapter.getInstance(useStoreInsurance());
     const iconSVG = IconSVG.getInstance();
     const icon = ref<string>('');
+    const h = adapter.getState();
 
     onMounted(async () => {
       await adapter.getAll();
       icon.value = iconSVG.medicalHospital;
+      insurance.value = null;
+      currentInsurance.value = {} as IHealthInsurance;
+      expanded.value = false;
     });
 
     return {
+      h,
       icon,
       insurance,
       allInsurance,

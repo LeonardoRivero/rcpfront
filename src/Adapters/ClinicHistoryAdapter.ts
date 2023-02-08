@@ -1,27 +1,31 @@
-import { ref } from 'vue';
-import { date, QForm } from 'quasar';
-import { routerInstance } from 'boot/globalRouter';
-import { HttpResponse } from 'src/Infraestructure/Utilities/Request';
-import HttpStatusCodes from 'src/Application/Utilities/HttpStatusCodes';
-import modalService from './ModalService';
-import * as Constants from 'src/Application/Utilities/Constants';
-import { Validators } from 'src/Application/Utilities/Helpers';
-import { Messages } from 'src/Application/Utilities/Messages';
+import { reactive, ref } from 'vue';
 import { PatientResponse } from 'src/Domine/Responses';
 
-const message = Messages.getInstance();
-// const storePatients = useStorePatients();
-const serviceModal = modalService();
-const validator = Validators.getInstance();
-const iconSVG = Constants.IconSVG.getInstance();
+// interface InfoPatientState {
+//   currentPatient: PatientResponse;
+// }
 
-export function clinicHistoryService() {
-  const identificationPatient = ref<string>('');
-  const iconAvatar = ref<string>('');
-  const age = ref<number>(0);
-  const currentPatient = ref<PatientResponse>({} as PatientResponse);
+// export class InfoPatientController {
+//   private stateGG: InfoPatientState = reactive({
+//     currentPatient: {} as PatientResponse,
+//   });
 
-  async function searchPatient(val: string): Promise<void> {
+//   public getState(): InfoPatientState {
+//     return this.stateGG;
+//   }
+// }
+
+export class ClinicHistoryAdapter {
+  identificationPatient = ref<string>('');
+  iconAvatar = ref<string>('');
+  age = ref<number>(0);
+  currentPatient = ref<PatientResponse>({} as PatientResponse);
+
+  private state = reactive({
+    counter: 0,
+  });
+
+  public async searchPatient(val: string) {
     // let response = {} as HttpResponse<unknown>;
     // response = await storePatients.getPatientByIdentification(
     //   identificationPatient.value
@@ -55,11 +59,11 @@ export function clinicHistoryService() {
     //     : iconSVG.male_avatar;
     // age.value = validator.calculateAge(currentPatient.value.dateBirth);
   }
-  return {
-    searchPatient,
-    identificationPatient,
-    currentPatient,
-    iconAvatar,
-    age,
-  };
+  // return {
+  //   searchPatient,
+  //   identificationPatient,
+  //   currentPatient,
+  //   iconAvatar,
+  //   age,
+  // };
 }

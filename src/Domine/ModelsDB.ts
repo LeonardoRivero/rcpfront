@@ -51,7 +51,7 @@ export interface IAppointment {
   patient: number;
   doctor: number;
   paymentMethod: number;
-  codeTransaction: string;
+  codeTransaction: string | null;
 }
 export interface EventSchedule {
   id?: number;

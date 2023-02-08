@@ -44,6 +44,18 @@ export class PaymentOptionsService {
     return response;
   }
 
+  public async paymentIsCash(id: number): Promise<boolean> {
+    const allPaymentOptions = await this.getAll();
+    const result = allPaymentOptions.filter(
+      (po) => po.description == 'Efectivo'
+    );
+    const cash = result.pop();
+    if (cash?.id !== id) {
+      return false;
+    }
+    return true;
+  }
+
   public setRepository(
     repository: IRepository<IPaymentOptions, PaymentOptionsResponse>
   ) {

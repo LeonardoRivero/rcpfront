@@ -5,6 +5,7 @@ import { Messages } from 'src/Application/Utilities/Messages';
 import { IHealthInsurance } from 'src/Domine/ModelsDB';
 import { Convert } from 'src/Application/Utilities';
 import { HealthInsuranceResponse } from 'src/Domine/Responses';
+import { reactive } from 'vue';
 
 export class InsuranceAdapter {
   private store: IStoreInsurance;
@@ -13,6 +14,9 @@ export class InsuranceAdapter {
   private service = new InsuranceService();
   private static instance: InsuranceAdapter;
   private convert = new Convert();
+  private state = reactive({
+    counter: 0,
+  });
 
   private constructor(store: IStoreInsurance) {
     this.store = store;
@@ -116,10 +120,13 @@ export class InsuranceAdapter {
 
   public async getAll(): Promise<Array<HealthInsuranceResponse>> {
     if (this.store.allInsurance.length !== 0) {
+      this.state.counter = 10;
       return this.store.allInsurance;
     }
+    this.state.counter = 19;
     const response = await this.service.getAll();
     this.store.allInsurance = response;
+
     return response;
   }
   public responseToEntity(
@@ -145,4 +152,11 @@ export class InsuranceAdapter {
     insuranceList.push(item);
     return insuranceList;
   }
+
+  public getState() {
+    return this.state;
+  }
+}
+export interface ITest {
+  test: boolean;
 }

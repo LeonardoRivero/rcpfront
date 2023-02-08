@@ -179,6 +179,7 @@
                     outlined
                     label="Codigo Transaccion"
                     v-model="currentAppointment.codeTransaction"
+                    :disable="disableCodeTransaction"
                   />
                 </div>
                 <div class="col-12 col-md-4">
@@ -187,6 +188,7 @@
                     label="Metodo Pago"
                     outlined
                     v-model="currentAppointment.paymentMethod"
+                    @update:model-value="(val) => changePaymentMethod(val)"
                     :options="allPaymentOptions"
                     :option-value="(item) => (item === null ? null : item.id)"
                     option-label="description"
@@ -239,11 +241,16 @@
     </q-card-actions>
   </q-form>
 </template>
+
 <script lang="ts">
 import { date } from 'quasar';
 import { defineComponent, onMounted, onUnmounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { HealthInsuranceResponse, PatientResponse } from 'src/Domine/Responses';
+import {
+  HealthInsuranceResponse,
+  PatientResponse,
+  PaymentOptionsResponse,
+} from 'src/Domine/Responses';
 import { IAppointment, ISpeciality } from 'src/Domine/ModelsDB';
 import {
   OPTIONS_HOURS,
@@ -314,6 +321,7 @@ export default defineComponent({
     const insuranceAdapter = InsuranceAdapter.getInstance(useStoreInsurance());
 
     const disableListInsurance = ref<boolean>(true);
+    const disableCodeTransaction = ref<boolean>(false);
     onMounted(async () => {
       allPaymentOptions.value = await servicePaymentOptions.getAll();
       allReasonConsult.value = await serviceReasonConsult.getAll();
@@ -346,7 +354,18 @@ export default defineComponent({
       identificationPatient,
       disableListInsurance,
       confirmChanges() {
-        service.saveOrUpdate();
+        service.saveOrUpdate(
+          currentAppointment.value,
+          currentPatient.value,
+          currentDoctor.value
+        );
+      },
+      async changePaymentMethod(idPaymentOption: number) {
+        const isCash = await servicePaymentOptions.paymentIsCash(
+          idPaymentOption
+        );
+        disableCodeTransaction.value = isCash;
+        service.paymentIsCash(isCash);
       },
       calculateAmountPaid() {
         service.calculateAmountPaid();
@@ -386,6 +405,7 @@ export default defineComponent({
       speciality,
       listInsurancePatient,
       currentPatient,
+      disableCodeTransaction,
     };
   },
 });

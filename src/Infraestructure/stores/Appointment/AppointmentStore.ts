@@ -9,6 +9,7 @@ import {
   ISpeciality,
 } from 'src/Domine/ModelsDB';
 import {
+  DoctorResponse,
   HealthInsuranceResponse,
   PatientResponse,
   PatientStatusResponse,
@@ -23,7 +24,7 @@ export interface IStoreAppointment {
   currentHealthInsurance: HealthInsuranceResponse | null;
   reasonConsult: IReasonConsult | null;
   speciality: ISpeciality;
-  currentDoctor: IDoctor;
+  currentDoctor: DoctorResponse;
   currentAppointment: IAppointment;
   currentPatient: PatientResponse;
   currentPaymentOption: PaymentOptionsResponse | null;
@@ -34,20 +35,19 @@ export interface IStoreAppointment {
 
 export const useStoreAppointments = defineStore({
   id: 'useStoreAppointment',
-  state: () =>
-    ({
-      form: null,
-      identificationPatient: '',
-      currentPatientStatus: null,
-      currentHealthInsurance: null,
-      reasonConsult: null,
-      speciality: {} as ISpeciality,
-      currentDoctor: {} as IDoctor,
-      currentAppointment: {} as IAppointment,
-      currentPatient: {} as PatientResponse,
-      allPaymentOptions: [],
-      allReasonConsult: [],
-      allPatientStatus: [],
-      currentPaymentOption: null,
-    } as IStoreAppointment),
+  state: (): IStoreAppointment => ({
+    form: null,
+    identificationPatient: '',
+    currentPatientStatus: null,
+    currentHealthInsurance: null,
+    reasonConsult: null,
+    speciality: {} as ISpeciality,
+    currentDoctor: {} as DoctorResponse,
+    currentAppointment: {} as IAppointment,
+    currentPatient: {} as PatientResponse,
+    allPaymentOptions: [],
+    allReasonConsult: [],
+    allPatientStatus: [],
+    currentPaymentOption: null,
+  }),
 });

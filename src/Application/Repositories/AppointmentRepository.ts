@@ -1,7 +1,11 @@
 import { IAppointment, IPaymentOptions } from 'src/Domine/ModelsDB';
 import { EndPoints, Messages } from 'src/Application/Utilities';
 import HttpStatusCodes from 'src/Application/Utilities/HttpStatusCodes';
-import { GET, handleResponse } from 'src/Infraestructure/Utilities/Request';
+import {
+  GET,
+  POST,
+  handleResponse,
+} from 'src/Infraestructure/Utilities/Request';
 import { IRepository } from './Interface';
 import {
   AppointmentResponse,
@@ -38,8 +42,19 @@ export class AppointmentRepository
     }
   }
 
-  create(entity: IAppointment): Promise<AppointmentResponse | null> {
-    throw new Error('Method not implemented.');
+  public async create(
+    entity: IAppointment
+  ): Promise<AppointmentResponse | null> {
+    const url = endpoint.getORcreateConsult;
+    try {
+      const response = await POST<AppointmentResponse>(url, entity);
+      if (!response.ok) return null;
+      handleResponse(response);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
   }
 
   update(entity: Partial<IAppointment>): Promise<AppointmentResponse | null> {

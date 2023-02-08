@@ -5,4 +5,4 @@ export * from './PatientAdapter';
 export * from './ScheduleAdapter';
 export * from './DoctorAdapter';
 export * from './AppointmentAdapter';
-export * from './ClinicHistoryService';
+export * from './ClinicHistoryAdapter';

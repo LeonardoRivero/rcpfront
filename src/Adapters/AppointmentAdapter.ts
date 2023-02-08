@@ -1,13 +1,15 @@
 import { IAppointment } from 'src/Domine/ModelsDB';
-
 import { Messages } from 'src/Application/Utilities/Messages';
 import { Notification } from 'src/Infraestructure/Utilities/Notifications';
 import modalService from './ModalService';
 import { IStoreAppointment } from 'src/Infraestructure/stores/Appointment/AppointmentStore';
 import { AppointmentService } from 'src/Application/Services';
-import { AppointmentResponse } from 'src/Domine/Responses';
+import {
+  AppointmentResponse,
+  DoctorResponse,
+  PatientResponse,
+} from 'src/Domine/Responses';
 
-// const storeSchedule = useStoreSchedule();
 const notification = new Notification();
 const message = Messages.getInstance();
 const serviceModal = modalService();
@@ -27,6 +29,12 @@ export class AppointmentAdapter {
       AppointmentAdapter.instance = new AppointmentAdapter(store);
     }
     return AppointmentAdapter.instance;
+  }
+
+  public paymentIsCash(isCash: boolean) {
+    if (isCash) {
+      this.store.currentAppointment.codeTransaction = null;
+    }
   }
 
   public calculateAmountPaid() {
@@ -54,23 +62,21 @@ export class AppointmentAdapter {
     // this.store.currentAppointment.amountPaid =
     //   this.store.currentAppointment.price;
   }
-
-  // public patientStatusChanged(val: IPatientStatus): void {
-  //   this.store.currentPatientsStatus = val;
-  // }
-
-  public async searchPatient(): Promise<void> {
-    if (this.store.identificationPatient === '') {
+  public async searchByPatientId(
+    patientId: number
+  ): Promise<AppointmentResponse | null> {
+    if (patientId == 0) {
       notification.setMessage(message.searchIncorrect);
       notification.showError();
-      return;
+      return null;
     }
 
-    // let queryParameters = new Object();
-    // queryParameters = { identification: this.store.currentPatient };
-    // const patient = await this.repositoryPatient.findByParameters(
-    //   queryParameters
-    // );
+    let queryParameters = new Object();
+    queryParameters = { patientId: patientId };
+    const response = await this.service.findByParameters(queryParameters);
+    const appointment = response.pop();
+    if (appointment === undefined) return null;
+    return appointment;
     // if (patient === null) {
     //   storeSchedule.card = false;
     //   this.storePatient.currentPatient = {
@@ -120,7 +126,11 @@ export class AppointmentAdapter {
     // this.store.currentDoctor = lastSchedule.doctor;
   }
 
-  public async saveOrUpdate(): Promise<void> {
+  public async saveOrUpdate(
+    appointment: IAppointment,
+    patient: PatientResponse,
+    doctor: DoctorResponse
+  ): Promise<void> {
     const isValid = await this.store.form?.validate();
     if (isValid == false) {
       return;
@@ -129,21 +139,23 @@ export class AppointmentAdapter {
     if (!this.store.currentAppointment) return;
 
     let response = null;
-
-    if (this.store.currentAppointment.id == undefined) {
-      const payload = {
-        copayment: this.store.currentAppointment.copayment,
-        amountPaid: this.store.currentAppointment.amountPaid,
-        date: this.store.currentAppointment.date,
-        authorizationNumber: this.store.currentAppointment.authorizationNumber,
-        patientStatus: this.store.currentPatientStatus?.id,
-        reasonConsult: this.store.reasonConsult?.id,
-        price: this.store.currentAppointment.price,
-        schedule: this.store.currentAppointment.schedule,
-        patient: this.store.currentPatient.id,
-        doctor: this.store.currentDoctor.id,
-      } as IAppointment;
-      response = this.save(payload);
+    let payload: IAppointment;
+    if (appointment.id == undefined) {
+      payload = {
+        copayment: appointment.copayment,
+        amountPaid: appointment.amountPaid,
+        date: new Date().toJSON(),
+        authorizationNumber: appointment.authorizationNumber,
+        patientStatus: appointment.patientStatus,
+        reasonConsult: appointment.reasonConsult,
+        price: appointment.price,
+        schedule: appointment.schedule,
+        patient: patient.id,
+        doctor: doctor.id,
+        paymentMethod: appointment.paymentMethod,
+        codeTransaction: appointment.codeTransaction,
+      };
+      response = await this.save(payload);
     }
 
     if (response === null) {

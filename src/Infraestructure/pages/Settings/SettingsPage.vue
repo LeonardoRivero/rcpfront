@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import SpecialityForm from './SpecialityForm.vue';
 import DxMainCode from './DxMainCodeForm.vue';
 import RelationCode from './RelationCode.vue';
