@@ -48,6 +48,9 @@ export class IconSVG {
   get scheduleCalendar() {
     return 'img:schedule-calendar.svg';
   }
+  get historyLog() {
+    return 'img:history-log.svg';
+  }
 }
 export enum Gender {
   FEMALE = 1,
@@ -60,7 +63,7 @@ export const FORMAT_HOUR = 'HH:mm';
 export const FORMAT_DATETIME = 'YYYY-MM-DD HH:mm';
 export const OPTIONS_MINUTES = [0, 20, 40];
 export const OPTIONS_HOURS = [
-  7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+  7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
 ];
 export const CURRENTYEAR_MONTH = date.formatDate(timeStamp, 'YYYY/MM');
 export const FIELD_REQUIRED = 'Campo Requerido';

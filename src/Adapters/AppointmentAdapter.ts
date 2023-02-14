@@ -7,6 +7,7 @@ import { AppointmentService } from 'src/Application/Services';
 import {
   AppointmentResponse,
   DoctorResponse,
+  EventScheduleResponse,
   PatientResponse,
 } from 'src/Domine/Responses';
 
@@ -126,20 +127,29 @@ export class AppointmentAdapter {
     // this.store.currentDoctor = lastSchedule.doctor;
   }
 
+  public async getById(id: number) {
+    const response = await this.service.getById(id);
+    if (response == null) {
+      return;
+    }
+    // const entity = this.responseToEntity(response);
+    // this.store.currentAppointment = entity;
+  }
+
   public async saveOrUpdate(
     appointment: IAppointment,
     patient: PatientResponse,
     doctor: DoctorResponse
-  ): Promise<void> {
+  ): Promise<AppointmentResponse | null> {
     const isValid = await this.store.form?.validate();
     if (isValid == false) {
-      return;
+      return null;
     }
 
-    if (!this.store.currentAppointment) return;
+    if (!this.store.currentAppointment) return null;
 
     let response = null;
-    let payload: IAppointment;
+    let payload: IAppointment | null;
     if (appointment.id == undefined) {
       payload = {
         copayment: appointment.copayment,
@@ -161,8 +171,8 @@ export class AppointmentAdapter {
     if (response === null) {
       notification.setMessage(message.errorMessage);
       notification.showError();
-      return;
     }
+    return response;
   }
 
   public async save(
@@ -178,6 +188,23 @@ export class AppointmentAdapter {
 
     const response = await this.service.save(payload);
     return response;
+  }
+
+  public responseToEntity(response: EventScheduleResponse) {
+    this.store.currentAppointment = {
+      id: response.id,
+      copayment: 45455,
+      amountPaid: 678,
+      date: 'hola',
+      authorizationNumber: '54',
+      patientStatus: 44,
+      reasonConsult: 44,
+      schedule: 44,
+      patient: 44,
+      doctor: 44,
+      paymentMethod: 22,
+      codeTransaction: '444',
+    } as IAppointment;
   }
 }
 

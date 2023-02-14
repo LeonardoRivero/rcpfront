@@ -46,7 +46,6 @@ export class PatientAdapter {
   public async searchByIdentificacion(
     identification: string
   ): Promise<PatientResponse | null> {
-    // const queryParameters = { identification: identification };
     const response = await this.service.findByIdentification(identification);
     if (response === null) {
       this.clear();
@@ -56,13 +55,15 @@ export class PatientAdapter {
       this.store.disable = false;
       return null;
     }
+    return response;
+  }
 
+  public setData(response: PatientResponse) {
     this.store.idType = response.IDType;
     this.store.insurance = response.insurance;
     this.store.gender = response.gender;
     this.store.currentPatient = this.responseToEntity(response);
     this.store.disable = true;
-    return response;
   }
 
   public enableEdition(): void {
@@ -102,7 +103,7 @@ export class PatientAdapter {
 
     if (!this.store.currentPatient) return;
     let payload: IPatient;
-    let response = null;
+    let response: PatientResponse | null = null;
     if (this.store.currentPatient.id == undefined) {
       payload = {
         name: this.store.currentPatient.name,
@@ -139,6 +140,10 @@ export class PatientAdapter {
         email: this.store.currentPatient.email,
       };
       response = await this.update(payload);
+    }
+    if (response !== null) {
+      this.clear();
+      this.store.form?.reset();
     }
   }
 

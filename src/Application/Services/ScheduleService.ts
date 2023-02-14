@@ -22,15 +22,22 @@ export class ScheduleService {
     const response = await this.repository.update(payload);
     return response;
   }
+
+  public async getById(id: number): Promise<EventScheduleResponse | null> {
+    const response = await this.repository.getById(id);
+    return response;
+  }
+
   public async findByParameters(
     queryParameters: object
   ): Promise<Array<EventScheduleResponse> | EventScheduleResponse> {
     const response = await this.repository.findByParameters(queryParameters);
     if (response == null) return [];
-    // let register = undefined;
-    // if (Array.isArray(response)) {
-    //   register = response.pop();
-    // }
+    return response;
+  }
+
+  public async delete(id: number): Promise<boolean> {
+    const response = await this.repository.delete(id);
     return response;
   }
 

@@ -61,6 +61,7 @@ export interface EventSchedule {
   patient: number;
   speciality: number;
   doctor: number;
+  observations: string;
 }
 export interface IGender {
   id: number;

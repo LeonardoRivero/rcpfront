@@ -1,16 +1,9 @@
 import { reactive } from 'vue';
 import { QForm, date } from 'quasar';
 import { defineStore } from 'pinia';
-import {
-  EventSchedule,
-  IAppointment,
-  IDoctor,
-  IPatient,
-  ISpeciality,
-} from 'src/Domine/ModelsDB';
 import '@fullcalendar/core/vdom';
 import { EventClickArg } from '@fullcalendar/core';
-
+import { routerInstance } from 'src/boot/globalRouter';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -21,13 +14,16 @@ import FullCalendar from '@fullcalendar/vue3';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { Notification } from 'src/Infraestructure/Utilities/Notifications';
 import { EndPoints } from 'src/Application/Utilities';
+import { EventSchedule, IAppointment, IDoctor } from 'src/Domine/ModelsDB';
 import {
   DoctorResponse,
   HealthInsuranceResponse,
   PatientResponse,
   SpecialityResponse,
 } from 'src/Domine/Responses';
-import { ScheduleAdapter } from 'src/Adapters';
+import { AppointmentAdapter, ScheduleAdapter } from 'src/Adapters';
+import { useStoreAppointments } from '../Appointment/AppointmentStore';
+import { ScheduleService } from 'src/Application/Services/ScheduleService';
 
 export interface IStoreSchedule {
   lastConsult: IAppointment;
@@ -49,7 +45,7 @@ export interface IStoreSchedule {
 }
 
 const START_TIME = '07:00';
-const END_TIME = '18:00';
+const END_TIME = '23:00';
 const DURATION_APPOINTMENT = '00:20';
 const MINUTES_APPOINTMENT = parseInt(DURATION_APPOINTMENT.split(':')[1]);
 
@@ -68,7 +64,7 @@ export const useStoreSchedule = defineStore({
       currentPatient: {
         insurance: {} as HealthInsuranceResponse,
       } as PatientResponse,
-      currentSchedule: {} as EventSchedule,
+      currentSchedule: { observations: '' } as EventSchedule,
       currentDoctor: null,
       allDoctors: [],
       speciality: null,
@@ -132,8 +128,16 @@ export const useStoreSchedule = defineStore({
           service.handleDateSelect(arg);
         },
         eventClick: async (arg: EventClickArg) => {
+          // const service = new ScheduleService();
           const service = ScheduleAdapter.getInstance(useStoreSchedule());
           await service.eventClick(arg);
+          // const adapter = AppointmentAdapter.getInstance(
+          //   useStoreAppointments()
+          // );
+          // const response = await service.getById(parseInt(arg.event.id));
+          // if (response === null) return;
+          // adapter.responseToEntity(response);
+          // routerInstance.push('/appointment');
         },
         views: {
           timeGridForYear: {

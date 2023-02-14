@@ -50,7 +50,7 @@
                     @click="searchPatient()"
                   />
                   <q-tooltip transition-show="scale" transition-hide="scale">
-                    Verificar Paciente
+                    Buscar Paciente
                   </q-tooltip></template
                 >
               </q-input>
@@ -243,15 +243,14 @@
 </template>
 
 <script lang="ts">
-import { date } from 'quasar';
 import { defineComponent, onMounted, onUnmounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
+import { HealthInsuranceResponse, PatientResponse } from 'src/Domine/Responses';
 import {
-  HealthInsuranceResponse,
-  PatientResponse,
-  PaymentOptionsResponse,
-} from 'src/Domine/Responses';
-import { IAppointment, ISpeciality } from 'src/Domine/ModelsDB';
+  IAppointment,
+  IHealthInsurance,
+  ISpeciality,
+} from 'src/Domine/ModelsDB';
 import {
   OPTIONS_HOURS,
   OPTIONS_MINUTES,
@@ -353,12 +352,20 @@ export default defineComponent({
       currentPatientStatus,
       identificationPatient,
       disableListInsurance,
-      confirmChanges() {
-        service.saveOrUpdate(
+      async confirmChanges() {
+        const response = await service.saveOrUpdate(
           currentAppointment.value,
           currentPatient.value,
           currentDoctor.value
         );
+        if (response != null) {
+          currentAppointment.value = {} as IAppointment;
+          currentPatient.value = {} as PatientResponse;
+          currentHealthInsurance.value = null;
+          speciality.value = {} as ISpeciality;
+          identificationPatient.value = '';
+          form.value?.reset();
+        }
       },
       async changePaymentMethod(idPaymentOption: number) {
         const isCash = await servicePaymentOptions.paymentIsCash(

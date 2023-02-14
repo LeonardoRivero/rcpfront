@@ -42,7 +42,7 @@ export interface AppointmentResponse {
   price: number;
   copayment: number;
   amountPaid: number;
-  date: string | Date;
+  date: string;
   authorizationNumber: string;
   patientStatus: PatientResponse;
   reasonConsult: ReasonConsultResponse;
@@ -60,6 +60,7 @@ export interface EventScheduleResponse {
   patient: PatientResponse;
   speciality: SpecialityResponse;
   doctor: DoctorResponse;
+  observations: string;
 }
 export interface GenderResponse {
   id: number;

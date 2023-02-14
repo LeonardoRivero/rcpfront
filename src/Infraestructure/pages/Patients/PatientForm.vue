@@ -279,9 +279,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, onUnmounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { IGender, IHealthInsurance, IIDType } from 'src/Domine/ModelsDB';
+import {
+  IGender,
+  IHealthInsurance,
+  IIDType,
+  IPatient,
+} from 'src/Domine/ModelsDB';
 import { IconSVG } from 'src/Application/Utilities/Constants';
 import {
   GenderRepository,
@@ -332,7 +337,10 @@ export default defineComponent({
       allGenders.value = genders == null ? [] : genders;
       allInsurance.value = insurance == null ? [] : insurance;
       icon.value = iconSVG.womanAndMan;
-      console.log('object', currentPatient.value);
+    });
+    onUnmounted(async () => {
+      identificationPatient.value = '';
+      service.clear();
     });
 
     return {
@@ -366,8 +374,13 @@ export default defineComponent({
         if (val.id === undefined) return;
         currentPatient.value.gender = val.id;
       },
-      searchPatient() {
-        service.searchByIdentificacion(identificationPatient.value);
+      async searchPatient() {
+        const response = await service.searchByIdentificacion(
+          identificationPatient.value
+        );
+        if (response !== null) {
+          service.setData(response);
+        }
       },
       enableEdition() {
         service.enableEdition();

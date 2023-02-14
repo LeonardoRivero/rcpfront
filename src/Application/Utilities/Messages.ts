@@ -54,4 +54,7 @@ export class Messages {
   get patientNotSaved(): string {
     return 'Existen datos invalidos, verifiquelos e intente de nuevo';
   }
+  get requiredForDelete(): string {
+    return 'Campo requerido para eliminar registro';
+  }
 }

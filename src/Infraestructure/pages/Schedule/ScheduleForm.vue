@@ -7,7 +7,7 @@
             >Datos Paciente
             <small>
               <cite title="Ayuda"
-                >(Antes de crear la cita,verifique la informacion del
+                >(Antes de agendar la cita medica,verifique la informacion del
                 paciente)</cite
               >
             </small>
@@ -158,8 +158,7 @@
                 label="Doctor"
                 lazy-rules
                 map-options
-                @update:model-value="(val) => doctorChanged(val)"
-                :rules="[(val) => val || 'Doctor es requerido']"
+                :rules="[(val) => val || FIELD_REQUIRED]"
                 :display-value="`${currentDoctor ? currentDoctor.name : ''} ${
                   currentDoctor ? currentDoctor.lastName : ''
                 }`"
@@ -187,11 +186,29 @@
                 map-options
                 label="Especialidad"
                 lazy-rules
-                :rules="[(val) => val || 'Especialidad es requerida']"
+                :rules="[(val) => val || FIELD_REQUIRED]"
                 @clear="(val) => clearSpeciality(val)"
                 @update:model-value="(val) => specialityChanged(val)"
               >
               </q-select>
+            </div>
+          </div>
+          <div class="row q-col-gutter-x-md">
+            <div class="col-12 col-md col-sm-12 col-xs-12">
+              <q-input
+                v-model="currentSchedule.observations"
+                dense
+                stack-label
+                :error="error"
+                clearable
+                autogrow
+                :label="`${
+                  allowToDelete == false
+                    ? 'Observaciones'
+                    : 'Motivo de Cancelaciòn'
+                }`"
+                :error-message="errorMessage"
+              />
             </div>
           </div>
         </q-item-section>
@@ -214,16 +231,15 @@
   </q-form>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted } from 'vue';
+import { defineComponent, onMounted, onUnmounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { date } from 'quasar';
 import {
-  DoctorResponse,
   HealthInsuranceResponse,
   PatientResponse,
   SpecialityResponse,
 } from 'src/Domine/Responses';
-import { EventSchedule, IAppointment } from 'src/Domine/ModelsDB';
+import { IAppointment } from 'src/Domine/ModelsDB';
 import {
   SpecialityAdapter,
   ScheduleAdapter,
@@ -234,12 +250,14 @@ import {
   FORMAT_DATETIME,
   OPTIONS_HOURS,
   OPTIONS_MINUTES,
+  FIELD_REQUIRED,
 } from 'src/Application/Utilities/Constants';
 import { useStoreSchedule } from '../../stores/SchedulePage/ScheduleStore';
 import { useStoreSpeciality } from '../../stores/SettingsPage/SpecialityStore';
 import { useStorePatient } from 'src/Infraestructure/stores/PatientsPage/PatientStore';
 import { DoctorService } from 'src/Application/Services/DoctorService';
 import 'src/css/app.sass';
+import { Messages } from 'src/Application/Utilities';
 
 export default defineComponent({
   components: {},
@@ -276,6 +294,9 @@ export default defineComponent({
     );
     const doctorService = new DoctorService();
     const patientAdapter = PatientAdapter.getInstance(useStorePatient());
+    const messages = Messages.getInstance();
+    const text = ref<string>('');
+    const error = ref<boolean>(false);
 
     onMounted(async () => {
       const doctors = await doctorService.getAll();
@@ -293,12 +314,16 @@ export default defineComponent({
       } as PatientResponse;
       identificationPatient.value = '';
     });
-
+    // 3156381908
     return {
+      text,
+      error,
+      errorMessage: messages.requiredForDelete,
       MIN_YEAR_MONTH,
       HOURS_ALLOWED,
       MINUTES_ALLOWED,
       FORMAT_DATETIME,
+      FIELD_REQUIRED,
       form,
       dates,
       currentAppointment,
@@ -335,10 +360,15 @@ export default defineComponent({
           currentPatient.value = response;
           return;
         }
+        card.value = false;
         await patientAdapter.patientNotFound();
       },
 
       async confirmDeleteSchedule(val: number) {
+        if (text.value.length === 0) {
+          error.value = true;
+          return;
+        }
         await adapter.confirmDeleteSchedule(val);
       },
 
@@ -353,12 +383,6 @@ export default defineComponent({
         currentDoctor.value = null;
         allDoctors.value = response;
         form.value?.resetValidation();
-      },
-
-      async doctorChanged(val: DoctorResponse) {
-        // const response = await doctorService.getById(val.id);
-        // allSpecialities.value = response == null ? [] : response.speciality;
-        // speciality.value = null;
       },
 
       async clearSpeciality() {

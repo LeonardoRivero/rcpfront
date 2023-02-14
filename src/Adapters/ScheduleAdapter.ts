@@ -13,7 +13,12 @@ import {
   Modal,
   Notification,
 } from 'src/Infraestructure/Utilities/Notifications';
-import { EndPoints, Messages, Validators } from 'src/Application/Utilities';
+import {
+  Convert,
+  EndPoints,
+  Messages,
+  Validators,
+} from 'src/Application/Utilities';
 import * as Constants from 'src/Application/Utilities/Constants';
 import { routerInstance } from 'src/boot/globalRouter';
 import modalService from './ModalService';
@@ -25,32 +30,23 @@ import { IStoreSchedule } from 'src/Infraestructure/stores/SchedulePage/Schedule
 
 import { IRepository } from 'src/Application/Repositories';
 import { ScheduleService } from 'src/Application/Services/ScheduleService';
-import { IStorePatient } from 'src/Infraestructure/stores/PatientsPage/PatientStore';
 
 const notification = new Notification();
-
-const endpoint = EndPoints.getInstance();
-// const store = useStoreSchedule();
-// const storeAppointment = useStoreAppointment();
-
-// const storeSettings = useStoreSettings();
 const validator = Validators.getInstance();
-
-// const doctorRepository = DoctorRepository.getInstance();
-
 export class ScheduleAdapter {
   private serviceModal = modalService();
   private messages = Messages.getInstance();
   private store: IStoreSchedule;
-  private repository: IRepository<EventSchedule, EventScheduleResponse>;
+  // private repository: IRepository<EventSchedule, EventScheduleResponse>;
   private repositoryAppointment = new AppointmentRepository();
   private service = new ScheduleService();
+  private convert = new Convert();
 
   private static instance: ScheduleAdapter;
 
   private constructor(store: IStoreSchedule) {
     this.store = store;
-    this.repository = new ScheduleRepository();
+    // this.repository = new ScheduleRepository();
     return;
   }
 
@@ -72,7 +68,7 @@ export class ScheduleAdapter {
       return;
     }
 
-    const response = await this.repository.delete(scheduleId);
+    const response = await this.service.delete(scheduleId);
     if (response === false) {
       notification.setMessage(this.messages.notInfoFound);
       notification.showWarning();
@@ -151,15 +147,17 @@ export class ScheduleAdapter {
       minutes: Constants.MINUTES_APPOINTMENT,
     });
     schedule.end = date.formatDate(endAppointment, Constants.FORMAT_DATETIME);
-
+    const name = this.convert.toTitle(this.store.currentPatient.name);
+    const lastName = this.convert.toTitle(this.store.currentPatient.lastName);
     if (schedule.id == undefined) {
       payload = {
-        title: `${this.store.currentPatient.name} ${this.store.currentPatient.lastName}`,
+        title: `${name} ${lastName}`,
         start: schedule.start,
         end: schedule.end,
         patient: this.store.currentPatient.id,
         speciality: this.store.speciality.id,
         doctor: this.store.currentDoctor.id,
+        observations: this.store.currentSchedule.observations,
       };
       response = await this.save(payload);
       if (response === null) {
@@ -181,13 +179,14 @@ export class ScheduleAdapter {
         patient: this.store.currentPatient.id,
         speciality: this.store.speciality.id,
         doctor: this.store.currentDoctor.id,
+        observations: this.store.currentSchedule.observations,
       };
       response = await this.update(payload);
     }
 
     if (response === null) {
-      notification.setMessage(this.messages.scheduleExisting);
-      notification.showError();
+      // notification.setMessage(this.messages.scheduleExisting);
+      // notification.showError();
       return;
     }
     this.store.card = false;
@@ -198,7 +197,7 @@ export class ScheduleAdapter {
   private async save(
     payload: EventSchedule
   ): Promise<EventScheduleResponse | null> {
-    const response = await this.repository.create(payload);
+    const response = await this.service.save(payload);
     const apiCalendar = this.store.calendar.getApi();
     apiCalendar.refetchEvents();
     return response;
@@ -212,7 +211,7 @@ export class ScheduleAdapter {
       this.messages.updateRegister
     );
     if (confirm == false) return null;
-    const response = await this.repository.update(payload);
+    const response = await this.service.update(payload);
     return response;
   }
 
@@ -229,7 +228,7 @@ export class ScheduleAdapter {
   }
 
   public async eventClick(arg: EventClickArg): Promise<void> {
-    const schedule = await this.repository.getById(parseInt(arg.event.id));
+    const schedule = await this.service.getById(parseInt(arg.event.id));
     if (schedule === null) {
       return;
     }

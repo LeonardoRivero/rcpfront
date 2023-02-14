@@ -2,7 +2,48 @@
   <q-page class="q-pa-sm">
     <div class="row q-col-gutter-sm">
       <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
-        <ClinicHistory />
+        <InfoPatientPanel />
+        <br />
+        <q-stepper
+          v-model="step"
+          ref="stepper"
+          alternative-labels
+          color="primary"
+          animated
+        >
+          <q-step
+            :name="1"
+            title="Datos Preliminares"
+            prefix="1"
+            :done="step > 1"
+          >
+            Datos Preliminares
+          </q-step>
+
+          <q-step :name="2" title="Procedimientos" prefix="2" :done="step > 2">
+            Procedimientos
+          </q-step>
+
+          <q-step :name="3" title="Plan" prefix="3"> Plan </q-step>
+
+          <template v-slot:navigation>
+            <q-stepper-navigation>
+              <q-btn
+                @click="$refs.stepper.next()"
+                color="primary"
+                :label="step === 3 ? 'Guardar' : 'Continuar'"
+              />
+              <q-btn
+                v-if="step > 1"
+                flat
+                color="primary"
+                @click="$refs.stepper.previous()"
+                label="Regresar"
+                class="q-ml-sm"
+              />
+            </q-stepper-navigation>
+          </template>
+        </q-stepper>
       </div>
       <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
         <!-- <q-card class="bg-grey-2">
@@ -80,10 +121,16 @@
   </q-page>
 </template>
 <script lang="ts">
-import { defineComponent } from 'vue';
-import ClinicHistory from './ClinicHistoryForm.vue';
+import { defineComponent, ref } from 'vue';
+import InfoPatientPanel from './InfoPatientPanel.vue';
+
 import 'src/css/app.sass';
 export default defineComponent({
-  components: { ClinicHistory },
+  components: { InfoPatientPanel },
+  setup() {
+    return {
+      step: ref(1),
+    };
+  },
 });
 </script>
