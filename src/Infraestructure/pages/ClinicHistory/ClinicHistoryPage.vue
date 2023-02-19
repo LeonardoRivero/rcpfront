@@ -17,7 +17,7 @@
             prefix="1"
             :done="step > 1"
           >
-            Datos Preliminares
+            <PreliminaryData />
           </q-step>
 
           <q-step :name="2" title="Procedimientos" prefix="2" :done="step > 2">
@@ -123,10 +123,11 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import InfoPatientPanel from './InfoPatientPanel.vue';
+import PreliminaryData from './PreliminaryData.vue';
 
 import 'src/css/app.sass';
 export default defineComponent({
-  components: { InfoPatientPanel },
+  components: { InfoPatientPanel, PreliminaryData },
   setup() {
     return {
       step: ref(1),

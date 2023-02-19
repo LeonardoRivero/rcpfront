@@ -1,5 +1,5 @@
 import { reactive } from 'vue';
-import { PatientResponse } from 'src/Domine/Responses';
+import { PathologicalHistoryResponse, PatientResponse } from 'src/Domine/Responses';
 import { IconSVG } from 'src/Application/Utilities';
 import { Gender } from 'src/Application/Utilities';
 
@@ -23,5 +23,16 @@ export class ClinicHistoryAdapter {
       patient.gender.id == Gender.FEMALE
         ? this.iconSVG.female_avatar
         : this.iconSVG.male_avatar;
+  }
+}
+
+export class PreliminaryDataController {
+  private state = reactive({
+    allPathologies: [] as Array<PathologicalHistoryResponse>,
+    pathology: null,
+    options: <Array<PathologicalHistoryResponse>>[],
+  });
+  public getState() {
+    return this.state;
   }
 }
