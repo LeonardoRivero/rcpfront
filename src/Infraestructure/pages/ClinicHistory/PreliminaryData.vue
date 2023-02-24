@@ -1,6 +1,17 @@
 <template>
-  <div class="q-pa-md">
-    Registre las patologias informadas por el paciente.
+  <q-input
+    v-model="state.reasonConsultation"
+    filled
+    autogrow
+    label="Motivo de Consulta"
+    :rules="[(val) => (val && val.length > 0) || FIELD_REQUIRED]"
+  >
+    <template v-slot:prepend>
+      <q-icon :name="icons.hurt" size="40px" />
+    </template>
+  </q-input>
+  <br />
+  <div>
     <q-select
       filled
       fill-input
@@ -8,7 +19,7 @@
       dense
       v-model="state.pathology"
       :options="state.allPathologies"
-      label="Antecendentes Patologicos Paciente"
+      label="Antecedentes Patologicos Paciente"
       :option-value="(item) => (item === null ? null : item.id)"
       option-label="description"
       map-options
@@ -17,41 +28,64 @@
       @filter="filterFn"
       input-debounce="0"
     >
+      <template v-slot:prepend>
+        <q-icon :name="icons.historyLog" size="32px" />
+      </template>
       <template v-slot:no-option>
         <q-item>
           <q-item-section class="text-grey"> Sin resultados </q-item-section>
         </q-item>
       </template>
     </q-select>
-    <div class="q-pa-md">
-      <q-list>
-        <div v-for="(item, index) in physicalExamParameter" :key="item.id">
-          <q-item>
-            <q-item-section>
-              <q-item-label>{{ item.description }}</q-item-label>
-            </q-item-section>
-
-            <q-item-section side top>
-              <q-input v-model="datos[index]" label="Standard" dense />
-            </q-item-section>
-          </q-item>
-          <q-separator spaced inset />
-        </div>
-      </q-list>
-    </div>
   </div>
+  <br />
+  <div class="text-h5 q-mt-sm q-mb-xs">
+    <q-icon :name="icons.physicalTherapy" size="32px" /> Examen Fisico
+  </div>
+  <q-splitter v-model="state.splitterModel">
+    <template v-slot:before>
+      <div v-for="(item, index) in state.items" :key="item.id">
+        <q-item v-if="index % 2 == 0">
+          <q-item-section>
+            <q-item-label>{{ item.description }}</q-item-label>
+          </q-item-section>
+
+          <q-item-section side top>
+            <q-input
+              dense
+              v-model="item.result"
+              :rules="[(val) => (val && val.length > 0) || FIELD_REQUIRED]"
+            />
+          </q-item-section>
+        </q-item>
+      </div>
+    </template>
+    <template v-slot:after>
+      <div v-for="(item, index) in state.items" :key="item.id">
+        <q-item v-if="index % 2 != 0">
+          <q-item-section>
+            <q-item-label>{{ item.description }}</q-item-label>
+          </q-item-section>
+
+          <q-item-section side top>
+            <q-input
+              dense
+              v-model="item.result"
+              :rules="[(val) => (val && val.length > 0) || FIELD_REQUIRED]"
+            />
+          </q-item-section>
+        </q-item>
+      </div>
+    </template>
+  </q-splitter>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
-import { ISpeciality } from 'src/Domine/ModelsDB';
+import { defineComponent, onMounted } from 'vue';
+import { IconSVG, FIELD_REQUIRED } from 'src/Application/Utilities';
 import { PathologicalHistoryAdapter } from 'src/Adapters/PathologicalHistoryAdapter';
 import { useStorePathological } from 'src/Infraestructure/stores/SettingsPage/PathologicalHistoryStore';
-import {
-  PathologicalHistoryResponse,
-  PhysicalExamResponse,
-} from 'src/Domine/Responses';
-import { PhysicalExamService } from 'src/Application/Services';
+import { PathologicalHistoryResponse } from 'src/Domine/Responses';
 import { PreliminaryDataController } from 'src/Adapters';
 import 'src/css/app.sass';
 
@@ -62,54 +96,21 @@ export default defineComponent({
       useStorePathological()
     );
 
-    const physicalExamParameter = ref<Array<PhysicalExamResponse>>([]);
-    const service = PhysicalExamService.getInstance();
-
-    const preliminaryDataController = new PreliminaryDataController();
+    const icons = IconSVG.getInstance();
+    const preliminaryDataController = PreliminaryDataController.getInstance();
     const state = preliminaryDataController.getState();
     let pathologies = [] as Array<PathologicalHistoryResponse>;
 
     onMounted(async () => {
       state.allPathologies = await adapter.getAll();
       pathologies = state.allPathologies;
-
-      const queryParameters = { speciality: 1 };
-      physicalExamParameter.value = await service.findByParameters(
-        queryParameters
-      );
     });
 
     return {
-      text: '',
+      FIELD_REQUIRED,
+      icons,
       state,
-      datos: [],
-      physicalExamParameter,
-      form: {
-        parent_id: [],
-      },
-      add() {
-        // adapter.add();
-      },
-      edit() {
-        // adapter.edit();
-      },
-      async confirmChanges() {
-        // await adapter.saveOrUpdate(currentSpeciality.value);
-      },
-      async specialityChanged(val: ISpeciality) {
-        // await adapter.specialityChanged(val);
-        // const queryParameters = { speciality: val.id };
-        // const response = await dxMainCodeAdapter.findByParameters(
-        //   queryParameters
-        // );
-        // await dxMainCodeAdapter.clear();
-        // dxMainCodeAdapter.listDxMainCodes = response;
-        // await relationCodeAdapter.clear();
-      },
-      clearSpeciality() {
-        // adapter.clear();
-      },
-      filterFn(val: string, update: any, abort: any) {
+      filterFn(val: string, update: any) {
         update(() => {
           const needle = val.toLowerCase();
           state.allPathologies = pathologies.filter(

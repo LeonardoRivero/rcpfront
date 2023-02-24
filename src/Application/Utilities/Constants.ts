@@ -51,6 +51,12 @@ export class IconSVG {
   get historyLog() {
     return 'img:history-log.svg';
   }
+  get hurt() {
+    return 'img:hurt.svg';
+  }
+  get physicalTherapy() {
+    return 'img:physical-therapy.svg';
+  }
 }
 export enum Gender {
   FEMALE = 1,

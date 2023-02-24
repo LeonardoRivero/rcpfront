@@ -295,7 +295,7 @@ export default defineComponent({
     const doctorService = new DoctorService();
     const patientAdapter = PatientAdapter.getInstance(useStorePatient());
     const messages = Messages.getInstance();
-    const text = ref<string>('');
+
     const error = ref<boolean>(false);
 
     onMounted(async () => {
@@ -314,9 +314,7 @@ export default defineComponent({
       } as PatientResponse;
       identificationPatient.value = '';
     });
-    // 3156381908
     return {
-      text,
       error,
       errorMessage: messages.requiredForDelete,
       MIN_YEAR_MONTH,
@@ -365,7 +363,7 @@ export default defineComponent({
       },
 
       async confirmDeleteSchedule(val: number) {
-        if (text.value.length === 0) {
+        if (currentSchedule.value.observations.length === 0) {
           error.value = true;
           return;
         }

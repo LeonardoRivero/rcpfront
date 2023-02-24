@@ -17,7 +17,9 @@
             prefix="1"
             :done="step > 1"
           >
-            <PreliminaryData />
+            <q-form ref="formStep1">
+              <PreliminaryData />
+            </q-form>
           </q-step>
 
           <q-step :name="2" title="Procedimientos" prefix="2" :done="step > 2">
@@ -29,7 +31,7 @@
           <template v-slot:navigation>
             <q-stepper-navigation>
               <q-btn
-                @click="$refs.stepper.next()"
+                @click="onContinueStep()"
                 color="primary"
                 :label="step === 3 ? 'Guardar' : 'Continuar'"
               />
@@ -45,78 +47,7 @@
           </template>
         </q-stepper>
       </div>
-      <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
-        <!-- <q-card class="bg-grey-2">
-          <q-card-section class="text-center text-h6 text-black">
-            <q-icon name="shopping_cart" class="q-mr-sm" />
-            Order Summary
-          </q-card-section>
-          <q-card-section horizontal>
-            <q-card-section class="col-5 flex flex-center">
-              <q-img
-                height="80px"
-                class="rounded-borders"
-                src="https://cdn.quasar.dev/img/parallax2.jpg"
-              />
-            </q-card-section>
-            <q-card-section class="">
-              <div class="text-subtitle2 q-mt-sm">Product 1</div>
-              <div class="text-subtitle2 q-mb-xs">$10.99</div>
-            </q-card-section>
-          </q-card-section>
-          <q-separator />
-          <q-card-section horizontal class="q-pa-none">
-            <q-card-section class="col-5 flex flex-center">
-              <q-img
-                height="80px"
-                class="rounded-borders"
-                src="https://cdn.quasar.dev/img/parallax2.jpg"
-              />
-            </q-card-section>
-            <q-card-section class="">
-              <div class="text-subtitle2 q-mt-md">Product 2</div>
-              <div class="text-subtitle2 q-mb-xs">$19.99</div>
-            </q-card-section>
-          </q-card-section>
-          <q-separator />
-          <q-card-section horizontal class="q-pa-none">
-            <q-card-section class="col-5 flex flex-center">
-              <q-img
-                height="80px"
-                class="rounded-borders"
-                src="https://cdn.quasar.dev/img/parallax2.jpg"
-              />
-            </q-card-section>
-            <q-card-section class="">
-              <div class="text-subtitle2 q-mt-md">Product 3</div>
-              <div class="text-subtitle2 q-mb-xs">$78.99</div>
-            </q-card-section>
-          </q-card-section>
-          <q-separator />
-          <q-card-section horizontal class="q-pa-none">
-            <q-card-section class="col-5 flex flex-center">
-              <q-img
-                height="80px"
-                class="rounded-borders"
-                src="https://cdn.quasar.dev/img/parallax2.jpg"
-              />
-            </q-card-section>
-            <q-card-section class="">
-              <div class="text-subtitle2 q-mt-md">Product 4</div>
-              <div class="text-subtitle2 q-mb-xs">$178.99</div>
-            </q-card-section>
-          </q-card-section>
-
-          <q-separator></q-separator>
-          <q-card-section class="row">
-            <div class="col-12 text-h6 full-width">
-              <div class="float-right q-mr-md">
-                Total : <span class="text-blue">$288.96</span>
-              </div>
-            </div>
-          </q-card-section>
-        </q-card> -->
-      </div>
+      <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12"></div>
     </div>
   </q-page>
 </template>
@@ -126,11 +57,36 @@ import InfoPatientPanel from './InfoPatientPanel.vue';
 import PreliminaryData from './PreliminaryData.vue';
 
 import 'src/css/app.sass';
+import { QForm, QStepper } from 'quasar';
+import {
+  ClinicHistoryMediator,
+  InfoPatientPanelController,
+  PreliminaryDataController,
+} from 'src/Adapters';
 export default defineComponent({
   components: { InfoPatientPanel, PreliminaryData },
   setup() {
+    const formStep1 = ref<QForm>();
+    const stepper = ref<QStepper>();
+    const step = ref<number>(1);
+    const clinicHistoryMediator = new ClinicHistoryMediator();
+    const controller = InfoPatientPanelController.getInstance();
+    const preliminaryDataController = PreliminaryDataController.getInstance();
+    clinicHistoryMediator.add(controller);
+    clinicHistoryMediator.add(preliminaryDataController);
     return {
-      step: ref(1),
+      formStep1,
+      stepper,
+      step,
+      async onContinueStep() {
+        const step1 = await formStep1.value?.validate();
+        if (step1 === true && step.value == 1) {
+          stepper.value?.next();
+        }
+        // else if (formIsValid === true && step.value == 2) {
+        //   stepper.value?.next();
+        // }
+      },
     };
   },
 });

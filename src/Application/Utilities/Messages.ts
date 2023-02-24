@@ -57,4 +57,7 @@ export class Messages {
   get requiredForDelete(): string {
     return 'Campo requerido para eliminar registro';
   }
+  get appointmentNotFound(): string {
+    return 'Consulta no ha sido registrada. Deseas registrarla ahora mismo?';
+  }
 }

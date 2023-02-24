@@ -72,29 +72,64 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { ClinicHistoryAdapter, PatientAdapter } from 'src/Adapters';
+import { storeToRefs } from 'pinia';
+import {
+  AppointmentAdapter,
+  InfoPatientPanelController,
+  PatientAdapter,
+} from 'src/Adapters';
 import { useStorePatient } from '../../stores/PatientsPage/PatientStore';
 import { Validators } from 'src/Application/Utilities';
-
+import { useStoreSchedule } from '../../stores/SchedulePage/ScheduleStore';
+import { ScheduleAdapter } from 'src/Adapters';
+import { useStoreAppointments } from '../../stores/Appointment/AppointmentStore';
+import { useStoreClinicHistory } from '../../stores/ClinicHistoryStore';
 export default defineComponent({
   name: 'InfoPatientPanel',
   setup() {
     const patientAdapter = PatientAdapter.getInstance(useStorePatient());
-    const controller = new ClinicHistoryAdapter();
-    const validator = Validators.getInstance();
+    const scheduleAdapter = ScheduleAdapter.getInstance(useStoreSchedule());
+    const appointmentAdapter = AppointmentAdapter.getInstance(
+      useStoreAppointments()
+    );
+    const store = storeToRefs(useStoreClinicHistory());
+    const controller = InfoPatientPanelController.getInstance();
     const state = controller.getState();
+    const validator = Validators.getInstance();
 
     return {
       async searchPatient() {
         const patient = await patientAdapter.searchByIdentificacion(
           state.identificationPatient
         );
+        if (patient === null) {
+          controller.clear();
+          await patientAdapter.patientNotFound();
+          return;
+        }
+
         state.currentPatient = patient;
-        if (state.currentPatient == undefined || patient == null) return;
+        store.currentPatient.value = patient;
         state.age = validator.calculateAge(
           state.currentPatient.dateBirth.toString()
         );
         controller.getGender(patient);
+        const schedule = await scheduleAdapter.findByIdentificationPatient(
+          patient.identification.toString()
+        );
+        if (schedule === null) {
+          await scheduleAdapter.scheduleNotFound();
+          return;
+        }
+
+        const appointment = await appointmentAdapter.getById(schedule.id);
+        if (appointment == null) {
+          await appointmentAdapter.appointmentNotFound();
+          return;
+        }
+        store.currentAppointment.value = appointment;
+        store.speciality.value = schedule.speciality;
+        controller.sendData(state);
       },
       state,
     };

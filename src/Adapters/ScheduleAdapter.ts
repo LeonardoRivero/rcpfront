@@ -244,6 +244,7 @@ export class ScheduleAdapter {
       schedule.end,
       Constants.FORMAT_DATETIME
     );
+    this.store.currentSchedule.observations = schedule.observations;
     if (schedule.speciality == null || schedule.id == undefined) return;
     this.store.speciality = schedule.speciality;
     this.store.currentDoctor = schedule.doctor;

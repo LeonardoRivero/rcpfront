@@ -10,15 +10,15 @@ import {
   EventScheduleResponse,
   PatientResponse,
 } from 'src/Domine/Responses';
-
-const notification = new Notification();
-const message = Messages.getInstance();
-const serviceModal = modalService();
+import { routerInstance } from 'src/boot/globalRouter';
 
 export class AppointmentAdapter {
   private store: IStoreAppointment;
   private service = new AppointmentService();
   private static instance: AppointmentAdapter;
+  private serviceModal = modalService();
+  private message = Messages.getInstance();
+  private notification = new Notification();
 
   private constructor(store: IStoreAppointment) {
     this.store = store;
@@ -63,12 +63,13 @@ export class AppointmentAdapter {
     // this.store.currentAppointment.amountPaid =
     //   this.store.currentAppointment.price;
   }
+
   public async searchByPatientId(
     patientId: number
   ): Promise<AppointmentResponse | null> {
     if (patientId == 0) {
-      notification.setMessage(message.searchIncorrect);
-      notification.showError();
+      this.notification.setMessage(this.message.searchIncorrect);
+      this.notification.showError();
       return null;
     }
 
@@ -94,15 +95,15 @@ export class AppointmentAdapter {
     //   queryParameters
     // );
     // if (schedule === null) {
-    //   notification.setMessage(message.patientNotSchedule);
-    //   notification.showWarning();
+    //   this.this.notification.setMessage(this.message.patientNotSchedule);
+    //   this.this.notification.showWarning();
     //   return;
     // }
 
     // if (schedule.length == 0) {
-    //   const confirm = await serviceModal.showModal(
+    //   const confirm = await this.serviceModal.showModal(
     //     'Atención',
-    //     message.patientNotSchedule
+    //     this.message.patientNotSchedule
     //   );
     //   if (confirm == false) {
     //     return;
@@ -127,11 +128,9 @@ export class AppointmentAdapter {
     // this.store.currentDoctor = lastSchedule.doctor;
   }
 
-  public async getById(id: number) {
+  public async getById(id: number): Promise<AppointmentResponse | null> {
     const response = await this.service.getById(id);
-    if (response == null) {
-      return;
-    }
+    return response;
     // const entity = this.responseToEntity(response);
     // this.store.currentAppointment = entity;
   }
@@ -169,8 +168,8 @@ export class AppointmentAdapter {
     }
 
     if (response === null) {
-      notification.setMessage(message.errorMessage);
-      notification.showError();
+      this.notification.setMessage(this.message.errorMessage);
+      this.notification.showError();
     }
     return response;
   }
@@ -178,9 +177,9 @@ export class AppointmentAdapter {
   public async save(
     payload: IAppointment
   ): Promise<AppointmentResponse | null> {
-    const confirm = await serviceModal.showModal(
+    const confirm = await this.serviceModal.showModal(
       'Atención',
-      message.newRegister
+      this.message.newRegister
     );
     if (confirm === false) {
       return null;
@@ -205,6 +204,20 @@ export class AppointmentAdapter {
       paymentMethod: 22,
       codeTransaction: '444',
     } as IAppointment;
+  }
+
+  public async appointmentNotFound(): Promise<void> {
+    const confirm = await this.serviceModal.showModal(
+      'Error',
+      this.message.appointmentNotFound,
+      'error'
+    );
+    if (confirm == false) {
+      return;
+    }
+
+    routerInstance.push('/appointment');
+    return;
   }
 }
 
@@ -240,8 +253,8 @@ export class AppointmentAdapter {
 //   }
 //   async function searchPatient(): Promise<void> {
 //     if (identificationPatient.value === '') {
-//       notification.setMessage(message.searchIncorrect);
-//       notification.showError();
+//       this.notification.setMessage(this.message.searchIncorrect);
+//       this.notification.showError();
 //       return;
 //     }
 //     let response = {} as HttpResponse<unknown>;
@@ -250,9 +263,9 @@ export class AppointmentAdapter {
 //     );
 //     if (response.status == HttpStatusCodes.NO_CONTENT) {
 //       storeSchedule.card = false;
-//       const confirm = await serviceModal.showModal(
+//       const confirm = await this.serviceModal.showModal(
 //         'Atención',
-//         message.notFoundInfoPatient
+//         this.message.notFoundInfoPatient
 //       );
 //       if (confirm == false) {
 //         return;
@@ -268,17 +281,17 @@ export class AppointmentAdapter {
 //       identificationPatient.value
 //     );
 //     if (response.status == HttpStatusCodes.NO_CONTENT) {
-//       notification.setMessage(message.patientNotSchedule);
-//       notification.showWarning();
+//       this.notification.setMessage(this.message.patientNotSchedule);
+//       this.notification.showWarning();
 //       return;
 //     }
 
 //     const data = (await response.parsedBody) as Array<EventScheduleResponse>;
 
 //     if (data.length == 0) {
-//       const confirm = await serviceModal.showModal(
+//       const confirm = await this.serviceModal.showModal(
 //         'Atención',
-//         message.patientNotSchedule
+//         this.message.patientNotSchedule
 //       );
 //       if (confirm == false) {
 //         return;
@@ -307,8 +320,8 @@ export class AppointmentAdapter {
 //     }
 //     // const dateIsValid = validator.dateGreater(currentAppointment.value.date);
 //     // if (dateIsValid === false) {
-//     //   notification.setMessage(message.dateOrHourNotValid);
-//     //   notification.showError();
+//     //   this.notification.setMessage(this.message.dateOrHourNotValid);
+//     //   this.notification.showError();
 //     //   return;
 //     // }
 
@@ -319,9 +332,9 @@ export class AppointmentAdapter {
 //     if (!currentAppointment.value) return;
 //     let confirmCreate = false;
 //     if (currentAppointment.value.id == undefined) {
-//       confirmCreate = await serviceModal.showModal(
+//       confirmCreate = await this.serviceModal.showModal(
 //         'Atención',
-//         message.newRegister
+//         this.message.newRegister
 //       );
 //       if (confirmCreate === false) {
 //         return;
@@ -346,8 +359,8 @@ export class AppointmentAdapter {
 //         responseCreate == null ||
 //         responseCreate.status == HttpStatusCodes.BAD_REQUEST
 //       ) {
-//         notification.setMessage(message.errorMessage);
-//         notification.showError();
+//         this.notification.setMessage(this.message.errorMessage);
+//         this.notification.showError();
 //         return;
 //       }
 //     }
