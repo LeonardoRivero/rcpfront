@@ -1,4 +1,4 @@
-import modalService from './ModalService';
+import { Modal } from '../Infraestructure/Utilities/Modal';
 import { IStoreInsurance } from 'src/Infraestructure/stores/SettingsPage/InsuranceStore';
 import { InsuranceService } from 'src/Application/Services/InsuranceService';
 import { Messages } from 'src/Application/Utilities/Messages';
@@ -9,7 +9,7 @@ import { reactive } from 'vue';
 
 export class InsuranceAdapter {
   private store: IStoreInsurance;
-  private serviceModal = modalService();
+  private serviceModal = new Modal();
   private messages = Messages.getInstance();
   private service = new InsuranceService();
   private static instance: InsuranceAdapter;

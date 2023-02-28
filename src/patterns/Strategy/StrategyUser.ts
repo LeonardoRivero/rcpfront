@@ -1,5 +1,3 @@
-import { useStoreModal } from 'src/Infraestructure/stores/storeCommon';
-
 export class ContextUser {
   private strategy: StrategyUser;
   constructor(strategy: StrategyUser) {

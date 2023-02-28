@@ -12,7 +12,7 @@ import { defineStore } from 'pinia';
 import { IColumnsDataTable, TableOptions } from 'src/Domine/ICommons';
 // import HttpStatusCode from 'src/scripts/HttpStatusCodes';
 import { PhysicalExamParameterRepository } from 'src/Application/Repositories/SettingsRepository';
-import modalService from './ModalService';
+import { Modal } from '../Infraestructure/Utilities/Modal';
 // import { Messages } from 'src/Application/Utilities/Constants';
 // import { DataTableService } from './DataTableAdapter';
 import { Observer, Subject } from 'src/patterns/Observer/Observer';
@@ -30,7 +30,7 @@ import { PhysicalExamService } from 'src/Application/Services/PhysicalExamServic
 export class PhysicalExamParameterAdapter implements Observer {
   private store: IStorePhysicalExamParameter;
   private service = PhysicalExamService.getInstance();
-  private serviceModal = modalService();
+  private serviceModal = new Modal();
   private messages = Messages.getInstance();
   // private serviceDataTable = DataTableService.getInstance();
   private static instance: PhysicalExamParameterAdapter;

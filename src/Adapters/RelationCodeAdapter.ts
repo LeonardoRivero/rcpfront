@@ -1,4 +1,4 @@
-import modalService from './ModalService';
+import { Modal } from '../Infraestructure/Utilities/Modal';
 import { RelationCodeRepository } from 'src/Application/Repositories/SettingsRepository';
 import { IStoreRelationCode } from 'src/Infraestructure/stores/SettingsPage/RelationCodeStore';
 import { IRelationCode } from 'src/Domine/ModelsDB';
@@ -13,7 +13,7 @@ export class RelationCodeAdapter {
   private storeDxMainCode = useStoreDxMainCode();
   private storeSpeciality = useStoreSpeciality();
   private repository = RelationCodeRepository.getInstance();
-  private serviceModal = modalService();
+  private serviceModal = new Modal();
   private messages = Messages.getInstance();
   private service = new RelationCodeService();
 

@@ -1,14 +1,14 @@
 import { PathologicalHistoryService } from 'src/Application/Services';
-import modalService from './ModalService';
+import { Modal } from '../Infraestructure/Utilities/Modal';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { IPathologycalHistory } from 'src/Domine/ModelsDB';
 import { PathologicalHistoryResponse } from 'src/Domine/Responses';
 import { Convert } from 'src/Application/Utilities';
-import { IStorePathologicalHistory } from 'src/Infraestructure/stores/SettingsPage/PathologicalHistoryStore';
+import { IStorePathologicalHistory } from 'src/Domine/IStores';
 
 export class PathologicalHistoryAdapter {
   private store: IStorePathologicalHistory;
-  private serviceModal = modalService();
+  private serviceModal = new Modal();
   private messages = Messages.getInstance();
   private service = new PathologicalHistoryService();
   private convert = new Convert();

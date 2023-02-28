@@ -75,6 +75,7 @@ import { defineComponent } from 'vue';
 import { storeToRefs } from 'pinia';
 import {
   AppointmentAdapter,
+  ClinicHistoryMediator,
   InfoPatientPanelController,
   PatientAdapter,
 } from 'src/Adapters';
@@ -84,6 +85,7 @@ import { useStoreSchedule } from '../../stores/SchedulePage/ScheduleStore';
 import { ScheduleAdapter } from 'src/Adapters';
 import { useStoreAppointments } from '../../stores/Appointment/AppointmentStore';
 import { useStoreClinicHistory } from '../../stores/ClinicHistoryStore';
+
 export default defineComponent({
   name: 'InfoPatientPanel',
   setup() {
@@ -96,6 +98,8 @@ export default defineComponent({
     const controller = InfoPatientPanelController.getInstance();
     const state = controller.getState();
     const validator = Validators.getInstance();
+    const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
+    clinicHistoryMediator.add(controller);
 
     return {
       async searchPatient() {

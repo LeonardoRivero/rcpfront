@@ -1,6 +1,6 @@
 import { Notification } from 'src/Infraestructure/Utilities/Notifications';
 import { IStorePatient } from 'src/Infraestructure/stores/PatientsPage/PatientStore';
-import modalService from './ModalService';
+import { Modal } from '../Infraestructure/Utilities/Modal';
 import { routerInstance } from 'src/boot/globalRouter';
 import { Validators } from 'src/Application/Utilities/Helpers';
 import { Messages } from 'src/Application/Utilities/Messages';
@@ -8,16 +8,9 @@ import { PatientService } from 'src/Application/Services/PatientService';
 import { IPatient } from 'src/Domine/ModelsDB';
 import { PatientResponse } from 'src/Domine/Responses';
 
-// const store = useStorePatients();
-// const storeInsurance = useStoreSettings();
-// const notification = new Notification();
-// const serviceModal = modalService();
-// const messages = Messages.getInstance();
-// const validator = Validators.getInstance();
-
 export class PatientAdapter {
   private store: IStorePatient;
-  private serviceModal = modalService();
+  private serviceModal = new Modal();
   private messages = Messages.getInstance();
   private notification = new Notification();
   private validator = Validators.getInstance();

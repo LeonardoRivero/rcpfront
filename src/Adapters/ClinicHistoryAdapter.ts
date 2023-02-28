@@ -7,11 +7,10 @@ import {
 } from 'src/Domine/Responses';
 import { IconSVG, Gender } from 'src/Application/Utilities';
 import { IControllersMediator, Controller } from 'src/Domine/IPatterns';
-import {
-  IStoreClinicHistory,
-  useStoreClinicHistory,
-} from 'src/Infraestructure/stores/ClinicHistoryStore';
+import { useStoreClinicHistory } from 'src/Infraestructure/stores/ClinicHistoryStore';
 import { PhysicalExamService } from 'src/Application/Services';
+import { PreliminaryDataState } from 'src/Domine/IStates';
+import { IStoreClinicHistory } from 'src/Domine/IStores';
 
 export class InfoPatientPanelController extends Controller {
   private iconSVG = IconSVG.getInstance();
@@ -71,25 +70,20 @@ export class InfoPatientPanelController extends Controller {
 export class PreliminaryDataController extends Controller {
   private static instance: PreliminaryDataController;
   private service = PhysicalExamService.getInstance();
+  private state: PreliminaryDataState;
 
-  private state = reactive({
-    allPathologies: [] as Array<PathologicalHistoryResponse>,
-    pathology: null,
-    options: <Array<PathologicalHistoryResponse>>[],
-    items: <Array<unknown>>[],
-    splitterModel: 50,
-    reasonConsultation: '',
-  });
-
-  public static getInstance(): PreliminaryDataController {
-    if (!PreliminaryDataController.instance) {
-      PreliminaryDataController.instance = new PreliminaryDataController();
-    }
-    return PreliminaryDataController.instance;
+  public constructor(state: PreliminaryDataState) {
+    super();
+    this.state = state;
   }
 
-  public getState() {
-    return this.state;
+  public static getInstance(
+    state: PreliminaryDataState
+  ): PreliminaryDataController {
+    if (!PreliminaryDataController.instance) {
+      PreliminaryDataController.instance = new PreliminaryDataController(state);
+    }
+    return PreliminaryDataController.instance;
   }
 
   public adaptPhysicalExam(
@@ -132,10 +126,18 @@ export class PreliminaryDataController extends Controller {
 export class ClinicHistoryMediator implements IControllersMediator {
   private controllers: Controller[] = [];
   public stores: IStoreClinicHistory;
+  private static instance: ClinicHistoryMediator;
 
-  public constructor() {
+  private constructor() {
     this.stores = useStoreClinicHistory();
     return;
+  }
+
+  public static getInstance(): ClinicHistoryMediator {
+    if (!ClinicHistoryMediator.instance) {
+      ClinicHistoryMediator.instance = new ClinicHistoryMediator();
+    }
+    return ClinicHistoryMediator.instance;
   }
 
   public add(controller: Controller): void {

@@ -1,7 +1,7 @@
 import { IAppointment } from 'src/Domine/ModelsDB';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { Notification } from 'src/Infraestructure/Utilities/Notifications';
-import modalService from './ModalService';
+import { Modal } from '../Infraestructure/Utilities/Modal';
 import { IStoreAppointment } from 'src/Infraestructure/stores/Appointment/AppointmentStore';
 import { AppointmentService } from 'src/Application/Services';
 import {
@@ -16,7 +16,7 @@ export class AppointmentAdapter {
   private store: IStoreAppointment;
   private service = new AppointmentService();
   private static instance: AppointmentAdapter;
-  private serviceModal = modalService();
+  private serviceModal = new Modal();
   private message = Messages.getInstance();
   private notification = new Notification();
 

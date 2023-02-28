@@ -1,4 +1,5 @@
 <template>
+  {{ this.state }}
   <q-input
     v-model="state.reasonConsultation"
     filled
@@ -42,7 +43,7 @@
   <div class="text-h5 q-mt-sm q-mb-xs">
     <q-icon :name="icons.physicalTherapy" size="32px" /> Examen Fisico
   </div>
-  <q-splitter v-model="state.splitterModel">
+  <q-splitter v-model="splitterModel">
     <template v-slot:before>
       <div v-for="(item, index) in state.items" :key="item.id">
         <q-item v-if="index % 2 == 0">
@@ -81,28 +82,35 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, reactive } from 'vue';
 import { IconSVG, FIELD_REQUIRED } from 'src/Application/Utilities';
 import { PathologicalHistoryAdapter } from 'src/Adapters/PathologicalHistoryAdapter';
-import { useStorePathological } from 'src/Infraestructure/stores/SettingsPage/PathologicalHistoryStore';
 import { PathologicalHistoryResponse } from 'src/Domine/Responses';
-import { PreliminaryDataController } from 'src/Adapters';
+import { PreliminaryDataState } from 'src/Domine/IStates';
 import 'src/css/app.sass';
+import { ClinicHistoryMediator, PreliminaryDataController } from 'src/Adapters';
+import { PathologyHistoryMediator } from 'src/Infraestructure/stores/SettingsPage/PathologicalHistoryStore';
 
 export default defineComponent({
   name: 'PreliminaryData',
   setup() {
-    const adapter = PathologicalHistoryAdapter.getInstance(
-      useStorePathological()
-    );
+    let state: PreliminaryDataState = reactive({
+      allPathologies: [] as Array<PathologicalHistoryResponse>,
+      pathology: null,
+      items: <Array<unknown>>[],
+      reasonConsultation: '',
+    });
 
+    const pathologyHistoryMediator = new PathologyHistoryMediator();
     const icons = IconSVG.getInstance();
-    const preliminaryDataController = PreliminaryDataController.getInstance();
-    const state = preliminaryDataController.getState();
     let pathologies = [] as Array<PathologicalHistoryResponse>;
 
+    const controller = PreliminaryDataController.getInstance(state);
+    const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
+    clinicHistoryMediator.add(controller);
+
     onMounted(async () => {
-      state.allPathologies = await adapter.getAll();
+      state.allPathologies = await pathologyHistoryMediator.getAllPathologies();
       pathologies = state.allPathologies;
     });
 
@@ -110,6 +118,7 @@ export default defineComponent({
       FIELD_REQUIRED,
       icons,
       state,
+      splitterModel: 50,
       filterFn(val: string, update: any) {
         update(() => {
           const needle = val.toLowerCase();

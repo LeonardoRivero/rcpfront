@@ -1,6 +1,6 @@
 import { IStoreSpeciality } from 'src/Infraestructure/stores/SettingsPage/SpecialityStore';
 import { ISpeciality } from 'src/Domine/ModelsDB';
-import modalService from './ModalService';
+import { Modal } from '../Infraestructure/Utilities/Modal';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { SpecialityResponse } from 'src/Domine/Responses';
@@ -8,7 +8,7 @@ import { SpecialityResponse } from 'src/Domine/Responses';
 export class SpecialityAdapter {
   private store: IStoreSpeciality;
 
-  private serviceModal = modalService();
+  private serviceModal = new Modal();
   private messages = Messages.getInstance();
   private service = new SpecialityService();
   private static instance: SpecialityAdapter;
@@ -96,7 +96,8 @@ export class SpecialityAdapter {
   ): Promise<SpecialityResponse | null> {
     const confirm = await this.serviceModal.showModal(
       'Atención',
-      this.messages.updateRegister
+      this.messages.updateRegister,
+      'question'
     );
     if (confirm === false) {
       return null;

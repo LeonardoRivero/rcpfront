@@ -69,11 +69,10 @@ export default defineComponent({
     const formStep1 = ref<QForm>();
     const stepper = ref<QStepper>();
     const step = ref<number>(1);
-    const clinicHistoryMediator = new ClinicHistoryMediator();
-    const controller = InfoPatientPanelController.getInstance();
-    const preliminaryDataController = PreliminaryDataController.getInstance();
-    clinicHistoryMediator.add(controller);
-    clinicHistoryMediator.add(preliminaryDataController);
+
+    // const preliminaryDataController = new PreliminaryDataController();
+    // clinicHistoryMediator.add(controller);
+    // clinicHistoryMediator.add(preliminaryDataController);
     return {
       formStep1,
       stepper,

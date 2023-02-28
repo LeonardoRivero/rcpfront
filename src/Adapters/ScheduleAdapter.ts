@@ -9,10 +9,7 @@ import listPlugin from '@fullcalendar/list';
 import esLocale from '@fullcalendar/core/locales/es';
 import FullCalendar from '@fullcalendar/vue3';
 // import { useStoreSchedule } from 'src/stores/storeSchedule';
-import {
-  Modal,
-  Notification,
-} from 'src/Infraestructure/Utilities/Notifications';
+import { Notification } from 'src/Infraestructure/Utilities/Notifications';
 import {
   Convert,
   EndPoints,
@@ -21,7 +18,7 @@ import {
 } from 'src/Application/Utilities';
 import * as Constants from 'src/Application/Utilities/Constants';
 import { routerInstance } from 'src/boot/globalRouter';
-import modalService from './ModalService';
+import { Modal } from '../Infraestructure/Utilities/Modal';
 import { EventSchedule } from 'src/Domine/ModelsDB';
 import { ScheduleRepository } from 'src/Application/Repositories/ScheduleRepository';
 import { AppointmentRepository } from 'src/Application/Repositories/AppointmentRepository';
@@ -34,7 +31,7 @@ import { ScheduleService } from 'src/Application/Services/ScheduleService';
 const notification = new Notification();
 const validator = Validators.getInstance();
 export class ScheduleAdapter {
-  private serviceModal = modalService();
+  private serviceModal = new Modal();
   private messages = Messages.getInstance();
   private store: IStoreSchedule;
   // private repository: IRepository<EventSchedule, EventScheduleResponse>;

@@ -1,6 +1,6 @@
 import { computed } from 'vue';
 import { IDXMainCode } from 'src/Domine/ModelsDB';
-import modalService from './ModalService';
+import { Modal } from '../Infraestructure/Utilities/Modal';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { IStoreDxMainCode } from 'src/Infraestructure/stores/SettingsPage/DxMainCodeStore';
 import { useStoreSpeciality } from 'src/Infraestructure/stores/SettingsPage/SpecialityStore';
@@ -11,7 +11,7 @@ export class DxMainCodeAdapter {
   private store: IStoreDxMainCode;
   private storeSpeciality = useStoreSpeciality();
   private service = new DxMainCodeService();
-  private serviceModal = modalService();
+  private serviceModal = new Modal();
   private messages = Messages.getInstance();
   private static instance: DxMainCodeAdapter;
 

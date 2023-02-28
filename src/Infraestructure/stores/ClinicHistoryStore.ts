@@ -1,17 +1,11 @@
 import { defineStore } from 'pinia';
+import { IStoreClinicHistory } from 'src/Domine/IStores';
 import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
   AppointmentResponse,
   DoctorResponse,
   PatientResponse,
 } from 'src/Domine/Responses';
-
-export interface IStoreClinicHistory {
-  speciality: ISpeciality;
-  currentDoctor: DoctorResponse;
-  currentAppointment: AppointmentResponse;
-  currentPatient: PatientResponse;
-}
 
 export const useStoreClinicHistory = defineStore({
   id: 'useStoreClinicHistory',

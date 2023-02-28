@@ -1,5 +1,4 @@
-import { Notify, Dialog } from 'quasar';
-import { Loading, QSpinnerGears } from 'quasar';
+import { Dialog, Loading, Notify } from 'quasar';
 
 export class Notification {
   private _message = '' as string;
@@ -47,7 +46,6 @@ export class Modal {
       .onOk(async (data) => {
         console.log('OK', data);
         if (this._redirectPage) {
-          //route().push({ name: 'patients' });
         }
       })
       .onCancel(() => {
