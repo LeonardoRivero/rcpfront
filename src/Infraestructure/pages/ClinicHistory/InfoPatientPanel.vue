@@ -117,6 +117,18 @@ export default defineComponent({
         state.age = validator.calculateAge(
           state.currentPatient.dateBirth.toString()
         );
+        const dateBirth = new Date(
+          state.currentPatient.dateBirth.toLocaleString()
+        );
+        const options = {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        } as const;
+        state.currentPatient.dateBirth = dateBirth.toLocaleDateString(
+          'es-Es',
+          options
+        );
         controller.getGender(patient);
         const schedule = await scheduleAdapter.findByIdentificationPatient(
           patient.identification.toString()
