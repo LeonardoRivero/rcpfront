@@ -1,5 +1,5 @@
 import { IAppointment, IPaymentOptions } from 'src/Domine/ModelsDB';
-import { EndPoints, Messages } from 'src/Application/Utilities';
+import { EndPoints } from 'src/Application/Utilities';
 import HttpStatusCodes from 'src/Application/Utilities/HttpStatusCodes';
 import {
   GET,
@@ -13,7 +13,6 @@ import {
 } from 'src/Domine/Responses';
 
 const endpoint = EndPoints.getInstance();
-const messages = Messages.getInstance();
 // type IAppointment = IAppointmentRequest | IAppointmentResponse | null;
 export class AppointmentRepository
   implements IRepository<IAppointment, AppointmentResponse>

@@ -84,7 +84,7 @@ import { storeToRefs } from 'pinia';
 
 import 'src/css/app.sass';
 import { TableOptions } from 'src/Domine/ICommons';
-import { useStoreDataTable } from 'src/Infraestructure/stores/Common/DatatableStore';
+import { useStoreDataTable } from 'src/Infraestructure/Mediators/Common/DatatableStore';
 import { DataTableAdapter } from 'src/Adapters/DataTableAdapter';
 
 export default defineComponent({

@@ -10,7 +10,7 @@
           dense
           clearable
           outlined
-          v-model="pathology"
+          v-model="state.pathology"
           :options="allPathologies"
           :option-value="(item) => (item === null ? null : item.id)"
           option-label="description"
@@ -29,7 +29,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="pathology != null"
+          v-if="state.pathology != null"
           flat
           round
           color="green"
@@ -46,19 +46,19 @@
           round
           flat
           dense
-          :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-          @click="expanded = !expanded"
+          :icon="state.expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+          @click="state.expanded = !state.expanded"
         />
       </q-card-actions>
       <q-slide-transition>
-        <div v-show="expanded">
+        <div v-show="state.expanded">
           <q-separator />
           <q-card-section class="text-subitle2">
             <q-form @submit="confirmChanges" class="q-gutter-md" ref="form">
               <q-input
                 dense
                 outlined
-                v-model="currentPathology.description"
+                v-model="state.currentPathology.description"
                 label="Descripcion"
                 hint="Descripcion Patologia"
                 lazy-rules
@@ -76,49 +76,48 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
-import { storeToRefs } from 'pinia';
+import { defineComponent, onMounted, reactive, ref } from 'vue';
+import { QForm } from 'quasar';
 import { IPathologycalHistory } from 'src/Domine/ModelsDB';
 import { PathologicalHistoryAdapter } from 'src/Adapters/PathologicalHistoryAdapter';
-import { QForm } from 'quasar';
-import { useStorePathological } from 'src/Infraestructure/stores/SettingsPage/PathologicalHistoryStore';
 import { PathologicalHistoryResponse } from 'src/Domine/Responses';
+import { PathologicalHistoryState } from 'src/Domine/IStates';
+import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import 'src/css/app.sass';
 
 export default defineComponent({
   name: 'PathologicalHistoryForm',
   setup() {
-    const adapter = PathologicalHistoryAdapter.getInstance(
-      useStorePathological()
-    );
-    const currentPathology = ref<IPathologycalHistory>(
-      {} as IPathologycalHistory
-    );
-    const pathology = ref<PathologicalHistoryResponse | null>(null);
+    const state: PathologicalHistoryState = reactive({
+      currentPathology: {} as IPathologycalHistory,
+      pathology: null,
+      expanded: false,
+      allPathologies: <Array<PathologicalHistoryResponse>>[],
+    });
+    const adapter = PathologicalHistoryAdapter.getInstance(state);
+
     const form = ref<QForm>();
-    const expanded = ref<boolean>(false);
-    const { allPathologies } = storeToRefs(useStorePathological());
+    const allPathologies = ref<Array<PathologicalHistoryResponse>>([]);
+    const mediator = SettingsMediator.getInstance();
 
     onMounted(async () => {
-      allPathologies.value = await adapter.getAll();
+      allPathologies.value = await mediator.getAllPathologies();
     });
 
     return {
+      state,
       form,
-      currentPathology,
-      pathology,
       allPathologies,
-      expanded,
       add() {
-        expanded.value = true;
-        currentPathology.value = {} as IPathologycalHistory;
+        state.expanded = true;
+        state.currentPathology = {} as IPathologycalHistory;
       },
 
       edit() {
-        if (expanded.value === false) {
-          expanded.value = !expanded.value;
+        if (state.expanded === false) {
+          state.expanded = !state.expanded;
         }
-        currentPathology.value = adapter.responseToEntity(pathology.value);
+        state.currentPathology = adapter.responseToEntity(state.pathology);
       },
 
       async confirmChanges() {
@@ -126,18 +125,18 @@ export default defineComponent({
         if (isValid == false) {
           return;
         }
-        const response = await adapter.saveOrUpdate(currentPathology.value);
+        const response = await adapter.saveOrUpdate(state.currentPathology);
         if (response == null) {
           return;
         }
-        pathology.value = adapter.responseToEntity(response);
-        currentPathology.value = {} as IPathologycalHistory;
-        expanded.value = false;
+        state.pathology = adapter.responseToEntity(response);
+        state.currentPathology = {} as IPathologycalHistory;
+        state.expanded = false;
       },
 
       pathologyChanged(val: PathologicalHistoryResponse) {
         const entity = adapter.responseToEntity(val);
-        currentPathology.value = entity;
+        state.currentPathology = entity;
       },
 
       clear() {

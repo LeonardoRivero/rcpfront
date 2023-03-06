@@ -23,7 +23,7 @@ import { EventSchedule } from 'src/Domine/ModelsDB';
 import { ScheduleRepository } from 'src/Application/Repositories/ScheduleRepository';
 import { AppointmentRepository } from 'src/Application/Repositories/AppointmentRepository';
 import { EventScheduleResponse } from 'src/Domine/Responses';
-import { IStoreSchedule } from 'src/Infraestructure/stores/SchedulePage/ScheduleStore';
+import { IStoreSchedule } from 'src/Infraestructure/Mediators/SchedulePage/ScheduleStore';
 
 import { IRepository } from 'src/Application/Repositories';
 import { ScheduleService } from 'src/Application/Services/ScheduleService';

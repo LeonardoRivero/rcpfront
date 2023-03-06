@@ -3,24 +3,26 @@
     <q-card class="my-card" bordered>
       <q-card-section>
         <div class="text-h5 q-mt-sm q-mb-xs">
-          <q-icon :name="icon" size="32px" />Especialidades
+          <q-icon :name="icons.bookMedical" size="32px" />Especialidades
         </div>
         <div class="text-caption text-grey">
           Especialidades existentes:
-          {{ allSpecialities == null ? '' : allSpecialities.length }}
+          {{
+            state.allSpecialities == null ? '' : state.allSpecialities.length
+          }}
         </div>
         <q-select
           dense
           clearable
           outlined
-          v-model="speciality"
-          :options="allSpecialities"
+          v-model="state.speciality"
+          :options="state.allSpecialities"
           option-value="id"
           option-label="description"
           map-options
           label="Especialidad"
           :hint="`Codigo Especialidad: ${
-            speciality == undefined ? '' : speciality.code
+            state.speciality == undefined ? '' : state.speciality.code
           }`"
           @update:model-value="(val) => specialityChanged(val)"
           @clear="(val) => clearSpeciality(val)"
@@ -34,7 +36,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="speciality != null"
+          v-if="state.peciality != null"
           flat
           round
           color="green"
@@ -51,19 +53,19 @@
           round
           flat
           dense
-          :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-          @click="expanded = !expanded"
+          :icon="state.expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+          @click="state.expanded = !state.expanded"
         />
       </q-card-actions>
       <q-slide-transition>
-        <div v-show="expanded">
+        <div v-show="state.expanded">
           <q-separator />
           <q-card-section class="text-subitle2">
             <q-form @submit="confirmChanges" class="q-gutter-md" ref="form">
               <q-input
                 dense
                 outlined
-                v-model="currentSpeciality.description"
+                v-model="state.currentSpeciality.description"
                 label="Descripcion"
                 hint="Descripcion Especialidad"
                 lazy-rules
@@ -75,7 +77,7 @@
               <q-input
                 dense
                 outlined
-                v-model="currentSpeciality.code"
+                v-model="state.currentSpeciality.code"
                 label="Codigo Especialidad"
                 hint="Codigo Especialidad"
                 lazy-rules
@@ -96,60 +98,70 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
-import { storeToRefs } from 'pinia';
+import { defineComponent, onMounted, reactive, ref } from 'vue';
+import { QForm } from 'quasar';
 import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
-  SpecialityAdapter,
-  DxMainCodeAdapter,
+  SpecialityController,
+  DxMainCodeController,
   RelationCodeAdapter,
 } from 'src/Adapters';
-import { useStoreSpeciality } from '../../stores/SettingsPage/SpecialityStore';
-import { useStoreDxMainCode } from 'src/Infraestructure/stores/SettingsPage/DxMainCodeStore';
-
-import 'src/css/app.sass';
-import { useStoreRelationCode } from 'src/Infraestructure/stores/SettingsPage/RelationCodeStore';
+import { useStoreDxMainCode } from '../../Mediators/SettingsPage/DxMainCodeStore';
+import { useStoreRelationCode } from '../../Mediators/SettingsPage/RelationCodeStore';
 import { IconSVG } from 'src/Application/Utilities';
+import { SpecialityResponse } from 'src/Domine/Responses';
+import { SpecialityFormState } from 'src/Domine/IStates';
+import { SettingsMediator } from '../../Mediators';
+import 'src/css/app.sass';
 
 export default defineComponent({
   name: 'SpecialityForm',
   setup() {
-    const { allSpecialities, currentSpeciality, speciality, expanded, form } =
-      storeToRefs(useStoreSpeciality());
+    const state: SpecialityFormState = reactive({
+      currentSpeciality: {} as SpecialityResponse,
+      expanded: false,
+      speciality: null,
+      allSpecialities: <Array<SpecialityResponse>>[],
+    });
 
-    const adapter = SpecialityAdapter.getInstance(useStoreSpeciality());
-    const dxMainCodeAdapter = DxMainCodeAdapter.getInstance(
+    const form = ref<QForm>();
+    const controller = SpecialityController.getInstance(state);
+    const mediator = SettingsMediator.getInstance();
+    mediator.add(controller);
+
+    const dxMainCodeAdapter = DxMainCodeController.getInstance(
       useStoreDxMainCode()
     );
 
     const relationCodeAdapter = RelationCodeAdapter.getInstance(
       useStoreRelationCode()
     );
-    const iconSVG = IconSVG.getInstance();
-    const icon = ref<string>('');
+
     onMounted(async () => {
-      await adapter.getAll();
-      icon.value = iconSVG.bookMedical;
+      state.allSpecialities = await mediator.getAllSpecialities();
     });
 
     return {
-      icon,
-      expanded,
-      speciality,
-      allSpecialities,
-      currentSpeciality,
+      state,
+      icons: IconSVG.getInstance(),
       form,
       add() {
-        adapter.add();
+        controller.add();
+        form.value?.reset();
       },
+
       edit() {
-        adapter.edit();
+        controller.edit();
       },
+
       async confirmChanges() {
-        await adapter.saveOrUpdate(currentSpeciality.value);
+        const isValid = await form.value?.validate();
+        if (isValid == false) return;
+        await controller.saveOrUpdate(state.currentSpeciality);
       },
+
       async specialityChanged(val: ISpeciality) {
-        await adapter.specialityChanged(val);
+        await controller.specialityChanged(val);
         const queryParameters = { speciality: val.id };
         const response = await dxMainCodeAdapter.findByParameters(
           queryParameters
@@ -158,8 +170,9 @@ export default defineComponent({
         dxMainCodeAdapter.listDxMainCodes = response;
         await relationCodeAdapter.clear();
       },
+
       clearSpeciality() {
-        adapter.clear();
+        controller.clear();
       },
     };
   },

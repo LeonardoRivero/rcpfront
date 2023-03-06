@@ -4,23 +4,23 @@ import { Messages } from 'src/Application/Utilities/Messages';
 import { IPathologycalHistory } from 'src/Domine/ModelsDB';
 import { PathologicalHistoryResponse } from 'src/Domine/Responses';
 import { Convert } from 'src/Application/Utilities';
-import { IStorePathologicalHistory } from 'src/Domine/IStores';
+import { PathologicalHistoryState } from 'src/Domine/IStates';
 
 export class PathologicalHistoryAdapter {
-  private store: IStorePathologicalHistory;
+  private store: PathologicalHistoryState;
   private serviceModal = new Modal();
   private messages = Messages.getInstance();
   private service = new PathologicalHistoryService();
   private convert = new Convert();
   private static instance: PathologicalHistoryAdapter;
 
-  private constructor(store: IStorePathologicalHistory) {
+  private constructor(store: PathologicalHistoryState) {
     this.store = store;
     return;
   }
 
   public static getInstance(
-    store: IStorePathologicalHistory
+    store: PathologicalHistoryState
   ): PathologicalHistoryAdapter {
     if (!PathologicalHistoryAdapter.instance) {
       PathologicalHistoryAdapter.instance = new PathologicalHistoryAdapter(

@@ -1,12 +1,12 @@
 import { Modal } from '../Infraestructure/Utilities/Modal';
 import { RelationCodeRepository } from 'src/Application/Repositories/SettingsRepository';
-import { IStoreRelationCode } from 'src/Infraestructure/stores/SettingsPage/RelationCodeStore';
+import { IStoreRelationCode } from 'src/Infraestructure/Mediators/SettingsPage/RelationCodeStore';
 import { IRelationCode } from 'src/Domine/ModelsDB';
 import { RelationCodeService } from 'src/Application/Services/RelationCodeService';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { RelationCodeResponse } from 'src/Domine/Responses';
-import { useStoreDxMainCode } from 'src/Infraestructure/stores/SettingsPage/DxMainCodeStore';
-import { useStoreSpeciality } from 'src/Infraestructure/stores/SettingsPage/SpecialityStore';
+import { useStoreDxMainCode } from 'src/Infraestructure/Mediators/SettingsPage/DxMainCodeStore';
+import { useStoreSpeciality } from 'src/Infraestructure/Mediators/SettingsPage/SpecialityStore';
 
 export class RelationCodeAdapter {
   private store: IStoreRelationCode;

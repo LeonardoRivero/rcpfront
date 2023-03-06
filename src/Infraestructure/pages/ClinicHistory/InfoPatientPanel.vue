@@ -75,16 +75,16 @@ import { defineComponent } from 'vue';
 import { storeToRefs } from 'pinia';
 import {
   AppointmentAdapter,
-  ClinicHistoryMediator,
   InfoPatientPanelController,
   PatientAdapter,
 } from 'src/Adapters';
-import { useStorePatient } from '../../stores/PatientsPage/PatientStore';
+import { useStorePatient } from '../../Mediators/PatientsPage/PatientStore';
 import { Validators } from 'src/Application/Utilities';
-import { useStoreSchedule } from '../../stores/SchedulePage/ScheduleStore';
+import { useStoreSchedule } from '../../Mediators/SchedulePage/ScheduleStore';
 import { ScheduleAdapter } from 'src/Adapters';
-import { useStoreAppointments } from '../../stores/Appointment/AppointmentStore';
-import { useStoreClinicHistory } from '../../stores/ClinicHistoryStore';
+import { useStoreAppointments } from '../../Mediators/Appointment/AppointmentStore';
+// import { useStoreClinicHistory } from '../../Mediators/ClinicHistoryStore';
+import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
 
 export default defineComponent({
   name: 'InfoPatientPanel',
@@ -94,7 +94,7 @@ export default defineComponent({
     const appointmentAdapter = AppointmentAdapter.getInstance(
       useStoreAppointments()
     );
-    const store = storeToRefs(useStoreClinicHistory());
+    // const store = storeToRefs(useStoreClinicHistory());
     const controller = InfoPatientPanelController.getInstance();
     const state = controller.getState();
     const validator = Validators.getInstance();
@@ -113,7 +113,7 @@ export default defineComponent({
         }
 
         state.currentPatient = patient;
-        store.currentPatient.value = patient;
+        // store.currentPatient.value = patient;
         state.age = validator.calculateAge(
           state.currentPatient.dateBirth.toString()
         );
@@ -131,8 +131,8 @@ export default defineComponent({
           await appointmentAdapter.appointmentNotFound();
           return;
         }
-        store.currentAppointment.value = appointment;
-        store.speciality.value = schedule.speciality;
+        // store.currentAppointment.value = appointment;
+        // store.speciality.value = schedule.speciality;
         controller.sendData(state);
       },
       state,

@@ -2,7 +2,7 @@ import { IAppointment } from 'src/Domine/ModelsDB';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { Notification } from 'src/Infraestructure/Utilities/Notifications';
 import { Modal } from '../Infraestructure/Utilities/Modal';
-import { IStoreAppointment } from 'src/Infraestructure/stores/Appointment/AppointmentStore';
+import { IStoreAppointment } from 'src/Infraestructure/Mediators/Appointment/AppointmentStore';
 import { AppointmentService } from 'src/Application/Services';
 import {
   AppointmentResponse,

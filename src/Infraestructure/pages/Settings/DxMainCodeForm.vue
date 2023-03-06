@@ -3,7 +3,7 @@
     <q-card class="my-card" bordered>
       <q-card-section>
         <div class="text-h5 q-mt-sm q-mb-xs">
-          <q-icon :name="icon" size="32px" /> Codigos CUPS
+          <q-icon :name="icons.barCode" size="32px" /> Codigos CUPS
         </div>
         <div class="text-caption text-grey">
           CUPS existentes:
@@ -102,16 +102,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent} from 'vue';
 import { storeToRefs } from 'pinia';
-import { useStoreSpeciality } from '../../stores/SettingsPage/SpecialityStore';
-import { useStoreDxMainCode } from '../../stores/SettingsPage/DxMainCodeStore';
-import { DxMainCodeAdapter } from 'src/Adapters/DxMainCodeAdapter';
+import { useStoreSpeciality } from '../../Mediators/SettingsPage/SpecialityStore';
+import { useStoreDxMainCode } from '../../Mediators/SettingsPage/DxMainCodeStore';
+import { DxMainCodeController } from 'src/Adapters/DxMainCodeAdapter';
 import { DXMainCodeResponse } from 'src/Domine/Responses';
 import { RelationCodeAdapter } from 'src/Adapters';
-import { useStoreRelationCode } from '../../stores/SettingsPage/RelationCodeStore';
+import { useStoreRelationCode } from '../../Mediators/SettingsPage/RelationCodeStore';
 import { IconSVG } from 'src/Application/Utilities';
 import 'src/css/app.sass';
+import { SettingsMediator } from 'src/Infraestructure/Mediators';
 
 export default defineComponent({
   name: 'DxMainCodeForm',
@@ -125,32 +126,27 @@ export default defineComponent({
       form,
     } = storeToRefs(useStoreDxMainCode());
     const { currentSpeciality } = storeToRefs(useStoreSpeciality());
-    const adapter = DxMainCodeAdapter.getInstance(useStoreDxMainCode());
+    const controller = DxMainCodeController.getInstance(useStoreDxMainCode());
+    const mediator = SettingsMediator.getInstance();
+    mediator.add(controller);
 
     const storeRelationCode = useStoreRelationCode();
     const adapterRelationCode =
       RelationCodeAdapter.getInstance(storeRelationCode);
-    const iconSVG = IconSVG.getInstance();
-    const icon = ref<string>('');
-
-    onMounted(async () => {
-      icon.value = iconSVG.barCode;
-    });
-
     return {
       dxMainCode,
       currentDxMainCode,
       allDxMainCodes,
-      icon,
+      icons: IconSVG.getInstance(),
       currentSpeciality,
       expanded,
       form,
       error,
       async clearDxMainCode() {
-        await adapter.clear();
+        await controller.clear();
       },
       async dxMainCodeChanged(val: DXMainCodeResponse) {
-        await adapter.dxMainCodeChanged(val);
+        await controller.dxMainCodeChanged(val);
         const queryParameters = { dxMainCodeId: val.id };
         const response = await adapterRelationCode.findByParameters(
           queryParameters
@@ -158,13 +154,13 @@ export default defineComponent({
         storeRelationCode.allRelationCodes = response;
       },
       edit() {
-        adapter.edit();
+        controller.edit();
       },
       add() {
-        adapter.add();
+        controller.add();
       },
       async confirmChanges() {
-        await adapter.saveOrUpdate();
+        await controller.saveOrUpdate();
       },
     };
   },

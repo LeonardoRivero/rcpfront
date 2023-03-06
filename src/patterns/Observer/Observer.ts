@@ -1,7 +1,7 @@
 import { DataTableAdapter } from 'src/Adapters/DataTableAdapter';
 import { IPhysicalExam, ISpeciality } from 'src/Domine/ModelsDB';
 import { PhysicalExamResponse } from 'src/Domine/Responses';
-import { useStorePhysicalExamParameter } from 'src/Infraestructure/stores/SettingsPage/PhysicalExamStore';
+import { useStorePhysicalExamParameter } from 'src/Infraestructure/Mediators/SettingsPage/PhysicalExamStore';
 
 export abstract class Subject {
   attach(observer: Observer): void {

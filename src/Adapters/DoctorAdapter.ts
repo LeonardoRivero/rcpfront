@@ -1,4 +1,4 @@
-import { IStoreDoctor } from 'src/Infraestructure/stores/SettingsPage/DoctorStore';
+import { IStoreDoctor } from 'src/Infraestructure/Mediators/SettingsPage/DoctorStore';
 import { DoctorResponse } from 'src/Domine/Responses';
 import { DoctorService } from 'src/Application/Services/DoctorService';
 

@@ -112,13 +112,13 @@
 import { defineComponent, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 
-import { useStoreRelationCode } from 'src/Infraestructure/stores/SettingsPage/RelationCodeStore';
-import { useStoreDxMainCode } from 'src/Infraestructure/stores/SettingsPage/DxMainCodeStore';
-import { useStoreSpeciality } from 'src/Infraestructure/stores/SettingsPage/SpecialityStore';
+import { useStoreRelationCode } from 'src/Infraestructure/Mediators/SettingsPage/RelationCodeStore';
+import { useStoreDxMainCode } from 'src/Infraestructure/Mediators/SettingsPage/DxMainCodeStore';
+import { useStoreSpeciality } from 'src/Infraestructure/Mediators/SettingsPage/SpecialityStore';
 import { IRelationCode } from 'src/Domine/ModelsDB';
 import { RelationCodeAdapter } from 'src/Adapters';
-import 'src/css/app.sass';
 import { IconSVG } from 'src/Application/Utilities';
+import 'src/css/app.sass';
 
 export default defineComponent({
   name: 'RelationCodeForm',

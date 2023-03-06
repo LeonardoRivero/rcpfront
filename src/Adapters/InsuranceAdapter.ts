@@ -1,5 +1,5 @@
 import { Modal } from '../Infraestructure/Utilities/Modal';
-import { IStoreInsurance } from 'src/Infraestructure/stores/SettingsPage/InsuranceStore';
+import { IStoreInsurance } from 'src/Infraestructure/Mediators/SettingsPage/InsuranceStore';
 import { InsuranceService } from 'src/Application/Services/InsuranceService';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { IHealthInsurance } from 'src/Domine/ModelsDB';

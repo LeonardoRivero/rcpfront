@@ -4,6 +4,8 @@ import {
   DoctorResponse,
   PathologicalHistoryResponse,
   PatientResponse,
+  RelationCodeResponse,
+  SpecialityResponse,
 } from './Responses';
 
 export interface IStoreClinicHistory {
@@ -13,6 +15,12 @@ export interface IStoreClinicHistory {
   currentPatient: PatientResponse;
 }
 
-export interface IStorePathologicalHistory {
+// export interface IStorePathologicalHistory {
+//   allPathologies: Array<PathologicalHistoryResponse>;
+// }
+
+export interface IStoreSettings {
+  allSpecialities: Array<SpecialityResponse>;
   allPathologies: Array<PathologicalHistoryResponse>;
+  allRelationCode: Array<RelationCodeResponse>;
 }

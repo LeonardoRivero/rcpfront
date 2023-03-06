@@ -122,7 +122,7 @@ import { defineComponent, onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { IHealthInsurance } from 'src/Domine/ModelsDB';
 import { InsuranceAdapter } from 'src/Adapters/InsuranceAdapter';
-import { useStoreInsurance } from '../../stores/SettingsPage/InsuranceStore';
+import { useStoreInsurance } from '../../Mediators/SettingsPage/InsuranceStore';
 import { IconSVG } from 'src/Application/Utilities';
 import 'src/css/app.sass';
 import { HealthInsuranceResponse } from 'src/Domine/Responses';

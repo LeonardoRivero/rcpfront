@@ -19,7 +19,7 @@ import { Observer, Subject } from 'src/patterns/Observer/Observer';
 import { PhysicalExamResponse } from 'src/Domine/Responses';
 import { IPhysicalExam, ISpeciality } from 'src/Domine/ModelsDB';
 import { DataTableAdapter } from './DataTableAdapter';
-import { IStorePhysicalExamParameter } from 'src/Infraestructure/stores/SettingsPage/PhysicalExamStore';
+import { IStorePhysicalExamParameter } from 'src/Infraestructure/Mediators/SettingsPage/PhysicalExamStore';
 import { Messages } from 'src/Application/Utilities';
 import { PhysicalExamService } from 'src/Application/Services/PhysicalExamService';
 

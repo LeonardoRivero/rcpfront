@@ -111,18 +111,17 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import DataTable from 'src/Infraestructure/components/commons/DataTable.vue';
-import { SpecialityAdapter } from 'src/Adapters';
-import { useStoreSpeciality } from 'src/Infraestructure/stores/SettingsPage/SpecialityStore';
 import { IconSVG } from 'src/Application/Utilities/Constants';
-import { useStorePhysicalExamParameter } from 'src/Infraestructure/stores/SettingsPage/PhysicalExamStore';
+import { useStorePhysicalExamParameter } from 'src/Infraestructure/Mediators/SettingsPage/PhysicalExamStore';
 import { PhysicalExamParameterAdapter } from 'src/Adapters/PhysicalExamAdapter';
 import { IPhysicalExam } from 'src/Domine/ModelsDB';
 import { DataTableAdapter } from 'src/Adapters/DataTableAdapter';
-import { useStoreDataTable } from 'src/Infraestructure/stores/Common/DatatableStore';
+import { useStoreDataTable } from 'src/Infraestructure/Mediators/Common/DatatableStore';
 import 'src/css/app.sass';
+import { SettingsMediator } from 'src/Infraestructure/Mediators';
 
 export default defineComponent({
   name: 'PhysicalExamForm',
@@ -130,9 +129,7 @@ export default defineComponent({
     DataTable,
   },
   setup() {
-    const specialityAdapter = SpecialityAdapter.getInstance(
-      useStoreSpeciality()
-    );
+    const mediator = SettingsMediator.getInstance();
     const iconSVG = IconSVG.getInstance();
     const {
       // physicalExamParameter,
@@ -168,7 +165,7 @@ export default defineComponent({
     const dataTableAdapter = DataTableAdapter.getInstance(storeDataTable);
 
     onMounted(async () => {
-      allSpecialities.value = await specialityAdapter.getAll();
+      allSpecialities.value = await mediator.getAllSpecialities();
       icon.value = iconSVG.outpatient;
       // // const response = await repository.findByParameters(queryParameters);
       // // const columnsPrueba = [

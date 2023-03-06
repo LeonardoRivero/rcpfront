@@ -1,16 +1,17 @@
 import { reactive } from 'vue';
 import {
   AppointmentResponse,
-  PathologicalHistoryResponse,
   PatientResponse,
   PhysicalExamResponse,
 } from 'src/Domine/Responses';
 import { IconSVG, Gender } from 'src/Application/Utilities';
-import { IControllersMediator, Controller } from 'src/Domine/IPatterns';
-import { useStoreClinicHistory } from 'src/Infraestructure/stores/ClinicHistoryStore';
+import {
+  ClinicHistoryMediator,
+  useStoreClinicHistory,
+} from 'src/Infraestructure/Mediators/ClinicHistoryMediator';
 import { PhysicalExamService } from 'src/Application/Services';
 import { PreliminaryDataState } from 'src/Domine/IStates';
-import { IStoreClinicHistory } from 'src/Domine/IStores';
+import { Controller } from 'src/Domine/IPatterns';
 
 export class InfoPatientPanelController extends Controller {
   private iconSVG = IconSVG.getInstance();
@@ -68,13 +69,30 @@ export class InfoPatientPanelController extends Controller {
 }
 
 export class PreliminaryDataController extends Controller {
+  sendData(data: unknown): void {
+    throw new Error('Method not implemented.');
+  }
+  clear(): void {
+    throw new Error('Method not implemented.');
+  }
   private static instance: PreliminaryDataController;
   private service = PhysicalExamService.getInstance();
   private state: PreliminaryDataState;
 
   public constructor(state: PreliminaryDataState) {
     super();
+    // this.state = reactive({
+    //   allPathologies: [],
+    //   pathology: null,
+    //   items: [],
+    //   reasonConsultation: '',
+    //   descriptionConsultation: '',
+    // });
     this.state = state;
+  }
+
+  public getState() {
+    return this.state;
   }
 
   public static getInstance(
@@ -115,50 +133,10 @@ export class PreliminaryDataController extends Controller {
     this.adaptPhysicalExam(response, appointment);
   }
 
-  public sendData(data: object): void {
-    if (this.mediator === null || this.mediator === undefined) {
-      throw new Error('Aun no se definido un mediador para esta operacion');
-    }
-    this.mediator.handleData();
-  }
-}
-
-export class ClinicHistoryMediator implements IControllersMediator {
-  private controllers: Controller[] = [];
-  public stores: IStoreClinicHistory;
-  private static instance: ClinicHistoryMediator;
-
-  private constructor() {
-    this.stores = useStoreClinicHistory();
-    return;
-  }
-
-  public static getInstance(): ClinicHistoryMediator {
-    if (!ClinicHistoryMediator.instance) {
-      ClinicHistoryMediator.instance = new ClinicHistoryMediator();
-    }
-    return ClinicHistoryMediator.instance;
-  }
-
-  public add(controller: Controller): void {
-    const isExist = this.controllers.includes(controller);
-    if (isExist) {
-      return;
-    }
-    controller.setMediator(this);
-    this.controllers.push(controller);
-  }
-
-  public notify(data: IStoreClinicHistory): void {
-    for (const controller of this.controllers) {
-      controller.receiveData(this);
-    }
-  }
-
-  public handleData(): void {
-    // for (const controller of this.controllers) {
-    //   controller.receiveData(this.store);
-    // }
-    this.notify(this.stores);
-  }
+  // public sendData(data: object): void {
+  //   if (this.mediator === null || this.mediator === undefined) {
+  //     throw new Error('Aun no se definido un mediador para esta operacion');
+  //   }
+  //   this.mediator.handleData();
+  // }
 }

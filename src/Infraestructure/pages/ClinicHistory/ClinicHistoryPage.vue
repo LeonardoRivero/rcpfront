@@ -10,6 +10,7 @@
           alternative-labels
           color="primary"
           animated
+          keep-alive
         >
           <q-step
             :name="1"
@@ -55,14 +56,8 @@
 import { defineComponent, ref } from 'vue';
 import InfoPatientPanel from './InfoPatientPanel.vue';
 import PreliminaryData from './PreliminaryData.vue';
-
-import 'src/css/app.sass';
 import { QForm, QStepper } from 'quasar';
-import {
-  ClinicHistoryMediator,
-  InfoPatientPanelController,
-  PreliminaryDataController,
-} from 'src/Adapters';
+import 'src/css/app.sass';
 export default defineComponent({
   components: { InfoPatientPanel, PreliminaryData },
   setup() {

@@ -1,5 +1,5 @@
 import { Notification } from 'src/Infraestructure/Utilities/Notifications';
-import { IStorePatient } from 'src/Infraestructure/stores/PatientsPage/PatientStore';
+import { IStorePatient } from 'src/Infraestructure/Mediators/PatientsPage/PatientStore';
 import { Modal } from '../Infraestructure/Utilities/Modal';
 import { routerInstance } from 'src/boot/globalRouter';
 import { Validators } from 'src/Application/Utilities/Helpers';

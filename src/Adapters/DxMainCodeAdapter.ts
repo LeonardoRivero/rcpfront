@@ -2,29 +2,37 @@ import { computed } from 'vue';
 import { IDXMainCode } from 'src/Domine/ModelsDB';
 import { Modal } from '../Infraestructure/Utilities/Modal';
 import { Messages } from 'src/Application/Utilities/Messages';
-import { IStoreDxMainCode } from 'src/Infraestructure/stores/SettingsPage/DxMainCodeStore';
-import { useStoreSpeciality } from 'src/Infraestructure/stores/SettingsPage/SpecialityStore';
+import { IStoreDxMainCode } from 'src/Infraestructure/Mediators/SettingsPage/DxMainCodeStore';
+import { useStoreSpeciality } from 'src/Infraestructure/Mediators/SettingsPage/SpecialityStore';
 import { DxMainCodeService } from 'src/Application/Services/DxMainCodeService';
 import { DXMainCodeResponse } from 'src/Domine/Responses';
+import { Controller } from 'src/Domine/IPatterns';
 
-export class DxMainCodeAdapter {
+export class DxMainCodeController extends Controller {
+  sendData(data: unknown): void {
+    throw new Error('Method not implemented.');
+  }
+  receiveData<T>(data: T): void {
+    throw new Error('Method not implemented.');
+  }
   private store: IStoreDxMainCode;
   private storeSpeciality = useStoreSpeciality();
   private service = new DxMainCodeService();
   private serviceModal = new Modal();
   private messages = Messages.getInstance();
-  private static instance: DxMainCodeAdapter;
+  private static instance: DxMainCodeController;
 
   private constructor(store: IStoreDxMainCode) {
+    super();
     this.store = store;
     return;
   }
 
-  public static getInstance(store: IStoreDxMainCode): DxMainCodeAdapter {
-    if (!DxMainCodeAdapter.instance) {
-      DxMainCodeAdapter.instance = new DxMainCodeAdapter(store);
+  public static getInstance(store: IStoreDxMainCode): DxMainCodeController {
+    if (!DxMainCodeController.instance) {
+      DxMainCodeController.instance = new DxMainCodeController(store);
     }
-    return DxMainCodeAdapter.instance;
+    return DxMainCodeController.instance;
   }
 
   public async clear(): Promise<void> {

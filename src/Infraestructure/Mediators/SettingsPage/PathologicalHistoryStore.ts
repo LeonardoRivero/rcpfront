@@ -11,19 +11,21 @@ const useStorePathological = defineStore({
   }),
 });
 
-export class PathologyHistoryMediator implements IControllersMediator {
+export class SettingsMediator implements IControllersMediator {
   private controllers: Controller[] = [];
   public store: IStorePathologicalHistory;
-  private static instance: PathologyHistoryMediator;
+  private static instance: SettingsMediator;
   private service = new PathologicalHistoryService();
 
   public constructor() {
     this.store = useStorePathological();
-    return;
+  }
+  createStore(): object {
+    throw new Error('Method not implemented.');
   }
 
-  public add(subscriber: Controller): void {
-    throw new Error('Method not implemented.');
+  public add(controller: Controller): void {
+    this.controllers.push(controller);
   }
   public handleData(): void {
     throw new Error('Method not implemented.');

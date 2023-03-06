@@ -9,7 +9,7 @@ import {
 import {
   IDataTableStore,
   useStoreDataTable,
-} from 'src/Infraestructure/stores/Common/DatatableStore';
+} from 'src/Infraestructure/Mediators/Common/DatatableStore';
 import { Observer, Subject } from 'src/patterns/Observer/Observer';
 
 export class DataTableAdapter implements Subject {
