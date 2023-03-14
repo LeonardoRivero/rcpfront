@@ -23,7 +23,7 @@ import { EventSchedule } from 'src/Domine/ModelsDB';
 import { ScheduleRepository } from 'src/Application/Repositories/ScheduleRepository';
 import { AppointmentRepository } from 'src/Application/Repositories/AppointmentRepository';
 import { EventScheduleResponse } from 'src/Domine/Responses';
-import { IStoreSchedule } from 'src/Infraestructure/Mediators/SchedulePage/ScheduleStore';
+import { IStoreSchedule } from 'src/Infraestructure/Mediators/ScheduleMediator';
 
 import { IRepository } from 'src/Application/Repositories';
 import { ScheduleService } from 'src/Application/Services/ScheduleService';
@@ -265,15 +265,9 @@ export class ScheduleAdapter {
   public async findByIdentificationPatient(
     identification: string
   ): Promise<EventScheduleResponse | null> {
-    const queryParameters = { patientIdentification: identification };
-    const response = await this.service.findByParameters(queryParameters);
-    let register = undefined;
-    if (Array.isArray(response)) {
-      register = response.pop();
-    }
-    if (register === undefined) {
-      return null;
-    }
+    const register = await this.service.findByIdentificationPatient(
+      identification
+    );
     return register;
   }
 }

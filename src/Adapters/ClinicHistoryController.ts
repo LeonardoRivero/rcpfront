@@ -1,37 +1,37 @@
-import { reactive } from 'vue';
 import {
   AppointmentResponse,
   PatientResponse,
   PhysicalExamResponse,
 } from 'src/Domine/Responses';
 import { IconSVG, Gender } from 'src/Application/Utilities';
-import {
-  ClinicHistoryMediator,
-  useStoreClinicHistory,
-} from 'src/Infraestructure/Mediators/ClinicHistoryMediator';
+import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators/ClinicHistoryMediator';
 import { PhysicalExamService } from 'src/Application/Services';
-import { PreliminaryDataState } from 'src/Domine/IStates';
+import {
+  InfoPatientState,
+  MedicalProcedureState,
+  PreliminaryDataState,
+} from 'src/Domine/IStates';
 import { Controller } from 'src/Domine/IPatterns';
 
 export class InfoPatientPanelController extends Controller {
   private iconSVG = IconSVG.getInstance();
   private static instance: InfoPatientPanelController;
+  public state: InfoPatientState;
 
-  public static getInstance(): InfoPatientPanelController {
+  public constructor(state: InfoPatientState) {
+    super();
+    this.state = state;
+  }
+
+  public static getInstance(
+    state: InfoPatientState
+  ): InfoPatientPanelController {
     if (!InfoPatientPanelController.instance) {
-      InfoPatientPanelController.instance = new InfoPatientPanelController();
+      InfoPatientPanelController.instance = new InfoPatientPanelController(
+        state
+      );
     }
     return InfoPatientPanelController.instance;
-  }
-  private state = reactive({
-    identificationPatient: '',
-    age: 0,
-    currentPatient: {} as PatientResponse | null,
-    iconAvatar: '',
-  });
-
-  public getState() {
-    return this.state;
   }
 
   public getGender(patient: PatientResponse) {
@@ -54,17 +54,16 @@ export class InfoPatientPanelController extends Controller {
 
   public receiveData<IStoreClinicHistory>(data: IStoreClinicHistory): void {
     console.log('Desde InfoPatient', { data });
-    if (data instanceof useStoreClinicHistory) {
-      const j = data;
-      console.log({ j });
-    }
+
+    const j = data;
+    console.log({ j });
   }
 
-  public sendData(data: object): void {
+  public sendData(state: InfoPatientState): void {
     if (this.mediator === null || this.mediator === undefined) {
       throw new Error('Aun no se definido un mediador para esta operacion');
     }
-    this.mediator.handleData();
+    this.mediator.handleData(state);
   }
 }
 
@@ -77,22 +76,11 @@ export class PreliminaryDataController extends Controller {
   }
   private static instance: PreliminaryDataController;
   private service = PhysicalExamService.getInstance();
-  private state: PreliminaryDataState;
+  public state: PreliminaryDataState;
 
   public constructor(state: PreliminaryDataState) {
     super();
-    // this.state = reactive({
-    //   allPathologies: [],
-    //   pathology: null,
-    //   items: [],
-    //   reasonConsultation: '',
-    //   descriptionConsultation: '',
-    // });
     this.state = state;
-  }
-
-  public getState() {
-    return this.state;
   }
 
   public static getInstance(
@@ -139,4 +127,34 @@ export class PreliminaryDataController extends Controller {
   //   }
   //   this.mediator.handleData();
   // }
+}
+
+export class MedicalProcedureController extends Controller {
+  private static instance: MedicalProcedureController;
+  public state: MedicalProcedureState;
+  public constructor(state: MedicalProcedureState) {
+    super();
+    this.state = state;
+  }
+
+  public static getInstance(
+    state: MedicalProcedureState
+  ): MedicalProcedureController {
+    if (!MedicalProcedureController.instance) {
+      MedicalProcedureController.instance = new MedicalProcedureController(
+        state
+      );
+    }
+    return MedicalProcedureController.instance;
+  }
+
+  sendData(data: unknown): void {
+    throw new Error('Method not implemented.');
+  }
+  receiveData<T>(data: T): void {
+    throw new Error('Method not implemented.');
+  }
+  clear(): void {
+    throw new Error('Method not implemented.');
+  }
 }

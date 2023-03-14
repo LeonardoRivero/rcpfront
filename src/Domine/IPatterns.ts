@@ -2,6 +2,7 @@ export abstract class Controller {
   abstract sendData(data: unknown): void;
   abstract receiveData<T>(data: T): void;
   abstract clear(): void;
+  abstract state: object;
   protected mediator: IControllersMediator;
 
   constructor(mediator?: IControllersMediator) {
@@ -15,7 +16,7 @@ export abstract class Controller {
 
 export interface IControllersMediator {
   add(subscriber: Controller): void;
-  handleData(): void;
-  notify(data: object): void;
+  handleData(state: object): void;
+  notify(data: object, sender: Controller): void;
   createStore(): object;
 }

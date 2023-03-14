@@ -46,4 +46,19 @@ export class ScheduleService {
   ) {
     this.repository = repository;
   }
+
+  public async findByIdentificationPatient(
+    identification: string
+  ): Promise<EventScheduleResponse | null> {
+    const queryParameters = { patientIdentification: identification };
+    const response = await this.findByParameters(queryParameters);
+    let register = undefined;
+    if (Array.isArray(response)) {
+      register = response.pop();
+    }
+    if (register === undefined) {
+      return null;
+    }
+    return register;
+  }
 }

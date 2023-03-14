@@ -2,6 +2,7 @@ import { ISpeciality } from './ModelsDB';
 import {
   AppointmentResponse,
   DoctorResponse,
+  EventScheduleResponse,
   PathologicalHistoryResponse,
   PatientResponse,
   RelationCodeResponse,
@@ -13,6 +14,7 @@ export interface IStoreClinicHistory {
   currentDoctor: DoctorResponse;
   currentAppointment: AppointmentResponse;
   currentPatient: PatientResponse;
+  currentSchedule:EventScheduleResponse|null
 }
 
 // export interface IStorePathologicalHistory {

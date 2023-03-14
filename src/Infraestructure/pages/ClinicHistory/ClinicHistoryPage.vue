@@ -24,7 +24,7 @@
           </q-step>
 
           <q-step :name="2" title="Procedimientos" prefix="2" :done="step > 2">
-            Procedimientos
+            <MedicalProcedure />
           </q-step>
 
           <q-step :name="3" title="Plan" prefix="3"> Plan </q-step>
@@ -32,6 +32,7 @@
           <template v-slot:navigation>
             <q-stepper-navigation>
               <q-btn
+                :disable="disableContinue"
                 @click="onContinueStep()"
                 color="primary"
                 :label="step === 3 ? 'Guardar' : 'Continuar'"
@@ -56,22 +57,24 @@
 import { defineComponent, ref } from 'vue';
 import InfoPatientPanel from './InfoPatientPanel.vue';
 import PreliminaryData from './PreliminaryData.vue';
+import MedicalProcedure from './MedicalProcedure.vue';
 import { QForm, QStepper } from 'quasar';
 import 'src/css/app.sass';
+import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
 export default defineComponent({
-  components: { InfoPatientPanel, PreliminaryData },
+  components: { InfoPatientPanel, PreliminaryData, MedicalProcedure },
   setup() {
     const formStep1 = ref<QForm>();
     const stepper = ref<QStepper>();
     const step = ref<number>(1);
 
-    // const preliminaryDataController = new PreliminaryDataController();
-    // clinicHistoryMediator.add(controller);
-    // clinicHistoryMediator.add(preliminaryDataController);
+    const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
+    const store = clinicHistoryMediator.getStore();
     return {
       formStep1,
       stepper,
       step,
+      disableContinue: store.currentSchedule == null ? true : false,
       async onContinueStep() {
         const step1 = await formStep1.value?.validate();
         if (step1 === true && step.value == 1) {

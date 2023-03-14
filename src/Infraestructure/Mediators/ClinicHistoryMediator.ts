@@ -5,18 +5,19 @@ import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
   AppointmentResponse,
   DoctorResponse,
+  EventScheduleResponse,
   PatientResponse,
 } from 'src/Domine/Responses';
 
-export const useStoreClinicHistory = defineStore({
-  id: 'useStoreClinicHistory',
-  state: (): IStoreClinicHistory => ({
-    speciality: {} as ISpeciality,
-    currentDoctor: {} as DoctorResponse,
-    currentAppointment: {} as AppointmentResponse,
-    currentPatient: {} as PatientResponse,
-  }),
-});
+// export const useStoreClinicHistory = defineStore({
+//   id: 'useStoreClinicHistory',
+//   state: (): IStoreClinicHistory => ({
+//     speciality: {} as ISpeciality,
+//     currentDoctor: {} as DoctorResponse,
+//     currentAppointment: {} as AppointmentResponse,
+//     currentPatient: {} as PatientResponse,
+//   }),
+// });
 
 export class ClinicHistoryMediator implements IControllersMediator {
   private controllers: Controller[] = [];
@@ -34,6 +35,7 @@ export class ClinicHistoryMediator implements IControllersMediator {
         currentDoctor: {} as DoctorResponse,
         currentAppointment: {} as AppointmentResponse,
         currentPatient: {} as PatientResponse,
+        currentSchedule:null
       }),
     });
     return store();
@@ -55,16 +57,20 @@ export class ClinicHistoryMediator implements IControllersMediator {
     this.controllers.push(controller);
   }
 
-  public notify(data: IStoreClinicHistory): void {
+  public notify(store: IStoreClinicHistory, sender: Controller): void {
     for (const controller of this.controllers) {
       controller.receiveData(this);
     }
   }
 
-  public handleData(): void {
+  public getStore():IStoreClinicHistory{
+    return this.stores
+  }
+
+  public handleData(state: object): void {
     // for (const controller of this.controllers) {
     //   controller.receiveData(this.store);
     // }
-    this.notify(this.stores);
+    // this.notify(this.stores,sender);
   }
 }

@@ -1,5 +1,4 @@
 <template>
-  {{ state }}
   <q-input
     v-model="state.reasonConsultation"
     outlined
@@ -47,45 +46,6 @@
     </q-select>
   </div>
   <br />
-  <div class="text-h5 q-mt-sm q-mb-xs">
-    <q-icon :name="icons.physicalTherapy" size="32px" /> Examen Fisico
-  </div>
-  <q-splitter v-model="splitterModel">
-    <template v-slot:before>
-      <div v-for="(item, index) in state.items" :key="item.id">
-        <q-item v-if="index % 2 == 0">
-          <q-item-section>
-            <q-item-label>{{ item.description }}</q-item-label>
-          </q-item-section>
-
-          <q-item-section side top>
-            <q-input
-              dense
-              v-model="item.result"
-              :rules="[(val) => (val && val.length > 0) || FIELD_REQUIRED]"
-            />
-          </q-item-section>
-        </q-item>
-      </div>
-    </template>
-    <template v-slot:after>
-      <div v-for="(item, index) in state.items" :key="item.id">
-        <q-item v-if="index % 2 != 0">
-          <q-item-section>
-            <q-item-label>{{ item.description }}</q-item-label>
-          </q-item-section>
-
-          <q-item-section side top>
-            <q-input
-              dense
-              v-model="item.result"
-              :rules="[(val) => (val && val.length > 0) || FIELD_REQUIRED]"
-            />
-          </q-item-section>
-        </q-item>
-      </div>
-    </template>
-  </q-splitter>
 </template>
 
 <script lang="ts">
@@ -95,6 +55,7 @@ import { PathologicalHistoryResponse } from 'src/Domine/Responses';
 import { PreliminaryDataState } from 'src/Domine/IStates';
 import { PreliminaryDataController } from 'src/Adapters';
 import { ClinicHistoryMediator, SettingsMediator } from '../../Mediators';
+import { ScheduleMediator } from '../../Mediators/ScheduleMediator';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -109,16 +70,16 @@ export default defineComponent({
       descriptionConsultation: '',
     });
 
-    const pathologyHistoryMediator = SettingsMediator.getInstance();
     const controller = PreliminaryDataController.getInstance(state);
+    const settingsMediator = SettingsMediator.getInstance();
+    const scheduleMediator = ScheduleMediator.getInstance();
     const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
     clinicHistoryMediator.add(controller);
-    // let state = controller.getState();
-
+    scheduleMediator.add(controller);
     let pathologies = [] as Array<PathologicalHistoryResponse>;
 
     onMounted(async () => {
-      state.allPathologies = await pathologyHistoryMediator.getAllPathologies();
+      state.allPathologies = await settingsMediator.getAllPathologies();
       pathologies = state.allPathologies;
     });
 

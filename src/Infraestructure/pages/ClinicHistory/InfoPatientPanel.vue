@@ -71,8 +71,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { storeToRefs } from 'pinia';
+import { defineComponent, reactive } from 'vue';
 import {
   AppointmentAdapter,
   InfoPatientPanelController,
@@ -80,23 +79,29 @@ import {
 } from 'src/Adapters';
 import { useStorePatient } from '../../Mediators/PatientsPage/PatientStore';
 import { Validators } from 'src/Application/Utilities';
-import { useStoreSchedule } from '../../Mediators/SchedulePage/ScheduleStore';
-import { ScheduleAdapter } from 'src/Adapters';
 import { useStoreAppointments } from '../../Mediators/Appointment/AppointmentStore';
-// import { useStoreClinicHistory } from '../../Mediators/ClinicHistoryStore';
-import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
+import { ClinicHistoryMediator } from '../../Mediators';
+import { PatientResponse } from 'src/Domine/Responses';
+import { InfoPatientState } from 'src/Domine/IStates';
+import { ScheduleService } from 'src/Application/Services/ScheduleService';
+import { ScheduleMediator } from '../../Mediators/ScheduleMediator';
 
 export default defineComponent({
   name: 'InfoPatientPanel',
   setup() {
     const patientAdapter = PatientAdapter.getInstance(useStorePatient());
-    const scheduleAdapter = ScheduleAdapter.getInstance(useStoreSchedule());
+    const scheduleService = new ScheduleService();
+    const scheduleMediator = ScheduleMediator.getInstance();
     const appointmentAdapter = AppointmentAdapter.getInstance(
       useStoreAppointments()
     );
-    // const store = storeToRefs(useStoreClinicHistory());
-    const controller = InfoPatientPanelController.getInstance();
-    const state = controller.getState();
+    const state: InfoPatientState = reactive({
+      identificationPatient: '',
+      age: 0,
+      currentPatient: {} as PatientResponse,
+      iconAvatar: '',
+    });
+    const controller = InfoPatientPanelController.getInstance(state);
     const validator = Validators.getInstance();
     const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
     clinicHistoryMediator.add(controller);
@@ -130,11 +135,14 @@ export default defineComponent({
           options
         );
         controller.getGender(patient);
-        const schedule = await scheduleAdapter.findByIdentificationPatient(
+        const schedule = await scheduleService.findByIdentificationPatient(
           patient.identification.toString()
         );
+        let store = clinicHistoryMediator.getStore();
+        store.currentSchedule = schedule;
+        clinicHistoryMediator.notify(store, controller);
         if (schedule === null) {
-          await scheduleAdapter.scheduleNotFound();
+          await scheduleMediator.scheduleNotFound();
           return;
         }
 

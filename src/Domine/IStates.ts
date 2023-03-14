@@ -1,6 +1,16 @@
 import { IPathologycalHistory, ISpeciality } from './ModelsDB';
-import { PathologicalHistoryResponse, SpecialityResponse } from './Responses';
+import {
+  PathologicalHistoryResponse,
+  PatientResponse,
+  SpecialityResponse,
+} from './Responses';
 
+export interface InfoPatientState {
+  identificationPatient: string;
+  age: number;
+  currentPatient: PatientResponse | null;
+  iconAvatar: string;
+}
 export interface PreliminaryDataState {
   allPathologies: Array<PathologicalHistoryResponse>;
   items: Array<unknown>;
@@ -21,4 +31,8 @@ export interface SpecialityFormState {
   expanded: boolean;
   speciality: ISpeciality | null;
   allSpecialities: Array<SpecialityResponse>;
+}
+
+export interface MedicalProcedureState {
+  items: Array<unknown>;
 }
