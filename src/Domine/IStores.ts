@@ -1,6 +1,7 @@
 import { ISpeciality } from './ModelsDB';
 import {
   AppointmentResponse,
+  DXMainCodeResponse,
   DoctorResponse,
   EventScheduleResponse,
   PathologicalHistoryResponse,
@@ -14,7 +15,7 @@ export interface IStoreClinicHistory {
   currentDoctor: DoctorResponse;
   currentAppointment: AppointmentResponse;
   currentPatient: PatientResponse;
-  currentSchedule:EventScheduleResponse|null
+  currentSchedule: EventScheduleResponse | null;
 }
 
 // export interface IStorePathologicalHistory {
@@ -25,4 +26,6 @@ export interface IStoreSettings {
   allSpecialities: Array<SpecialityResponse>;
   allPathologies: Array<PathologicalHistoryResponse>;
   allRelationCode: Array<RelationCodeResponse>;
+  currentSpeciality: ISpeciality;
+  currentDxMainCode: DXMainCodeResponse | null;
 }

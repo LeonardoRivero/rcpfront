@@ -66,7 +66,7 @@ export default defineComponent({
   setup() {
     const formStep1 = ref<QForm>();
     const stepper = ref<QStepper>();
-    const step = ref<number>(1);
+    const step = ref<number>(2);
 
     const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
     const store = clinicHistoryMediator.getStore();

@@ -36,7 +36,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="state.peciality != null"
+          v-if="state.speciality != null"
           flat
           round
           color="green"
@@ -101,17 +101,12 @@
 import { defineComponent, onMounted, reactive, ref } from 'vue';
 import { QForm } from 'quasar';
 import { ISpeciality } from 'src/Domine/ModelsDB';
-import {
-  SpecialityController,
-  DxMainCodeController,
-  RelationCodeAdapter,
-} from 'src/Adapters';
-import { useStoreDxMainCode } from '../../Mediators/SettingsPage/DxMainCodeStore';
-import { useStoreRelationCode } from '../../Mediators/SettingsPage/RelationCodeStore';
+import { SpecialityController } from 'src/Adapters';
 import { IconSVG } from 'src/Application/Utilities';
 import { SpecialityResponse } from 'src/Domine/Responses';
 import { SpecialityFormState } from 'src/Domine/IStates';
 import { SettingsMediator } from '../../Mediators';
+import { IStoreSettings } from 'src/Domine/IStores';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -128,14 +123,7 @@ export default defineComponent({
     const controller = SpecialityController.getInstance(state);
     const mediator = SettingsMediator.getInstance();
     mediator.add(controller);
-
-    const dxMainCodeAdapter = DxMainCodeController.getInstance(
-      useStoreDxMainCode()
-    );
-
-    const relationCodeAdapter = RelationCodeAdapter.getInstance(
-      useStoreRelationCode()
-    );
+    const store = mediator.getStore();
 
     onMounted(async () => {
       state.allSpecialities = await mediator.getAllSpecialities();
@@ -158,17 +146,14 @@ export default defineComponent({
         const isValid = await form.value?.validate();
         if (isValid == false) return;
         await controller.saveOrUpdate(state.currentSpeciality);
+        store.allSpecialities = state.allSpecialities;
       },
 
       async specialityChanged(val: ISpeciality) {
         await controller.specialityChanged(val);
-        const queryParameters = { speciality: val.id };
-        const response = await dxMainCodeAdapter.findByParameters(
-          queryParameters
-        );
-        await dxMainCodeAdapter.clear();
-        dxMainCodeAdapter.listDxMainCodes = response;
-        await relationCodeAdapter.clear();
+        const store: IStoreSettings = mediator.getStore();
+        store.currentSpeciality = val;
+        mediator.notify(store, controller);
       },
 
       clearSpeciality() {

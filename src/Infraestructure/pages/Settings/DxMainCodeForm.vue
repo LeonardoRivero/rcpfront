@@ -7,20 +7,22 @@
         </div>
         <div class="text-caption text-grey">
           CUPS existentes:
-          {{ allDxMainCodes == null ? '' : allDxMainCodes.length }}
+          {{ state.allDxMainCodes == null ? '' : state.allDxMainCodes.length }}
         </div>
         <q-select
           dense
           clearable
           outlined
-          v-model="dxMainCode"
-          :options="allDxMainCodes"
+          v-model="state.dxMainCode"
+          :options="state.allDxMainCodes"
           option-value="id"
           option-label="description"
           map-options
           label="Descripcion"
           :hint="`Codigo CUP:  ${
-            currentDxMainCode.CUP != null ? currentDxMainCode.CUP : ''
+            state.currentDxMainCode.CUP != null
+              ? state.currentDxMainCode.CUP
+              : ''
           }`"
           @update:model-value="(val) => dxMainCodeChanged(val)"
           @clear="(val) => clearDxMainCode(val)"
@@ -34,7 +36,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="dxMainCode != null"
+          v-if="state.dxMainCode != null"
           flat
           round
           color="green"
@@ -51,12 +53,12 @@
           round
           flat
           dense
-          :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-          @click="expanded = !expanded"
+          :icon="state.expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+          @click="state.expanded = !state.expanded"
         />
       </q-card-actions>
       <q-slide-transition>
-        <div v-show="expanded">
+        <div v-show="state.expanded">
           <q-separator />
           <q-card-section class="text-subitle2">
             <q-form @submit="confirmChanges" ref="form">
@@ -64,14 +66,14 @@
                 dense
                 outlined
                 disable
-                v-model="currentSpeciality.description"
+                v-model="store.currentSpeciality.description"
                 label="Especialidad"
-                :error="error"
+                :error="state.error"
               />
               <q-input
                 dense
                 outlined
-                v-model="currentDxMainCode.CUP"
+                v-model="state.currentDxMainCode.CUP"
                 label="Codigo CUP"
                 maxlength="10"
                 lazy-rules
@@ -82,7 +84,7 @@
               <q-input
                 dense
                 outlined
-                v-model="currentDxMainCode.description"
+                v-model="state.currentDxMainCode.description"
                 label="Descripcion Codigo CUP"
                 lazy-rules
                 :rules="[
@@ -102,56 +104,47 @@
 </template>
 
 <script lang="ts">
-import { defineComponent} from 'vue';
-import { storeToRefs } from 'pinia';
-import { useStoreSpeciality } from '../../Mediators/SettingsPage/SpecialityStore';
-import { useStoreDxMainCode } from '../../Mediators/SettingsPage/DxMainCodeStore';
+import { defineComponent, reactive, ref } from 'vue';
+import { QForm } from 'quasar';
 import { DxMainCodeController } from 'src/Adapters/DxMainCodeAdapter';
 import { DXMainCodeResponse } from 'src/Domine/Responses';
-import { RelationCodeAdapter } from 'src/Adapters';
-import { useStoreRelationCode } from '../../Mediators/SettingsPage/RelationCodeStore';
 import { IconSVG } from 'src/Application/Utilities';
-import 'src/css/app.sass';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
+import { DxMainCodeState } from 'src/Domine/IStates';
+import { IStoreSettings } from 'src/Domine/IStores';
+import { IDXMainCode } from 'src/Domine/ModelsDB';
+import 'src/css/app.sass';
 
 export default defineComponent({
   name: 'DxMainCodeForm',
   setup() {
-    const {
-      error,
-      currentDxMainCode,
-      dxMainCode,
-      expanded,
-      allDxMainCodes,
-      form,
-    } = storeToRefs(useStoreDxMainCode());
-    const { currentSpeciality } = storeToRefs(useStoreSpeciality());
-    const controller = DxMainCodeController.getInstance(useStoreDxMainCode());
+    const state: DxMainCodeState = reactive({
+      allDxMainCodes: <Array<DXMainCodeResponse>>[],
+      currentDxMainCode: {} as IDXMainCode,
+      expanded: false,
+      dxMainCode: null,
+      error: false,
+    });
+
+    const controller = DxMainCodeController.getInstance(state);
     const mediator = SettingsMediator.getInstance();
     mediator.add(controller);
+    const store: IStoreSettings = mediator.getStore();
+    const form = ref<QForm>();
 
-    const storeRelationCode = useStoreRelationCode();
-    const adapterRelationCode =
-      RelationCodeAdapter.getInstance(storeRelationCode);
     return {
-      dxMainCode,
-      currentDxMainCode,
-      allDxMainCodes,
+      state,
       icons: IconSVG.getInstance(),
-      currentSpeciality,
-      expanded,
+      store,
       form,
-      error,
       async clearDxMainCode() {
         await controller.clear();
       },
       async dxMainCodeChanged(val: DXMainCodeResponse) {
         await controller.dxMainCodeChanged(val);
-        const queryParameters = { dxMainCodeId: val.id };
-        const response = await adapterRelationCode.findByParameters(
-          queryParameters
-        );
-        storeRelationCode.allRelationCodes = response;
+        const store: IStoreSettings = mediator.getStore();
+        store.currentDxMainCode = val;
+        mediator.notify(store, controller);
       },
       edit() {
         controller.edit();
@@ -160,6 +153,8 @@ export default defineComponent({
         controller.add();
       },
       async confirmChanges() {
+        const isValid = await form.value?.validate();
+        if (isValid == false) return;
         await controller.saveOrUpdate();
       },
     };

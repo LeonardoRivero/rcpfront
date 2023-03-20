@@ -27,7 +27,7 @@ import '@fullcalendar/core/vdom';
 import FullCalendar from '@fullcalendar/vue3';
 
 import ScheduleForm from './ScheduleForm.vue';
-import { useStoreSchedule } from 'src/Infraestructure/stores/SchedulePage/ScheduleStore';
+import { useStoreSchedule } from '../../Mediators/ScheduleMediator';
 import { IconSVG } from 'src/Application/Utilities';
 
 export default defineComponent({

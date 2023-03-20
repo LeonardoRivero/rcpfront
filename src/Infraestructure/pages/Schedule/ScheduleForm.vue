@@ -240,11 +240,7 @@ import {
   SpecialityResponse,
 } from 'src/Domine/Responses';
 import { IAppointment } from 'src/Domine/ModelsDB';
-import {
-  SpecialityAdapter,
-  ScheduleAdapter,
-  PatientAdapter,
-} from 'src/Adapters';
+import { ScheduleAdapter, PatientAdapter } from 'src/Adapters';
 import {
   CURRENTYEAR_MONTH,
   FORMAT_DATETIME,
@@ -252,18 +248,17 @@ import {
   OPTIONS_MINUTES,
   FIELD_REQUIRED,
 } from 'src/Application/Utilities/Constants';
-import { useStoreSchedule } from '../../stores/SchedulePage/ScheduleStore';
-import { useStoreSpeciality } from '../../stores/SettingsPage/SpecialityStore';
-import { useStorePatient } from 'src/Infraestructure/stores/PatientsPage/PatientStore';
 import { DoctorService } from 'src/Application/Services/DoctorService';
 import 'src/css/app.sass';
 import { Messages } from 'src/Application/Utilities';
+import { useStoreSchedule } from '../../Mediators/ScheduleMediator';
+import { SpecialityService } from 'src/Application/Services/SpecialityService';
+import { useStorePatient } from 'src/Infraestructure/Mediators/PatientsPage/PatientStore';
 
 export default defineComponent({
   components: {},
   setup() {
     const dates = date;
-    // const FORMATDATETIME = FORMAT_DATETIME;
     const MINUTES_ALLOWED = OPTIONS_MINUTES;
     const HOURS_ALLOWED = OPTIONS_HOURS;
     const MIN_YEAR_MONTH = CURRENTYEAR_MONTH;
@@ -284,14 +279,8 @@ export default defineComponent({
       card,
     } = storeToRefs(store);
 
-    // const { getAllSpecialities, allSpecialities, clearSpeciality } =
-    //   specialityService();
-    // const storeSpeciality = useStoreSpeciality();
-    // const { allSpecialities } = storeToRefs(storeSpeciality);
     const adapter = ScheduleAdapter.getInstance(store);
-    const specialityAdapter = SpecialityAdapter.getInstance(
-      useStoreSpeciality()
-    );
+    const specialityService = new SpecialityService();
     const doctorService = new DoctorService();
     const patientAdapter = PatientAdapter.getInstance(useStorePatient());
     const messages = Messages.getInstance();
@@ -300,7 +289,7 @@ export default defineComponent({
 
     onMounted(async () => {
       const doctors = await doctorService.getAll();
-      const specialities = await specialityAdapter.getAll();
+      const specialities = await specialityService.getAll();
       allDoctors.value = doctors == null ? [] : doctors;
       allSpecialities.value = specialities == null ? [] : specialities;
     });
@@ -384,7 +373,7 @@ export default defineComponent({
       },
 
       async clearSpeciality() {
-        specialityAdapter.clear();
+        // specialityService.clear();
       },
     };
   },

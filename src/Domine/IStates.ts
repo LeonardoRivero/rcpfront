@@ -1,7 +1,14 @@
-import { IPathologycalHistory, ISpeciality } from './ModelsDB';
 import {
+  IDXMainCode,
+  IPathologycalHistory,
+  IRelationCode,
+  ISpeciality,
+} from './ModelsDB';
+import {
+  DXMainCodeResponse,
   PathologicalHistoryResponse,
   PatientResponse,
+  RelationCodeResponse,
   SpecialityResponse,
 } from './Responses';
 
@@ -35,4 +42,21 @@ export interface SpecialityFormState {
 
 export interface MedicalProcedureState {
   items: Array<unknown>;
+}
+
+export interface DxMainCodeState {
+  allDxMainCodes: Array<DXMainCodeResponse>;
+  currentDxMainCode: IDXMainCode | null;
+  expanded: boolean;
+  dxMainCode: DXMainCodeResponse | null;
+  error: boolean;
+}
+
+export interface RelationCodeState {
+  allRelationCodes: Array<RelationCodeResponse>;
+  currentRelationCode: IRelationCode | null;
+  expanded: boolean;
+  relationCode: RelationCodeResponse | null;
+  errorDxMainCode: boolean;
+  errorSpeciality: boolean;
 }

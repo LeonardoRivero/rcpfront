@@ -3,7 +3,9 @@ import { PathologicalHistoryService } from 'src/Application/Services';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreSettings } from 'src/Domine/IStores';
+import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
+  DXMainCodeResponse,
   PathologicalHistoryResponse,
   RelationCodeResponse,
   SpecialityResponse,
@@ -27,9 +29,15 @@ export class SettingsMediator implements IControllersMediator {
         allSpecialities: <Array<SpecialityResponse>>[],
         allPathologies: <Array<PathologicalHistoryResponse>>[],
         allRelationCode: <Array<RelationCodeResponse>>[],
+        currentSpeciality: {} as ISpeciality,
+        currentDxMainCode: {} as DXMainCodeResponse,
       }),
     });
     return store();
+  }
+
+  public getStore(): IStoreSettings {
+    return this.store;
   }
 
   public static getInstance(): SettingsMediator {
@@ -48,9 +56,11 @@ export class SettingsMediator implements IControllersMediator {
     this.controllers.push(controller);
   }
 
-  public notify(data: IStoreSettings): void {
+  public notify(data: IStoreSettings, sender: Controller): void {
     for (const controller of this.controllers) {
-      controller.receiveData(this);
+      if (controller !== sender) {
+        controller.receiveData(this);
+      }
     }
   }
 
@@ -64,7 +74,7 @@ export class SettingsMediator implements IControllersMediator {
     // for (const controller of this.controllers) {
     //   controller.receiveData(this.store);
     // }
-    this.notify(this.store);
+    // this.notify(this.store);
   }
 
   public async getAllPathologies() {

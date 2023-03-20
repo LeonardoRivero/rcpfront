@@ -4,19 +4,15 @@ import { Messages } from 'src/Application/Utilities/Messages';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { SpecialityResponse } from 'src/Domine/Responses';
 import { SpecialityFormState } from 'src/Domine/IStates';
-import { Controller } from 'src/Domine/IPatterns';
-
+import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
 export class SpecialityController extends Controller {
-  getState(): object {
-    throw new Error('Method not implemented.');
-  }
   sendData(data: unknown): void {
-    this.mediator.handleData();
+    // this.mediator.handleData();
   }
-  receiveData<T>(data: T): void {
+  receiveData(mediator: IControllersMediator): void {
     throw new Error('Method not implemented.');
   }
-  private state: SpecialityFormState;
+  public state: SpecialityFormState;
   private serviceModal = new Modal();
   private messages = Messages.getInstance();
   private service = new SpecialityService();
@@ -71,7 +67,7 @@ export class SpecialityController extends Controller {
 
     if (response == null) return;
     this.state.currentSpeciality = response;
-    // this.state.allSpecialities = await this.service.getAll();
+    this.state.allSpecialities = await this.service.getAll();
     this.state.expanded = false;
   }
 

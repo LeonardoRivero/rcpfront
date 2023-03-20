@@ -3,24 +3,24 @@
     <q-card class="my-card" bordered>
       <q-card-section>
         <div class="text-h5 q-mt-sm q-mb-xs">
-          <q-icon :name="icon" size="32px" /> Codigo Relacionado
+          <q-icon :name="icons.barCodePrice" size="32px" /> Codigo Relacionado
         </div>
         <div class="text-caption text-grey">
           Codigos Relacionados encontrados:
-          {{ allRelationCodes.length }}
+          {{ state.allRelationCodes.length }}
         </div>
         <q-select
           dense
           clearable
           outlined
-          v-model="relationCode"
-          :options="allRelationCodes"
+          v-model="state.relationCode"
+          :options="state.allRelationCodes"
           option-value="id"
           option-label="description"
           map-options
           label="Descripcion"
           :hint="`Codigo Relacionado:  ${
-            relationCode == undefined ? '' : currentRelationCode.code
+            state.relationCode == undefined ? '' : state.relationCode.code
           }`"
           @update:model-value="(val) => relationCodeChanged(val)"
           @clear="(val) => clearRelationCode(val)"
@@ -34,7 +34,7 @@
           </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="relationCode != null"
+          v-if="state.relationCode != null"
           flat
           round
           color="green"
@@ -51,12 +51,12 @@
           round
           flat
           dense
-          :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-          @click="expanded = !expanded"
+          :icon="state.expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+          @click="state.expanded = !state.expanded"
         />
       </q-card-actions>
       <q-slide-transition>
-        <div v-show="expanded">
+        <div v-show="state.expanded">
           <q-separator />
           <q-card-section class="text-subitle2">
             <q-form @submit="confirmChanges" ref="form">
@@ -64,22 +64,22 @@
                 dense
                 outlined
                 disable
-                v-model="currentSpeciality.description"
+                v-model="store.currentSpeciality.description"
                 label="Especialidad"
-                :error="errorSpeciality"
+                :error="state.errorSpeciality"
               />
               <q-input
                 dense
                 outlined
                 disable
-                v-model="currentDxMainCode.description"
+                v-model="store.currentDxMainCode.description"
                 label="Codigo Principal"
-                :error="errorDxMainCode"
+                :error="state.errorDxMainCode"
               />
               <q-input
                 dense
                 outlined
-                v-model="currentRelationCode.code"
+                v-model="state.currentRelationCode.code"
                 label="Codigo Relacionado"
                 maxlength="10"
                 lazy-rules
@@ -90,7 +90,7 @@
               <q-input
                 dense
                 outlined
-                v-model="currentRelationCode.description"
+                v-model="state.currentRelationCode.description"
                 label="Descripcion Codigo Relacionado"
                 lazy-rules
                 :rules="[
@@ -109,68 +109,56 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
-import { storeToRefs } from 'pinia';
-
-import { useStoreRelationCode } from 'src/Infraestructure/Mediators/SettingsPage/RelationCodeStore';
-import { useStoreDxMainCode } from 'src/Infraestructure/Mediators/SettingsPage/DxMainCodeStore';
-import { useStoreSpeciality } from 'src/Infraestructure/Mediators/SettingsPage/SpecialityStore';
+import { defineComponent, reactive, ref } from 'vue';
+import { QForm } from 'quasar';
 import { IRelationCode } from 'src/Domine/ModelsDB';
-import { RelationCodeAdapter } from 'src/Adapters';
+import { RelationCodeController } from 'src/Adapters';
 import { IconSVG } from 'src/Application/Utilities';
+import { RelationCodeState } from 'src/Domine/IStates';
+import { SettingsMediator } from 'src/Infraestructure/Mediators';
+import { IStoreSettings } from 'src/Domine/IStores';
 import 'src/css/app.sass';
 
 export default defineComponent({
   name: 'RelationCodeForm',
   setup() {
-    const store = useStoreRelationCode();
-    const adapter = RelationCodeAdapter.getInstance(store);
-
-    const {
-      allRelationCodes,
-      currentRelationCode,
-      relationCode,
-      expanded,
-      form,
-      errorDxMainCode,
-      errorSpeciality,
-    } = storeToRefs(store);
-    const iconSVG = IconSVG.getInstance();
-    const icon = ref<string>('');
-    onMounted(async () => {
-      icon.value = iconSVG.barCodePrice;
+    const state: RelationCodeState = reactive({
+      allRelationCodes: [],
+      currentRelationCode: {} as IRelationCode,
+      expanded: false,
+      relationCode: null,
+      errorDxMainCode: false,
+      errorSpeciality: false,
     });
-
-    const storeSpeciality = useStoreSpeciality();
-    const storeDxMainCode = useStoreDxMainCode();
-    const { currentSpeciality } = storeToRefs(storeSpeciality);
-    const { currentDxMainCode } = storeToRefs(storeDxMainCode);
+    const controller = RelationCodeController.getInstance(state);
+    const mediator = SettingsMediator.getInstance();
+    mediator.add(controller);
+    const store: IStoreSettings = mediator.getStore();
+    const form = ref<QForm>();
 
     return {
-      allRelationCodes,
-      relationCode,
-      currentRelationCode,
-      icon,
-      currentSpeciality,
-      currentDxMainCode,
-      expanded,
+      state,
+      store,
+      icons: IconSVG.getInstance(),
       form,
-      errorDxMainCode,
-      errorSpeciality,
       edit() {
-        adapter.edit();
+        controller.edit();
       },
       add() {
-        adapter.add();
+        controller.add();
       },
       async confirmChanges() {
-        await adapter.saveOrUpdate();
+        const isValid = await form.value?.validate();
+        if (isValid == false) {
+          return;
+        }
+        await controller.saveOrUpdate();
       },
       async clearRelationCode() {
-        await adapter.clear();
+        await controller.clear();
       },
       async relationCodeChanged(val: IRelationCode) {
-        await adapter.relationCodeChanged(val);
+        await controller.relationCodeChanged(val);
       },
     };
   },
