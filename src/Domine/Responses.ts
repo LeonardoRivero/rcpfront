@@ -98,3 +98,20 @@ export interface PathologicalHistoryResponse {
   id: number;
   description: string;
 }
+export interface UserResponse {
+  pk: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  detail: string;
+}
+export interface TokenJWT {
+  access_token: string;
+  refresh_token: string;
+}
+
+export interface Group {
+  id: number;
+  name: string;
+}

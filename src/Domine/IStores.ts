@@ -4,6 +4,7 @@ import {
   DXMainCodeResponse,
   DoctorResponse,
   EventScheduleResponse,
+  Group,
   PathologicalHistoryResponse,
   PatientResponse,
   RelationCodeResponse,
@@ -28,4 +29,5 @@ export interface IStoreSettings {
   allRelationCode: Array<RelationCodeResponse>;
   currentSpeciality: ISpeciality;
   currentDxMainCode: DXMainCodeResponse | null;
+  allGroups: Array<Group>;
 }

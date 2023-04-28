@@ -10,7 +10,7 @@ export class SpecialityController extends Controller {
     // this.mediator.handleData();
   }
   receiveData(mediator: IControllersMediator): void {
-    throw new Error('Method not implemented.');
+    return
   }
   public state: SpecialityFormState;
   private serviceModal = new Modal();

@@ -2,13 +2,18 @@ import { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
+    path: '',
+    component: () => import('src/Infraestructure/pages/Login/Login.vue'),
+  },
+  {
     path: '/',
     component: () => import('src/Infraestructure/layouts/MainLayout.vue'),
     children: [
-      // {
-      //   path: '',
-      //   component: () => import('src/Infraestructure/pages/IndexPage.vue'),
-      // },
+      {
+        path: 'index',
+        component: () =>
+          import('src/Infraestructure/pages/Settings/UsersForm.vue'),
+      },
       {
         path: 'clinichistory',
         component: () =>
@@ -39,7 +44,6 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
-
   // Always leave this as last one,
   // but you can also remove it
   {

@@ -1,0 +1,47 @@
+# version: '3.5'
+# services:
+#   quasar:
+#     image: 'rcp'
+#     container_name: Front_quasar
+#     stdin_open: true # docker run -i
+#     tty: true # docker run -t
+#     ports:
+#       - '8887:8080'
+#       - '9999:9000'
+#     volumes:
+#       - /home/project-vue-docker:/srv/app
+
+#este docker compose funciona pero es muy lento
+# version: '3.4'
+# services:
+#   app:
+#     volumes:
+#       - .:/src
+#     networks:
+#       app.network:
+#       app.internal:
+#         ipv4_address: "172.18.29.3"
+
+# networks:
+#   app.internal:
+#     internal: true
+#     driver: bridge
+#     ipam:
+#       driver: default
+#       config:
+#         - subnet: 172.18.29.0/24
+#   app.network:
+#este docker compose funciona pero es muy lento
+
+version: '3.9'
+services:
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: development
+    volumes:
+      - .:/usr/src/app
+    command: npm run start
+    ports:
+      - '8080:8080'

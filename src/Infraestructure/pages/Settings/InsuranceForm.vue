@@ -2,12 +2,12 @@
   <q-card class="my-card" bordered>
     <q-card-section>
       <div class="text-h5 q-mt-sm q-mb-xs">
-        <q-icon :name="icon" size="48px" /> Entidades
+        <q-icon :name="icons.medicalHospital" size="48px" /> Entidades
       </div>
       <div class="text-caption text-grey">
         <q-checkbox
-          v-if="insurance != null"
-          v-model="insurance.takeCopayment"
+          v-if="state.insurance != null"
+          v-model="state.insurance.takeCopayment"
           checked-icon="task_alt"
           unchecked-icon="highlight_off"
           :disable="true"
@@ -20,8 +20,8 @@
         dense
         clearable
         outlined
-        v-model="insurance"
-        :options="allInsurance"
+        v-model="state.insurance"
+        :options="state.allInsurance"
         option-value="id"
         option-label="nameInsurance"
         map-options
@@ -29,9 +29,9 @@
         @update:model-value="(val) => insuranceChanged(val)"
         @clear="(val) => clearInsurance(val)"
         :hint="`Codigo Entidad: ${
-          currentInsurance.entityCode == undefined
+          state.currentInsurance.entityCode == undefined
             ? ''
-            : currentInsurance.entityCode
+            : state.currentInsurance.entityCode
         }`"
       >
       </q-select>
@@ -43,7 +43,7 @@
         </q-tooltip>
       </q-btn>
       <q-btn
-        v-if="insurance != null"
+        v-if="state.insurance != null"
         flat
         round
         color="green"
@@ -60,12 +60,12 @@
         round
         flat
         dense
-        :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-        @click="expanded = !expanded"
+        :icon="state.expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+        @click="state.expanded = !state.expanded"
       />
     </q-card-actions>
     <q-slide-transition>
-      <div v-show="expanded">
+      <div v-show="state.expanded">
         <q-separator />
         <q-card-section class="text-subitle2">
           <q-form @submit="confirmChanges" ref="form">
@@ -74,7 +74,7 @@
                 <q-input
                   dense
                   outlined
-                  v-model="currentInsurance.entityCode"
+                  v-model="state.currentInsurance.entityCode"
                   label="Codigo Entidad"
                   maxlength="10"
                   lazy-rules
@@ -87,7 +87,7 @@
                 <q-input
                   dense
                   outlined
-                  v-model="currentInsurance.nameInsurance"
+                  v-model="state.currentInsurance.nameInsurance"
                   label="Descripcion Entidad"
                   lazy-rules
                   :rules="[
@@ -98,7 +98,7 @@
               </div>
             </div>
             <q-checkbox
-              v-model="currentInsurance.takeCopayment"
+              v-model="state.currentInsurance.takeCopayment"
               checked-icon="task_alt"
               unchecked-icon="highlight_off"
               label=" Valor de cita incluye Copago "
@@ -118,60 +118,59 @@
   </q-card>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
-import { storeToRefs } from 'pinia';
+import { defineComponent, onMounted, reactive, ref } from 'vue';
+import { QForm } from 'quasar';
 import { IHealthInsurance } from 'src/Domine/ModelsDB';
 import { InsuranceAdapter } from 'src/Adapters/InsuranceAdapter';
-import { useStoreInsurance } from '../../Mediators/SettingsPage/InsuranceStore';
 import { IconSVG } from 'src/Application/Utilities';
-import 'src/css/app.sass';
 import { HealthInsuranceResponse } from 'src/Domine/Responses';
+import { InsuranceState } from 'src/Domine/IStates';
+import 'src/css/app.sass';
 
 export default defineComponent({
   name: 'InsuranceForm',
 
   setup() {
-    const { currentInsurance, insurance, expanded, form, error, allInsurance } =
-      storeToRefs(useStoreInsurance());
-    const adapter = InsuranceAdapter.getInstance(useStoreInsurance());
-    const iconSVG = IconSVG.getInstance();
-    const icon = ref<string>('');
-    const h = adapter.getState();
+    const state: InsuranceState = reactive({
+      allInsurance: [] as Array<HealthInsuranceResponse>,
+      currentInsurance: {} as IHealthInsurance,
+      expanded: false,
+      error: false,
+      insurance: null,
+    });
+    const controller = InsuranceAdapter.getInstance(state);
+    const form = ref<QForm>();
 
     onMounted(async () => {
-      await adapter.getAll();
-      icon.value = iconSVG.medicalHospital;
-      insurance.value = null;
-      currentInsurance.value = {} as IHealthInsurance;
-      expanded.value = false;
+      await controller.getAll();
     });
 
     return {
-      h,
-      icon,
-      insurance,
-      allInsurance,
-      currentInsurance,
-      expanded,
+      state,
+      icons: IconSVG.getInstance(),
       form,
-      error,
       clearInsurance() {
-        adapter.clear();
+        controller.clear();
+        form.value?.reset();
       },
       insuranceChanged(val: HealthInsuranceResponse) {
-        currentInsurance.value = val;
+        state.currentInsurance = val;
       },
       edit() {
-        if (expanded.value === false) {
-          expanded.value = !expanded.value;
+        if (state.expanded === false) {
+          state.expanded = !state.expanded;
         }
-        currentInsurance.value = insurance.value as IHealthInsurance;
+        state.currentInsurance = state.insurance as HealthInsuranceResponse;
       },
       add() {
-        adapter.add();
+        controller.add();
       },
       async confirmChanges() {
-        await adapter.saveOrUpdate(currentInsurance.value);
+        const isValid = await form.value?.validate();
+        if (isValid == false) {
+          return;
+        }
+        await controller.saveOrUpdate(state.currentInsurance);
       },
     };
   },

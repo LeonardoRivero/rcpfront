@@ -42,7 +42,7 @@ const linksList = [
     title: 'Inicio',
     caption: 'Inicio R.C.P',
     icon: 'home',
-    link: '/',
+    link: '/index',
   },
   {
     title: 'Pacientes',

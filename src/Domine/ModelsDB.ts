@@ -15,7 +15,6 @@ export interface IRelationCode {
   code: string;
   dxmaincode: number;
 }
-
 export interface IDoctor {
   id?: number;
   codigo: string;
@@ -95,8 +94,14 @@ export interface IPaymentOptions {
   description: string;
   code: string;
 }
-
 export interface IPathologycalHistory {
   id: number;
   description: string;
+}
+export interface IUser {
+  id?: number;
+  username: string;
+  email: string;
+  password: string;
+  repassword: string;
 }

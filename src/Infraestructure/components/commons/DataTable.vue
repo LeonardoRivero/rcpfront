@@ -11,7 +11,7 @@
       :filter="filter"
       :rows-per-page-options="[0]"
       :selection="tableOptions.selectionRow"
-      v-model:selected="selected"
+      v-model:selected="state.selected"
       class="table-responsive link-cursor"
       style="height: 400px"
       @update:selected="(val) => rowClicked(val)"
@@ -39,7 +39,7 @@
         </small>
         <q-select
           v-if="tableOptions.enableSelect"
-          v-model="option"
+          v-model="state.option"
           outlined
           dense
           options-dense
@@ -79,50 +79,66 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref } from 'vue';
-import { storeToRefs } from 'pinia';
-
+import { defineComponent, PropType, reactive, ref } from 'vue';
 import 'src/css/app.sass';
-import { TableOptions } from 'src/Domine/ICommons';
-import { useStoreDataTable } from 'src/Infraestructure/Mediators/Common/DatatableStore';
-import { DataTableAdapter } from 'src/Adapters/DataTableAdapter';
+import {
+  IColumnsDataTable,
+  ITableOptions,
+  TableSelect,
+} from 'src/Domine/ICommons';
+import { DataTableController } from 'src/Adapters/DataTableAdapter';
+import { DataTableState } from 'src/Domine/IStates';
+import { Controller } from 'src/Domine/IPatterns';
 
 export default defineComponent({
   name: 'DataTable',
   props: {
     tableOptions: {
-      type: Object as PropType<TableOptions>,
+      type: Object as PropType<ITableOptions>,
       require: true,
-      default: {} as TableOptions,
+      default: {
+        virtualScroll: false,
+        title: '',
+        columns: [] as Array<IColumnsDataTable>,
+        data: [] as unknown,
+        enableSearch: false,
+        enableSelect: false,
+        selectionRow: 'none',
+        select: new TableSelect(),
+        textCite: '',
+        observer: null,
+      } as ITableOptions,
+    },
+    controller: {
+      type: Object as PropType<Controller>,
+      require: true,
+      default: null,
     },
   },
   setup(props) {
-    const store = useStoreDataTable();
-    const { data, columns, listOptions, option, selected } = storeToRefs(store);
-    const adapter = DataTableAdapter.getInstance(store);
-    let selectionRow = ref<string>();
-
-    onMounted(async () => {
-      // if (props.tableOptions.selectionRow == 'none') {
-      //   selectionRow.value = 'none';
-      // }
-      // selectionRow.value = props.tableOptions.selectionRow;
+    const state: DataTableState = reactive({
+      title: '',
+      visible: false,
+      columns: [] as Array<IColumnsDataTable>,
+      data: [],
+      listOptions: [],
+      option: null,
+      selected: [] as Array<unknown>,
     });
 
+    const controller = DataTableController.getInstance(state);
+
     return {
-      listOptions,
-      option,
-      selected,
-      selectionRow,
-      columns,
-      data,
+      state,
+      // selectionRow,
       filter: ref(''),
       rows: [],
       selectChanged(val: object) {
-        adapter.notify(val);
+        controller.attach(props.tableOptions.observer);
+        controller.notify(val);
       },
       clear(val: object) {
-        option.value = null;
+        state.option = null;
       },
       addRow() {
         console.log('add');
@@ -131,10 +147,12 @@ export default defineComponent({
         console.log('remove');
       },
       rowClicked(val: Array<object>) {
+        console.log(val);
         if (val === undefined) {
           val = [];
         }
-        adapter.notify(val);
+        controller.attach(props.tableOptions.observer);
+        controller.notify(val);
       },
     };
   },

@@ -5,19 +5,8 @@ import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
   AppointmentResponse,
   DoctorResponse,
-  EventScheduleResponse,
   PatientResponse,
 } from 'src/Domine/Responses';
-
-// export const useStoreClinicHistory = defineStore({
-//   id: 'useStoreClinicHistory',
-//   state: (): IStoreClinicHistory => ({
-//     speciality: {} as ISpeciality,
-//     currentDoctor: {} as DoctorResponse,
-//     currentAppointment: {} as AppointmentResponse,
-//     currentPatient: {} as PatientResponse,
-//   }),
-// });
 
 export class ClinicHistoryMediator implements IControllersMediator {
   private controllers: Controller[] = [];
@@ -35,7 +24,7 @@ export class ClinicHistoryMediator implements IControllersMediator {
         currentDoctor: {} as DoctorResponse,
         currentAppointment: {} as AppointmentResponse,
         currentPatient: {} as PatientResponse,
-        currentSchedule:null
+        currentSchedule: null,
       }),
     });
     return store();
@@ -63,8 +52,8 @@ export class ClinicHistoryMediator implements IControllersMediator {
     }
   }
 
-  public getStore():IStoreClinicHistory{
-    return this.stores
+  public getStore(): IStoreClinicHistory {
+    return this.stores;
   }
 
   public handleData(state: object): void {

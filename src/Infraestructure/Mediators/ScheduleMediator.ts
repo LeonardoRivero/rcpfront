@@ -150,6 +150,9 @@ export const useStoreSchedule = defineStore({
 });
 
 export class ScheduleMediator implements IControllersMediator {
+  getStore(): object {
+    throw new Error('Method not implemented.');
+  }
   private controllers: Controller[] = [];
   private static instance: ScheduleMediator;
   private serviceModal = new Modal();

@@ -45,7 +45,7 @@ export class PhysicalExamParameterRepository
     return PhysicalExamParameterRepository.instance;
   }
   getById(id: number): Promise<PhysicalExamResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   getAll(): Promise<PhysicalExamResponse[] | null> {
     throw new Error('Method not implemented.');
@@ -53,10 +53,10 @@ export class PhysicalExamParameterRepository
   async create(entity: IPhysicalExam): Promise<PhysicalExamResponse | null> {
     const url = endpoint.getORcreatePhysicalExamParameter;
     try {
-      const response = await POST<PhysicalExamResponse>(url, entity);
+      const response = await POST(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
-      const data = response.json();
+      const data: PhysicalExamResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -70,26 +70,27 @@ export class PhysicalExamParameterRepository
     }
     try {
       const url = endpoint.updateOrGetPhysicalExamParameterById(entity.id);
-      const response = await PUT<PhysicalExamResponse>(url, entity);
+      const response = await PUT(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
-      const data = response.json();
+      const data: PhysicalExamResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
     }
   }
   delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   async findByParameters(parameters: object): Promise<PhysicalExamResponse[]> {
     const urlBase = endpoint.getORcreatePhysicalExamParameter;
     const url = endpoint.urlQueryParameter(urlBase, parameters);
-    const response = await GET<Array<PhysicalExamResponse>>(url);
+    const response = await GET(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
     }
-    return response.json();
+    const data: PhysicalExamResponse[] = await response.json();
+    return data;
   }
 }
 export class SpecialityRepository
@@ -100,7 +101,7 @@ export class SpecialityRepository
     return;
   }
   findByParameters(parameters: object): Promise<SpecialityResponse[]> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { parameters });
   }
 
   public static getInstance(): SpecialityRepository {
@@ -113,11 +114,14 @@ export class SpecialityRepository
   public async getAll(): Promise<SpecialityResponse[] | null> {
     try {
       const url = endpoint.getORcreateSpeciality;
-      const response = await GET<Array<SpecialityResponse>>(url);
+      const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
       }
-      const data = await response.json();
+      if (response.status == HttpStatusCodes.UNAUTHORIZED) {
+        return <Array<SpecialityResponse>>[];
+      }
+      const data: SpecialityResponse[] = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -127,10 +131,10 @@ export class SpecialityRepository
   public async create(entity: ISpeciality): Promise<SpecialityResponse | null> {
     const url = endpoint.getORcreateSpeciality;
     try {
-      const response = await POST<SpecialityResponse>(url, entity);
+      const response = await POST(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
-      const data = response.json();
+      const data: SpecialityResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -145,10 +149,10 @@ export class SpecialityRepository
     }
     try {
       const url = endpoint.updateSpeciality(entity.id);
-      const response = await PUT<SpecialityResponse>(url, entity);
+      const response = await PUT(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
-      const data = await response.json();
+      const data: SpecialityResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
@@ -156,7 +160,7 @@ export class SpecialityRepository
   }
 
   async delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
 
   async getById(id: number): Promise<SpecialityResponse | null> {
@@ -185,7 +189,7 @@ export class InsuranceRepository
     return;
   }
   findByParameters(parameters: object): Promise<HealthInsuranceResponse[]> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { parameters });
   }
   public static getInstance(): InsuranceRepository {
     if (!InsuranceRepository.instance) {
@@ -194,16 +198,16 @@ export class InsuranceRepository
     return InsuranceRepository.instance;
   }
   async getById(id: number): Promise<HealthInsuranceResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<HealthInsuranceResponse[] | null> {
     const url = endpoint.getORcreateInsurance;
     try {
-      const response = await GET<Array<HealthInsuranceResponse>>(url);
+      const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
       }
-      const data = await response.json();
+      const data: HealthInsuranceResponse[] = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -214,13 +218,14 @@ export class InsuranceRepository
   ): Promise<HealthInsuranceResponse | null> {
     try {
       const url = endpoint.getORcreateInsurance;
-      const response = await POST<HealthInsuranceResponse>(url, entity);
+      const response = await POST(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
       if (response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
-      return await response.json();
+      const data: HealthInsuranceResponse = await response.json();
+      return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
@@ -233,20 +238,20 @@ export class InsuranceRepository
     }
     try {
       const url = endpoint.updateInsurance(entity.id);
-      const response = await PUT<HealthInsuranceResponse>(url, entity);
+      const response = await PUT(url, entity);
       handleResponse(response, messages.updateSuccesfully);
       if (!response.ok) return null;
       if (response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
-      const data = await response.json();
+      const data: HealthInsuranceResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
     }
   }
   async delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
 }
 
@@ -268,22 +273,22 @@ export class DxMainCodeRepository
   ): Promise<DXMainCodeResponse[]> {
     const urlBase = endpoint.getORcreateDxMainCode;
     const url = endpoint.urlQueryParameter(urlBase, queryParameters);
-    const response = await GET<Array<DXMainCodeResponse>>(url);
-    const data = await response.json();
+    const response = await GET(url);
+    const data: DXMainCodeResponse[] = await response.json();
     return data;
   }
   getById(id: number): Promise<DXMainCodeResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<DXMainCodeResponse[] | null> {
     const url = endpoint.getORcreateDxMainCode;
     try {
-      const response = await GET<Array<DXMainCodeResponse>>(url);
+      const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
         return null;
       }
-      const data = await response.json();
+      const data: DXMainCodeResponse[] = await response.json();
       handleResponse(response);
       return data;
     } catch (error) {
@@ -293,12 +298,13 @@ export class DxMainCodeRepository
   async create(entity: IDXMainCode): Promise<DXMainCodeResponse | null> {
     const url = endpoint.getORcreateDxMainCode;
     try {
-      const response = await POST<DXMainCodeResponse>(url, entity);
+      const response = await POST(url, entity);
       handleResponse(response);
       if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
-      return await response.json();
+      const data: DXMainCodeResponse = await response.json();
+      return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
@@ -311,19 +317,19 @@ export class DxMainCodeRepository
     }
     try {
       const url = endpoint.updateDxMainCode(entity.id);
-      const response = await PUT<DXMainCodeResponse>(url, entity);
+      const response = await PUT(url, entity);
       handleResponse(response, messages.updateSuccesfully);
       if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
-      const data = await response.json();
+      const data: DXMainCodeResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
     }
   }
   delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
 }
 
@@ -341,12 +347,12 @@ export class RelationCodeRepository
     return RelationCodeRepository.instance;
   }
   async getById(id: number): Promise<RelationCodeResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<RelationCodeResponse[] | null> {
     try {
       const url = endpoint.getORcreateRelationCode;
-      const response = await GET<Array<RelationCodeResponse>>(url);
+      const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
       }
@@ -354,7 +360,7 @@ export class RelationCodeRepository
       if (response.status == HttpStatusCodes.NO_CONTENT) {
         return [];
       }
-      const data = await response.json();
+      const data: RelationCodeResponse[] = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -363,11 +369,11 @@ export class RelationCodeRepository
   async create(entity: IRelationCode): Promise<RelationCodeResponse | null> {
     const url = endpoint.getORcreateRelationCode;
     try {
-      const response = await POST<RelationCodeResponse>(url, entity);
+      const response = await POST(url, entity);
       handleResponse(response);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = await response.json();
+      const data: RelationCodeResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -381,27 +387,27 @@ export class RelationCodeRepository
     }
     try {
       const url = endpoint.updateRelationCode(entity.id);
-      const response = await PUT<RelationCodeResponse>(url, entity);
+      const response = await PUT(url, entity);
       if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
       handleResponse(response, messages.updateSuccesfully);
-      const data = await response.json();
+      const data: RelationCodeResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
     }
   }
   async delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   public async findByParameters(
     parameters: object
   ): Promise<RelationCodeResponse[]> {
     const urlBase = endpoint.getORcreateRelationCode;
     const url = endpoint.urlQueryParameter(urlBase, parameters);
-    const response = await GET<Array<RelationCodeResponse>>(url);
-    const data = await response.json();
+    const response = await GET(url);
+    const data: RelationCodeResponse[] = await response.json();
     return data;
   }
 }
@@ -421,12 +427,12 @@ export class DoctorRepository implements IRepository<IDoctor, DoctorResponse> {
   public async getById(id: number): Promise<DoctorResponse | null> {
     const url = endpoint.updateOrGetDoctorById(id);
     try {
-      const response = await GET<DoctorResponse>(url);
+      const response = await GET(url);
       if (!response.ok) return null;
       if (response.status == HttpStatusCodes.NOT_FOUND) return null;
       if (response.status == HttpStatusCodes.BAD_REQUEST) return null;
 
-      const data = await response.json();
+      const data: DoctorResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -436,11 +442,11 @@ export class DoctorRepository implements IRepository<IDoctor, DoctorResponse> {
   async getAll(): Promise<DoctorResponse[] | null> {
     try {
       const url = endpoint.getORcreateDoctor;
-      const response = await GET<Array<DoctorResponse>>(url);
+      const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
       }
-      const data = await response.json();
+      const data: DoctorResponse[] = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -448,28 +454,28 @@ export class DoctorRepository implements IRepository<IDoctor, DoctorResponse> {
   }
 
   create(entity: IDoctor): Promise<DoctorResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { entity });
   }
 
   update(entity: Partial<IDoctor>): Promise<DoctorResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { entity });
   }
 
   delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   public async findByParameters(parameters: object): Promise<DoctorResponse[]> {
     try {
       const urlBase = endpoint.getORcreateDoctor;
       const url = endpoint.urlQueryParameter(urlBase, parameters);
-      const response = await GET<Array<DoctorResponse>>(url);
+      const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
       }
       if (response.status == HttpStatusCodes.INTERNAL_SERVER_ERROR) {
         return [];
       }
-      const data = await response.json();
+      const data: DoctorResponse[] = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -481,16 +487,16 @@ export class PathologicalHistoryRepository
   implements IRepository<IPathologycalHistory, PathologicalHistoryResponse>
 {
   getById(id: number): Promise<IPathologycalHistory | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   public async getAll(): Promise<PathologicalHistoryResponse[] | null> {
     try {
       const url = endpoint.getAllPathologicalHistory;
-      const response = await GET<Array<SpecialityResponse>>(url);
+      const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
       }
-      const data = await response.json();
+      const data: PathologicalHistoryResponse[] = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -501,12 +507,13 @@ export class PathologicalHistoryRepository
   ): Promise<PathologicalHistoryResponse | null> {
     const url = endpoint.getAllPathologicalHistory;
     try {
-      const response = await POST<PathologicalHistoryResponse>(url, entity);
+      const response = await POST(url, entity);
       handleResponse(response);
       if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
-      return response.json();
+      const data: PathologicalHistoryResponse = await response.json();
+      return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
@@ -519,21 +526,21 @@ export class PathologicalHistoryRepository
     }
     try {
       const url = endpoint.updateOrGetPathologyById(entity.id);
-      const response = await PUT<RelationCodeResponse>(url, entity);
+      const response = await PUT(url, entity);
       if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
         return null;
       }
       handleResponse(response, messages.updateSuccesfully);
-      const data = await response.json();
+      const data: PathologicalHistoryResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
     }
   }
   delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   findByParameters(parameters: object): Promise<IPathologycalHistory[]> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { parameters });
   }
 }

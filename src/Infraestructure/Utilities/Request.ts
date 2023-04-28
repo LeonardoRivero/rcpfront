@@ -5,37 +5,45 @@ import { Modal } from 'src/Infraestructure/Utilities/Notifications';
 
 const messages = Messages.getInstance();
 const modal = new Modal();
-// export interface HttpResponse<T> extends Response {
-//   parsedBody?: T;
-// }
-
-export async function http<T>(request: RequestInfo): Promise<Response> {
-  modal.showLoading();
-  const response: Response = await fetch(request);
-  console.log({ response });
+export async function http(request: RequestInfo): Promise<Response> {
   try {
-    // response.parsedBody = await response.json();
-    // console.log(response.parsedBody);
-    modal.hideLoading();
-  } catch (ex) {
-    console.log(ex);
+    modal.showLoading();
+    console.log(request);
+    const response: Response = await fetch(request);
+    console.log(response);
     modal.hideLoading();
     return response;
+  } catch (err: any) {
+    modal.hideLoading();
+
+    if (err.name === 'TimeoutError') {
+      throw Error('Timeout: It took more than 5 seconds to get the result!');
+    } else if (err.name === 'AbortError') {
+      throw Error('Fetch aborted by user action');
+    } else if (err.name === 'TypeError') {
+      throw Error('AbortSignal.timeout() method is not supported');
+    } else {
+      throw Error(`Error: type: ${err.name}, message: ${err.message}`);
+    }
   }
-  // if (!response.ok) {
-  //   throw new Error(response.statusText);
-  // }
-  modal.hideLoading();
-  return response;
 }
-export async function GET<T>(
+export async function GET(
   path: string,
-  args: RequestInit = { method: 'GET' }
+  args: RequestInit = {
+    method: 'GET',
+    mode: 'cors',
+    credentials: 'include',
+    headers: {
+      Accept: '*/*',
+      'Content-Type': 'application/json',
+    },
+  }
 ): Promise<Response> {
-  const response = await http<T>(new Request(path, args));
+  const t = new Request(path, args);
+  const response = await http(t);
   return response;
 }
-export async function POST<T>(
+export async function POST(
   path: string,
   body: unknown,
   args: RequestInit = {
@@ -47,9 +55,9 @@ export async function POST<T>(
     body: JSON.stringify(body),
   }
 ): Promise<Response> {
-  return await http<T>(new Request(path, args));
+  return await http(new Request(path, args));
 }
-export async function PUT<T>(
+export async function PUT(
   path: string,
   body: unknown,
   args: RequestInit = {
@@ -61,13 +69,13 @@ export async function PUT<T>(
     body: JSON.stringify(body),
   }
 ): Promise<Response> {
-  return await http<T>(new Request(path, args));
+  return await http(new Request(path, args));
 }
-export async function DELETE<T>(
+export async function DELETE(
   path: string,
   args: RequestInit = { method: 'DELETE' }
 ): Promise<Response> {
-  return await http<T>(new Request(path, args));
+  return await http(new Request(path, args));
 }
 
 export async function handleResponse(

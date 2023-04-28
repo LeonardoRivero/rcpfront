@@ -34,5 +34,18 @@ export default route(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
+  // Router.beforeEach(async (to) => {
+  //   // redirect to login page if not logged in and trying to access a restricted page
+  //   const publicPages = ['/'];
+  //   const authRequired = !publicPages.includes(to.path);
+  //   // const auth = useAuthStore();
+
+  //   if (authRequired && true) {
+  //     // auth.returnUrl = to.fullPath;
+  //     console.log(authRequired);
+  //     return '/';
+  //   }
+  // });
+
   return Router;
 });

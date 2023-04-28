@@ -1,5 +1,4 @@
 import { Observer } from 'src/patterns/Observer/Observer';
-
 export interface IColumnsDataTable {
   name: string;
   required?: boolean;
@@ -36,32 +35,18 @@ export interface ITableOptions {
   enableSelect?: boolean;
   select: TableSelect;
   textCite: string;
-  observer?: Observer;
+  observer: Observer | null;
 }
 
-export class TableOptions implements ITableOptions {
-  virtualScroll = false;
-  title = '';
-  columns = [] as Array<IColumnsDataTable>;
-  data = [] as unknown;
-  enableSearch = false;
-  enableSelect = false;
-  selectionRow = 'none';
-  select = new TableSelect();
-  textCite = '';
-  // selection?: string | undefined;
-  observer: Observer | undefined;
-  // constructor(column: Array<IColumnsDataTable>, data: unknown) {
-  //   this.data = data;
-  //   this.columns = column;
-  // }
-}
-// export interface EventScheduleResponse {
-//   id?: number;
-//   title: string;
-//   start: string;
-//   end: string;
-//   patient: IPatientResponse;
-//   speciality: ISpeciality;
-//   doctor: IDoctor;
+// export class TableOptions implements ITableOptions {
+//   virtualScroll = false;
+//   title = '';
+//   columns = [] as Array<IColumnsDataTable>;
+//   data = [] as unknown;
+//   enableSearch = false;
+//   enableSelect = false;
+//   selectionRow = 'none';
+//   select = new TableSelect();
+//   textCite = '';
+//   observer: Observer | undefined;
 // }

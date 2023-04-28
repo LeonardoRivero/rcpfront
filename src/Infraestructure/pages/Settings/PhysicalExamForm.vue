@@ -28,7 +28,7 @@
                   round
                   icon="mdi-pencil"
                   align="right"
-                  v-if="userCanEdit"
+                  v-if="state.userCanEdit"
                   @click="edit()"
                 >
                   <q-tooltip transition-show="scale" transition-hide="scale">
@@ -43,11 +43,11 @@
               <div class="row q-col-gutter-x-md">
                 <div class="col-md-12 col-sm-12 col-xs-12">
                   <q-select
-                    :disable="disable"
+                    :disable="state.disable"
                     dense
                     outlined
-                    v-model="currentPhysicalExamParameter.speciality"
-                    :options="allSpecialities"
+                    v-model="state.currentPhysicalExamParameter.speciality"
+                    :options="state.allSpecialities"
                     option-label="description"
                     map-options
                     emit-value
@@ -62,8 +62,8 @@
               <div class="row q-col-gutter-x-md">
                 <div class="col-9 col-md-9 col-sm-12 col-xs-12">
                   <q-input
-                    :disable="disable"
-                    v-model="currentPhysicalExamParameter.description"
+                    :disable="state.disable"
+                    v-model="state.currentPhysicalExamParameter.description"
                     label="Parametro Examen Fisico"
                     dense
                     lazy-rules
@@ -75,8 +75,8 @@
                 </div>
                 <div class="col-3 col-md-3 col-sm-12 col-xs-12">
                   <q-checkbox
-                    :disable="disable"
-                    v-model="currentPhysicalExamParameter.active"
+                    :disable="state.disable"
+                    v-model="state.currentPhysicalExamParameter.active"
                     label="Estado"
                     :rules="[
                       (val) =>
@@ -107,21 +107,23 @@
     </div>
   </div>
   <div class="col-6 col-md-6 col-sm-12 col-xs-12">
-    <DataTable :tableOptions="tableOptions" />
+    <DataTable :tableOptions="tableOptions" :controller="controller" />
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, reactive, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import DataTable from 'src/Infraestructure/components/commons/DataTable.vue';
-import { IconSVG } from 'src/Application/Utilities/Constants';
 import { useStorePhysicalExamParameter } from 'src/Infraestructure/Mediators/SettingsPage/PhysicalExamStore';
-import { PhysicalExamParameterAdapter } from 'src/Adapters/PhysicalExamAdapter';
+import { PhysicalExamParameterController } from 'src/Adapters/PhysicalExamAdapter';
 import { IPhysicalExam } from 'src/Domine/ModelsDB';
-import { DataTableAdapter } from 'src/Adapters/DataTableAdapter';
-import { useStoreDataTable } from 'src/Infraestructure/Mediators/Common/DatatableStore';
+import { BuilderTables } from 'src/Adapters/DataTableAdapter';
+import { useStoreDataTable } from '../../Mediators/Common/DatatableStore';
+import { SettingsMediator } from '../../Mediators';
+import { PhysicalExamParameterState } from 'src/Domine/IStates';
+import { PhysicalExamResponse } from 'src/Domine/Responses';
+import { QForm } from 'quasar';
 import 'src/css/app.sass';
-import { SettingsMediator } from 'src/Infraestructure/Mediators';
 
 export default defineComponent({
   name: 'PhysicalExamForm',
@@ -130,92 +132,53 @@ export default defineComponent({
   },
   setup() {
     const mediator = SettingsMediator.getInstance();
-    const iconSVG = IconSVG.getInstance();
-    const {
-      // physicalExamParameter,
-      form,
-      icon,
-      speciality,
-      specialityTable,
-      allPhysicalMedicalParameter,
-      currentPhysicalExamParameter,
-      status,
-      allSpecialities,
-      // confirmChanges,
-      // specialityChanged,
-      // specialityTableChanged,
-      // add,
-      disable,
-      rows,
-      columnsr,
-      titleTable,
-      selected,
-      userCanEdit,
-      // rowClicked,
-    } = storeToRefs(useStorePhysicalExamParameter());
+    const form = ref<QForm>();
+    const { disable, rows, columnsr, titleTable, userCanEdit } = storeToRefs(
+      useStorePhysicalExamParameter()
+    );
+
+    const state: PhysicalExamParameterState = reactive({
+      currentPhysicalExamParameter: {
+        active: true,
+        description: '',
+      } as IPhysicalExam,
+      allPhysicalMedicalParameter: [] as Array<PhysicalExamResponse>,
+      disable: false,
+      allSpecialities: [],
+      userCanEdit: false,
+    });
 
     const storeDataTable = useStoreDataTable();
     const { tableOptions } = storeToRefs(storeDataTable);
-    // const repository = PhysicalExamParameterRepository.getInstance();
-    const adapter = PhysicalExamParameterAdapter.getInstance(
-      useStorePhysicalExamParameter()
-    );
-    // const serviceSpeciality = specialityService.getInstance();
-    // const queryParameters = { speciality: 1 };
-    const dataTableAdapter = DataTableAdapter.getInstance(storeDataTable);
+    const controller = PhysicalExamParameterController.getInstance(state);
+    // const dataTableController = DataTableController.getInstance(storeDataTable);
 
     onMounted(async () => {
-      allSpecialities.value = await mediator.getAllSpecialities();
-      icon.value = iconSVG.outpatient;
-      // // const response = await repository.findByParameters(queryParameters);
-      // // const columnsPrueba = [
-      // //   {
-      // //     name: 'id',
-      // //     required: true,
-      // //     align: 'center',
-      // //     label: 'Id',
-      // //     field: 'id',
-      // //     sortable: true,
-      // //   },
-      // //   {
-      // //     name: 'description',
-      // //     required: true,
-      // //     align: 'center',
-      // //     label: 'Descripcion Parametro',
-      // //     field: 'description',
-      // //     sortable: true,
-      // //   },
-      // // ] as Array<IColumnsDataTable>;
-      const builder = dataTableAdapter.getBuilder();
+      state.allSpecialities = await mediator.getAllSpecialities();
+      const builder = new BuilderTables();
       builder.setData(columnsr.value, rows.value, titleTable.value);
       builder.hasSearchField(true);
       builder.setSelectionRow('single');
       tableOptions.value = builder.getResult();
-      dataTableAdapter.attach(adapter);
+      tableOptions.value.observer = controller;
+      // dataTableController.attach(adapter);
     });
+
     return {
-      icon,
+      controller,
+      state,
       tableOptions,
-      // physicalExamParameter,
-      allPhysicalMedicalParameter,
-      allSpecialities,
-      speciality,
-      specialityTable,
       form,
       disable,
       userCanEdit,
-      // async clearSpeciality() {
-      //   await adapter.clearSpeciality();
-      //   await adapter.clear();
-      // },
       async confirmChanges() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;
-        const response = await adapter.saveOrUpdate(
-          currentPhysicalExamParameter.value
+        const response = await controller.saveOrUpdate(
+          state.currentPhysicalExamParameter
         );
         if (response != null) {
-          currentPhysicalExamParameter.value = {
+          state.currentPhysicalExamParameter = {
             active: true,
           } as IPhysicalExam;
           form.value?.reset();
@@ -223,30 +186,20 @@ export default defineComponent({
       },
 
       async specialityChanged(id: number) {
-        const response = await adapter.specialityChanged(id);
-        const [columns, dataRows] = adapter.getColumnsAndRows(response);
-        dataTableAdapter.updateData(columns, dataRows);
+        const response = await controller.specialityChanged(id);
+        const [columns, dataRows] = controller.getColumnsAndRows(response);
+        tableOptions.value.columns = columns;
+        tableOptions.value.data = dataRows;
+        // dataTableController.updateData(columns, dataRows);
       },
-
-      // specialityTableChanged(val: unknown) {
-      //   console.log(val);
-      // },
-      add() {
-        adapter.add();
+      async add() {
+        controller.add();
+        form.value?.reset();
       },
 
       edit() {
-        adapter.edit();
+        controller.edit();
       },
-
-      currentPhysicalExamParameter,
-      status,
-      rows,
-      columnsr,
-      selected,
-      // rowClicked(val: Array<IPhysicalExamRequest>) {
-      //   console.log(val);
-      // },
     };
   },
 });

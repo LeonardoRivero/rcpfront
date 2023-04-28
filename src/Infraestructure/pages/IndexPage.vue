@@ -24,46 +24,6 @@
             $q.platform.is.mobile ? { width: '80%' } : { width: '30%' }
           "
         >
-          <!-- <q-img
-            src="https://svgsilh.com/svg/1301891.svg"
-          ></q-img> -->
-          <!-- <q-card-section>
-            <div class="row no-wrap items-center">
-              <div class="col text-h6 ellipsis">Bienvenido a R.C.P</div>
-            </div>
-          </q-card-section> -->
-          <!-- <q-card-section>
-            <q-form class="q-gutter-md">
-              <q-input filled v-model="username" label="Username" lazy-rules />
-
-              <q-input
-                type="password"
-                filled
-                v-model="password"
-                label="Password"
-                lazy-rules
-              />
-
-              <div>
-                <q-btn
-                  label="Login"
-                  to="/dashboard"
-                  type="button"
-                  color="primary"
-                  @click="loginNotify"
-                />
-
-                <a
-                  style="font-size: 30px"
-                  class="float-right"
-                  href="https://github.com/sponsors/mayank091193"
-                  target="_blank"
-                  title="Donate"
-                  ><i class="fas fa-heart" style="color: #eb5daa"></i
-                ></a>
-              </div>
-            </q-form>
-          </q-card-section> -->
         </q-card>
       </q-page>
     </q-page-container>

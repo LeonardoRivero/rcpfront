@@ -25,7 +25,7 @@ export class IconSVG {
     return 'img:outpatient.svg';
   }
   get womanAndMan() {
-    return 'woman-and-man.svg';
+    return 'users.svg';
   }
   get medicalResults() {
     return 'img:medical-results-folders.svg';

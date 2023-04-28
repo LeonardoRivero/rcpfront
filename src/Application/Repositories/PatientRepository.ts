@@ -16,15 +16,12 @@ import {
   ReasonConsultResponse,
 } from 'src/Domine/Responses';
 import { EndPoints } from '../Utilities/EndPoints';
-import { Messages } from '../Utilities/Messages';
 const endpoint = EndPoints.getInstance();
-const messages = Messages.getInstance();
-
 export class PatientRepository
   implements IRepository<IPatient, PatientResponse>
 {
   getById(id: number): Promise<PatientResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
 
   getAll(): Promise<PatientResponse[] | null> {
@@ -34,10 +31,10 @@ export class PatientRepository
   async create(entity: IPatient): Promise<PatientResponse | null> {
     const url = endpoint.getORcreatePatient;
     try {
-      const response = await POST<PatientResponse>(url, entity);
+      const response = await POST(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
-      const data = await response.json();
+      const data: PatientResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -50,10 +47,10 @@ export class PatientRepository
     }
     try {
       const url = endpoint.updatePatient(entity.id);
-      const response = await PUT<PatientResponse>(url, entity);
+      const response = await PUT(url, entity);
       if (!response.ok) return null;
       // handleResponse(response, messages.updateSuccesfully);
-      const data = await response.json();
+      const data: PatientResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name}:${error}`);
@@ -61,7 +58,7 @@ export class PatientRepository
   }
 
   delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
 
   public async findByParameters(
@@ -69,7 +66,7 @@ export class PatientRepository
   ): Promise<Array<PatientResponse>> {
     const urlBase = endpoint.getORcreatePatient;
     const url = endpoint.urlQueryParameter(urlBase, parameters);
-    const response = await GET<PatientResponse>(url);
+    const response = await GET(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
     }
@@ -81,61 +78,61 @@ export class PatientRepository
 
 export class IDTypesRepository implements IRepository<IIDType, IDTypeResponse> {
   getById(id: number): Promise<IDTypeResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<IDTypeResponse[] | null> {
     const url = endpoint.getAllIDType;
     try {
-      const response = await GET<Array<IDTypeResponse>>(url);
+      const response = await GET(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = await response.json();
+      const data: IDTypeResponse[] = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
   }
   create(entity: IIDType): Promise<IDTypeResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { entity });
   }
   update(entity: Partial<IIDType>): Promise<IDTypeResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { entity });
   }
   delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   findByParameters(parameters: object): Promise<IDTypeResponse[]> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { parameters });
   }
 }
 
 export class GenderRepository implements IRepository<IGender, GenderResponse> {
   getById(id: number): Promise<GenderResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<GenderResponse[] | null> {
     const url = endpoint.getAllGender;
     try {
-      const response = await GET<Array<GenderResponse>>(url);
+      const response = await GET(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = await response.json();
+      const data: GenderResponse[] = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
   }
   create(entity: IGender): Promise<GenderResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { entity });
   }
   update(entity: Partial<IGender>): Promise<GenderResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { entity });
   }
   delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   findByParameters(parameters: object): Promise<GenderResponse[]> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { parameters });
   }
 }
 
@@ -143,33 +140,33 @@ export class PatientStatusRepository
   implements IRepository<IPatientStatus, PatientStatusResponse>
 {
   getById(id: number): Promise<PatientStatusResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<PatientStatusResponse[] | null> {
     const url = endpoint.getORcreatePatientStatus;
     try {
-      const response = await GET<Array<PatientStatusResponse>>(url);
+      const response = await GET(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = await response.json();
+      const data: PatientStatusResponse[] = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
   }
   create(entity: IPatientStatus): Promise<PatientStatusResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { entity });
   }
   update(
     entity: Partial<IPatientStatus>
   ): Promise<PatientStatusResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { entity });
   }
   delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   findByParameters(parameters: object): Promise<PatientStatusResponse[]> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { parameters });
   }
 }
 
@@ -177,32 +174,32 @@ export class ReasonConsultRepository
   implements IRepository<IReasonConsult, ReasonConsultResponse>
 {
   getById(id: number): Promise<ReasonConsultResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<ReasonConsultResponse[] | null> {
     const url = endpoint.getORcreateReasonConsult;
     try {
-      const response = await GET<Array<ReasonConsultResponse>>(url);
+      const response = await GET(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = await response.json();
+      const data: ReasonConsultResponse[] = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
   }
   create(entity: IReasonConsult): Promise<ReasonConsultResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { entity });
   }
   update(
     entity: Partial<IReasonConsult>
   ): Promise<ReasonConsultResponse | null> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { entity });
   }
   delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { id });
   }
   findByParameters(parameters: object): Promise<ReasonConsultResponse[]> {
-    throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.' + { parameters });
   }
 }

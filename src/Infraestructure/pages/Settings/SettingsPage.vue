@@ -14,6 +14,7 @@
           <q-tab name="Insurance" label="Entidades" />
           <q-tab name="Speciality" label="Especialidad" />
           <q-tab name="MedicalHistory" label="Historia Clinica" />
+          <q-tab name="Users" label="Usuarios" />
         </q-tabs>
         <q-separator />
         <q-tab-panels v-model="tab" animated>
@@ -22,7 +23,6 @@
               <div class="col-6 col-md-6 col-xs-12"><Insurance /></div>
             </div>
           </q-tab-panel>
-
           <q-tab-panel name="Speciality">
             <div class="row">
               <div class="col-4 col-md-4 col-sm-12 col-xs-12">
@@ -86,6 +86,13 @@
               </q-expansion-item>
             </q-list>
           </q-tab-panel>
+          <q-tab-panel name="Users">
+            <div class="row">
+              <div class="col-6 col-md-6 col-xs-12">
+                <UsersForm />
+              </div>
+            </div>
+          </q-tab-panel>
         </q-tab-panels>
       </q-card>
     </div>
@@ -93,7 +100,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import SpecialityForm from './SpecialityForm.vue';
 import DxMainCode from './DxMainCodeForm.vue';
 import RelationCode from './RelationCode.vue';
@@ -101,6 +108,7 @@ import Insurance from './InsuranceForm.vue';
 import PhysicalExamForm from './PhysicalExamForm.vue';
 import PathologicalHistoryForm from './PathologicalHistoryForm.vue';
 import { IconSVG } from 'src/Application/Utilities/Constants';
+import UsersForm from './UsersForm.vue';
 
 export default defineComponent({
   components: {
@@ -110,6 +118,7 @@ export default defineComponent({
     Insurance,
     PhysicalExamForm,
     PathologicalHistoryForm,
+    UsersForm,
   },
 
   setup() {

@@ -1,23 +1,26 @@
 import { defineStore } from 'pinia';
-import { PathologicalHistoryService } from 'src/Application/Services';
-import { SpecialityService } from 'src/Application/Services/SpecialityService';
+import { Messages } from 'src/Application/Utilities';
 import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreSettings } from 'src/Domine/IStores';
 import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
   DXMainCodeResponse,
   PathologicalHistoryResponse,
+  PatientResponse,
   RelationCodeResponse,
   SpecialityResponse,
-  Group,
 } from 'src/Domine/Responses';
+import { routerInstance } from 'src/boot/globalRouter';
+import { Modal } from '../Utilities/Modal';
+import { PatientService } from 'src/Application/Services';
 
-export class SettingsMediator implements IControllersMediator {
+export class PatientMediator implements IControllersMediator {
   private controllers: Controller[] = [];
   public store: IStoreSettings;
-  private static instance: SettingsMediator;
-  private service = new PathologicalHistoryService();
-  private serviceSpeciality = new SpecialityService();
+  private static instance: PatientMediator;
+  private service = new PatientService();
+  private serviceModal = new Modal();
+  private messages = Messages.getInstance();
 
   private constructor() {
     this.store = this.createStore();
@@ -32,7 +35,6 @@ export class SettingsMediator implements IControllersMediator {
         allRelationCode: <Array<RelationCodeResponse>>[],
         currentSpeciality: {} as ISpeciality,
         currentDxMainCode: {} as DXMainCodeResponse,
-        allGroups: <Array<Group>>[],
       }),
     });
     return store();
@@ -42,11 +44,11 @@ export class SettingsMediator implements IControllersMediator {
     return this.store;
   }
 
-  public static getInstance(): SettingsMediator {
-    if (!SettingsMediator.instance) {
-      SettingsMediator.instance = new SettingsMediator();
+  public static getInstance(): PatientMediator {
+    if (!PatientMediator.instance) {
+      PatientMediator.instance = new PatientMediator();
     }
-    return SettingsMediator.instance;
+    return PatientMediator.instance;
   }
 
   public add(controller: Controller): void {
@@ -79,31 +81,24 @@ export class SettingsMediator implements IControllersMediator {
     // this.notify(this.store);
   }
 
-  public async getAllPathologies() {
-    if (this.store.allPathologies.length != 0) {
-      return this.store.allPathologies;
-    }
-    const response = await this.service.getAll();
-    this.store.allPathologies = response;
+  public async searchByIdentificacion(
+    identification: string
+  ): Promise<PatientResponse | null> {
+    const response = await this.service.findByIdentification(identification);
     return response;
   }
 
-  public async getAllSpecialities(): Promise<Array<SpecialityResponse>> {
-    if (this.store.allSpecialities.length != 0) {
-      return this.store.allSpecialities;
+  public async patientNotFound(): Promise<void> {
+    const confirm = await this.serviceModal.showModal(
+      'Error',
+      this.messages.notFoundInfoPatient,
+      'error'
+    );
+    if (confirm == false) {
+      return;
     }
-    const response = await this.serviceSpeciality.getAll();
-    this.store.allSpecialities = response;
-    return response;
-  }
 
-  public async getAllGroups(): Promise<Group[]> {
-    console.log(this.store.allGroups);
-    return [];
-    // if(this.store.allGroups.length == 0){
-    //   preguntar al this.mediator por los grupos
-    //   return respuesta del mediador
-    // }
-    // return this.allGroups
+    routerInstance.push('/patient');
+    return;
   }
 }

@@ -3,7 +3,7 @@ export class EndPoints {
   private domine: string;
   private constructor() {
     if (process.env.NODE_ENV == 'development') {
-      this.domine = process.env.PUBLIC == undefined ? '' : process.env.PUBLIC;
+      this.domine = process.env.LOCAL == undefined ? '' : process.env.LOCAL;
       return;
     }
     this.domine = process.env.PUBLIC == undefined ? '' : process.env.PUBLIC;
@@ -59,6 +59,12 @@ export class EndPoints {
   get getAllPathologicalHistory() {
     return `${this.domine}/api/pathologyhistory/all/`;
   }
+  get createUser() {
+    return `${this.domine}/api/registration/`;
+  }
+  get login() {
+    return `${this.domine}/api/authentication/login/`;
+  }
   updateInsurance(id: number): string {
     return `${this.domine}/api/insurance/${id}/`;
   }
@@ -89,6 +95,7 @@ export class EndPoints {
   updateOrGetPathologyById(id: number): string {
     return `${this.domine}/api/pathologyhistory/${id}/`;
   }
+
   urlQueryParameter(urlBase: string, parameters: object): string {
     urlBase = urlBase.concat('?');
     for (const [key, value] of Object.entries(parameters)) {

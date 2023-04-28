@@ -72,15 +72,10 @@
 
 <script lang="ts">
 import { defineComponent, reactive } from 'vue';
-import {
-  AppointmentAdapter,
-  InfoPatientPanelController,
-  PatientAdapter,
-} from 'src/Adapters';
-import { useStorePatient } from '../../Mediators/PatientsPage/PatientStore';
+import { AppointmentAdapter, InfoPatientPanelController } from 'src/Adapters';
 import { Validators } from 'src/Application/Utilities';
 import { useStoreAppointments } from '../../Mediators/Appointment/AppointmentStore';
-import { ClinicHistoryMediator } from '../../Mediators';
+import { ClinicHistoryMediator, PatientMediator } from '../../Mediators';
 import { PatientResponse } from 'src/Domine/Responses';
 import { InfoPatientState } from 'src/Domine/IStates';
 import { ScheduleService } from 'src/Application/Services/ScheduleService';
@@ -89,7 +84,7 @@ import { ScheduleMediator } from '../../Mediators/ScheduleMediator';
 export default defineComponent({
   name: 'InfoPatientPanel',
   setup() {
-    const patientAdapter = PatientAdapter.getInstance(useStorePatient());
+    const patientMediator = PatientMediator.getInstance();
     const scheduleService = new ScheduleService();
     const scheduleMediator = ScheduleMediator.getInstance();
     const appointmentAdapter = AppointmentAdapter.getInstance(
@@ -108,12 +103,12 @@ export default defineComponent({
 
     return {
       async searchPatient() {
-        const patient = await patientAdapter.searchByIdentificacion(
+        const patient = await patientMediator.searchByIdentificacion(
           state.identificationPatient
         );
         if (patient === null) {
           controller.clear();
-          await patientAdapter.patientNotFound();
+          await patientMediator.patientNotFound();
           return;
         }
 

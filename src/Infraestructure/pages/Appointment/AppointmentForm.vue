@@ -246,11 +246,7 @@
 import { defineComponent, onMounted, onUnmounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 import { HealthInsuranceResponse, PatientResponse } from 'src/Domine/Responses';
-import {
-  IAppointment,
-  IHealthInsurance,
-  ISpeciality,
-} from 'src/Domine/ModelsDB';
+import { IAppointment, ISpeciality } from 'src/Domine/ModelsDB';
 import {
   OPTIONS_HOURS,
   OPTIONS_MINUTES,
@@ -260,19 +256,18 @@ import {
 } from 'src/Application/Utilities';
 import {
   AppointmentAdapter,
-  PatientAdapter,
   ScheduleAdapter,
+  PatientController,
 } from 'src/Adapters';
-import { useStorePatient } from 'src/Infraestructure/stores/PatientsPage/PatientStore';
-import { useStoreAppointments } from 'src/Infraestructure/stores/Appointment/AppointmentStore';
-import { useStoreSchedule } from 'src/Infraestructure/stores/SchedulePage/ScheduleStore';
-import { CommonService } from 'src/Application/Services/CommonTest';
+import { useStorePatient } from 'src/Infraestructure/Mediators/PatientsPage/PatientStore';
+import { useStoreAppointments } from 'src/Infraestructure/Mediators/Appointment/AppointmentStore';
+import { useStoreSchedule } from 'src/Infraestructure/Mediators/ScheduleMediator';
 import { PaymentOptionsService } from 'src/Application/Services/PaymentOptionsService';
 import { ReasonConsultService } from 'src/Application/Services/ReasonConsultService';
 import { PatientStatusService } from 'src/Application/Services/PatientStatusService';
 import 'src/css/app.sass';
 import { InsuranceAdapter } from 'src/Adapters/InsuranceAdapter';
-import { useStoreInsurance } from 'src/Infraestructure/stores/SettingsPage/InsuranceStore';
+import { useStoreInsurance } from 'src/Infraestructure/Mediators/SettingsPage/InsuranceStore';
 
 export default defineComponent({
   setup() {
@@ -311,7 +306,7 @@ export default defineComponent({
       // getAllPatientStatus,
     } = storeToRefs(storePatient);
     // const servicePatient = patientService.getInstance();
-    const patientAdapter = PatientAdapter.getInstance(useStorePatient());
+    const patientAdapter = PatientController.getInstance(useStorePatient());
     const scheduleAdapter = ScheduleAdapter.getInstance(useStoreSchedule());
     const servicePaymentOptions = PaymentOptionsService.getInstance();
     const serviceReasonConsult = ReasonConsultService.getInstance();

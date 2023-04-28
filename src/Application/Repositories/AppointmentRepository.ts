@@ -20,12 +20,12 @@ export class AppointmentRepository
   async getById(id: number): Promise<AppointmentResponse | null> {
     const url = endpoint.updateOrGetAppointmentByScheduleId(id);
     try {
-      const response = await GET<AppointmentResponse>(url);
+      const response = await GET(url);
       if (!response.ok) return null;
       if (response.status == HttpStatusCodes.NOT_FOUND) return null;
       if (response.status == HttpStatusCodes.BAD_REQUEST) return null;
 
-      const data = await response.json();
+      const data: AppointmentResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -46,10 +46,10 @@ export class AppointmentRepository
   ): Promise<AppointmentResponse | null> {
     const url = endpoint.getORcreateConsult;
     try {
-      const response = await POST<AppointmentResponse>(url, entity);
+      const response = await POST(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
-      const data = await response.json();
+      const data: AppointmentResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -64,16 +64,14 @@ export class AppointmentRepository
     throw new Error('Method not implemented.');
   }
 
-  async findByParameters(
-    parameters: object
-  ): Promise<Array<AppointmentResponse>> {
+  async findByParameters(parameters: object): Promise<AppointmentResponse[]> {
     const urlBase = endpoint.getORcreateConsult;
     const url = endpoint.urlQueryParameter(urlBase, parameters);
-    const response = await GET<Array<AppointmentResponse>>(url);
+    const response = await GET(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
     }
-    const data = await response.json();
+    const data: AppointmentResponse[] = await response.json();
     return data;
   }
 }
@@ -87,10 +85,10 @@ export class PaymentOptionsRepository
   async getAll(): Promise<PaymentOptionsResponse[] | null> {
     const url = endpoint.getAllPaymentOptions;
     try {
-      const response = await GET<Array<PaymentOptionsResponse>>(url);
+      const response = await GET(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
         return null;
-      const data = await response.json();
+      const data: PaymentOptionsResponse[] = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);

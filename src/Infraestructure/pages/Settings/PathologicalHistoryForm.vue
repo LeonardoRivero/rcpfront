@@ -11,7 +11,7 @@
           clearable
           outlined
           v-model="state.pathology"
-          :options="allPathologies"
+          :options="state.allPathologies"
           :option-value="(item) => (item === null ? null : item.id)"
           option-label="description"
           map-options

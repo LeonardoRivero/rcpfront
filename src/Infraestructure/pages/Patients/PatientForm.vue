@@ -6,8 +6,8 @@
           <q-card-section>
             <q-item>
               <q-item-section avatar>
-                <q-avatar>
-                  <img :src="icon" />
+                <q-avatar square>
+                  <img :src="icons.womanAndMan" />
                 </q-avatar>
               </q-item-section>
               <div class="text-h4 text_bold">Pacientes</div>
@@ -19,13 +19,12 @@
               <q-toolbar>
                 <q-space />
                 <q-input
-                  v-model="identificationPatient"
+                  v-model="state.identificationPatient"
                   label="Nº Documento paciente"
                   clearable
                   dense
                   type="number"
                   @keydown.enter.prevent="searchPatient"
-                  lazy-rules
                   :rules="[(val) => val > 0 || 'Numero invalido']"
                 >
                   <template v-slot:append
@@ -51,30 +50,24 @@
                     <div class="row q-col-gutter-x-md">
                       <div class="col-6 col-md">
                         <q-input
-                          :readonly="disable"
+                          :readonly="state.disable"
                           outlined
                           dense
-                          v-model="currentPatient.name"
+                          v-model="state.currentPatient.name"
                           label="Nombres *"
                           lazy-rules
-                          :rules="[
-                            (val) =>
-                              (val && val.length > 0) || 'Nombres no validos',
-                          ]"
+                          :rules="[required]"
                         />
                       </div>
                       <div class="col-6 col-md">
                         <q-input
-                          :readonly="disable"
+                          :readonly="state.disable"
                           outlined
                           dense
-                          v-model="currentPatient.lastName"
+                          v-model="state.currentPatient.lastName"
                           label="Apellidos *"
                           lazy-rules
-                          :rules="[
-                            (val) =>
-                              (val && val.length > 0) || 'Apellidos no validos',
-                          ]"
+                          :rules="[required]"
                         />
                       </div>
                     </div>
@@ -82,31 +75,31 @@
                       <div class="col-6 col-md">
                         <q-input
                           outlined
-                          :readonly="disable"
+                          :readonly="state.disable"
                           dense
                           type="number"
-                          v-model="currentPatient.identification"
+                          v-model="state.currentPatient.identification"
                           label="Numero Identificacion *"
                           lazy-rules
-                          :rules="[(val) => val > 0 || 'Numero invalido']"
+                          :rules="[required]"
                         />
                       </div>
                       <div class="col-6 col-md">
                         <q-select
-                          :readonly="disable"
+                          :readonly="state.disable"
                           dense
                           clearable
                           outlined
-                          v-model="idType"
-                          :options="allIDTypes"
+                          v-model="state.idType"
+                          :options="state.allIDTypes"
                           option-value="id"
                           option-label="abbreviation"
                           map-options
                           label="Tipo Documento *"
                           :hint="`${
-                            currentPatient.IDType == undefined
+                            state.currentPatient.IDType == undefined
                               ? ''
-                              : currentPatient.IDType.description
+                              : state.currentPatient.IDType.description
                           }`"
                           @update:model-value="(val) => idTypeChanged(val)"
                           :rules="[
@@ -121,46 +114,28 @@
                     <div class="row q-col-gutter-x-md">
                       <div class="col-6 col-md">
                         <q-input
-                          :readonly="disable"
+                          :readonly="state.disable"
                           dense
                           outlined
-                          v-model="currentPatient.phoneNumber"
+                          v-model="state.currentPatient.phoneNumber"
                           label="Telefono *"
                           mask="##########"
                           unmasked-value
                           lazy-rules
                           :rules="[
                             (val) =>
-                              (val && val.length > 0) || 'Celular no valido',
+                              (val && val.length > 9) || 'Celular no valido',
                           ]"
                         />
                       </div>
                       <div class="col-6 col-md">
-                        <!-- <q-input
-                          outlined
-                          :readonly="disable"
-                          v-model="currentPatient.dateBirth"
-                          dense
-                          type="date"
-                          mask="DD-MM-YYYY"
-                          hint="Fecha Nacimiento *"
-                          :rules="[
-                            (val) =>
-                              (val && val.length > 0) ||
-                              'Fecha Nacimiento es requerida',
-                          ]"
-                        /> -->
                         <q-input
                           outlined
-                          :readonly="disable"
-                          v-model="currentPatient.dateBirth"
+                          :readonly="state.disable"
+                          v-model="state.currentPatient.dateBirth"
                           dense
                           label="Fecha Nacimiento *"
-                          :rules="[
-                            (val) =>
-                              (val && val.length > 0) ||
-                              'Fecha Nacimiento es requerida',
-                          ]"
+                          :rules="[required]"
                         >
                           <template v-slot:append>
                             <q-icon name="event">
@@ -169,7 +144,7 @@
                                 transition-hide="scale"
                               >
                                 <q-date
-                                  v-model="currentPatient.dateBirth"
+                                  v-model="state.currentPatient.dateBirth"
                                   today-btn
                                   mask="YYYY-MM-DD"
                                 >
@@ -191,12 +166,12 @@
                     <div class="row q-col-gutter-x-md">
                       <div class="col-6 col-md">
                         <q-select
-                          :readonly="disable"
+                          :readonly="state.disable"
                           dense
                           clearable
                           outlined
-                          v-model="insurance"
-                          :options="allInsurance"
+                          v-model="state.insurance"
+                          :options="state.allInsurance"
                           option-value="id"
                           option-label="nameInsurance"
                           map-options
@@ -211,12 +186,12 @@
                       </div>
                       <div class="col-6 col-md">
                         <q-select
-                          :readonly="disable"
+                          :readonly="state.disable"
                           dense
                           clearable
                           outlined
-                          v-model="gender"
-                          :options="allGenders"
+                          v-model="state.gender"
+                          :options="state.allGenders"
                           option-value="id"
                           option-label="nameGender"
                           map-options
@@ -233,12 +208,12 @@
                     <div class="row q-col-gutter-x-md">
                       <div class="col-12 col-md">
                         <q-input
-                          :readonly="disable"
+                          :readonly="state.disable"
                           label="Correo electronico"
                           dense
-                          v-model="currentPatient.email"
+                          v-model="state.currentPatient.email"
                           type="email"
-                          :error="error"
+                          :error="state.error"
                           @blur="(evt) => isValidEmail(evt.target.value)"
                         />
                       </div>
@@ -262,7 +237,7 @@
                   icon-right="mdi-content-save"
                 />
                 <q-btn
-                  v-if="disable"
+                  v-if="state.disable"
                   color="secondary"
                   icon-right="mdi-pencil"
                   label="Editar"
@@ -279,8 +254,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from 'vue';
-import { storeToRefs } from 'pinia';
+import { defineComponent, onMounted, reactive, ref } from 'vue';
 import {
   IGender,
   IHealthInsurance,
@@ -293,38 +267,34 @@ import {
   IDTypesRepository,
 } from 'src/Application/Repositories/PatientRepository';
 import 'src/css/app.sass';
-import { useStorePatient } from 'src/Infraestructure/stores/PatientsPage/PatientStore';
-import { PatientAdapter } from 'src/Adapters';
 import { InsuranceRepository } from 'src/Application/Repositories/SettingsRepository';
+import { PatientState } from 'src/Domine/IStates';
+import {
+  GenderResponse,
+  HealthInsuranceResponse,
+  IDTypeResponse,
+} from 'src/Domine/Responses';
+import { QForm } from 'quasar';
+import { PatientController } from 'src/Adapters';
 
 export default defineComponent({
   setup() {
-    const iconSVG = IconSVG.getInstance();
-    const icon = ref('');
-    const store = useStorePatient();
-    const {
-      // patient,
-      gender,
-      currentPatient,
-      form,
-      allIDTypes,
-      idType,
-      allGenders,
-      insurance,
-      allInsurance,
-      // confirmChanges,
-      // isValidEmail,
-      // idTypeChanged,
-      // genderChanged,
-      // getAllIDTypes,
-      // getAllGenders,
-      // searchPatient,
-      identificationPatient,
-      disable,
-      // enableEdition,
-      error,
-    } = storeToRefs(store);
-    const service = PatientAdapter.getInstance(store);
+    const state: PatientState = reactive({
+      currentPatient: {} as IPatient,
+      allIDTypes: [] as Array<IDTypeResponse>,
+      allGenders: [] as Array<GenderResponse>,
+      allInsurance: [] as Array<HealthInsuranceResponse>,
+      identificationPatient: '',
+      idType: null,
+      gender: null,
+      insurance: null,
+      disable: false,
+      error: false,
+      currentInsurance: {} as IHealthInsurance,
+    });
+
+    const form = ref<QForm>();
+    const controller = PatientController.getInstance(state);
     const insuranceRepository = InsuranceRepository.getInstance();
     const idTypesRepository = new IDTypesRepository();
     const genderRepository = new GenderRepository();
@@ -333,57 +303,53 @@ export default defineComponent({
       const idTypes = await idTypesRepository.getAll();
       const genders = await genderRepository.getAll();
       const insurance = await insuranceRepository.getAll();
-      allIDTypes.value = idTypes == null ? [] : idTypes;
-      allGenders.value = genders == null ? [] : genders;
-      allInsurance.value = insurance == null ? [] : insurance;
-      icon.value = iconSVG.womanAndMan;
-    });
-    onUnmounted(async () => {
-      identificationPatient.value = '';
-      service.clear();
+      state.allIDTypes = idTypes == null ? [] : idTypes;
+      state.allGenders = genders == null ? [] : genders;
+      state.allInsurance = insurance == null ? [] : insurance;
     });
 
     return {
-      error,
-      gender,
-      currentPatient,
-      allInsurance,
-      allIDTypes,
-      idType,
-      insurance,
+      state,
       form,
-      identificationPatient,
-      disable,
-      allGenders,
-      icon,
+      required(val: string) {
+        return (val && val.length > 0) || 'Campo requerido';
+      },
+      icons: IconSVG.getInstance(),
       async confirmChanges() {
-        await service.saveOrUpdate();
+        const isValid = await form.value?.validate();
+        if (isValid == false) return;
+        const response = await controller.saveOrUpdate();
+        if (response != null) {
+          form.value?.reset();
+        }
       },
       isValidEmail(val: string) {
-        service.isValidEmail(val);
+        controller.isValidEmail(val);
       },
       idTypeChanged(val: IIDType) {
         if (val.id === undefined) return;
-        currentPatient.value.IDType = val.id;
+        state.currentPatient.IDType = val.id;
       },
       insuranceChanged(val: IHealthInsurance) {
         if (val.id === undefined) return;
-        currentPatient.value.insurance = val.id;
+        state.currentPatient.insurance = val.id;
       },
       genderChanged(val: IGender) {
         if (val.id === undefined) return;
-        currentPatient.value.gender = val.id;
+        state.currentPatient.gender = val.id;
       },
       async searchPatient() {
-        const response = await service.searchByIdentificacion(
-          identificationPatient.value
+        const response = await controller.searchByIdentificacion(
+          state.identificationPatient
         );
         if (response !== null) {
-          service.setData(response);
+          controller.setData(response);
+        } else {
+          form.value?.reset();
         }
       },
       enableEdition() {
-        service.enableEdition();
+        controller.enableEdition();
       },
     };
   },

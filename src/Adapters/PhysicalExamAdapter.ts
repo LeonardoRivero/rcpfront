@@ -1,97 +1,80 @@
-import { QForm } from 'quasar';
-import { defineStore } from 'pinia';
-// import { useStoreSettings } from 'src/stores/storeSettings';
-// import {
-//   IPhysicalExamRequest,
-//   IPhysicalExamResponse,
-//   ISpeciality,
-// } from 'src/Domine/models/IConsults';
-// import { HttpResponse } from 'src/scripts/Request';
-// import modalService from './ModalService';
-// import { Messages } from 'src/scripts/Constants';
-import { IColumnsDataTable, TableOptions } from 'src/Domine/ICommons';
-// import HttpStatusCode from 'src/scripts/HttpStatusCodes';
-import { PhysicalExamParameterRepository } from 'src/Application/Repositories/SettingsRepository';
+import { IColumnsDataTable } from 'src/Domine/ICommons';
 import { Modal } from '../Infraestructure/Utilities/Modal';
-// import { Messages } from 'src/Application/Utilities/Constants';
-// import { DataTableService } from './DataTableAdapter';
 import { Observer, Subject } from 'src/patterns/Observer/Observer';
 import { PhysicalExamResponse } from 'src/Domine/Responses';
-import { IPhysicalExam, ISpeciality } from 'src/Domine/ModelsDB';
-import { DataTableAdapter } from './DataTableAdapter';
-import { IStorePhysicalExamParameter } from 'src/Infraestructure/Mediators/SettingsPage/PhysicalExamStore';
+import { IPhysicalExam } from 'src/Domine/ModelsDB';
+import { DataTableController } from './DataTableAdapter';
 import { Messages } from 'src/Application/Utilities';
 import { PhysicalExamService } from 'src/Application/Services/PhysicalExamService';
+import { PhysicalExamParameterState } from 'src/Domine/IStates';
+import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
 
-// const store = useStoreSettings();
-// const serviceModal = modalService();
-// const messages = Messages.getInstance();
-
-export class PhysicalExamParameterAdapter implements Observer {
-  private store: IStorePhysicalExamParameter;
+export class PhysicalExamParameterController
+  extends Controller
+  implements Observer
+{
+  public state: PhysicalExamParameterState;
   private service = PhysicalExamService.getInstance();
   private serviceModal = new Modal();
   private messages = Messages.getInstance();
-  // private serviceDataTable = DataTableService.getInstance();
-  private static instance: PhysicalExamParameterAdapter;
+  private static instance: PhysicalExamParameterController;
 
-  private constructor(store: IStorePhysicalExamParameter) {
-    this.store = store;
-    // this.repository = new PatientRepository();
+  private constructor(state: PhysicalExamParameterState) {
+    super();
+    this.state = state;
     return;
   }
 
   public static getInstance(
-    store: IStorePhysicalExamParameter
-  ): PhysicalExamParameterAdapter {
-    if (!PhysicalExamParameterAdapter.instance) {
-      PhysicalExamParameterAdapter.instance = new PhysicalExamParameterAdapter(
-        store
-      );
+    state: PhysicalExamParameterState
+  ): PhysicalExamParameterController {
+    if (!PhysicalExamParameterController.instance) {
+      PhysicalExamParameterController.instance =
+        new PhysicalExamParameterController(state);
     }
-    return PhysicalExamParameterAdapter.instance;
+    return PhysicalExamParameterController.instance;
   }
 
-  // public async clear(): Promise<void> {
-  //   this.store.currentPhysicalExamParameter = {} as IPhysicalExam;
-  // }
-  // public async clearSpeciality(): Promise<void> {
-  //   this.store.speciality = null;
-  //   this.store.form?.reset();
-  // }
-
+  public sendData(data: unknown): void {
+    throw new Error('Method not implemented.');
+  }
+  public receiveData(data: IControllersMediator): void {
+    throw new Error('Method not implemented.');
+  }
+  public clear(): void {
+    throw new Error('Method not implemented.');
+  }
   public handleNotification(subject: Subject, data: Array<object>): void {
-    const isInstance = subject instanceof DataTableAdapter;
+    const isInstance = subject instanceof DataTableController;
     if (isInstance == false) {
       throw Error('Instancia no admitida');
     }
     if (data.length === 0) {
-      this.store.disable = false;
+      this.state.disable = false;
       return;
     }
     const payload = data[0] as IPhysicalExam;
-    this.store.currentPhysicalExamParameter = payload;
-    this.store.disable = true;
-    this.store.userCanEdit = true;
+    this.state.currentPhysicalExamParameter = payload;
+    this.state.disable = true;
+    this.state.userCanEdit = true;
   }
 
   public add(): void {
-    this.store.disable = false;
-    this.store.speciality = null;
-    this.store.currentPhysicalExamParameter = {
+    this.state.disable = false;
+
+    this.state.currentPhysicalExamParameter = {
       active: true,
     } as IPhysicalExam;
-    this.store.userCanEdit = false;
-    this.store.form?.reset();
+    this.state.userCanEdit = false;
   }
 
   public edit(): void {
-    this.store.disable = !this.store.disable;
+    this.state.disable = !this.state.disable;
   }
 
   // public async rowClicked(val: Array<IPhysicalExamRequest>) {
   //   const id = val[0].id;
-  //   const item = this.store.allPhysicalMedicalParameter.find((obj) => {
+  //   const item = this.state.allPhysicalMedicalParameter.find((obj) => {
   //     return obj.id === id;
   //   });
 
@@ -105,24 +88,24 @@ export class PhysicalExamParameterAdapter implements Observer {
   //     description: item.description,
   //     speciality: item.speciality.id,
   //   } as IPhysicalExamRequest;
-  //   this.store.currentPhysicalExamParameter = payload;
-  //   this.store.disable = true;
-  //   this.store.speciality = this.store.specialityTable;
+  //   this.state.currentPhysicalExamParameter = payload;
+  //   this.state.disable = true;
+  //   this.state.speciality = this.state.specialityTable;
   // }
 
   public async specialityChanged(
     idSpeciality: number
   ): Promise<PhysicalExamResponse[]> {
-    // this.store.speciality = val;
+    // this.state.speciality = val;
     // if (val === null || val.id === undefined) return;
 
     const queryParameters = { speciality: idSpeciality };
-    // this.store.currentPhysicalExamParameter.speciality = idSpeciality;
+    // this.state.currentPhysicalExamParameter.speciality = idSpeciality;
     const response = await this.service.findByParameters(queryParameters);
-    this.store.allPhysicalMedicalParameter = response;
+    this.state.allPhysicalMedicalParameter = response;
     return response;
     // this.serviceDataTable.updateData(columns, rows);
-    // this.store.currentPhysicalExamParameter.description = '';
+    // this.state.currentPhysicalExamParameter.description = '';
   }
 
   public getColumnsAndRows(
@@ -158,40 +141,25 @@ export class PhysicalExamParameterAdapter implements Observer {
   public async saveOrUpdate(
     payload: IPhysicalExam
   ): Promise<PhysicalExamResponse | null> {
-    // if (!this.store.speciality || this.store.speciality.id == undefined) return;
-
     let response: PhysicalExamResponse | null = null;
-
     if (payload.id == undefined) {
-      // payload = {
-      //   description: payload.description,
-      //   speciality: payload.speciality,
-      //   active: this.store.currentPhysicalExamParameter.active,
-      // };
       response = await this.create(payload);
     }
 
     if (payload.id != undefined) {
-      // payload = {
-      //   id: this.store.currentPhysicalExamParameter.id,
-      //   description: this.store.currentPhysicalExamParameter.description,
-      //   active: this.store.currentPhysicalExamParameter.active,
-      //   speciality: this.store.currentPhysicalExamParameter.speciality,
-      // };
       response = await this.update(payload);
     }
-
     return response;
 
-    // if (this.store.currentPhysicalExamParameter.speciality == undefined) return;
+    // if (this.state.currentPhysicalExamParameter.speciality == undefined) return;
     // const queryParameters = {
-    //   speciality: this.store.currentPhysicalExamParameter.speciality,
+    //   speciality: this.state.currentPhysicalExamParameter.speciality,
     // };
 
-    // this.store.allPhysicalMedicalParameter =
+    // this.state.allPhysicalMedicalParameter =
     //   await this.repository.findByParameters(queryParameters);
     // // const data = response.parsedBody as Array<IPhysicalExamResponse>;
-    // // this.store.columnsr = [
+    // // this.state.columnsr = [
     // //   {
     // //     name: 'id',
     // //     required: true,
@@ -217,12 +185,12 @@ export class PhysicalExamParameterAdapter implements Observer {
     // //     sortable: true,
     // //   },
     // // ] as Array<IColumnsDataTable>;
-    // // const r =  this.store.allPhysicalMedicalParameter.map((row) => ({
+    // // const r =  this.state.allPhysicalMedicalParameter.map((row) => ({
     // //   id: row.id,
     // //   description: row.description,
     // //   active: row.active == true ? 'Activo' : 'Inactivo',
     // // }));
-    // // this.store.rows = r;
+    // // this.state.rows = r;
   }
 
   public async create(
@@ -261,7 +229,7 @@ export class PhysicalExamParameterAdapter implements Observer {
 //     speciality,
 //     allPhysicalMedicalParameter,
 //     currentPhysicalMedicalParameter,
-//   } = storeToRefs(store);
+//   } = stateToRefs(state);
 //   // const test = ref<IPhysicalExamResponse | null>(null);
 //   const icon = ref('');
 //   const physicalExamParameter = ref<IPhysicalExamResponse | null>(null);
@@ -315,7 +283,7 @@ export class PhysicalExamParameterAdapter implements Observer {
 //     }
 //     const specialityId = val.id;
 //     currentPhysicalMedicalParameter.value.speciality = val.id;
-//     await store.retrieveAllPhysicalMedicalParameterBySpecialityId(specialityId);
+//     await state.retrieveAllPhysicalMedicalParameterBySpecialityId(specialityId);
 //   }
 //   async function specialityTableChanged(val: ISpeciality): Promise<void> {
 //     speciality.value = null;
@@ -325,7 +293,7 @@ export class PhysicalExamParameterAdapter implements Observer {
 //     }
 //     const specialityId = val.id;
 //     const response =
-//       await store.retrieveAllPhysicalMedicalParameterBySpecialityId(
+//       await state.retrieveAllPhysicalMedicalParameterBySpecialityId(
 //         specialityId
 //       );
 //     if (response.status != HttpStatusCode.NO_CONTENT) {
@@ -392,7 +360,7 @@ export class PhysicalExamParameterAdapter implements Observer {
 //         speciality: speciality.value.id,
 //         active: currentPhysicalMedicalParameter.value.active,
 //       };
-//       const responseCreate = await store.createPhysicalExam(payload);
+//       const responseCreate = await state.createPhysicalExam(payload);
 //       if (responseCreate == null) {
 //         return;
 //       }
@@ -415,7 +383,7 @@ export class PhysicalExamParameterAdapter implements Observer {
 //         active: currentPhysicalMedicalParameter.value.active,
 //         speciality: currentPhysicalMedicalParameter.value.speciality,
 //       };
-//       const responseUpdate = await store.updatePhysicalMedicalParameter(
+//       const responseUpdate = await state.updatePhysicalMedicalParameter(
 //         payload
 //       );
 //       if (responseUpdate == null) {
@@ -426,7 +394,7 @@ export class PhysicalExamParameterAdapter implements Observer {
 //     currentPhysicalMedicalParameter.value =
 //       response.parsedBody as IPhysicalExamRequest;
 //     if (currentPhysicalMedicalParameter.value.speciality == undefined) return;
-//     response = await store.retrieveAllPhysicalMedicalParameterBySpecialityId(
+//     response = await state.retrieveAllPhysicalMedicalParameterBySpecialityId(
 //       currentPhysicalMedicalParameter.value.speciality
 //     );
 //     const data = response.parsedBody as Array<IPhysicalExamResponse>;
