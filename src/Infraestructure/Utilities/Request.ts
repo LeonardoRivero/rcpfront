@@ -31,7 +31,6 @@ export async function GET(
   path: string,
   args: RequestInit = {
     method: 'GET',
-    mode: 'cors',
     credentials: 'include',
     headers: {
       Accept: '*/*',
@@ -48,6 +47,8 @@ export async function POST(
   body: unknown,
   args: RequestInit = {
     method: 'POST',
+    mode: 'cors',
+    credentials: 'include',
     headers: {
       Accept: '*/*',
       'Content-Type': 'application/json',

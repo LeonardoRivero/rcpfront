@@ -131,13 +131,13 @@ export default defineComponent({
     const btnLabel = ref<string>('Ingresar');
     let user: IUser;
     let state: LoginState = reactive({
-      password: '',
+      password: 'r23423423423',
       register: false,
       title: 'Bienvenido',
       visibility: false,
       passwordFieldType: 'password',
       visibilityIcon: 'visibility',
-      email: '',
+      email: 't@g.com.co',
       username: '',
       repassword: '',
       labelMessage: '',
