@@ -34,6 +34,7 @@ export class SettingsMediator implements IControllersMediator {
         currentDxMainCode: {} as DXMainCodeResponse,
         allGroups: <Array<Group>>[],
       }),
+      persist: true,
     });
     return store();
   }

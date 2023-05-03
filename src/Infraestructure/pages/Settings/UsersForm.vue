@@ -192,7 +192,6 @@
 import { defineComponent, onMounted, reactive } from 'vue';
 import { UserState } from 'src/Domine/IStates';
 import { IconSVG } from 'src/Application/Utilities';
-import { UsersController } from 'src/Adapters';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import { Group } from 'src/Domine/Responses';
 
@@ -216,7 +215,6 @@ export default defineComponent({
       password: '',
       username: '',
     });
-    const controller = UsersController.getInstance(state);
     const mediator = SettingsMediator.getInstance();
     let allGroups = <Array<Group>>[];
     onMounted(async () => {

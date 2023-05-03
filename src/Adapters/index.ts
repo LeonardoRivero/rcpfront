@@ -6,5 +6,3 @@ export * from './ScheduleAdapter';
 export * from './DoctorAdapter';
 export * from './AppointmentAdapter';
 export * from './ClinicHistoryController';
-export * from './LoginController';
-export * from './UsersController';

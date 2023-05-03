@@ -2,7 +2,6 @@ import { IAppointment } from 'src/Domine/ModelsDB';
 import {
   AppointmentResponse,
   HealthInsuranceResponse,
-  PaymentOptionsResponse,
 } from 'src/Domine/Responses';
 import { AppointmentRepository, IRepository } from '../Repositories';
 

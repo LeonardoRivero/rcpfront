@@ -65,6 +65,12 @@ export class EndPoints {
   get login() {
     return `${this.domine}/api/authentication/login/`;
   }
+  get refresh_token() {
+    return `${this.domine}/api/authentication/token/refresh/`;
+  }
+  get validate_token() {
+    return `${this.domine}/api/authentication/token/verify/`;
+  }
   updateInsurance(id: number): string {
     return `${this.domine}/api/insurance/${id}/`;
   }

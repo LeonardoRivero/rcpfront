@@ -108,22 +108,7 @@ export interface PatientState {
   currentInsurance: IHealthInsurance;
 }
 
-export interface UserBase {
-  email: string;
-  username: string;
-  password: string;
-}
-export interface LoginState extends UserBase {
-  register: boolean;
-  title: string;
-  visibility: boolean;
-  passwordFieldType: string;
-  visibilityIcon: string;
-  repassword: string;
-  labelMessage: string;
-}
-
-export interface UserState extends UserBase {
+export interface UserState {
   name: string;
   lastName: string;
   IdType: number | null;

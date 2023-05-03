@@ -2,10 +2,12 @@ import { ISpeciality } from 'src/Domine/ModelsDB';
 import { IRepository } from '../Repositories/Interface';
 import { SpecialityRepository } from '../Repositories/SettingsRepository';
 import { SpecialityResponse } from 'src/Domine/Responses';
+import { UserService } from './UserService';
 
-export class SpecialityService {
+export class SpecialityService extends UserService {
   private repository: IRepository<ISpeciality, SpecialityResponse>;
   public constructor() {
+    super();
     this.repository = SpecialityRepository.getInstance();
     return;
   }

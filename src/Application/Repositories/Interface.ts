@@ -1,4 +1,3 @@
-import { TokenJWT } from 'src/Domine/Responses';
 import { login } from 'src/Domine/types';
 
 export interface IRepository<T1, T2> {
@@ -9,7 +8,9 @@ export interface IRepository<T1, T2> {
   delete(id: number): Promise<boolean>;
   findByParameters(parameters: object): Promise<T2[]>;
 }
-export interface IUserRepository<T> {
-  login(data: login): Promise<TokenJWT | null>;
-  register(entity: object): Promise<T | null>;
+export interface IUserRepository<T1, T2> extends IRepository<T1, T2> {
+  login(data: login): Promise<Response>;
+  register(entity: object): Promise<T2 | null>;
+  refreshToken(refresh_token: string): Promise<Response>;
+  validateToken(access_token: string): Promise<Response>;
 }

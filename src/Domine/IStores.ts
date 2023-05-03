@@ -1,4 +1,4 @@
-import { ISpeciality } from './ModelsDB';
+import { ISpeciality, IUser } from './ModelsDB';
 import {
   AppointmentResponse,
   DXMainCodeResponse,
@@ -9,6 +9,7 @@ import {
   PatientResponse,
   RelationCodeResponse,
   SpecialityResponse,
+  AuthResponse,
 } from './Responses';
 
 export interface IStoreClinicHistory {
@@ -30,4 +31,9 @@ export interface IStoreSettings {
   currentSpeciality: ISpeciality;
   currentDxMainCode: DXMainCodeResponse | null;
   allGroups: Array<Group>;
+}
+
+export interface IStoreUser {
+  user: IUser;
+  token: AuthResponse;
 }

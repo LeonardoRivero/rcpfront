@@ -2104,6 +2104,11 @@
   "resolved" "https://registry.npmjs.org/picomatch/-/picomatch-2.3.1.tgz"
   "version" "2.3.1"
 
+"pinia-plugin-persistedstate@^3.1.0":
+  "integrity" "sha512-8UN+vYMEPBdgNLwceY08mi5olI0wkYaEb8b6hD6xW7SnBRuPydWHlEhZvUWgNb/ibuf4PvufpvtS+dmhYjJQOw=="
+  "resolved" "https://registry.npmjs.org/pinia-plugin-persistedstate/-/pinia-plugin-persistedstate-3.1.0.tgz"
+  "version" "3.1.0"
+
 "pinia@^2.0.0", "pinia@^2.0.11":
   "integrity" "sha512-9/LMVO+/epny1NBfC77vnps4g3JRezxhhoF1xLUk8mZkUIxVnwfEAIRiAX8mYBTD/KCwZqnDMqXc8w3eU0FQGg=="
   "resolved" "https://registry.npmjs.org/pinia/-/pinia-2.0.16.tgz"

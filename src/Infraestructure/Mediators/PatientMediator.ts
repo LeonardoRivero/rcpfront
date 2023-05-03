@@ -5,6 +5,7 @@ import { IStoreSettings } from 'src/Domine/IStores';
 import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
   DXMainCodeResponse,
+  Group,
   PathologicalHistoryResponse,
   PatientResponse,
   RelationCodeResponse,
@@ -35,6 +36,7 @@ export class PatientMediator implements IControllersMediator {
         allRelationCode: <Array<RelationCodeResponse>>[],
         currentSpeciality: {} as ISpeciality,
         currentDxMainCode: {} as DXMainCodeResponse,
+        allGroups: <Array<Group>>[],
       }),
     });
     return store();

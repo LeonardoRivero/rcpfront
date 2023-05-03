@@ -12,14 +12,14 @@
               style="width: 400px; height: 540px"
             >
               <q-card-section class="bg-blue-7">
-                <h4 class="text-h5 text-white q-my-md">{{ state.title }}</h4>
+                <h4 class="text-h5 text-white q-my-md">Bienvenido</h4>
               </q-card-section>
               <q-card-section>
                 <q-form class="q-px-sm q-pt-xl" ref="form">
                   <q-input
                     square
                     clearable
-                    v-model="state.email"
+                    v-model="email"
                     type="email"
                     lazy-rules
                     :rules="[required, isEmail, short]"
@@ -29,7 +29,7 @@
                       <q-icon name="email" />
                     </template>
                   </q-input>
-                  <q-input
+                  <!-- <q-input
                     v-if="state.register"
                     square
                     clearable
@@ -42,12 +42,12 @@
                     <template v-slot:prepend>
                       <q-icon name="person" />
                     </template>
-                  </q-input>
+                  </q-input> -->
                   <q-input
                     square
                     clearable
-                    v-model="state.password"
-                    :type="state.passwordFieldType"
+                    v-model="password"
+                    type="password"
                     lazy-rules
                     :rules="[required, short]"
                     label="Contraseña"
@@ -56,7 +56,7 @@
                       <q-icon name="lock" />
                     </template>
                   </q-input>
-                  <q-input
+                  <!-- <q-input
                     v-if="state.register"
                     square
                     clearable
@@ -76,18 +76,17 @@
                         class="cursor-pointer"
                       />
                     </template>
-                  </q-input>
+                  </q-input> -->
                   <q-item-section>
-                    <q-item-label class="text-center text-red">{{
-                      state.labelMessage
-                    }}</q-item-label>
+                    <q-item-label class="text-center text-red">
+                      {{ labelMessage }}
+                    </q-item-label>
                   </q-item-section>
                 </q-form>
               </q-card-section>
 
               <q-card-actions class="q-px-lg">
                 <q-btn
-                  v-if="!state.register"
                   unelevated
                   size="lg"
                   color="secondary"
@@ -95,7 +94,7 @@
                   class="full-width text-white"
                   label="Ingresar"
                 />
-                <q-btn
+                <!-- <q-btn
                   v-if="state.register"
                   unelevated
                   size="lg"
@@ -103,13 +102,10 @@
                   @click="register()"
                   class="full-width text-white"
                   label="Register"
-                />
+                /> -->
               </q-card-actions>
-              <q-card-section
-                v-if="!state.register"
-                class="text-center q-pa-sm"
-              >
-                <p class="text-grey-6">No tienes una cuenta?</p>
+              <q-card-section class="text-center q-pa-sm">
+                <p class="text-grey-6">Olvidaste tu contraseña?</p>
               </q-card-section>
             </q-card>
           </div>
@@ -119,39 +115,27 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive, ref } from 'vue';
+import { defineComponent, ref } from 'vue';
+import { routerInstance } from 'src/boot/globalRouter';
 import { QForm } from 'quasar';
-import { LoginController } from 'src/Adapters';
-import { LoginState } from 'src/Domine/IStates';
-import { IUser } from 'src/Domine/ModelsDB';
+import { UserService } from 'src/Application/Services/UserService';
+import { login } from 'src/Domine/types';
 
 export default defineComponent({
   name: 'LoginUser',
   setup() {
-    const btnLabel = ref<string>('Ingresar');
-    let user: IUser;
-    let state: LoginState = reactive({
-      password: 'r23423423423',
-      register: false,
-      title: 'Bienvenido',
-      visibility: false,
-      passwordFieldType: 'password',
-      visibilityIcon: 'visibility',
-      email: 't@g.com.co',
-      username: '',
-      repassword: '',
-      labelMessage: '',
-    });
     const form = ref<QForm>();
-    const controller = LoginController.getInstance(state);
-
+    const email = ref<string>('carmen@yopmail.com');
+    const password = ref<string>('Rock1989#');
+    const labelMessage = ref<string>('');
+    const userService = new UserService();
     return {
       required(val: string) {
         return (val && val.length > 0) || 'Campo requerido';
       },
-      diffPassword(val: string) {
-        return state.password === state.repassword || 'Password no coinciden!';
-      },
+      // diffPassword(val: string) {
+      //   return password.value == repassword.value || 'Password no coinciden!';
+      // },
       short(val: string) {
         return (val && val.length > 3) || 'Longitud mayor a 3 caracteres';
       },
@@ -170,7 +154,16 @@ export default defineComponent({
       async login() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;
-        await controller.login('carmen@yopmail.com', 'Rock1989#');
+        const payload: login = {
+          email: 'carmen@yopmail.com',
+          password: 'Rock1989#',
+        };
+        const response = await userService.login(payload);
+        if (response == null) {
+          labelMessage.value = 'algo salio mal';
+          return;
+        }
+        routerInstance.push('/index');
       },
       // async register() {
       //   const isValid = await form.value?.validate();
@@ -188,17 +181,21 @@ export default defineComponent({
       //   controller.clear();
       //   btnLabel.value = state.register ? 'Registrar' : 'Ingresar';
       // },
-      switchVisibility(val: string) {
-        console.log({ val });
-        state.visibility = !state.visibility;
-        state.passwordFieldType = state.visibility ? 'text' : 'password';
-        state.visibilityIcon = state.visibility
-          ? 'visibility_off'
-          : 'visibility';
-      },
-      state,
+      // switchVisibility(val: string) {
+      //   console.log({ val });
+      //   state.visibility = !state.visibility;
+      //   state.passwordFieldType = state.visibility ? 'text' : 'password';
+      //   state.visibilityIcon = state.visibility
+      //     ? 'visibility_off'
+      //     : 'visibility';
+      // },
+
       form,
-      btnLabel,
+      email,
+      password,
+      labelMessage,
+      // repassword,
+      // btnLabel,
     };
   },
 });

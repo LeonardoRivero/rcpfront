@@ -38,8 +38,7 @@ export async function GET(
     },
   }
 ): Promise<Response> {
-  const t = new Request(path, args);
-  const response = await http(t);
+  const response = await http(new Request(path, args));
   return response;
 }
 export async function POST(

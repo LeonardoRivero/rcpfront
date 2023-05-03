@@ -99,19 +99,25 @@ export interface PathologicalHistoryResponse {
   description: string;
 }
 export interface UserResponse {
-  pk: number;
+  id: number;
   username: string;
   email: string;
   first_name: string;
-  last_name: string;
-  detail: string;
+  is_staff: boolean;
+  is_active: boolean;
+  groups: Array<Group>;
 }
-export interface TokenJWT {
+export interface AuthResponse {
   access_token: string;
   refresh_token: string;
+  user: UserResponse;
+}
+
+export interface RefreshTokenResponse {
+  access: string;
+  access_token_expiration: Date;
 }
 
 export interface Group {
-  id: number;
   name: string;
 }

@@ -10,7 +10,7 @@ export class SpecialityController extends Controller {
     // this.mediator.handleData();
   }
   receiveData(mediator: IControllersMediator): void {
-    return
+    return;
   }
   public state: SpecialityFormState;
   private serviceModal = new Modal();
@@ -79,7 +79,6 @@ export class SpecialityController extends Controller {
     if (confirm === false) {
       return null;
     }
-
     const response = await this.service.save(payload);
     return response;
   }
