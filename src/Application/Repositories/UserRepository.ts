@@ -6,7 +6,6 @@ import { EndPoints } from '../Utilities/EndPoints';
 import { login } from 'src/Domine/types';
 
 export class UserRepository implements IUserRepository<IUser, UserResponse> {
-  private endpoint = EndPoints.getInstance();
   getById(id: number): Promise<UserResponse | null> {
     throw new Error('Method not implemented.' + id);
   }
@@ -27,7 +26,7 @@ export class UserRepository implements IUserRepository<IUser, UserResponse> {
   }
 
   async register(entity: IUser): Promise<UserResponse | null> {
-    const url = this.endpoint.createUser;
+    const url = EndPoints.buildFullUrl(process.env.REGISTRATION);
     try {
       const response = await POST(url, entity);
 
@@ -40,7 +39,7 @@ export class UserRepository implements IUserRepository<IUser, UserResponse> {
   }
 
   public async login(payload: login): Promise<Response> {
-    const url = this.endpoint.login;
+    const url = EndPoints.buildFullUrl(process.env.LOGIN);
     try {
       const response = await POST(url, payload);
       console.log(response);
@@ -55,7 +54,7 @@ export class UserRepository implements IUserRepository<IUser, UserResponse> {
   }
 
   public async refreshToken(payload: string): Promise<Response> {
-    const url = this.endpoint.refresh_token;
+    const url = EndPoints.buildFullUrl(process.env.REFRESH_TOKEN);
     try {
       const response = await POST(url, payload);
       console.log(response);
@@ -70,7 +69,7 @@ export class UserRepository implements IUserRepository<IUser, UserResponse> {
   }
 
   public async validateToken(access_token: string) {
-    const url = this.endpoint.validate_token;
+    const url = EndPoints.buildFullUrl(process.env.VERIFY_TOKEN);
     try {
       const response = await POST(url, access_token);
       console.log(response);

@@ -1,3 +1,5 @@
+import { IStorePermissions } from './IStores';
+
 export abstract class Controller {
   abstract sendData(data: unknown): void;
   abstract receiveData(data: IControllersMediator): void;
@@ -20,4 +22,9 @@ export interface IControllersMediator {
   notify(data: object, sender: Controller): void;
   createStore(): object;
   getStore(): object;
+}
+
+export interface StrategyUser {
+  store: IStorePermissions | undefined;
+  setPermission(): Promise<void>;
 }

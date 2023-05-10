@@ -3,7 +3,7 @@ export class EndPoints {
   private domine: string;
   private constructor() {
     if (process.env.NODE_ENV == 'development') {
-      this.domine = process.env.LOCAL == undefined ? '' : process.env.LOCAL;
+      this.domine = process.env.PUBLIC == undefined ? '' : process.env.PUBLIC;
       return;
     }
     this.domine = process.env.PUBLIC == undefined ? '' : process.env.PUBLIC;
@@ -13,6 +13,11 @@ export class EndPoints {
       EndPoints.instance = new EndPoints();
     }
     return EndPoints.instance;
+  }
+  public static buildFullUrl(endpoint?: string): string {
+    const endPointInstance = EndPoints.getInstance();
+    if (endpoint == undefined) throw Error('Endpoint undefined');
+    return `${endPointInstance.domine}${endpoint}`;
   }
   get getAllIDType() {
     return `${this.domine}/api/idtype/all/`;

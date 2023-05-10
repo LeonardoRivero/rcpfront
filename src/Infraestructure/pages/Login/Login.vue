@@ -120,6 +120,12 @@ import { routerInstance } from 'src/boot/globalRouter';
 import { QForm } from 'quasar';
 import { UserService } from 'src/Application/Services/UserService';
 import { login } from 'src/Domine/types';
+import {
+  ContextUser,
+  DoctorStrategy,
+  SecretaryStrategy,
+} from 'src/Domine/StrategyUser';
+import { StrategyUser } from 'src/Domine/IPatterns';
 
 export default defineComponent({
   name: 'LoginUser',
@@ -129,6 +135,11 @@ export default defineComponent({
     const password = ref<string>('Rock1989#');
     const labelMessage = ref<string>('');
     const userService = new UserService();
+    const profilesUser: Record<string, StrategyUser> = {
+      Secretaria: new SecretaryStrategy(),
+      Doctor: new DoctorStrategy(),
+    };
+
     return {
       required(val: string) {
         return (val && val.length > 0) || 'Campo requerido';
@@ -163,6 +174,12 @@ export default defineComponent({
           labelMessage.value = 'algo salio mal';
           return;
         }
+        // const namegroup = response.user.groups[0].name.toString();
+        const namegroup = 'Secretaria';
+        const strategy = profilesUser[namegroup];
+        const contextUser = ContextUser.getInstance(strategy);
+        contextUser.setUserData(response.user);
+        await contextUser.execute();
         routerInstance.push('/index');
       },
       // async register() {

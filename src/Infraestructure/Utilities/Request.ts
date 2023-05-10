@@ -32,8 +32,9 @@ export async function GET(
   args: RequestInit = {
     method: 'GET',
     credentials: 'include',
+    mode: 'cors',
     headers: {
-      Accept: '*/*',
+      Accept: 'application/json',
       'Content-Type': 'application/json',
     },
   }

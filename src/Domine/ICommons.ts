@@ -50,3 +50,9 @@ export interface ITableOptions {
 //   textCite = '';
 //   observer: Observer | undefined;
 // }
+export interface IPermission {
+  canGet: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  canCreate: boolean;
+}

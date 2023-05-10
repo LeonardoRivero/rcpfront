@@ -1,3 +1,4 @@
+import { IPermission } from './ICommons';
 import { ISpeciality, IUser } from './ModelsDB';
 import {
   AppointmentResponse,
@@ -10,6 +11,7 @@ import {
   RelationCodeResponse,
   SpecialityResponse,
   AuthResponse,
+  UserResponse,
 } from './Responses';
 
 export interface IStoreClinicHistory {
@@ -36,4 +38,17 @@ export interface IStoreSettings {
 export interface IStoreUser {
   user: IUser;
   token: AuthResponse;
+}
+
+export interface IStorePermissions {
+  userData: UserResponse;
+  specialities: IPermission;
+  dxMainCode: IPermission;
+  relationCode: IPermission;
+  healthInsurances: IPermission;
+  doctors: IPermission;
+  patients: IPermission;
+  patientStatus: IPermission;
+  reasonConsult: IPermission;
+  paymentOptions: IPermission;
 }

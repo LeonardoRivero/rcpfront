@@ -30,7 +30,14 @@
         </q-select>
       </q-card-section>
       <q-card-actions>
-        <q-btn flat round color="primary" icon="mdi-plus" @click="add">
+        <q-btn
+          :disable="!storePermissions.specialities.canCreate"
+          flat
+          round
+          color="primary"
+          icon="mdi-plus"
+          @click="add"
+        >
           <q-tooltip transition-show="scale" transition-hide="scale">
             Agregar
           </q-tooltip>
@@ -42,6 +49,7 @@
           color="green"
           icon="mdi-pencil"
           @click="edit"
+          :disable="!storePermissions.specialities.canUpdate"
         >
           <q-tooltip transition-show="scale" transition-hide="scale">
             Editar
@@ -55,6 +63,7 @@
           dense
           :icon="state.expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
           @click="state.expanded = !state.expanded"
+          :disable="!storePermissions.specialities.canUpdate"
         />
       </q-card-actions>
       <q-slide-transition>
@@ -107,6 +116,7 @@ import { SpecialityResponse } from 'src/Domine/Responses';
 import { SpecialityFormState } from 'src/Domine/IStates';
 import { SettingsMediator } from '../../Mediators';
 import { IStoreSettings } from 'src/Domine/IStores';
+import { ContextUser } from 'src/Domine/StrategyUser';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -118,10 +128,13 @@ export default defineComponent({
       speciality: null,
       allSpecialities: <Array<SpecialityResponse>>[],
     });
+    const contextUser = ContextUser.getInstance();
+    const storePermissions = contextUser.getStore();
 
     const form = ref<QForm>();
     const controller = SpecialityController.getInstance(state);
     const mediator = SettingsMediator.getInstance();
+
     mediator.add(controller);
     const store = mediator.getStore();
 
@@ -130,6 +143,7 @@ export default defineComponent({
     });
 
     return {
+      storePermissions,
       state,
       icons: IconSVG.getInstance(),
       form,

@@ -103,6 +103,8 @@ export interface UserResponse {
   username: string;
   email: string;
   first_name: string;
+  first_time: boolean;
+  last_name: string;
   is_staff: boolean;
   is_active: boolean;
   groups: Array<Group>;
@@ -111,6 +113,7 @@ export interface AuthResponse {
   access_token: string;
   refresh_token: string;
   user: UserResponse;
+  groups: Array<Group>;
 }
 
 export interface RefreshTokenResponse {
@@ -119,5 +122,6 @@ export interface RefreshTokenResponse {
 }
 
 export interface Group {
+  id: number;
   name: string;
 }
