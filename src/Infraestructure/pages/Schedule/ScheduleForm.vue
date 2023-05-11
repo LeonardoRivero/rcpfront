@@ -240,7 +240,7 @@ import {
   SpecialityResponse,
 } from 'src/Domine/Responses';
 import { IAppointment } from 'src/Domine/ModelsDB';
-import { ScheduleAdapter, PatientAdapter } from 'src/Adapters';
+import { ScheduleAdapter, PatientController } from 'src/Adapters';
 import {
   CURRENTYEAR_MONTH,
   FORMAT_DATETIME,
@@ -282,7 +282,7 @@ export default defineComponent({
     const adapter = ScheduleAdapter.getInstance(store);
     const specialityService = new SpecialityService();
     const doctorService = new DoctorService();
-    const patientAdapter = PatientAdapter.getInstance(useStorePatient());
+    const patientAdapter = PatientController.getInstance(useStorePatient());
     const messages = Messages.getInstance();
 
     const error = ref<boolean>(false);
