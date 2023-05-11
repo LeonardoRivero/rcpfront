@@ -29,7 +29,7 @@ export class PatientRepository
   }
 
   async create(entity: IPatient): Promise<PatientResponse | null> {
-    const url = endpoint.getORcreatePatient;
+    const url = EndPoints.buildFullUrl(process.env.PATIENT);
     try {
       const response = await POST(url, entity);
       if (!response.ok) return null;
@@ -64,7 +64,7 @@ export class PatientRepository
   public async findByParameters(
     parameters: object
   ): Promise<Array<PatientResponse>> {
-    const urlBase = endpoint.getORcreatePatient;
+    const urlBase = EndPoints.buildFullUrl(process.env.PATIENT);
     const url = endpoint.urlQueryParameter(urlBase, parameters);
     const response = await GET(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
@@ -81,7 +81,7 @@ export class IDTypesRepository implements IRepository<IIDType, IDTypeResponse> {
     throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<IDTypeResponse[] | null> {
-    const url = endpoint.getAllIDType;
+    const url = EndPoints.buildFullUrl(process.env.ID_TYPE);
     try {
       const response = await GET(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
@@ -111,7 +111,7 @@ export class GenderRepository implements IRepository<IGender, GenderResponse> {
     throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<GenderResponse[] | null> {
-    const url = endpoint.getAllGender;
+    const url = EndPoints.buildFullUrl(process.env.GENDER);
     try {
       const response = await GET(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
@@ -143,7 +143,7 @@ export class PatientStatusRepository
     throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<PatientStatusResponse[] | null> {
-    const url = endpoint.getORcreatePatientStatus;
+    const url = EndPoints.buildFullUrl(process.env.PATIENT_STATUS);
     try {
       const response = await GET(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
@@ -177,7 +177,7 @@ export class ReasonConsultRepository
     throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<ReasonConsultResponse[] | null> {
-    const url = endpoint.getORcreateReasonConsult;
+    const url = EndPoints.buildFullUrl(process.env.REASON_CONSULT);
     try {
       const response = await GET(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)

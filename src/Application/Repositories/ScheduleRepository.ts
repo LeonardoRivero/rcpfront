@@ -33,7 +33,7 @@ export class ScheduleRepository
   }
 
   async getAll(): Promise<EventScheduleResponse[] | null> {
-    const url = endpoint.getORcreateSchedule;
+    const url = EndPoints.buildFullUrl(process.env.SCHEDULE);
     try {
       throw Error(`Error in ${(Object.name, url)} `);
     } catch (error) {
@@ -42,7 +42,7 @@ export class ScheduleRepository
   }
 
   async create(entity: EventSchedule): Promise<EventScheduleResponse | null> {
-    const url = endpoint.getORcreateSchedule;
+    const url = EndPoints.buildFullUrl(process.env.SCHEDULE);
     try {
       const response = await POST(url, entity);
       if (!response.ok) return null;
@@ -91,7 +91,7 @@ export class ScheduleRepository
   async findByParameters(
     parameters: object
   ): Promise<Array<EventScheduleResponse>> {
-    const urlBase = endpoint.getORcreateSchedule;
+    const urlBase = EndPoints.buildFullUrl(process.env.SCHEDULE);
     const url = endpoint.urlQueryParameter(urlBase, parameters);
     const response = await GET(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {

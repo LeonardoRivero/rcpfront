@@ -51,7 +51,7 @@ export class PhysicalExamParameterRepository
     throw new Error('Method not implemented.');
   }
   async create(entity: IPhysicalExam): Promise<PhysicalExamResponse | null> {
-    const url = endpoint.getORcreatePhysicalExamParameter;
+    const url = EndPoints.buildFullUrl(process.env.PHYSICAL_EXAM_PARAMETER);
     try {
       const response = await POST(url, entity);
       if (!response.ok) return null;
@@ -83,7 +83,7 @@ export class PhysicalExamParameterRepository
     throw new Error('Method not implemented.' + { id });
   }
   async findByParameters(parameters: object): Promise<PhysicalExamResponse[]> {
-    const urlBase = endpoint.getORcreatePhysicalExamParameter;
+    const urlBase = EndPoints.buildFullUrl(process.env.PHYSICAL_EXAM_PARAMETER);
     const url = endpoint.urlQueryParameter(urlBase, parameters);
     const response = await GET(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
@@ -113,7 +113,7 @@ export class SpecialityRepository
 
   public async getAll(): Promise<SpecialityResponse[] | null> {
     try {
-      const url = endpoint.getORcreateSpeciality;
+      const url = EndPoints.buildFullUrl(process.env.SPECIALITY);
       const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
@@ -129,7 +129,7 @@ export class SpecialityRepository
   }
 
   public async create(entity: ISpeciality): Promise<SpecialityResponse | null> {
-    const url = endpoint.getORcreateSpeciality;
+    const url = EndPoints.buildFullUrl(process.env.SPECIALITY);
     try {
       const response = await POST(url, entity);
       if (!response.ok) return null;
@@ -201,7 +201,7 @@ export class InsuranceRepository
     throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<HealthInsuranceResponse[] | null> {
-    const url = endpoint.getORcreateInsurance;
+    const url = EndPoints.buildFullUrl(process.env.INSURANCE);
     try {
       const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
@@ -217,7 +217,7 @@ export class InsuranceRepository
     entity: IHealthInsurance
   ): Promise<HealthInsuranceResponse | null> {
     try {
-      const url = endpoint.getORcreateInsurance;
+      const url = EndPoints.buildFullUrl(process.env.INSURANCE);
       const response = await POST(url, entity);
       if (!response.ok) return null;
       handleResponse(response);
@@ -271,7 +271,7 @@ export class DxMainCodeRepository
   async findByParameters(
     queryParameters: object
   ): Promise<DXMainCodeResponse[]> {
-    const urlBase = endpoint.getORcreateDxMainCode;
+    const urlBase = EndPoints.buildFullUrl(process.env.DX_MAIN_CODE);
     const url = endpoint.urlQueryParameter(urlBase, queryParameters);
     const response = await GET(url);
     const data: DXMainCodeResponse[] = await response.json();
@@ -281,7 +281,7 @@ export class DxMainCodeRepository
     throw new Error('Method not implemented.' + { id });
   }
   async getAll(): Promise<DXMainCodeResponse[] | null> {
-    const url = endpoint.getORcreateDxMainCode;
+    const url = EndPoints.buildFullUrl(process.env.DX_MAIN_CODE);
     try {
       const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
@@ -296,7 +296,7 @@ export class DxMainCodeRepository
     }
   }
   async create(entity: IDXMainCode): Promise<DXMainCodeResponse | null> {
-    const url = endpoint.getORcreateDxMainCode;
+    const url = EndPoints.buildFullUrl(process.env.DX_MAIN_CODE);
     try {
       const response = await POST(url, entity);
       handleResponse(response);
@@ -351,7 +351,7 @@ export class RelationCodeRepository
   }
   async getAll(): Promise<RelationCodeResponse[] | null> {
     try {
-      const url = endpoint.getORcreateRelationCode;
+      const url = EndPoints.buildFullUrl(process.env.RELATION_CODE);
       const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
@@ -367,7 +367,7 @@ export class RelationCodeRepository
     }
   }
   async create(entity: IRelationCode): Promise<RelationCodeResponse | null> {
-    const url = endpoint.getORcreateRelationCode;
+    const url = EndPoints.buildFullUrl(process.env.RELATION_CODE);
     try {
       const response = await POST(url, entity);
       handleResponse(response);
@@ -404,7 +404,7 @@ export class RelationCodeRepository
   public async findByParameters(
     parameters: object
   ): Promise<RelationCodeResponse[]> {
-    const urlBase = endpoint.getORcreateRelationCode;
+    const urlBase = EndPoints.buildFullUrl(process.env.RELATION_CODE);
     const url = endpoint.urlQueryParameter(urlBase, parameters);
     const response = await GET(url);
     const data: RelationCodeResponse[] = await response.json();
@@ -441,7 +441,7 @@ export class DoctorRepository implements IRepository<IDoctor, DoctorResponse> {
 
   async getAll(): Promise<DoctorResponse[] | null> {
     try {
-      const url = endpoint.getORcreateDoctor;
+      const url = EndPoints.buildFullUrl(process.env.DOCTOR);
       const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
@@ -466,7 +466,7 @@ export class DoctorRepository implements IRepository<IDoctor, DoctorResponse> {
   }
   public async findByParameters(parameters: object): Promise<DoctorResponse[]> {
     try {
-      const urlBase = endpoint.getORcreateDoctor;
+      const urlBase = EndPoints.buildFullUrl(process.env.DOCTOR);
       const url = endpoint.urlQueryParameter(urlBase, parameters);
       const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
@@ -491,7 +491,7 @@ export class PathologicalHistoryRepository
   }
   public async getAll(): Promise<PathologicalHistoryResponse[] | null> {
     try {
-      const url = endpoint.getAllPathologicalHistory;
+      const url = EndPoints.buildFullUrl(process.env.PATHOLOGY_HISTORY);
       const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
@@ -505,7 +505,7 @@ export class PathologicalHistoryRepository
   async create(
     entity: IPathologycalHistory
   ): Promise<PathologicalHistoryResponse | null> {
-    const url = endpoint.getAllPathologicalHistory;
+    const url = EndPoints.buildFullUrl(process.env.PATHOLOGY_HISTORY);
     try {
       const response = await POST(url, entity);
       handleResponse(response);

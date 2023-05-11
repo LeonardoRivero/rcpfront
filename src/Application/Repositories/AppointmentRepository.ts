@@ -33,7 +33,7 @@ export class AppointmentRepository
   }
 
   async getAll(): Promise<AppointmentResponse[] | null> {
-    const url = endpoint.getORcreateConsult;
+    const url = EndPoints.buildFullUrl(process.env.CONSULT);
     try {
       throw Error(`Error in ${Object.name} `);
     } catch (error) {
@@ -44,7 +44,7 @@ export class AppointmentRepository
   public async create(
     entity: IAppointment
   ): Promise<AppointmentResponse | null> {
-    const url = endpoint.getORcreateConsult;
+    const url = EndPoints.buildFullUrl(process.env.CONSULT);
     try {
       const response = await POST(url, entity);
       if (!response.ok) return null;
@@ -65,7 +65,7 @@ export class AppointmentRepository
   }
 
   async findByParameters(parameters: object): Promise<AppointmentResponse[]> {
-    const urlBase = endpoint.getORcreateConsult;
+    const urlBase = EndPoints.buildFullUrl(process.env.CONSULT);
     const url = endpoint.urlQueryParameter(urlBase, parameters);
     const response = await GET(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
@@ -83,7 +83,7 @@ export class PaymentOptionsRepository
     throw new Error('Method not implemented.');
   }
   async getAll(): Promise<PaymentOptionsResponse[] | null> {
-    const url = endpoint.getAllPaymentOptions;
+    const url = EndPoints.buildFullUrl(process.env.PAYMENT_OPTIONS);
     try {
       const response = await GET(url);
       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)

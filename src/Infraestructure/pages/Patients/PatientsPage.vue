@@ -9,7 +9,7 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Login from '../Login_Register/Login.vue';
+import Login from '../Login/Login.vue';
 import Patients from './PatientForm.vue';
 // import DataTable from 'src/components/commons/DataTable.vue';
 export default defineComponent({
