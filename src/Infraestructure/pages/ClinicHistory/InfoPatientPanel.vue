@@ -1,9 +1,9 @@
 <template>
   <q-card class="rounded-borders">
     <q-toolbar class="rounded-borders">
-      <h5 class="text-h5 q-ma-md">
+      <h5 class="text-h6 q-ma-md">
         Datos Paciente:
-        <q-avatar :icon="state.iconAvatar" color="white" size="4rem"></q-avatar>
+        <q-avatar :icon="state.iconAvatar" color="white" size="2rem"></q-avatar>
       </h5>
       <q-space />
       <q-input
@@ -32,7 +32,7 @@
       </q-input>
     </q-toolbar>
     <q-separator inset></q-separator>
-    <q-card-section>
+    <q-card-section class="q-pt-xs">
       <div class="row">
         <q-card-section class="col-12 col-sm-6 col-xs-12">
           <b>Nombre Completo:</b>

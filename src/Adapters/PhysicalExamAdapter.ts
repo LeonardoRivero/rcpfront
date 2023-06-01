@@ -1,5 +1,5 @@
 import { IColumnsDataTable } from 'src/Domine/ICommons';
-import { Modal } from '../Infraestructure/Utilities/Modal';
+import { FactoryNotifactors } from './Creators/Factories';
 import { Observer, Subject } from 'src/patterns/Observer/Observer';
 import { PhysicalExamResponse } from 'src/Domine/Responses';
 import { IPhysicalExam } from 'src/Domine/ModelsDB';
@@ -7,7 +7,11 @@ import { DataTableController } from './DataTableAdapter';
 import { Messages } from 'src/Application/Utilities';
 import { PhysicalExamService } from 'src/Application/Services/PhysicalExamService';
 import { PhysicalExamParameterState } from 'src/Domine/IStates';
-import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
+import {
+  Controller,
+  IControllersMediator,
+  Notificator,
+} from 'src/Domine/IPatterns';
 
 export class PhysicalExamParameterController
   extends Controller
@@ -15,7 +19,8 @@ export class PhysicalExamParameterController
 {
   public state: PhysicalExamParameterState;
   private service = PhysicalExamService.getInstance();
-  private serviceModal = new Modal();
+  private notifySweetAlert: Notificator =
+    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
   private messages = Messages.getInstance();
   private static instance: PhysicalExamParameterController;
 
@@ -196,7 +201,7 @@ export class PhysicalExamParameterController
   public async create(
     payload: IPhysicalExam
   ): Promise<PhysicalExamResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.messages.newRegister
     );
@@ -211,7 +216,7 @@ export class PhysicalExamParameterController
   public async update(
     payload: IPhysicalExam
   ): Promise<PhysicalExamResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.messages.updateRegister
     );

@@ -1,9 +1,13 @@
 import { IDXMainCode } from 'src/Domine/ModelsDB';
-import { Modal } from '../Infraestructure/Utilities/Modal';
+import { FactoryNotifactors } from './Creators/Factories';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { DxMainCodeService } from 'src/Application/Services/DxMainCodeService';
 import { DXMainCodeResponse } from 'src/Domine/Responses';
-import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
+import {
+  Controller,
+  IControllersMediator,
+  Notificator,
+} from 'src/Domine/IPatterns';
 import { DxMainCodeState } from 'src/Domine/IStates';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import { IStoreSettings } from 'src/Domine/IStores';
@@ -13,10 +17,11 @@ export class DxMainCodeController extends Controller {
   public state: DxMainCodeState;
   private store: IStoreSettings;
   private service = new DxMainCodeService();
-  private serviceModal = new Modal();
   private messages = Messages.getInstance();
   private static instance: DxMainCodeController;
   private convert = new Convert();
+  private notifySweetAlert: Notificator =
+    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
 
   sendData(data: unknown): void {
     throw new Error('Method not implemented.');
@@ -128,7 +133,7 @@ export class DxMainCodeController extends Controller {
   }
 
   private async save(payload: IDXMainCode): Promise<DXMainCodeResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.messages.newRegister
     );
@@ -141,7 +146,7 @@ export class DxMainCodeController extends Controller {
   private async update(
     payload: IDXMainCode
   ): Promise<DXMainCodeResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.messages.updateRegister
     );

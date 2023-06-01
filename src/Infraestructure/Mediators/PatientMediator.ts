@@ -1,18 +1,23 @@
 import { defineStore } from 'pinia';
 import { Messages } from 'src/Application/Utilities';
-import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
+import {
+  Controller,
+  IControllersMediator,
+  Notificator,
+} from 'src/Domine/IPatterns';
 import { IStoreSettings } from 'src/Domine/IStores';
 import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
   DXMainCodeResponse,
   Group,
+  HealthInsuranceResponse,
   PathologicalHistoryResponse,
   PatientResponse,
   RelationCodeResponse,
   SpecialityResponse,
 } from 'src/Domine/Responses';
 import { routerInstance } from 'src/boot/globalRouter';
-import { Modal } from '../Utilities/Modal';
+import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import { PatientService } from 'src/Application/Services';
 
 export class PatientMediator implements IControllersMediator {
@@ -20,7 +25,8 @@ export class PatientMediator implements IControllersMediator {
   public store: IStoreSettings;
   private static instance: PatientMediator;
   private service = new PatientService();
-  private serviceModal = new Modal();
+  private notifySweetAlert: Notificator =
+    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
   private messages = Messages.getInstance();
 
   private constructor() {
@@ -36,6 +42,7 @@ export class PatientMediator implements IControllersMediator {
         allRelationCode: <Array<RelationCodeResponse>>[],
         currentSpeciality: {} as ISpeciality,
         currentDxMainCode: {} as DXMainCodeResponse,
+        allInsurance: <Array<HealthInsuranceResponse>>[],
         allGroups: <Array<Group>>[],
       }),
     });
@@ -91,10 +98,10 @@ export class PatientMediator implements IControllersMediator {
   }
 
   public async patientNotFound(): Promise<void> {
-    const confirm = await this.serviceModal.showModal(
+    this.notifySweetAlert.setType('error');
+    const confirm = await this.notifySweetAlert.show(
       'Error',
-      this.messages.notFoundInfoPatient,
-      'error'
+      this.messages.notFoundInfoPatient
     );
     if (confirm == false) {
       return;

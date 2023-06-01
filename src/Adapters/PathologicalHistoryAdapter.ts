@@ -1,15 +1,17 @@
 import { PathologicalHistoryService } from 'src/Application/Services';
-import { Modal } from '../Infraestructure/Utilities/Modal';
+import { Notificator } from 'src/Domine/IPatterns';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { IPathologycalHistory } from 'src/Domine/ModelsDB';
 import { PathologicalHistoryResponse } from 'src/Domine/Responses';
 import { Convert } from 'src/Application/Utilities';
 import { PathologicalHistoryState } from 'src/Domine/IStates';
+import { FactoryNotifactors } from './Creators/Factories';
 
 export class PathologicalHistoryAdapter {
   private store: PathologicalHistoryState;
-  private serviceModal = new Modal();
   private messages = Messages.getInstance();
+  private notifySweetAlert: Notificator =
+    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
   private service = new PathologicalHistoryService();
   private convert = new Convert();
   private static instance: PathologicalHistoryAdapter;
@@ -50,7 +52,7 @@ export class PathologicalHistoryAdapter {
   private async create(
     payload: IPathologycalHistory
   ): Promise<PathologicalHistoryResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.messages.newRegister
     );
@@ -65,7 +67,7 @@ export class PathologicalHistoryAdapter {
   private async update(
     payload: IPathologycalHistory
   ): Promise<PathologicalHistoryResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.messages.updateRegister
     );

@@ -1,75 +1,122 @@
-import { Dialog, Loading, Notify } from 'quasar';
+import { Dialog, Notify, QNotifyCreateOptions } from 'quasar';
+import { NotificationType, Notificator } from 'src/Domine/IPatterns';
+import { IconSVG } from 'src/Application/Utilities';
+import Swal, {
+  SweetAlertIcon,
+  SweetAlertOptions,
+  SweetAlertResult,
+} from 'sweetalert2';
+export class Notification implements Notificator {
+  private type: 'positive' | 'negative' | 'warning' | 'info' | 'ongoing' =
+    'info';
 
-export class Notification {
-  private _message = '' as string;
-  private _type = 'info' as string;
-  setMessage(message: string): void {
-    this._message = message;
-  }
-  private triggerNotification(): void {
-    Notify.create({
-      type: this._type,
-      message: this._message,
+  private message = '';
+  private icon = 'none';
+  private timer = 2000;
+  private icons = IconSVG.getInstance();
+  public async show(title?: string, message?: string): Promise<boolean> {
+    if (message != undefined) this.message = message;
+    const options: QNotifyCreateOptions = {
+      type: this.type,
+      message: this.message,
       position: 'top-right',
-      timeout: 2000,
-    });
+      timeout: this.timer,
+    };
+
+    if (this.icon != 'none') {
+      options.icon = this.icon;
+      options.color = 'black';
+    }
+    Notify.create(options);
+    return false;
   }
-  showError(): void {
-    this._type = 'negative';
-    this.triggerNotification();
+
+  setType(type: NotificationType): void {
+    if (type == 'error') this.type = 'negative';
+    if (type == 'success') this.type = 'positive';
+    if (type == 'question') {
+      this.icon = this.icons.question;
+    }
   }
-  showInfo(): void {
-    this._type = 'info';
-    this.triggerNotification();
-  }
-  showSuccess(): void {
-    this._type = 'positive';
-    this.triggerNotification();
-  }
-  showWarning(): void {
-    this._type = 'warning';
-    this.triggerNotification();
+
+  setTime(timerMs: number): void {
+    this.timer = timerMs;
   }
 }
-export class Modal {
-  private _message = '' as string;
-  private _url = '' as string;
-  private _title = '' as string;
-  private _redirectPage = false as boolean;
-  private triggerModal(): void {
+export class DialogQuasar implements Notificator {
+  private message = '';
+  private title = '';
+
+  async show(
+    title?: string | undefined,
+    message?: string | undefined
+  ): Promise<boolean> {
+    if (message != undefined) this.message = message;
+    if (title != undefined) this.title = title;
     Dialog.create({
-      title: this._title,
-      message: this._message,
+      title: this.title,
+      message: this.message,
       cancel: true,
       persistent: true,
     })
       .onOk(async (data) => {
         console.log('OK', data);
-        if (this._redirectPage) {
-        }
+        return true;
       })
       .onCancel(() => {
         console.log('Cancel');
+        return false;
       })
       .onDismiss(() => {
         console.log('I am triggered on both OK and Cancel');
+        return false;
       });
+    return false;
   }
-  public withRedirectPage(
-    title: string,
-    message: string,
-    urlToRedirect: string
-  ) {
-    this._message = message;
-    this._url = urlToRedirect;
-    this._title = title;
-    this._redirectPage = true;
-    this.triggerModal();
+  setType(type: NotificationType): void {
+    return;
   }
-  public showLoading(): void {
-    Loading.show();
+  setTime(timerMs: number): void {
+    return;
   }
-  public hideLoading(): void {
-    Loading.hide();
+}
+export class SweetAlertModal implements Notificator {
+  private message = '';
+  private title = '';
+  private icon: SweetAlertIcon = 'info';
+  private timeout = 0;
+
+  public async show(
+    title?: string | undefined,
+    message?: string | undefined
+  ): Promise<boolean> {
+    if (message != undefined) this.message = message;
+    if (title != undefined) this.title = title;
+    const objectSweetAlert: SweetAlertOptions = {
+      title: this.title,
+      allowOutsideClick: false,
+      icon: this.icon,
+      text: this.message,
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Aceptar',
+      timer: this.timeout,
+    };
+    const result = (await Swal.fire(objectSweetAlert)) as SweetAlertResult;
+    if (result.isConfirmed == true) {
+      return true;
+    }
+    if (result.isDenied == true) {
+      return false;
+    }
+    return false;
+  }
+  setType(type: NotificationType): void {
+    this.icon = type;
+  }
+  setTime(timerMs: number): void {
+    this.timeout = timerMs;
   }
 }

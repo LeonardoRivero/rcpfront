@@ -18,7 +18,7 @@
                 dense
                 label="Entidad"
                 outlined
-                v-model="currentHealthInsurance"
+                v-model="state.currentHealthInsurance"
                 :options="listInsurancePatient"
                 :option-value="(item) => (item === null ? null : item.id)"
                 option-label="nameInsurance"
@@ -34,7 +34,7 @@
                 dense
                 type="number"
                 outlined
-                v-model="identificationPatient"
+                v-model="state.identificationPatient"
                 @keydown.enter.prevent="searchPatient()"
                 label="N° Identificacion"
                 lazy-rules
@@ -65,7 +65,7 @@
               <q-input
                 dense
                 outlined
-                v-model="currentPatient.name"
+                v-model="state.currentPatient.name"
                 label="Nombre Paciente"
                 readonly
               />
@@ -74,7 +74,7 @@
               <q-input
                 dense
                 outlined
-                v-model="currentPatient.lastName"
+                v-model="state.currentPatient.lastName"
                 label="Apellido Paciente"
                 readonly
               />
@@ -93,7 +93,7 @@
                     dense
                     type="text"
                     outlined
-                    v-model="speciality.description"
+                    v-model="state.speciality.description"
                     label="Especialidad"
                     readonly
                     hint=" "
@@ -103,12 +103,12 @@
                   <q-input
                     dense
                     outlined
-                    v-model="currentAppointment.date"
+                    v-model="state.currentAppointment.date"
                     label="Fecha Cita"
                     :hint="`Finalizacion Cita: ${
-                      currentAppointment.end == undefined
+                      state.currentAppointment.end == undefined
                         ? ''
-                        : currentAppointment.end
+                        : state.currentAppointment.end
                     }`"
                     readonly
                   >
@@ -121,7 +121,7 @@
                     dense
                     type="number"
                     outlined
-                    v-model="currentAppointment.authorizationNumber"
+                    v-model="state.currentAppointment.authorizationNumber"
                     label="N° Autorización"
                     lazy-rules
                     :rules="[(val) => val > 0 || 'Autorizacion invalida']"
@@ -132,8 +132,8 @@
                     dense
                     label="Razon Consulta"
                     outlined
-                    v-model="currentAppointment.reasonConsult"
-                    :options="allReasonConsult"
+                    v-model="state.currentAppointment.reasonConsult"
+                    :options="state.allReasonConsult"
                     :option-value="(item) => (item === null ? null : item.id)"
                     option-label="abbreviation"
                     map-options
@@ -146,8 +146,8 @@
                   <q-select
                     dense
                     outlined
-                    v-model="currentAppointment.patientStatus"
-                    :options="allPatientStatus"
+                    v-model="state.currentAppointment.patientStatus"
+                    :options="state.allPatientStatus"
                     :option-value="(item) => (item === null ? null : item.id)"
                     option-label="description"
                     map-options
@@ -165,7 +165,7 @@
                     dense
                     type="number"
                     outlined
-                    v-model="currentAppointment.copayment"
+                    v-model="state.currentAppointment.copayment"
                     label="Copago"
                     @update:model-value="(val) => calculateAmountPaid(val)"
                     lazy-rules
@@ -178,7 +178,7 @@
                     type="text"
                     outlined
                     label="Codigo Transaccion"
-                    v-model="currentAppointment.codeTransaction"
+                    v-model="state.currentAppointment.codeTransaction"
                     :disable="disableCodeTransaction"
                   />
                 </div>
@@ -187,9 +187,9 @@
                     dense
                     label="Metodo Pago"
                     outlined
-                    v-model="currentAppointment.paymentMethod"
+                    v-model="state.currentAppointment.paymentMethod"
                     @update:model-value="(val) => changePaymentMethod(val)"
-                    :options="allPaymentOptions"
+                    :options="state.allPaymentOptions"
                     :option-value="(item) => (item === null ? null : item.id)"
                     option-label="description"
                     map-options
@@ -206,7 +206,7 @@
                     dense
                     type="number"
                     outlined
-                    v-model="currentAppointment.price"
+                    v-model="state.currentAppointment.price"
                     label="Valor Consulta"
                     @update:model-value="(val) => calculateAmountPaid(val)"
                     lazy-rules
@@ -219,12 +219,12 @@
                   <q-input
                     outlined
                     :bg-color="
-                      currentAppointment.amountPaid > 0 ? 'green' : 'red'
+                      state.currentAppointment.amountPaid > 0 ? 'green' : 'red'
                     "
                     readonly
                     dense
                     hint="Total monto a pagar"
-                    v-model="currentAppointment.amountPaid"
+                    v-model="state.currentAppointment.amountPaid"
                     type="number"
                     prefix="$"
                   >
@@ -237,15 +237,25 @@
       </q-slide-transition>
     </q-list>
     <q-card-actions align="right" class="text-teal">
-      <q-btn label="Guardar" type="submit" color="primary" />
+      <q-btn
+        label="Guardar"
+        type="submit"
+        color="primary"
+        :disable="disableListInsurance"
+      />
     </q-card-actions>
   </q-form>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref } from 'vue';
+import { defineComponent, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { storeToRefs } from 'pinia';
-import { HealthInsuranceResponse, PatientResponse } from 'src/Domine/Responses';
+import {
+  DoctorResponse,
+  HealthInsuranceResponse,
+  PatientResponse,
+  PatientStatusResponse,
+} from 'src/Domine/Responses';
 import { IAppointment, ISpeciality } from 'src/Domine/ModelsDB';
 import {
   OPTIONS_HOURS,
@@ -254,80 +264,67 @@ import {
   FORMAT_DATETIME,
   FIELD_REQUIRED,
 } from 'src/Application/Utilities';
-import {
-  AppointmentAdapter,
-  ScheduleAdapter,
-  PatientController,
-} from 'src/Adapters';
-import { useStorePatient } from 'src/Infraestructure/Mediators/PatientsPage/PatientStore';
+import { AppointmentAdapter } from 'src/Adapters';
 import { useStoreAppointments } from 'src/Infraestructure/Mediators/Appointment/AppointmentStore';
-import { useStoreSchedule } from 'src/Infraestructure/Mediators/ScheduleMediator';
 import { PaymentOptionsService } from 'src/Application/Services/PaymentOptionsService';
 import { ReasonConsultService } from 'src/Application/Services/ReasonConsultService';
 import { PatientStatusService } from 'src/Application/Services/PatientStatusService';
+import {
+  PatientMediator,
+  ScheduleMediator,
+  SettingsMediator,
+} from 'src/Infraestructure/Mediators';
+import { QForm } from 'quasar';
+import { AppointmentState } from 'src/Domine/IStates';
 import 'src/css/app.sass';
-import { InsuranceAdapter } from 'src/Adapters/InsuranceAdapter';
-import { useStoreInsurance } from 'src/Infraestructure/Mediators/SettingsPage/InsuranceStore';
 
 export default defineComponent({
+  name: 'Appointment_Form',
   setup() {
     const HOURS_ALLOWED = OPTIONS_HOURS;
     const MINUTES_ALLOWED = OPTIONS_MINUTES;
     // const CURRENTYEARMONTH = CURRENTYEAR_MONTH;
     // const FORMATDATETIME = FORMAT_DATETIME;
-    const store = useStoreAppointments();
-    const storePatient = useStorePatient();
-    const {
-      identificationPatient,
-      currentAppointment,
-      form,
-      currentPatient,
-      currentPatientStatus,
-      currentHealthInsurance,
-      speciality,
-      reasonConsult,
-      currentDoctor,
-      allPaymentOptions,
-      allReasonConsult,
-      allPatientStatus,
-      currentPaymentOption,
-      // searchPatient,
-      // confirmChanges,
-      // calculateAmountPaid,
-      // patientStatusChanged,
-    } = storeToRefs(store);
-    const service = AppointmentAdapter.getInstance(useStoreAppointments());
+    const form = ref<QForm>();
+    const state: AppointmentState = reactive({
+      identificationPatient: '',
+      currentPatientStatus: null,
+      currentHealthInsurance: null,
+      reasonConsult: null,
+      speciality: {} as ISpeciality,
+      currentDoctor: {} as DoctorResponse,
+      currentAppointment: {} as IAppointment,
+      currentPatient: {} as PatientResponse,
+      currentPaymentOption: null,
+      allPaymentOptions: [],
+      allReasonConsult: [],
+      allPatientStatus: <Array<PatientStatusResponse>>[],
+    });
+    const service = AppointmentAdapter.getInstance(state);
     // const { allSpecialities, clearSpeciality, getAllSpecialities } =
     //   specialityService();
-    const {
-      // allReasonConsult,
-      // allPatientStatus,
-      // getAllReasonConsult,
-      // getAllPatientStatus,
-    } = storeToRefs(storePatient);
     // const servicePatient = patientService.getInstance();
-    const patientAdapter = PatientController.getInstance(useStorePatient());
-    const scheduleAdapter = ScheduleAdapter.getInstance(useStoreSchedule());
+    const patientMediator = PatientMediator.getInstance();
+    const scheduleMediator = ScheduleMediator.getInstance();
+    const settingsMediator = SettingsMediator.getInstance();
     const servicePaymentOptions = PaymentOptionsService.getInstance();
     const serviceReasonConsult = ReasonConsultService.getInstance();
     const servicePatienStatus = PatientStatusService.getInstance();
     const listInsurancePatient = ref<Array<HealthInsuranceResponse>>([]);
-    const insuranceAdapter = InsuranceAdapter.getInstance(useStoreInsurance());
 
     const disableListInsurance = ref<boolean>(true);
     const disableCodeTransaction = ref<boolean>(false);
     onMounted(async () => {
-      allPaymentOptions.value = await servicePaymentOptions.getAll();
-      allReasonConsult.value = await serviceReasonConsult.getAll();
-      allPatientStatus.value = await servicePatienStatus.getAll();
-      await insuranceAdapter.getAll();
+      state.allPaymentOptions = await servicePaymentOptions.getAll();
+      state.allReasonConsult = await serviceReasonConsult.getAll();
+      state.allPatientStatus = await servicePatienStatus.getAll();
     });
     onUnmounted(async () => {
-      currentPatient.value = {} as PatientResponse;
-      currentAppointment.value = {} as IAppointment;
-      identificationPatient.value = '';
-      currentHealthInsurance.value = null;
-      speciality.value = {} as ISpeciality;
+      state.currentPatient = {} as PatientResponse;
+      state.currentAppointment = {} as IAppointment;
+      state.identificationPatient = '';
+      state.currentHealthInsurance = null;
+      state.speciality = {} as ISpeciality;
     });
 
     return {
@@ -336,29 +333,22 @@ export default defineComponent({
       MINUTES_ALLOWED,
       FORMAT_DATETIME,
       FIELD_REQUIRED,
-      currentHealthInsurance,
-      reasonConsult,
-      allReasonConsult,
-      allPatientStatus,
-      currentPaymentOption,
       form,
-      currentAppointment,
-      allPaymentOptions,
-      currentPatientStatus,
-      identificationPatient,
       disableListInsurance,
       async confirmChanges() {
+        const isValid = await form.value?.validate();
+        if (isValid == false) return;
         const response = await service.saveOrUpdate(
-          currentAppointment.value,
-          currentPatient.value,
-          currentDoctor.value
+          state.currentAppointment,
+          state.currentPatient,
+          state.currentDoctor
         );
         if (response != null) {
-          currentAppointment.value = {} as IAppointment;
-          currentPatient.value = {} as PatientResponse;
-          currentHealthInsurance.value = null;
-          speciality.value = {} as ISpeciality;
-          identificationPatient.value = '';
+          state.currentAppointment = {} as IAppointment;
+          state.currentPatient = {} as PatientResponse;
+          state.currentHealthInsurance = null;
+          state.speciality = {} as ISpeciality;
+          state.identificationPatient = '';
           form.value?.reset();
         }
       },
@@ -373,40 +363,35 @@ export default defineComponent({
         service.calculateAmountPaid();
       },
       async searchPatient() {
-        const patient = await patientAdapter.searchByIdentificacion(
-          identificationPatient.value
+        const patient = await patientMediator.searchByIdentificacion(
+          state.identificationPatient
         );
         if (patient === null) {
-          await patientAdapter.patientNotFound();
+          await patientMediator.patientNotFound();
           return;
         }
-        const schedule = await scheduleAdapter.findByIdentificationPatient(
+        const schedule = await scheduleMediator.findByIdentificationPatient(
           patient.identification.toString()
         );
         if (schedule === null) {
-          await scheduleAdapter.scheduleNotFound();
+          await scheduleMediator.scheduleNotFound();
           return;
         }
-        currentAppointment.value.schedule = schedule.id;
-        currentAppointment.value.date = new Date(
+        state.currentAppointment.schedule = schedule.id;
+        state.currentAppointment.date = new Date(
           schedule.start
         ).toLocaleString();
-        currentPatient.value = schedule.patient;
-        currentHealthInsurance.value = schedule.patient.insurance;
-        speciality.value = schedule.speciality;
-        currentDoctor.value = schedule.doctor;
-        listInsurancePatient.value = insuranceAdapter.addToArrayDefault(
+        state.currentPatient = schedule.patient;
+        state.currentHealthInsurance = schedule.patient.insurance;
+        state.speciality = schedule.speciality;
+        state.currentDoctor = schedule.doctor;
+        listInsurancePatient.value = settingsMediator.addToArrayDefault(
           schedule.patient.insurance
         );
         disableListInsurance.value = false;
       },
-      // patientStatusChanged() {
-      //   service.patientStatusChanged(currentPatientStatus.value);
-      // },
-      // allSpecialities,
-      speciality,
       listInsurancePatient,
-      currentPatient,
+      state,
       disableCodeTransaction,
     };
   },

@@ -1,4 +1,4 @@
-import { Modal } from '../Infraestructure/Utilities/Modal';
+import { FactoryNotifactors } from './Creators/Factories';
 import { RelationCodeRepository } from 'src/Application/Repositories/SettingsRepository';
 import { IRelationCode } from 'src/Domine/ModelsDB';
 import { RelationCodeService } from 'src/Application/Services/RelationCodeService';
@@ -6,7 +6,11 @@ import { Messages } from 'src/Application/Utilities/Messages';
 import { RelationCodeResponse } from 'src/Domine/Responses';
 import { useStoreDxMainCode } from 'src/Infraestructure/Mediators/SettingsPage/DxMainCodeStore';
 import { useStoreSpeciality } from 'src/Infraestructure/Mediators/SettingsPage/SpecialityStore';
-import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
+import {
+  Controller,
+  IControllersMediator,
+  Notificator,
+} from 'src/Domine/IPatterns';
 import { RelationCodeState } from 'src/Domine/IStates';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
 export class RelationCodeController extends Controller {
@@ -14,7 +18,8 @@ export class RelationCodeController extends Controller {
   private storeDxMainCode = useStoreDxMainCode();
   private storeSpeciality = useStoreSpeciality();
   private repository = RelationCodeRepository.getInstance();
-  private serviceModal = new Modal();
+  private notifySweetAlert: Notificator =
+    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
   private messages = Messages.getInstance();
   private service = new RelationCodeService();
 
@@ -121,7 +126,7 @@ export class RelationCodeController extends Controller {
   private async create(
     payload: IRelationCode
   ): Promise<RelationCodeResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.messages.newRegister
     );
@@ -136,7 +141,7 @@ export class RelationCodeController extends Controller {
   private async update(
     payload: IRelationCode
   ): Promise<RelationCodeResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.messages.updateRegister
     );

@@ -94,7 +94,7 @@
                     outlined
                     :options="allIDTypes"
                     :option-value="(item) => (item === null ? null : item.id)"
-                    option-label="abbreviation"
+                    option-label="description"
                     map-options
                     label="Tipo Documento *"
                     stack-label
@@ -137,7 +137,11 @@
                           transition-show="scale"
                           transition-hide="scale"
                         >
-                          <q-date today-btn mask="YYYY-MM-DD">
+                          <q-date
+                            v-model="state.dateBirthday"
+                            today-btn
+                            mask="YYYY-MM-DD"
+                          >
                             <div class="row items-center justify-end">
                               <q-btn
                                 v-close-popup
@@ -189,11 +193,12 @@
   </q-card>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, reactive } from 'vue';
+import { defineComponent, onMounted, reactive, ref } from 'vue';
 import { UserState } from 'src/Domine/IStates';
 import { IconSVG } from 'src/Application/Utilities';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
-import { Group } from 'src/Domine/Responses';
+import { Group, IDTypeResponse } from 'src/Domine/Responses';
+import { IDTypesRepository } from 'src/Application/Repositories';
 
 export default defineComponent({
   name: 'UsersForm',
@@ -217,14 +222,23 @@ export default defineComponent({
     });
     const mediator = SettingsMediator.getInstance();
     let allGroups = <Array<Group>>[];
+    const idTypesRepository = new IDTypesRepository();
+    const allIDTypes = ref<Array<IDTypeResponse>>([]);
     onMounted(async () => {
       allGroups = await mediator.getAllGroups();
+      const idTypes = await idTypesRepository.getAll();
+      console.log(idTypes);
+      allIDTypes.value = idTypes == null ? [] : idTypes;
     });
     return {
       icons,
       state,
       disable: false,
       allGroups,
+      allIDTypes,
+      async confirmChanges() {
+        console.log('confirmChanges');
+      },
     };
   },
 });

@@ -12,6 +12,7 @@ import {
   SpecialityResponse,
   AuthResponse,
   UserResponse,
+  HealthInsuranceResponse,
 } from './Responses';
 
 export interface IStoreClinicHistory {
@@ -30,6 +31,7 @@ export interface IStoreSettings {
   allSpecialities: Array<SpecialityResponse>;
   allPathologies: Array<PathologicalHistoryResponse>;
   allRelationCode: Array<RelationCodeResponse>;
+  allInsurance: Array<HealthInsuranceResponse>;
   currentSpeciality: ISpeciality;
   currentDxMainCode: DXMainCodeResponse | null;
   allGroups: Array<Group>;
@@ -51,4 +53,9 @@ export interface IStorePermissions {
   patientStatus: IPermission;
   reasonConsult: IPermission;
   paymentOptions: IPermission;
+}
+
+export interface IStoreSchedule {
+  dateSchedule: string | Date;
+  card: boolean;
 }

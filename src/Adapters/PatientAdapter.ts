@@ -1,19 +1,23 @@
-import { Notification } from 'src/Infraestructure/Utilities/Notifications';
-import { Modal } from '../Infraestructure/Utilities/Modal';
+import {
+  Controller,
+  IControllersMediator,
+  Notificator,
+} from 'src/Domine/IPatterns';
+import { FactoryNotifactors } from './Creators/Factories';
 import { routerInstance } from 'src/boot/globalRouter';
-import { Validators } from 'src/Application/Utilities/Helpers';
-import { Messages } from 'src/Application/Utilities/Messages';
+import { Validators, Messages } from 'src/Application/Utilities';
 import { PatientService } from 'src/Application/Services/PatientService';
 import { IPatient } from 'src/Domine/ModelsDB';
 import { PatientResponse } from 'src/Domine/Responses';
 import { PatientState } from 'src/Domine/IStates';
-import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
 
 export class PatientController extends Controller {
   public state: PatientState;
-  private serviceModal = new Modal();
   private messages = Messages.getInstance();
-  private notification = new Notification();
+  private notifyQuasar: Notificator =
+    FactoryNotifactors.getInstance().createNotificator('notifyQuasar');
+  private sweetAlertModal: Notificator =
+    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
   private validator = Validators.getInstance();
   private service = new PatientService();
 
@@ -51,8 +55,8 @@ export class PatientController extends Controller {
     const response = await this.service.findByIdentification(identification);
     if (response === null) {
       this.clear();
-      this.notification.setMessage(this.messages.notInfoFound);
-      this.notification.showWarning();
+      this.notifyQuasar.setType('warning');
+      this.notifyQuasar.show(undefined, this.messages.notInfoFound);
       this.state.disable = false;
       return null;
     }
@@ -104,8 +108,8 @@ export class PatientController extends Controller {
       };
       response = await this.save(payload);
       if (response == null) {
-        this.notification.setMessage(this.messages.patientNotSaved);
-        this.notification.showError();
+        this.notifyQuasar.setType('error');
+        this.notifyQuasar.show(undefined, this.messages.patientNotSaved);
         return null;
       }
     }
@@ -131,7 +135,7 @@ export class PatientController extends Controller {
   }
 
   private async save(payload: IPatient): Promise<PatientResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.sweetAlertModal.show(
       'Atención',
       this.messages.newRegister
     );
@@ -144,7 +148,7 @@ export class PatientController extends Controller {
   }
 
   private async update(payload: IPatient): Promise<PatientResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.sweetAlertModal.show(
       'Atención',
       this.messages.updateRegister
     );
@@ -158,8 +162,8 @@ export class PatientController extends Controller {
     const validEmail = this.validator.email(val);
     if (validEmail == false) {
       this.state.error = true;
-      this.notification.setMessage('Email invalido');
-      this.notification.showError();
+      this.notifyQuasar.setType('error');
+      this.notifyQuasar.show(undefined, 'Email invalido');
       return;
     }
 
@@ -168,10 +172,10 @@ export class PatientController extends Controller {
   }
 
   public async patientNotFound(): Promise<void> {
-    const confirm = await this.serviceModal.showModal(
+    this.sweetAlertModal.setType('error');
+    const confirm = await this.sweetAlertModal.show(
       'Error',
-      this.messages.notFoundInfoPatient,
-      'error'
+      this.messages.notFoundInfoPatient
     );
     if (confirm == false) {
       return;

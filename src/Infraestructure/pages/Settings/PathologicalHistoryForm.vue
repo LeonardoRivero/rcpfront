@@ -4,7 +4,9 @@
       <q-card-section>
         <div class="text-caption text-grey">
           Patologias existentes:
-          {{ allPathologies == null ? '' : allPathologies.length }}
+          {{
+            state.allPathologies.length == 0 ? '' : state.allPathologies.length
+          }}
         </div>
         <q-select
           dense
@@ -97,17 +99,15 @@ export default defineComponent({
     const adapter = PathologicalHistoryAdapter.getInstance(state);
 
     const form = ref<QForm>();
-    const allPathologies = ref<Array<PathologicalHistoryResponse>>([]);
     const mediator = SettingsMediator.getInstance();
 
     onMounted(async () => {
-      allPathologies.value = await mediator.getAllPathologies();
+      state.allPathologies = await mediator.getAllPathologies();
     });
 
     return {
       state,
       form,
-      allPathologies,
       add() {
         state.expanded = true;
         state.currentPathology = {} as IPathologycalHistory;

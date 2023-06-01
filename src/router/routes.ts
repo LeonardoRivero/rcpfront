@@ -11,8 +11,7 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: 'index',
-        component: () =>
-          import('src/Infraestructure/pages/Settings/UsersForm.vue'),
+        component: () => import('src/Infraestructure/pages/IndexPage.vue'),
       },
       {
         path: 'clinichistory',

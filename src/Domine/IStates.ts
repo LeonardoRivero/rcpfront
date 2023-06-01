@@ -1,24 +1,34 @@
 import { IColumnsDataTable } from './ICommons';
 import {
+  EventSchedule,
+  IAppointment,
   IDXMainCode,
+  IDoctor,
   IHealthInsurance,
   IPathologycalHistory,
   IPatient,
+  IPatientStatus,
   IPhysicalExam,
+  IReasonConsult,
   IRelationCode,
   ISpeciality,
 } from './ModelsDB';
 import {
   DXMainCodeResponse,
+  DoctorResponse,
   GenderResponse,
   HealthInsuranceResponse,
   IDTypeResponse,
   PathologicalHistoryResponse,
   PatientResponse,
+  PatientStatusResponse,
+  PaymentOptionsResponse,
   PhysicalExamResponse,
+  ReasonConsultResponse,
   RelationCodeResponse,
   SpecialityResponse,
 } from './Responses';
+import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 
 export interface InfoPatientState {
   identificationPatient: string;
@@ -120,4 +130,36 @@ export interface UserState {
   lastLogin: string | Date;
   dateJoined: string | Date;
   repassword: string;
+}
+
+export interface ScheduleState {
+  lastConsult: IAppointment;
+  isReadonly: boolean;
+  currentAppointment: IAppointment;
+  currentPatient: PatientResponse;
+  currentSchedule: EventSchedule;
+  currentDoctor: IDoctor | null;
+  allDoctors: Array<DoctorResponse>;
+  speciality: SpecialityResponse | null;
+  allSpecialities: Array<SpecialityResponse>;
+  identificationPatient: string;
+  allowToUpdate: boolean;
+  allowToDelete: boolean;
+  card: boolean;
+  calendar: InstanceType<typeof FullCalendar>;
+}
+
+export interface AppointmentState {
+  identificationPatient: string;
+  currentPatientStatus: IPatientStatus | null;
+  currentHealthInsurance: HealthInsuranceResponse | null;
+  reasonConsult: IReasonConsult | null;
+  speciality: ISpeciality;
+  currentDoctor: DoctorResponse;
+  currentAppointment: IAppointment;
+  currentPatient: PatientResponse;
+  currentPaymentOption: PaymentOptionsResponse | null;
+  allPaymentOptions: Array<PaymentOptionsResponse>;
+  allReasonConsult: Array<ReasonConsultResponse>;
+  allPatientStatus: Array<PatientStatusResponse>;
 }

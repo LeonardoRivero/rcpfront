@@ -1,8 +1,8 @@
 import { IAppointment } from 'src/Domine/ModelsDB';
 import { Messages } from 'src/Application/Utilities/Messages';
-import { Notification } from 'src/Infraestructure/Utilities/Notifications';
-import { Modal } from '../Infraestructure/Utilities/Modal';
-import { IStoreAppointment } from 'src/Infraestructure/Mediators/Appointment/AppointmentStore';
+import { Notificator } from 'src/Domine/IPatterns';
+import { FactoryNotifactors } from './Creators/Factories';
+import { AppointmentState } from 'src/Domine/IStates';
 import { AppointmentService } from 'src/Application/Services';
 import {
   AppointmentResponse,
@@ -13,21 +13,21 @@ import {
 import { routerInstance } from 'src/boot/globalRouter';
 
 export class AppointmentAdapter {
-  private store: IStoreAppointment;
+  private store: AppointmentState;
   private service = new AppointmentService();
   private static instance: AppointmentAdapter;
-  private serviceModal = new Modal();
+  private notifySweetAlert: Notificator =
+    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
   private message = Messages.getInstance();
-  private notification = new Notification();
 
-  private constructor(store: IStoreAppointment) {
+  private constructor(store: AppointmentState) {
     this.store = store;
     return;
   }
 
-  public static getInstance(store: IStoreAppointment): AppointmentAdapter {
+  public static getInstance(state: AppointmentState): AppointmentAdapter {
     if (!AppointmentAdapter.instance) {
-      AppointmentAdapter.instance = new AppointmentAdapter(store);
+      AppointmentAdapter.instance = new AppointmentAdapter(state);
     }
     return AppointmentAdapter.instance;
   }
@@ -68,8 +68,8 @@ export class AppointmentAdapter {
     patientId: number
   ): Promise<AppointmentResponse | null> {
     if (patientId == 0) {
-      this.notification.setMessage(this.message.searchIncorrect);
-      this.notification.showError();
+      this.notifySweetAlert.setType('error');
+      this.notifySweetAlert.show(undefined, this.message.searchIncorrect);
       return null;
     }
 
@@ -140,11 +140,6 @@ export class AppointmentAdapter {
     patient: PatientResponse,
     doctor: DoctorResponse
   ): Promise<AppointmentResponse | null> {
-    const isValid = await this.store.form?.validate();
-    if (isValid == false) {
-      return null;
-    }
-
     if (!this.store.currentAppointment) return null;
 
     let response = null;
@@ -168,8 +163,8 @@ export class AppointmentAdapter {
     }
 
     if (response === null) {
-      this.notification.setMessage(this.message.errorMessage);
-      this.notification.showError();
+      this.notifySweetAlert.setType('error');
+      this.notifySweetAlert.show(undefined, this.message.errorMessage);
     }
     return response;
   }
@@ -177,7 +172,7 @@ export class AppointmentAdapter {
   public async save(
     payload: IAppointment
   ): Promise<AppointmentResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.message.newRegister
     );
@@ -207,10 +202,10 @@ export class AppointmentAdapter {
   }
 
   public async appointmentNotFound(): Promise<void> {
-    const confirm = await this.serviceModal.showModal(
+    this.notifySweetAlert.setType('error');
+    const confirm = await this.notifySweetAlert.show(
       'Error',
-      this.message.appointmentNotFound,
-      'error'
+      this.message.appointmentNotFound
     );
     if (confirm == false) {
       return;
@@ -220,182 +215,3 @@ export class AppointmentAdapter {
     return;
   }
 }
-
-// export function appointmentService() {
-//   const { currentAppointment, currentPatient } = storeToRefs(store);
-//   // const timeStamp = Date.now();
-//   // const formattedDate = ref(
-//   //   date.formatDate(timeStamp, Constants.FORMAT_DATETIME)
-//   // );
-
-//   // currentAppointment.value.date = formattedDate.value;
-//   const formAppointment = ref<QForm | null>(null);
-//   const identificationPatient = ref<string>('');
-//   const currentPatientStatus = ref<IPatientStatus>();
-//   const currentHealthInsurance = ref<IHealthInsurance>({} as IHealthInsurance);
-//   const reasonConsult = ref<IReasonConsult>();
-//   const speciality = ref<ISpeciality>({} as ISpeciality);
-//   const currentDoctor = ref<IDoctorResponse>({} as IDoctorResponse);
-
-//   // function calculateAmountPaid(val: IAppointmentRequest) {
-//   //   if (currentAppointment.value.price == undefined) {
-//   //     currentAppointment.value.price = 0;
-//   //   }
-//   //   if (currentAppointment.value.copayment == undefined) {
-//   //     currentAppointment.value.copayment = 0;
-//   //   }
-
-//   //   currentAppointment.value.amountPaid =
-//   //     +currentAppointment.value.price + +currentAppointment.value.copayment;
-//   // }
-//   function patientStatusChanged(val: IPatientStatus): void {
-//     currentPatientStatus.value = val;
-//   }
-//   async function searchPatient(): Promise<void> {
-//     if (identificationPatient.value === '') {
-//       this.notification.setMessage(this.message.searchIncorrect);
-//       this.notification.showError();
-//       return;
-//     }
-//     let response = {} as HttpResponse<unknown>;
-//     response = await storePatients.getPatientByIdentification(
-//       identificationPatient.value
-//     );
-//     if (response.status == HttpStatusCodes.NO_CONTENT) {
-//       storeSchedule.card = false;
-//       const confirm = await this.serviceModal.showModal(
-//         'Atención',
-//         this.message.notFoundInfoPatient
-//       );
-//       if (confirm == false) {
-//         return;
-//       }
-
-//       storePatients.currentPatient = {
-//         identification: parseInt(identificationPatient.value),
-//       } as IPatientResponse;
-//       routerInstance.push('/patient');
-//       return;
-//     }
-//     response = await storeSchedule.getScheduleByPatientIdentification(
-//       identificationPatient.value
-//     );
-//     if (response.status == HttpStatusCodes.NO_CONTENT) {
-//       this.notification.setMessage(this.message.patientNotSchedule);
-//       this.notification.showWarning();
-//       return;
-//     }
-
-//     const data = (await response.parsedBody) as Array<EventScheduleResponse>;
-
-//     if (data.length == 0) {
-//       const confirm = await this.serviceModal.showModal(
-//         'Atención',
-//         this.message.patientNotSchedule
-//       );
-//       if (confirm == false) {
-//         return;
-//       }
-//       routerInstance.push('/schedule');
-//       return;
-//     }
-
-//     const lastSchedule = data.pop();
-//     if (lastSchedule == undefined || !lastSchedule.id) return;
-//     currentAppointment.value.schedule = lastSchedule.id;
-//     currentAppointment.value.date = date.formatDate(
-//       lastSchedule.start,
-//       Constants.FORMAT_DATETIME
-//     );
-//     currentPatient.value = lastSchedule.patient as IPatientResponse;
-//     currentHealthInsurance.value = lastSchedule.patient
-//       .insurance as IHealthInsurance;
-//     speciality.value = lastSchedule.speciality;
-//     currentDoctor.value = lastSchedule.doctor;
-//   }
-//   async function confirmChanges(): Promise<void> {
-//     const isValid = await formAppointment.value?.validate();
-//     if (isValid == false) {
-//       return;
-//     }
-//     // const dateIsValid = validator.dateGreater(currentAppointment.value.date);
-//     // if (dateIsValid === false) {
-//     //   this.notification.setMessage(this.message.dateOrHourNotValid);
-//     //   this.notification.showError();
-//     //   return;
-//     // }
-
-//     // const responsePatient = await storePatients.getPatientByIdentification(
-//     //   identificationPatient.value
-//     // );
-//     // const patient = (await responsePatient.parsedBody) as IPatientResponse;
-//     if (!currentAppointment.value) return;
-//     let confirmCreate = false;
-//     if (currentAppointment.value.id == undefined) {
-//       confirmCreate = await this.serviceModal.showModal(
-//         'Atención',
-//         this.message.newRegister
-//       );
-//       if (confirmCreate === false) {
-//         return;
-//       }
-//     }
-
-//     if (confirmCreate == true) {
-//       const payload = {
-//         copayment: currentAppointment.value.copayment,
-//         amountPaid: currentAppointment.value.amountPaid,
-//         date: currentAppointment.value.date,
-//         authorizationNumber: currentAppointment.value.authorizationNumber,
-//         patientStatus: currentPatientStatus.value?.id,
-//         reasonConsult: reasonConsult.value?.id,
-//         price: currentAppointment.value.price,
-//         schedule: currentAppointment.value.schedule,
-//         patient: currentPatient.value.id,
-//         doctor: currentDoctor.value.id,
-//       } as IAppointmentRequest;
-//       const responseCreate = await store.createAppointment(payload);
-//       if (
-//         responseCreate == null ||
-//         responseCreate.status == HttpStatusCodes.BAD_REQUEST
-//       ) {
-//         this.notification.setMessage(this.message.errorMessage);
-//         this.notification.showError();
-//         return;
-//       }
-//     }
-
-//     if (currentAppointment.value.id != undefined) {
-//       // const payload = {
-//       //   id: data.id,
-//       //   name: data.name,
-//       //   lastName: data.lastName,
-//       //   IDType: idType.value?.id,
-//       //   identification: data.identification,
-//       //   dateBirth: data.dateBirth,
-//       //   phoneNumber: data.phoneNumber,
-//       //   insurance: insurance.value?.id,
-//       //   gender: gender.value?.id,
-//       //   email: data.email,
-//       // } as IPatientRequest;
-//       // store.updateRelationCode(payload);
-//     }
-//   }
-
-//   return {
-//     // Properties
-//     formAppointment,
-//     reasonConsult,
-//     currentPatient,
-//     currentAppointment,
-//     currentPatientStatus,
-//     currentHealthInsurance,
-//     identificationPatient,
-//     speciality,
-//     // Metodos
-//     confirmChanges,
-//     calculateAmountPaid,
-//     patientStatusChanged,
-//     searchPatient,
-//   };
-// }

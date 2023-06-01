@@ -70,8 +70,8 @@ export class SecretaryStrategy implements StrategyUser {
     this.store.healthInsurances.canCreate = false;
     this.store.doctors.canCreate = false;
     this.store.doctors.canUpdate = false;
-    this.store.specialities.canCreate = false;
-    this.store.specialities.canUpdate = false;
+    this.store.specialities.canCreate = true;
+    this.store.specialities.canUpdate = true;
     this.store.paymentOptions.canCreate = false;
     this.store.paymentOptions.canUpdate = false;
     this.store.dxMainCode.canUpdate = false;

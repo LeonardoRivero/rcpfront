@@ -57,6 +57,9 @@ export class IconSVG {
   get physicalTherapy() {
     return 'img:physical-therapy.svg';
   }
+  get question() {
+    return 'img:question.svg';
+  }
 }
 export enum Gender {
   FEMALE = 1,

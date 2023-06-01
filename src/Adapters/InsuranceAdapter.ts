@@ -1,14 +1,16 @@
-import { Modal } from '../Infraestructure/Utilities/Modal';
 import { InsuranceService } from 'src/Application/Services/InsuranceService';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { IHealthInsurance } from 'src/Domine/ModelsDB';
 import { Convert } from 'src/Application/Utilities';
 import { HealthInsuranceResponse } from 'src/Domine/Responses';
 import { InsuranceState } from 'src/Domine/IStates';
+import { FactoryNotifactors } from './Creators/Factories';
+import { Notificator } from 'src/Domine/IPatterns';
 
 export class InsuranceAdapter {
   private state: InsuranceState;
-  private serviceModal = new Modal();
+  private notifySweetAlert: Notificator =
+    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
   private messages = Messages.getInstance();
   private service = new InsuranceService();
   private static instance: InsuranceAdapter;
@@ -61,7 +63,7 @@ export class InsuranceAdapter {
   private async create(
     payload: IHealthInsurance
   ): Promise<IHealthInsurance | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.messages.newRegister
     );
@@ -76,7 +78,7 @@ export class InsuranceAdapter {
   private async update(
     payload: IHealthInsurance
   ): Promise<IHealthInsurance | null> {
-    const confirm = await this.serviceModal.showModal(
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.messages.updateRegister
     );
@@ -110,14 +112,5 @@ export class InsuranceAdapter {
       takeCopayment: payload.takeCopayment,
     };
     return entity;
-  }
-  public addToArrayDefault(
-    item: HealthInsuranceResponse
-  ): Array<HealthInsuranceResponse> {
-    const insuranceList = this.state.allInsurance.filter(
-      (x) => x.nameInsurance == 'Particular'
-    );
-    insuranceList.push(item);
-    return insuranceList;
   }
 }

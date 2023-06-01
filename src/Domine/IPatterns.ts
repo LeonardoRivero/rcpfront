@@ -6,6 +6,9 @@ export abstract class Controller {
   abstract clear(): void;
   abstract state: object;
   protected mediator: IControllersMediator;
+  public metodoPrueba(): void {
+    console.log('este es el metodo de prueba');
+  }
 
   constructor(mediator?: IControllersMediator) {
     this.mediator = mediator!;
@@ -27,4 +30,21 @@ export interface IControllersMediator {
 export interface StrategyUser {
   store: IStorePermissions | undefined;
   setPermission(): Promise<void>;
+}
+
+export type ModalType = 'sweetAlert' | 'notifyQuasar' | 'modalQuasar';
+export type NotificationType =
+  | 'info'
+  | 'warning'
+  | 'success'
+  | 'error'
+  | 'question';
+
+export interface Notificator {
+  show(title?: string, message?: string): Promise<boolean>;
+  setType(type: NotificationType): void;
+  setTime(timerMs: number): void;
+}
+export interface IFactoryMethodNotifications {
+  createNotificator(notificationType: ModalType): Notificator;
 }

@@ -1,20 +1,18 @@
-import { Notify } from 'quasar';
+import { Notify, Loading } from 'quasar';
 import HttpStatusCodes from 'src/Application/Utilities/HttpStatusCodes';
 import { Messages } from 'src/Application/Utilities/Messages';
-import { Modal } from 'src/Infraestructure/Utilities/Notifications';
 
 const messages = Messages.getInstance();
-const modal = new Modal();
 export async function http(request: RequestInfo): Promise<Response> {
   try {
-    modal.showLoading();
+    Loading.show();
     console.log(request);
     const response: Response = await fetch(request);
     console.log(response);
-    modal.hideLoading();
+    Loading.hide();
     return response;
   } catch (err: any) {
-    modal.hideLoading();
+    Loading.hide();
 
     if (err.name === 'TimeoutError') {
       throw Error('Timeout: It took more than 5 seconds to get the result!');

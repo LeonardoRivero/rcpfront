@@ -118,7 +118,10 @@ export class SpecialityRepository
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');
       }
-      if (response.status == HttpStatusCodes.UNAUTHORIZED) {
+      if (
+        response.status == HttpStatusCodes.UNAUTHORIZED ||
+        response.status == HttpStatusCodes.FORBIDDEN
+      ) {
         return <Array<SpecialityResponse>>[];
       }
       const data: SpecialityResponse[] = await response.json();

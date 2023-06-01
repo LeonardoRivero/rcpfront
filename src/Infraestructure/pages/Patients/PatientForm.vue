@@ -93,7 +93,7 @@
                           v-model="state.idType"
                           :options="state.allIDTypes"
                           option-value="id"
-                          option-label="abbreviation"
+                          option-label="description"
                           map-options
                           label="Tipo Documento *"
                           :hint="`${

@@ -1,5 +1,8 @@
 import { defineStore } from 'pinia';
-import { PathologicalHistoryService } from 'src/Application/Services';
+import {
+  InsuranceService,
+  PathologicalHistoryService,
+} from 'src/Application/Services';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreSettings } from 'src/Domine/IStores';
@@ -10,6 +13,7 @@ import {
   RelationCodeResponse,
   SpecialityResponse,
   Group,
+  HealthInsuranceResponse,
 } from 'src/Domine/Responses';
 
 export class SettingsMediator implements IControllersMediator {
@@ -18,6 +22,7 @@ export class SettingsMediator implements IControllersMediator {
   private static instance: SettingsMediator;
   private service = new PathologicalHistoryService();
   private serviceSpeciality = new SpecialityService();
+  private serviceHealthInsurance = new InsuranceService();
 
   private constructor() {
     this.store = this.createStore();
@@ -33,6 +38,7 @@ export class SettingsMediator implements IControllersMediator {
         currentSpeciality: {} as ISpeciality,
         currentDxMainCode: {} as DXMainCodeResponse,
         allGroups: <Array<Group>>[],
+        allInsurance: <Array<HealthInsuranceResponse>>[],
       }),
       persist: true,
     });
@@ -90,7 +96,7 @@ export class SettingsMediator implements IControllersMediator {
   }
 
   public async getAllSpecialities(): Promise<Array<SpecialityResponse>> {
-    if (this.store.allSpecialities.length != 0) {
+    if (this.store.allSpecialities.length > 0) {
       return this.store.allSpecialities;
     }
     const response = await this.serviceSpeciality.getAll();
@@ -106,5 +112,25 @@ export class SettingsMediator implements IControllersMediator {
     //   return respuesta del mediador
     // }
     // return this.allGroups
+  }
+  public async getAllInsurance(): Promise<Array<HealthInsuranceResponse>> {
+    if (this.store.allInsurance.length > 0) {
+      return this.store.allInsurance;
+    }
+    const response = await this.serviceHealthInsurance.getAll();
+    this.store.allInsurance = response;
+    return response;
+  }
+  public addToArrayDefault(
+    item: HealthInsuranceResponse
+  ): Array<HealthInsuranceResponse> {
+    if (this.store.allInsurance.length == 0) {
+      this.getAllInsurance();
+    }
+    const particular = this.store.allInsurance.filter(
+      (x) => x.nameInsurance == 'Particular'
+    );
+    particular.push(item);
+    return particular;
   }
 }

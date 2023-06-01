@@ -1,10 +1,14 @@
 import { ISpeciality } from 'src/Domine/ModelsDB';
-import { Modal } from '../Infraestructure/Utilities/Modal';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { SpecialityResponse } from 'src/Domine/Responses';
 import { SpecialityFormState } from 'src/Domine/IStates';
-import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
+import {
+  Controller,
+  IControllersMediator,
+  Notificator,
+} from 'src/Domine/IPatterns';
+import { FactoryNotifactors } from './Creators/Factories';
 export class SpecialityController extends Controller {
   sendData(data: unknown): void {
     // this.mediator.handleData();
@@ -13,7 +17,8 @@ export class SpecialityController extends Controller {
     return;
   }
   public state: SpecialityFormState;
-  private serviceModal = new Modal();
+  private notifySweetAlert: Notificator =
+    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
   private messages = Messages.getInstance();
   private service = new SpecialityService();
   private static instance: SpecialityController;
@@ -54,6 +59,7 @@ export class SpecialityController extends Controller {
   }
 
   public async saveOrUpdate(data: ISpeciality | null): Promise<void> {
+    this.metodoPrueba();
     if (!data) return;
 
     let response = null;
@@ -72,7 +78,8 @@ export class SpecialityController extends Controller {
   }
 
   private async save(payload: ISpeciality): Promise<SpecialityResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    this.notifySweetAlert.setType('question');
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
       this.messages.newRegister
     );
@@ -86,10 +93,10 @@ export class SpecialityController extends Controller {
   private async update(
     payload: ISpeciality
   ): Promise<SpecialityResponse | null> {
-    const confirm = await this.serviceModal.showModal(
+    this.notifySweetAlert.setType('question');
+    const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.updateRegister,
-      'question'
+      this.messages.updateRegister
     );
     if (confirm === false) {
       return null;
