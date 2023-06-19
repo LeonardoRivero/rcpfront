@@ -12,6 +12,7 @@ import {
   IReasonConsult,
   IRelationCode,
   ISpeciality,
+  IUser,
 } from './ModelsDB';
 import {
   DXMainCodeResponse,
@@ -119,17 +120,12 @@ export interface PatientState {
 }
 
 export interface UserState {
-  name: string;
-  lastName: string;
   IdType: number | null;
   identification: number | null;
-  dateBirthday: string | Date;
   phoneNumber: number | null;
   groups: Array<number>;
   isActive: boolean;
-  lastLogin: string | Date;
-  dateJoined: string | Date;
-  repassword: string;
+  user: IUser;
 }
 
 export interface ScheduleState {

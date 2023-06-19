@@ -78,10 +78,7 @@
                 label="Descripcion"
                 hint="Descripcion Especialidad"
                 lazy-rules
-                :rules="[
-                  (val) =>
-                    (val && val.length > 0) || 'Descripcion es requerida',
-                ]"
+                :rules="[required]"
               />
               <q-input
                 dense
@@ -91,9 +88,7 @@
                 hint="Codigo Especialidad"
                 lazy-rules
                 type="number"
-                :rules="[
-                  (val) => (val && val.length > 0) || 'Codigo es requerido',
-                ]"
+                :rules="[required]"
               />
               <div>
                 <q-btn label="Guardar" type="submit" color="primary" />
@@ -117,6 +112,7 @@ import { SpecialityFormState } from 'src/Domine/IStates';
 import { SettingsMediator } from '../../Mediators';
 import { IStoreSettings } from 'src/Domine/IStores';
 import { ContextUser } from 'src/Domine/StrategyUser';
+import { required } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -147,6 +143,7 @@ export default defineComponent({
       state,
       icons: IconSVG.getInstance(),
       form,
+      required,
       add() {
         controller.add();
         form.value?.reset();

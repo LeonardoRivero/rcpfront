@@ -142,7 +142,7 @@ export default defineComponent({
     const form = ref<QForm>();
 
     onMounted(async () => {
-      await controller.getAll();
+      state.allInsurance = await controller.getAll();
     });
 
     return {

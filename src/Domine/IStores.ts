@@ -13,6 +13,7 @@ import {
   AuthResponse,
   UserResponse,
   HealthInsuranceResponse,
+  IDTypeResponse,
 } from './Responses';
 
 export interface IStoreClinicHistory {
@@ -32,6 +33,7 @@ export interface IStoreSettings {
   allPathologies: Array<PathologicalHistoryResponse>;
   allRelationCode: Array<RelationCodeResponse>;
   allInsurance: Array<HealthInsuranceResponse>;
+  allIdTypes: Array<IDTypeResponse>;
   currentSpeciality: ISpeciality;
   currentDxMainCode: DXMainCodeResponse | null;
   allGroups: Array<Group>;
@@ -40,6 +42,7 @@ export interface IStoreSettings {
 export interface IStoreUser {
   user: IUser;
   token: AuthResponse;
+  isAuthenticated: boolean;
 }
 
 export interface IStorePermissions {

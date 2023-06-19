@@ -48,29 +48,24 @@
               <div class="row q-col-gutter-x-md">
                 <div class="col-6 col-md">
                   <q-input
-                    v-model="state.name"
+                    v-model="state.user.first_name"
                     :readonly="disable"
                     outlined
                     dense
                     label="Nombres *"
                     lazy-rules
-                    :rules="[
-                      (val) => (val && val.length > 0) || 'Nombres no validos',
-                    ]"
+                    :rules="[required]"
                   />
                 </div>
                 <div class="col-6 col-md">
                   <q-input
-                    v-model="state.lastName"
+                    v-model="state.user.last_name"
                     :readonly="disable"
                     outlined
                     dense
                     label="Apellidos *"
                     lazy-rules
-                    :rules="[
-                      (val) =>
-                        (val && val.length > 0) || 'Apellidos no validos',
-                    ]"
+                    :rules="[required]"
                   />
                 </div>
               </div>
@@ -83,7 +78,7 @@
                     dense
                     type="number"
                     label="Numero Identificacion *"
-                    :rules="[(val) => val > 0 || 'Numero invalido']"
+                    :rules="[numberRequired]"
                   />
                 </div>
                 <div class="col-6 col-md">
@@ -125,11 +120,7 @@
                     :readonly="disable"
                     dense
                     label="Fecha Nacimiento *"
-                    :rules="[
-                      (val) =>
-                        (val && val.length > 0) ||
-                        'Fecha Nacimiento es requerida',
-                    ]"
+                    :rules="[required]"
                   >
                     <template v-slot:append>
                       <q-icon name="event">
@@ -164,8 +155,9 @@
                     label="Correo electronico"
                     dense
                     type="email"
-                    :error="error"
-                    @blur="(evt) => isValidEmail(evt.target.value)"
+                    :rules="[required, emailRequired]"
+                    lazy-rules
+                    v-model="state.user.email"
                   />
                 </div>
               </div>
@@ -198,6 +190,14 @@ import { UserState } from 'src/Domine/IStates';
 import { IconSVG } from 'src/Application/Utilities';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import { Group, IDTypeResponse } from 'src/Domine/Responses';
+import {
+  required,
+  emailRequired,
+  numberRequired,
+} from 'src/Application/Utilities/Helpers';
+import { UserController } from 'src/Adapters/UserController';
+import { QForm } from 'quasar';
+import { IUser } from 'src/Domine/ModelsDB';
 import { IDTypesRepository } from 'src/Application/Repositories';
 
 export default defineComponent({
@@ -205,39 +205,48 @@ export default defineComponent({
   setup() {
     const icons = IconSVG.getInstance();
     const state: UserState = reactive({
-      name: '',
-      lastName: '',
-      email: '',
       IdType: null,
-      identification: null,
-      dateBirthday: '',
-      phoneNumber: null,
+      identification: 1231231245,
+      phoneNumber: 3184970474,
       groups: [],
       isActive: true,
-      lastLogin: '',
-      dateJoined: '',
-      repassword: '',
-      password: '',
-      username: '',
+      user: {
+        first_name: '',
+        last_name: '',
+        email: '',
+        password1: 'Rock1989#',
+        password2: 'Rock1989#',
+      } as IUser,
     });
+    const form = ref<QForm>();
     const mediator = SettingsMediator.getInstance();
-    let allGroups = <Array<Group>>[];
-    const idTypesRepository = new IDTypesRepository();
+    const allGroups = ref<Array<Group>>([]);
     const allIDTypes = ref<Array<IDTypeResponse>>([]);
+    const controller = UserController.getInstance(state);
+
+    const idTypesRepository = new IDTypesRepository();
     onMounted(async () => {
-      allGroups = await mediator.getAllGroups();
+      allGroups.value = await mediator.getAllGroups();
       const idTypes = await idTypesRepository.getAll();
       console.log(idTypes);
       allIDTypes.value = idTypes == null ? [] : idTypes;
     });
     return {
+      required,
+      numberRequired,
+      emailRequired,
+      form,
       icons,
       state,
       disable: false,
       allGroups,
       allIDTypes,
       async confirmChanges() {
-        console.log('confirmChanges');
+        const isValid = await form.value?.validate();
+        if (isValid == false) {
+          return;
+        }
+        await controller.saveOrUpdate();
       },
     };
   },

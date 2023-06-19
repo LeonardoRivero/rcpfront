@@ -1,10 +1,8 @@
 <template>
   <q-card class="rounded-borders">
     <q-toolbar class="rounded-borders">
-      <h5 class="text-h6 q-ma-md">
-        Datos Paciente:
-        <q-avatar :icon="state.iconAvatar" color="white" size="2rem"></q-avatar>
-      </h5>
+      <h5 class="text-h5 q-ma-none" v-if="!$q.screen.xs">Datos Paciente:</h5>
+      <q-icon :name="state.iconAvatar" color="white" size="40px"></q-icon>
       <q-space />
       <q-input
         dense

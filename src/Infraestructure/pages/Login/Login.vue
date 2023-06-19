@@ -22,7 +22,7 @@
                     v-model="email"
                     type="email"
                     lazy-rules
-                    :rules="[required, isEmail, short]"
+                    :rules="[required, emailRequired, short]"
                     label="Email"
                   >
                     <template v-slot:prepend>
@@ -116,8 +116,10 @@
 </template>
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { routerInstance } from 'src/boot/globalRouter';
 import { QForm } from 'quasar';
+import { routerInstance } from 'src/boot/globalRouter';
+import { storeToRefs } from 'pinia';
+import { useStoreUser } from 'src/Infraestructure/Mediators/UserMediator';
 import { UserService } from 'src/Application/Services/UserService';
 import { login } from 'src/Domine/types';
 import {
@@ -126,6 +128,12 @@ import {
   SecretaryStrategy,
 } from 'src/Domine/StrategyUser';
 import { StrategyUser } from 'src/Domine/IPatterns';
+import {
+  required,
+  emailRequired,
+  short,
+  noSpaces,
+} from 'src/Application/Utilities/Helpers';
 
 export default defineComponent({
   name: 'LoginUser',
@@ -141,27 +149,13 @@ export default defineComponent({
     };
 
     return {
-      required(val: string) {
-        return (val && val.length > 0) || 'Campo requerido';
-      },
+      required,
       // diffPassword(val: string) {
       //   return password.value == repassword.value || 'Password no coinciden!';
       // },
-      short(val: string) {
-        return (val && val.length > 3) || 'Longitud mayor a 3 caracteres';
-      },
-      isEmail(val: string) {
-        const emailPattern =
-          /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
-        return emailPattern.test(val) || 'email Invalido';
-      },
-      noSpaces(val: string) {
-        const noSpacesPattern = /^[-\w\.\$@\*\!]{8,150}$/;
-        return (
-          noSpacesPattern.test(val) ||
-          'Minimo 8 caracteres. Únicamente letras, dígitos y @ . + - _'
-        );
-      },
+      short,
+      emailRequired,
+      noSpaces,
       async login() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;
@@ -180,6 +174,8 @@ export default defineComponent({
         const contextUser = ContextUser.getInstance(strategy);
         contextUser.setUserData(response.user);
         await contextUser.execute();
+        const { isAuthenticated } = storeToRefs(useStoreUser());
+        isAuthenticated.value = true;
         routerInstance.push('/index');
       },
       // async register() {

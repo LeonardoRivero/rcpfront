@@ -83,9 +83,7 @@
                 label="Codigo Relacionado"
                 maxlength="10"
                 lazy-rules
-                :rules="[
-                  (val) => (val && val.length > 0) || 'Codigo es requerido',
-                ]"
+                :rules="[required]"
               />
               <q-input
                 dense
@@ -93,10 +91,7 @@
                 v-model="state.currentRelationCode.description"
                 label="Descripcion Codigo Relacionado"
                 lazy-rules
-                :rules="[
-                  (val) =>
-                    (val && val.length > 0) || 'Descripcion es requerida',
-                ]"
+                :rules="[required]"
               />
               <div>
                 <q-btn label="Guardar" type="submit" color="primary" />
@@ -117,6 +112,7 @@ import { IconSVG } from 'src/Application/Utilities';
 import { RelationCodeState } from 'src/Domine/IStates';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import { IStoreSettings } from 'src/Domine/IStores';
+import { required } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -141,6 +137,7 @@ export default defineComponent({
       store,
       icons: IconSVG.getInstance(),
       form,
+      required,
       edit() {
         controller.edit();
       },

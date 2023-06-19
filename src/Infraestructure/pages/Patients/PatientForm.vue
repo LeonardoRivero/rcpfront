@@ -25,7 +25,7 @@
                   dense
                   type="number"
                   @keydown.enter.prevent="searchPatient"
-                  :rules="[(val) => val > 0 || 'Numero invalido']"
+                  :rules="[numberRequired]"
                 >
                   <template v-slot:append
                     ><q-btn
@@ -81,7 +81,7 @@
                           v-model="state.currentPatient.identification"
                           label="Numero Identificacion *"
                           lazy-rules
-                          :rules="[required]"
+                          :rules="[required, numberRequired]"
                         />
                       </div>
                       <div class="col-6 col-md">
@@ -96,17 +96,8 @@
                           option-label="description"
                           map-options
                           label="Tipo Documento *"
-                          :hint="`${
-                            state.currentPatient.IDType == undefined
-                              ? ''
-                              : state.currentPatient.IDType.description
-                          }`"
                           @update:model-value="(val) => idTypeChanged(val)"
-                          :rules="[
-                            (val) =>
-                              (val && val != null) ||
-                              'Tipo documento no valido',
-                          ]"
+                          :rules="[isNotNull]"
                         >
                         </q-select>
                       </div>
@@ -177,10 +168,7 @@
                           map-options
                           label="Entidad *"
                           @update:model-value="(val) => insuranceChanged(val)"
-                          :rules="[
-                            (val) =>
-                              (val && val != null) || 'Entidad es requerida',
-                          ]"
+                          :rules="[isNotNull]"
                         >
                         </q-select>
                       </div>
@@ -197,10 +185,7 @@
                           map-options
                           label="Genero *"
                           @update:model-value="(val) => genderChanged(val)"
-                          :rules="[
-                            (val) =>
-                              (val && val != null) || 'Genero es requerido',
-                          ]"
+                          :rules="[isNotNull]"
                         >
                         </q-select>
                       </div>
@@ -276,6 +261,12 @@ import {
 } from 'src/Domine/Responses';
 import { QForm } from 'quasar';
 import { PatientController } from 'src/Adapters';
+import {
+  required,
+  emailRequired,
+  isNotNull,
+  numberRequired,
+} from 'src/Application/Utilities/Helpers';
 
 export default defineComponent({
   setup() {
@@ -311,9 +302,10 @@ export default defineComponent({
     return {
       state,
       form,
-      required(val: string) {
-        return (val && val.length > 0) || 'Campo requerido';
-      },
+      required,
+      emailRequired,
+      numberRequired,
+      isNotNull,
       icons: IconSVG.getInstance(),
       async confirmChanges() {
         const isValid = await form.value?.validate();

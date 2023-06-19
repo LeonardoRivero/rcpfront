@@ -1,6 +1,7 @@
 <template>
   <div class="row q-col-gutter-x-md">
     <div>
+      <!-- <Login /> -->
       <Patients />
     </div>
     <!-- <div class="col-12 col-md"><DataTable /></div> -->

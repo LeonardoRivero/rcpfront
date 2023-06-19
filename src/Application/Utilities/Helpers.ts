@@ -117,8 +117,18 @@ export class Validators {
     const result = Math.abs(ageDate.getUTCFullYear() - BASE_YEAR);
     return result;
   }
+  public randomPassword(): string {
+    const chars =
+      '0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const passwordLength = 12;
+    let password = '';
+    for (let i = 0; i <= passwordLength; i++) {
+      const randomNumber = Math.floor(Math.random() * chars.length);
+      password += chars.substring(randomNumber, randomNumber + 1);
+    }
+    return password;
+  }
 }
-
 export class Convert {
   public toTitle(sentence: string): string {
     const stringLowered = sentence.toLowerCase();
@@ -130,3 +140,22 @@ export class Convert {
     return result;
   }
 }
+
+const emailPattern =
+  /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
+const noSpacesPattern = /^[-\w\.\$@\*\!]{8,150}$/;
+
+export const emailRequired = (val: string) =>
+  emailPattern.test(val) || 'Email invalido';
+
+export const required = (val: any) =>
+  (val && val.length > 0) || 'Campo requerido';
+
+export const numberRequired = (val: any) => val > 0 || 'Numero invalido';
+export const isNotNull = (val: any) => (val && val != null) || 'Campo nulo';
+export const short = (val: string) =>
+  (val && val.length > 3) || 'Longitud mayor a 3 caracteres';
+
+export const noSpaces = (val: string) =>
+  noSpacesPattern.test(val) ||
+  'Minimo 8 caracteres. Únicamente letras, dígitos y @ . + - _';

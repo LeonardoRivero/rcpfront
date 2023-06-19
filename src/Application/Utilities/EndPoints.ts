@@ -3,7 +3,7 @@ export class EndPoints {
   private domine: string;
   private constructor() {
     if (process.env.NODE_ENV == 'development') {
-      this.domine = process.env.PUBLIC == undefined ? '' : process.env.PUBLIC;
+      this.domine = process.env.LOCAL == undefined ? '' : process.env.LOCAL;
       return;
     }
     this.domine = process.env.PUBLIC == undefined ? '' : process.env.PUBLIC;

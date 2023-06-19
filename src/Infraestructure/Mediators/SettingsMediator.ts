@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { IDTypesRepository } from 'src/Application/Repositories';
 import {
   InsuranceService,
   PathologicalHistoryService,
@@ -14,6 +15,7 @@ import {
   SpecialityResponse,
   Group,
   HealthInsuranceResponse,
+  IDTypeResponse,
 } from 'src/Domine/Responses';
 
 export class SettingsMediator implements IControllersMediator {
@@ -35,6 +37,7 @@ export class SettingsMediator implements IControllersMediator {
         allSpecialities: <Array<SpecialityResponse>>[],
         allPathologies: <Array<PathologicalHistoryResponse>>[],
         allRelationCode: <Array<RelationCodeResponse>>[],
+        allIdTypes: <Array<IDTypeResponse>>[],
         currentSpeciality: {} as ISpeciality,
         currentDxMainCode: {} as DXMainCodeResponse,
         allGroups: <Array<Group>>[],
@@ -112,6 +115,20 @@ export class SettingsMediator implements IControllersMediator {
     //   return respuesta del mediador
     // }
     // return this.allGroups
+  }
+  public async getAllIdTypes(): Promise<Array<IDTypeResponse>> {
+    if (this.store.allIdTypes.length != 0) {
+      console.log(this.store.allIdTypes);
+      return this.store.allIdTypes;
+    }
+    const idTypesRepository = new IDTypesRepository();
+    let response = await idTypesRepository.getAll();
+    console.log(response);
+    if (response == null) {
+      response = <Array<IDTypeResponse>>[];
+    }
+    this.store.allIdTypes = response;
+    return response;
   }
   public async getAllInsurance(): Promise<Array<HealthInsuranceResponse>> {
     if (this.store.allInsurance.length > 0) {

@@ -1,7 +1,7 @@
 import { IUser } from 'src/Domine/ModelsDB';
 import { POST } from 'src/Infraestructure/Utilities/Request';
 import { IUserRepository } from './Interface';
-import { UserResponse } from 'src/Domine/Responses';
+import { RegisterResponse, UserResponse } from 'src/Domine/Responses';
 import { EndPoints } from '../Utilities/EndPoints';
 import { login } from 'src/Domine/types';
 
@@ -11,9 +11,6 @@ export class UserRepository implements IUserRepository<IUser, UserResponse> {
   }
   getAll(): Promise<UserResponse[] | null> {
     throw new Error('Method not implemented.');
-  }
-  create(entity: IUser): Promise<UserResponse | null> {
-    throw new Error('Method not implemented.' + entity);
   }
   update(entity: Partial<IUser>): Promise<UserResponse | null> {
     throw new Error('Method not implemented.' + entity);
@@ -25,13 +22,14 @@ export class UserRepository implements IUserRepository<IUser, UserResponse> {
     throw new Error('Method not implemented.' + parameters);
   }
 
-  async register(entity: IUser): Promise<UserResponse | null> {
+  async create(entity: IUser): Promise<RegisterResponse | null> {
     const url = EndPoints.buildFullUrl(process.env.REGISTRATION);
     try {
+      console.log({ entity });
       const response = await POST(url, entity);
-
+      console.log(response);
       if (!response.ok) return null;
-      const data: UserResponse = await response.json();
+      const data: RegisterResponse = await response.json();
       return data;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -42,7 +40,6 @@ export class UserRepository implements IUserRepository<IUser, UserResponse> {
     const url = EndPoints.buildFullUrl(process.env.LOGIN);
     try {
       const response = await POST(url, payload);
-      console.log(response);
       // if (response.status == HttpStatusCode.UNAUTHORIZED) return null;
       // if (!response.ok) return null;
       // const data: TokenJWT = await response.json();
@@ -77,6 +74,16 @@ export class UserRepository implements IUserRepository<IUser, UserResponse> {
       // if (!response.ok) return null;
       // const data: TokenJWT = await response.json();
       // console.log({ data });
+      return response;
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
+  }
+
+  public async logout(): Promise<Response> {
+    const url = EndPoints.buildFullUrl(process.env.LOGOUT);
+    try {
+      const response = await POST(url, null);
       return response;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);

@@ -53,7 +53,7 @@
                     emit-value
                     :option-value="(item) => (item === null ? null : item.id)"
                     label="Especialidad"
-                    :rules="[(val) => val || 'Especialidad es requerida']"
+                    :rules="[required]"
                     @update:model-value="(val) => specialityChanged(val)"
                   >
                   </q-select>
@@ -67,10 +67,7 @@
                     label="Parametro Examen Fisico"
                     dense
                     lazy-rules
-                    :rules="[
-                      (val) =>
-                        (val && val.length > 0) || 'Descripcion es requerida',
-                    ]"
+                    :rules="[required]"
                   />
                 </div>
                 <div class="col-3 col-md-3 col-sm-12 col-xs-12">
@@ -78,10 +75,7 @@
                     :disable="state.disable"
                     v-model="state.currentPhysicalExamParameter.active"
                     label="Estado"
-                    :rules="[
-                      (val) =>
-                        (val && val == undefined) || 'Estado es requerido',
-                    ]"
+                    :rules="[required]"
                   >
                     <q-tooltip transition-show="scale" transition-hide="scale">
                       Activo/Inactivo
@@ -123,6 +117,7 @@ import { SettingsMediator } from '../../Mediators';
 import { PhysicalExamParameterState } from 'src/Domine/IStates';
 import { PhysicalExamResponse } from 'src/Domine/Responses';
 import { QForm } from 'quasar';
+import { required } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -171,6 +166,7 @@ export default defineComponent({
       form,
       disable,
       userCanEdit,
+      required,
       async confirmChanges() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;

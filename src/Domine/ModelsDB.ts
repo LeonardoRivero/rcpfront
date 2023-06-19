@@ -99,7 +99,15 @@ export interface IPathologycalHistory {
   description: string;
 }
 export interface IUser {
-  id: number;
-  username: string;
+  id?: number;
   email: string;
+  first_name: string;
+  last_name: string;
+  password1: string;
+  password2: string;
+  first_time: boolean;
+}
+export interface ILogin {
+  email: string;
+  password: string;
 }

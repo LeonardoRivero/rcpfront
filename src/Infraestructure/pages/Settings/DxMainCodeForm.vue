@@ -77,9 +77,7 @@
                 label="Codigo CUP"
                 maxlength="10"
                 lazy-rules
-                :rules="[
-                  (val) => (val && val.length > 0) || 'Codigo es requerido',
-                ]"
+                :rules="[required]"
               />
               <q-input
                 dense
@@ -87,10 +85,7 @@
                 v-model="state.currentDxMainCode.description"
                 label="Descripcion Codigo CUP"
                 lazy-rules
-                :rules="[
-                  (val) =>
-                    (val && val.length > 0) || 'Descripcion es requerida',
-                ]"
+                :rules="[required]"
               />
               <div>
                 <q-btn label="Guardar" type="submit" color="primary" />
@@ -113,6 +108,7 @@ import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import { DxMainCodeState } from 'src/Domine/IStates';
 import { IStoreSettings } from 'src/Domine/IStores';
 import { IDXMainCode } from 'src/Domine/ModelsDB';
+import { required } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -137,6 +133,7 @@ export default defineComponent({
       icons: IconSVG.getInstance(),
       store,
       form,
+      required,
       async clearDxMainCode() {
         await controller.clear();
       },

@@ -7,7 +7,8 @@ import {
 } from 'vue-router';
 
 import routes from './routes';
-
+import { useStoreUser } from 'src/Infraestructure/Mediators/UserMediator';
+import { storeToRefs } from 'pinia';
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -38,11 +39,9 @@ export default route(function (/* { store, ssrContext } */) {
   //   // redirect to login page if not logged in and trying to access a restricted page
   //   const publicPages = ['/'];
   //   const authRequired = !publicPages.includes(to.path);
-  //   // const auth = useAuthStore();
+  //   const { isAuthenticated } = storeToRefs(useStoreUser());
 
-  //   if (authRequired && true) {
-  //     // auth.returnUrl = to.fullPath;
-  //     console.log(authRequired);
+  //   if (authRequired && isAuthenticated.value == false) {
   //     return '/';
   //   }
   // });

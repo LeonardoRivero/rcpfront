@@ -14,6 +14,7 @@
           Registro Clinico de Pacientes
         </q-toolbar-title>
         <div>R.C.P Version(Beta)</div>
+        <q-space v-if="$q.screen.xs" />
         <q-btn dense flat no-wrap>
           <q-avatar color="white" text-color="primary">{{
             initialLetters
@@ -46,7 +47,7 @@
               <q-item clickable class="GL__menu-link">
                 <q-item-section>Configuracion</q-item-section>
               </q-item>
-              <q-item clickable class="GL__menu-link">
+              <q-item @click="logout()" clickable class="GL__menu-link">
                 <q-item-section>Cerrar Sesion</q-item-section>
               </q-item>
             </q-list>
@@ -75,8 +76,12 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import { storeToRefs } from 'pinia';
 import EssentialLink from 'src/Infraestructure/components/EssentialLink.vue';
 import { ContextUser } from 'src/Domine/StrategyUser';
+import { UserService } from 'src/Application/Services/UserService';
+import { routerInstance } from 'src/boot/globalRouter';
+import { useStoreUser } from 'src/Infraestructure/Mediators/UserMediator';
 
 const linksList = [
   {
@@ -133,6 +138,7 @@ export default defineComponent({
     const last_name =
       storePermissions.userData.last_name == '' ? 'Arenas' : 'Arenas';
     const initialLetters: string = name.charAt(0).concat(last_name.charAt(0));
+    const userService = new UserService();
     return {
       initialLetters,
       name,
@@ -140,6 +146,13 @@ export default defineComponent({
       leftDrawerOpen,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
+      },
+      async logout() {
+        await userService.logout();
+        const store = useStoreUser();
+        const { isAuthenticated } = storeToRefs(store);
+        isAuthenticated.value = false;
+        routerInstance.push('/');
       },
     };
   },

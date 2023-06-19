@@ -109,6 +109,10 @@ export interface UserResponse {
   is_active: boolean;
   groups: Array<Group>;
 }
+
+export interface RegisterResponse {
+  detail: string;
+}
 export interface AuthResponse {
   access_token: string;
   refresh_token: string;

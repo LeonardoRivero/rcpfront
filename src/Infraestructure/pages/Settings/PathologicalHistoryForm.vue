@@ -18,7 +18,7 @@
           option-label="description"
           map-options
           label="Patologia"
-          :rules="[(val) => val || 'Campo requerido']"
+          :rules="[required]"
           @update:model-value="(val) => pathologyChanged(val)"
           @clear="(val) => clear(val)"
         >
@@ -64,7 +64,7 @@
                 label="Descripcion"
                 hint="Descripcion Patologia"
                 lazy-rules
-                :rules="[(val) => (val && val.length > 0) || 'Campo requerido']"
+                :rules="[required]"
               />
               <div>
                 <q-btn label="Guardar" type="submit" color="primary" />
@@ -85,6 +85,7 @@ import { PathologicalHistoryAdapter } from 'src/Adapters/PathologicalHistoryAdap
 import { PathologicalHistoryResponse } from 'src/Domine/Responses';
 import { PathologicalHistoryState } from 'src/Domine/IStates';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
+import { required } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -108,6 +109,7 @@ export default defineComponent({
     return {
       state,
       form,
+      required,
       add() {
         state.expanded = true;
         state.currentPathology = {} as IPathologycalHistory;
