@@ -111,3 +111,7 @@ export interface ILogin {
   email: string;
   password: string;
 }
+
+export interface IKeyEmailRegistration {
+  key: string;
+}

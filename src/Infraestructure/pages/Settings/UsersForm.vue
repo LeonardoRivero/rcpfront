@@ -206,8 +206,8 @@ export default defineComponent({
     const icons = IconSVG.getInstance();
     const state: UserState = reactive({
       IdType: null,
-      identification: 1231231245,
-      phoneNumber: 3184970474,
+      identification: null,
+      phoneNumber: null,
       groups: [],
       isActive: true,
       user: {

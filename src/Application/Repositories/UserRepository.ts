@@ -1,4 +1,4 @@
-import { IUser } from 'src/Domine/ModelsDB';
+import { IKeyEmailRegistration, IUser } from 'src/Domine/ModelsDB';
 import { POST } from 'src/Infraestructure/Utilities/Request';
 import { IUserRepository } from './Interface';
 import { RegisterResponse, UserResponse } from 'src/Domine/Responses';
@@ -21,8 +21,11 @@ export class UserRepository implements IUserRepository<IUser, UserResponse> {
   findByParameters(parameters: object): Promise<UserResponse[]> {
     throw new Error('Method not implemented.' + parameters);
   }
+  create(parameters: IUser): Promise<UserResponse> {
+    throw new Error('Method not implemented.' + parameters);
+  }
 
-  async create(entity: IUser): Promise<RegisterResponse | null> {
+  async register(entity: IUser): Promise<RegisterResponse | null> {
     const url = EndPoints.buildFullUrl(process.env.REGISTRATION);
     try {
       console.log({ entity });
@@ -85,6 +88,16 @@ export class UserRepository implements IUserRepository<IUser, UserResponse> {
     try {
       const response = await POST(url, null);
       return response;
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
+  }
+  public async confirmEmailRegistration(
+    key: IKeyEmailRegistration
+  ): Promise<Response> {
+    const url = EndPoints.buildFullUrl(process.env.CONFIRM_EMAIL_REGISTRATION);
+    try {
+      return await POST(url, key);
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }

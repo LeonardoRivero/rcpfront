@@ -1,4 +1,4 @@
-import { ILogin, IUser } from 'src/Domine/ModelsDB';
+import { IKeyEmailRegistration, ILogin, IUser } from 'src/Domine/ModelsDB';
 import { IUserRepository } from '../Repositories/Interface';
 import { UserRepository } from '../Repositories/UserRepository';
 import {
@@ -9,6 +9,7 @@ import {
 } from 'src/Domine/Responses';
 import { login } from 'src/Domine/types';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
+import { Http2ServerRequest, Http2ServerResponse } from 'http2';
 
 type responses = UserResponse | RegisterResponse;
 export abstract class LoginService {
@@ -64,6 +65,11 @@ export class UserService extends LoginService {
   }
   public async register(user: IUser): Promise<RegisterResponse | null> {
     console.log('consumir servicio register');
-    return await this.userRepository.create(user);
+    return await this.userRepository.register(user);
+  }
+  public async confirmEmailRegistration(
+    key: IKeyEmailRegistration
+  ): Promise<Response> {
+    return await this.userRepository.confirmEmailRegistration(key);
   }
 }

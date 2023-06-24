@@ -1,6 +1,6 @@
 <template>
   <div id="q-app">
-    <q-layout view="lHh Lpr fff">
+    <q-layout view="lHh Lpr fff" class="bg-image">
       <q-page
         class="window-height window-width row justify-center items-center"
       >
@@ -139,8 +139,8 @@ export default defineComponent({
   name: 'LoginUser',
   setup() {
     const form = ref<QForm>();
-    const email = ref<string>('carmen@yopmail.com');
-    const password = ref<string>('Rock1989#');
+    const email = ref<string>('');
+    const password = ref<string>('');
     const labelMessage = ref<string>('');
     const userService = new UserService();
     const profilesUser: Record<string, StrategyUser> = {
@@ -160,12 +160,13 @@ export default defineComponent({
         const isValid = await form.value?.validate();
         if (isValid == false) return;
         const payload: login = {
-          email: 'carmen@yopmail.com',
-          password: 'Rock1989#',
+          email: email.value,
+          password: password.value,
         };
         const response = await userService.login(payload);
         if (response == null) {
-          labelMessage.value = 'algo salio mal';
+          labelMessage.value =
+            'Email o contraseña incorrecta. Intentelo de nuevo o comuniquise con el administrador del sistema';
           return;
         }
         // const namegroup = response.user.groups[0].name.toString();
@@ -213,3 +214,12 @@ export default defineComponent({
   },
 });
 </script>
+<style>
+.bg-image {
+  background-image: url(https://www.vivalink.com/hubfs/New%20Site/iStock-861104740.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 100vw;
+  height: 100vh;
+}
+</style>

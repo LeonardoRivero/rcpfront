@@ -43,6 +43,10 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: '/verifyemail/:keyemail(\\w+:[\\w&.:-]+)',
+    component: () => import('src/Infraestructure/pages/ConfirmEmail.vue'),
+  },
   // Always leave this as last one,
   // but you can also remove it
   {
