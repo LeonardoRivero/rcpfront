@@ -92,7 +92,7 @@ export class ScheduleRepository
     parameters: object
   ): Promise<Array<EventScheduleResponse>> {
     const urlBase = EndPoints.buildFullUrl(process.env.SCHEDULE);
-    const url = endpoint.urlQueryParameter(urlBase, parameters);
+    const url = EndPoints.urlQueryParameter(urlBase, parameters);
     const response = await GET(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];

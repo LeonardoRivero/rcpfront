@@ -32,7 +32,11 @@ export interface StrategyUser {
   setPermission(): Promise<void>;
 }
 
-export type ModalType = 'sweetAlert' | 'notifyQuasar' | 'modalQuasar';
+export type ModalType =
+  | 'sweetAlert'
+  | 'notifyQuasar'
+  | 'modalQuasar'
+  | 'drawAttention';
 export type NotificationType =
   | 'info'
   | 'warning'

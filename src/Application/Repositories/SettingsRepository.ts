@@ -17,7 +17,7 @@ import {
   PUT,
   handleResponse,
 } from 'src/Infraestructure/Utilities/Request';
-import { IRepository } from './Interface';
+import { AbstractRepository, IRepository } from './Interface';
 import {
   DXMainCodeResponse,
   DoctorResponse,
@@ -84,7 +84,7 @@ export class PhysicalExamParameterRepository
   }
   async findByParameters(parameters: object): Promise<PhysicalExamResponse[]> {
     const urlBase = EndPoints.buildFullUrl(process.env.PHYSICAL_EXAM_PARAMETER);
-    const url = endpoint.urlQueryParameter(urlBase, parameters);
+    const url = EndPoints.urlQueryParameter(urlBase, parameters);
     const response = await GET(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
@@ -258,6 +258,15 @@ export class InsuranceRepository
   }
 }
 
+export class DxMainCodeRepositor extends AbstractRepository<IDXMainCode> {
+  public url: string;
+  public urlWithParameters: string;
+  public constructor() {
+    super();
+    this.url = process.env.GENDER == undefined ? '' : process.env.GENDER;
+    this.urlWithParameters = '';
+  }
+}
 export class DxMainCodeRepository
   implements IRepository<IDXMainCode, DXMainCodeResponse>
 {
@@ -275,7 +284,7 @@ export class DxMainCodeRepository
     queryParameters: object
   ): Promise<DXMainCodeResponse[]> {
     const urlBase = EndPoints.buildFullUrl(process.env.DX_MAIN_CODE);
-    const url = endpoint.urlQueryParameter(urlBase, queryParameters);
+    const url = EndPoints.urlQueryParameter(urlBase, queryParameters);
     const response = await GET(url);
     const data: DXMainCodeResponse[] = await response.json();
     return data;
@@ -408,7 +417,7 @@ export class RelationCodeRepository
     parameters: object
   ): Promise<RelationCodeResponse[]> {
     const urlBase = EndPoints.buildFullUrl(process.env.RELATION_CODE);
-    const url = endpoint.urlQueryParameter(urlBase, parameters);
+    const url = EndPoints.urlQueryParameter(urlBase, parameters);
     const response = await GET(url);
     const data: RelationCodeResponse[] = await response.json();
     return data;
@@ -470,7 +479,7 @@ export class DoctorRepository implements IRepository<IDoctor, DoctorResponse> {
   public async findByParameters(parameters: object): Promise<DoctorResponse[]> {
     try {
       const urlBase = EndPoints.buildFullUrl(process.env.DOCTOR);
-      const url = endpoint.urlQueryParameter(urlBase, parameters);
+      const url = EndPoints.urlQueryParameter(urlBase, parameters);
       const response = await GET(url);
       if (response.status == HttpStatusCodes.NOT_FOUND) {
         routerInstance.push('/:catchAll');

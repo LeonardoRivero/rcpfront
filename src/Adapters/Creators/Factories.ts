@@ -7,6 +7,7 @@ import {
   DialogQuasar,
   Notification,
   SweetAlertModal,
+  SweetDrawAttention,
 } from 'src/Infraestructure/Utilities/Notifications';
 
 export class FactoryNotifactors implements IFactoryMethodNotifications {
@@ -29,6 +30,9 @@ export class FactoryNotifactors implements IFactoryMethodNotifications {
     }
     if (notificationType == 'modalQuasar') {
       return new DialogQuasar();
+    }
+    if (notificationType == 'drawAttention') {
+      return new SweetDrawAttention();
     }
     throw new Error('Notificacion type is not available');
   }

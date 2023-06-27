@@ -7,7 +7,7 @@
         <div class="column q-pa-lg">
           <div class="row">
             <q-card
-              square
+              bordered
               class="shadow-24"
               style="width: 400px; height: 540px"
             >
@@ -29,20 +29,6 @@
                       <q-icon name="email" />
                     </template>
                   </q-input>
-                  <!-- <q-input
-                    v-if="state.register"
-                    square
-                    clearable
-                    v-model="state.username"
-                    lazy-rules
-                    :rules="[required, short, noSpaces]"
-                    type="username"
-                    label="Nombre Usuario"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="person" />
-                    </template>
-                  </q-input> -->
                   <q-input
                     square
                     clearable
@@ -56,27 +42,6 @@
                       <q-icon name="lock" />
                     </template>
                   </q-input>
-                  <!-- <q-input
-                    v-if="state.register"
-                    square
-                    clearable
-                    v-model="state.repassword"
-                    :type="state.passwordFieldType"
-                    lazy-rules
-                    :rules="[required, short, diffPassword]"
-                    label="Confirmacion Contraseña"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="lock" />
-                    </template>
-                    <template v-slot:append>
-                      <q-icon
-                        :name="state.visibilityIcon"
-                        @click="switchVisibility"
-                        class="cursor-pointer"
-                      />
-                    </template>
-                  </q-input> -->
                   <q-item-section>
                     <q-item-label class="text-center text-red">
                       {{ labelMessage }}
@@ -84,7 +49,6 @@
                   </q-item-section>
                 </q-form>
               </q-card-section>
-
               <q-card-actions class="q-px-lg">
                 <q-btn
                   unelevated
@@ -94,15 +58,6 @@
                   class="full-width text-white"
                   label="Ingresar"
                 />
-                <!-- <q-btn
-                  v-if="state.register"
-                  unelevated
-                  size="lg"
-                  color="secondary"
-                  @click="register()"
-                  class="full-width text-white"
-                  label="Register"
-                /> -->
               </q-card-actions>
               <q-card-section class="text-center q-pa-sm">
                 <p class="text-grey-6">Olvidaste tu contraseña?</p>
@@ -115,11 +70,14 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import { QForm } from 'quasar';
 import { routerInstance } from 'src/boot/globalRouter';
 import { storeToRefs } from 'pinia';
-import { useStoreUser } from 'src/Infraestructure/Mediators/UserMediator';
+import {
+  UserMediator,
+  useStoreUser,
+} from 'src/Infraestructure/Mediators/UserMediator';
 import { UserService } from 'src/Application/Services/UserService';
 import { login } from 'src/Domine/types';
 import {
@@ -127,13 +85,16 @@ import {
   DoctorStrategy,
   SecretaryStrategy,
 } from 'src/Domine/StrategyUser';
-import { StrategyUser } from 'src/Domine/IPatterns';
+import { Notificator, StrategyUser } from 'src/Domine/IPatterns';
 import {
   required,
   emailRequired,
   short,
   noSpaces,
 } from 'src/Application/Utilities/Helpers';
+import { IKeyEmailRegistration } from 'src/Domine/ModelsDB';
+import HttpStatusCode from 'src/Application/Utilities/HttpStatusCodes';
+import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 
 export default defineComponent({
   name: 'LoginUser',
@@ -147,7 +108,25 @@ export default defineComponent({
       Secretaria: new SecretaryStrategy(),
       Doctor: new DoctorStrategy(),
     };
+    const notifySweetAlert: Notificator =
+      FactoryNotifactors.getInstance().createNotificator('drawAttention');
 
+    onMounted(async () => {
+      if (window.location.pathname == '/') return;
+      const path = window.location.pathname.split('/');
+      const key: IKeyEmailRegistration = { key: path[2] };
+      const response = await userService.confirmEmailRegistration(key);
+      if (response.status != HttpStatusCode.OK) {
+        notifySweetAlert.setType('error');
+        await notifySweetAlert.show(
+          undefined,
+          'No fue posible verificar su email.'
+        );
+        return;
+      }
+      notifySweetAlert.setType('success');
+      notifySweetAlert.show(undefined, 'Email verificado correctamente');
+    });
     return {
       required,
       // diffPassword(val: string) {
@@ -164,6 +143,7 @@ export default defineComponent({
           password: password.value,
         };
         const response = await userService.login(payload);
+        console.log(response);
         if (response == null) {
           labelMessage.value =
             'Email o contraseña incorrecta. Intentelo de nuevo o comuniquise con el administrador del sistema';
@@ -203,7 +183,6 @@ export default defineComponent({
       //     ? 'visibility_off'
       //     : 'visibility';
       // },
-
       form,
       email,
       password,
@@ -216,10 +195,9 @@ export default defineComponent({
 </script>
 <style>
 .bg-image {
-  background-image: url(https://www.vivalink.com/hubfs/New%20Site/iStock-861104740.png);
+  background-image: url('../pngwing.com.png');
   background-repeat: no-repeat;
   background-size: cover;
-  width: 100vw;
-  height: 100vh;
+  background-position: right;
 }
 </style>

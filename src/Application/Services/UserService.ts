@@ -1,34 +1,38 @@
 import { IKeyEmailRegistration, ILogin, IUser } from 'src/Domine/ModelsDB';
-import { IUserRepository } from '../Repositories/Interface';
-import { UserRepository } from '../Repositories/UserRepository';
+import { IUserRepository, UserRepositori } from '../Repositories/Interface';
+import { UserRepo, UserRepository } from '../Repositories/UserRepository';
 import {
   AuthResponse,
   RefreshTokenResponse,
   RegisterResponse,
   UserResponse,
 } from 'src/Domine/Responses';
-import { login } from 'src/Domine/types';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
-import { Http2ServerRequest, Http2ServerResponse } from 'http2';
 
 type responses = UserResponse | RegisterResponse;
 export abstract class LoginService {
-  public userRepository: IUserRepository<IUser, responses>;
+  public userRepository: UserRepositori;
   private token: AuthResponse | null;
   public constructor() {
-    this.userRepository = new UserRepository();
+    this.userRepository = new UserRepo();
     this.token = null;
   }
 
   public async login(payload: ILogin): Promise<AuthResponse | null> {
     const response: Response = await this.userRepository.login(payload);
     this.token = await response.json();
-    console.log(this.token);
+    console.log(this.token, response);
     if (response.status == HttpStatusCode.FORBIDDEN) {
       await this.refresh();
     }
     if (response.status == HttpStatusCode.OK) {
       return this.token;
+    }
+    if (response.status == HttpStatusCode.BAD_REQUEST) {
+      return null;
+    }
+    if (this.token?.user.first_time) {
+      console.log('debe cambiar el password');
     }
     return null;
   }
@@ -63,13 +67,28 @@ export class UserService extends LoginService {
   public constructor() {
     super();
   }
+
   public async register(user: IUser): Promise<RegisterResponse | null> {
     console.log('consumir servicio register');
-    return await this.userRepository.register(user);
+    const response = await this.userRepository.create(user);
+    if (response.status != HttpStatusCode.OK) {
+      return null;
+    }
+    const data: RegisterResponse = await response.json();
+    return data;
   }
+
   public async confirmEmailRegistration(
     key: IKeyEmailRegistration
   ): Promise<Response> {
     return await this.userRepository.confirmEmailRegistration(key);
+  }
+
+  public async changePassword(user: IUser): Promise<void> {
+    if (user.id == undefined) {
+      throw Error('userId is undefined');
+    }
+    const response = await this.userRepository.update(user, user.id);
+    const data = await response.json();
   }
 }

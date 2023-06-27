@@ -39,6 +39,7 @@ export class UserMediator implements IControllersMediator {
         user: {} as IUser,
         token: {} as AuthResponse,
         isAuthenticated: false,
+        changePassword: false,
       }),
     });
     return store();

@@ -43,6 +43,7 @@ export interface IStoreUser {
   user: IUser;
   token: AuthResponse;
   isAuthenticated: boolean;
+  changePassword: boolean;
 }
 
 export interface IStorePermissions {

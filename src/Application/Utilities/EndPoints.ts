@@ -50,12 +50,17 @@ export class EndPoints {
     return `${this.domine}/api/pathologyhistory/${id}/`;
   }
 
-  urlQueryParameter(urlBase: string, parameters: object): string {
+  public static urlQueryParameter(urlBase: string, parameters: object): string {
     urlBase = urlBase.concat('?');
     for (const [key, value] of Object.entries(parameters)) {
       urlBase = urlBase.concat(key, '=', value, '&');
     }
     const fullUrl = urlBase.slice(0, -1);
     return fullUrl;
+  }
+  public static urlByUpdateOrDelete(urlBase: string | undefined, id: number) {
+    const endPointInstance = EndPoints.getInstance();
+    if (urlBase == undefined) throw Error('Endpoint undefined');
+    return `${endPointInstance.domine}${urlBase}${id}/`;
   }
 }

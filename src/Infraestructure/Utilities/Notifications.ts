@@ -120,3 +120,32 @@ export class SweetAlertModal implements Notificator {
     this.timeout = timerMs;
   }
 }
+export class SweetDrawAttention implements Notificator {
+  private message = '';
+  private title = '';
+  private icon: SweetAlertIcon = 'info';
+  private timeout = 0;
+
+  public async show(
+    title?: string | undefined,
+    message?: string | undefined
+  ): Promise<boolean> {
+    if (message != undefined) this.message = message;
+    if (title != undefined) this.title = title;
+    Swal.fire({
+      icon: this.icon,
+      title: this.title,
+      text: this.message,
+      allowOutsideClick: false,
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Aceptar',
+    });
+    return false;
+  }
+  setType(type: NotificationType): void {
+    this.icon = type;
+  }
+  setTime(timerMs: number): void {
+    this.timeout = timerMs;
+  }
+}
