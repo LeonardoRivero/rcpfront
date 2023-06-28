@@ -41,16 +41,16 @@ const routes: RouteRecordRaw[] = [
         component: () =>
           import('src/Infraestructure/pages/Settings/SettingsPage.vue'),
       },
-      {
-        path: 'test',
-        component: () =>
-          import('src/Infraestructure/pages/Login/ChangePassword.vue'),
-      },
     ],
   },
   {
     path: '/verifyemail/:keyemail(\\w+:[\\w&.:-]+)',
     component: () => import('src/Infraestructure/pages/Login/Login.vue'),
+  },
+  {
+    path: '/changepassword',
+    component: () =>
+      import('src/Infraestructure/pages/Login/ChangePassword.vue'),
   },
   // Always leave this as last one,
   // but you can also remove it

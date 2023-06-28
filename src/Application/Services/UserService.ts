@@ -1,6 +1,6 @@
 import { IKeyEmailRegistration, ILogin, IUser } from 'src/Domine/ModelsDB';
 import { IUserRepository, UserRepositori } from '../Repositories/Interface';
-import { UserRepo, UserRepository } from '../Repositories/UserRepository';
+import { UserRepository } from '../Repositories/UserRepository';
 import {
   AuthResponse,
   RefreshTokenResponse,
@@ -14,7 +14,7 @@ export abstract class LoginService {
   public userRepository: UserRepositori;
   private token: AuthResponse | null;
   public constructor() {
-    this.userRepository = new UserRepo();
+    this.userRepository = new UserRepository();
     this.token = null;
   }
 
@@ -30,9 +30,6 @@ export abstract class LoginService {
     }
     if (response.status == HttpStatusCode.BAD_REQUEST) {
       return null;
-    }
-    if (this.token?.user.first_time) {
-      console.log('debe cambiar el password');
     }
     return null;
   }

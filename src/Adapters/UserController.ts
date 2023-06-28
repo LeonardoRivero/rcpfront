@@ -1,7 +1,7 @@
 import { IUser } from 'src/Domine/ModelsDB';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { RegisterResponse, SpecialityResponse } from 'src/Domine/Responses';
-import { UserState } from 'src/Domine/IStates';
+import { ChangePasswordState, UserState } from 'src/Domine/IStates';
 import {
   Controller,
   IControllersMediator,
@@ -95,7 +95,44 @@ export class UserController extends Controller {
     const response = await this.service.register(payload);
     return null;
   }
+
   public async login(payload: login) {
     const response = await this.service.login(payload);
+  }
+}
+
+export class ChangePasswordController extends Controller {
+  private static instance: ChangePasswordController;
+  public state: ChangePasswordState;
+  private constructor(state: ChangePasswordState) {
+    super();
+    this.state = state;
+  }
+
+  public static getInstance(
+    state: ChangePasswordState
+  ): ChangePasswordController {
+    if (!ChangePasswordController.instance) {
+      ChangePasswordController.instance = new ChangePasswordController(state);
+    }
+    return ChangePasswordController.instance;
+  }
+
+  sendData(data: unknown): void {
+    throw new Error('Method not implemented.');
+  }
+  receiveData(data: IControllersMediator): void {
+    throw new Error('Method not implemented.');
+  }
+  clear(): void {
+    throw new Error('Method not implemented.');
+  }
+  save(): void {
+    if (this.state.newPassword != this.state.confirmPassword) {
+      throw new EvalError(
+        'Las nuevas credenciales no coinciden en su verificacion.'
+      );
+    }
+    console.log('todo paso bien');
   }
 }

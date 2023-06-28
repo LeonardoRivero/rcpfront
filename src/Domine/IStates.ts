@@ -159,3 +159,10 @@ export interface AppointmentState {
   allReasonConsult: Array<ReasonConsultResponse>;
   allPatientStatus: Array<PatientStatusResponse>;
 }
+
+export interface ChangePasswordState {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+  visible: boolean;
+}
