@@ -95,6 +95,7 @@ import {
 import { IKeyEmailRegistration } from 'src/Domine/ModelsDB';
 import HttpStatusCode from 'src/Application/Utilities/HttpStatusCodes';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
+import router from 'src/router';
 
 export default defineComponent({
   name: 'LoginUser',
@@ -148,6 +149,9 @@ export default defineComponent({
           labelMessage.value =
             'Email o contraseña incorrecta. Intentelo de nuevo o comuniquise con el administrador del sistema';
           return;
+        }
+        if (response.user.first_time) {
+          routerInstance.push('/changepassword');
         }
         // const namegroup = response.user.groups[0].name.toString();
         const namegroup = 'Secretaria';
