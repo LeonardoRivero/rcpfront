@@ -7,7 +7,7 @@ import {
   PUT,
   handleResponse,
 } from 'src/Infraestructure/Utilities/Request';
-import { IRepository } from './Interface';
+import { AbstractRepository, IRepository } from './Interface';
 import {
   GenderResponse,
   IDTypeResponse,
@@ -65,7 +65,7 @@ export class PatientRepository
     parameters: object
   ): Promise<Array<PatientResponse>> {
     const urlBase = EndPoints.buildFullUrl(process.env.PATIENT);
-    const url = endpoint.urlQueryParameter(urlBase, parameters);
+    const url = EndPoints.urlQueryParameter(urlBase, parameters);
     const response = await GET(url);
     if (response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
@@ -106,35 +106,35 @@ export class IDTypesRepository implements IRepository<IIDType, IDTypeResponse> {
   }
 }
 
-export class GenderRepository implements IRepository<IGender, GenderResponse> {
-  getById(id: number): Promise<GenderResponse | null> {
-    throw new Error('Method not implemented.' + { id });
-  }
-  async getAll(): Promise<GenderResponse[] | null> {
-    const url = EndPoints.buildFullUrl(process.env.GENDER);
-    try {
-      const response = await GET(url);
-      if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
-        return null;
-      const data: GenderResponse[] = await response.json();
-      return data;
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
-  create(entity: IGender): Promise<GenderResponse | null> {
-    throw new Error('Method not implemented.' + { entity });
-  }
-  update(entity: Partial<IGender>): Promise<GenderResponse | null> {
-    throw new Error('Method not implemented.' + { entity });
-  }
-  delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.' + { id });
-  }
-  findByParameters(parameters: object): Promise<GenderResponse[]> {
-    throw new Error('Method not implemented.' + { parameters });
-  }
-}
+// export class GenderRepositor implements IRepository<IGender, GenderResponse> {
+//   getById(id: number): Promise<GenderResponse | null> {
+//     throw new Error('Method not implemented.' + { id });
+//   }
+//   async getAll(): Promise<GenderResponse[] | null> {
+//     const url = EndPoints.buildFullUrl(process.env.GENDER);
+//     try {
+//       const response = await GET(url);
+//       if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
+//         return null;
+//       const data: GenderResponse[] = await response.json();
+//       return data;
+//     } catch (error) {
+//       throw Error(`Error in ${Object.name} : ${error}`);
+//     }
+//   }
+//   create(entity: IGender): Promise<GenderResponse | null> {
+//     throw new Error('Method not implemented.' + { entity });
+//   }
+//   update(entity: Partial<IGender>): Promise<GenderResponse | null> {
+//     throw new Error('Method not implemented.' + { entity });
+//   }
+//   delete(id: number): Promise<boolean> {
+//     throw new Error('Method not implemented.' + { id });
+//   }
+//   findByParameters(parameters: object): Promise<GenderResponse[]> {
+//     throw new Error('Method not implemented.' + { parameters });
+//   }
+// }
 
 export class PatientStatusRepository
   implements IRepository<IPatientStatus, PatientStatusResponse>

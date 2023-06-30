@@ -247,10 +247,7 @@ import {
   IPatient,
 } from 'src/Domine/ModelsDB';
 import { IconSVG } from 'src/Application/Utilities/Constants';
-import {
-  GenderRepository,
-  IDTypesRepository,
-} from 'src/Application/Repositories/PatientRepository';
+import { IDTypesRepository } from 'src/Application/Repositories/PatientRepository';
 import 'src/css/app.sass';
 import { InsuranceRepository } from 'src/Application/Repositories/SettingsRepository';
 import { PatientState } from 'src/Domine/IStates';
@@ -267,6 +264,7 @@ import {
   isNotNull,
   numberRequired,
 } from 'src/Application/Utilities/Helpers';
+import { GenderService } from 'src/Application/Services';
 
 export default defineComponent({
   setup() {
@@ -288,7 +286,7 @@ export default defineComponent({
     const controller = PatientController.getInstance(state);
     const insuranceRepository = InsuranceRepository.getInstance();
     const idTypesRepository = new IDTypesRepository();
-    const genderRepository = new GenderRepository();
+    const genderRepository = new GenderService();
 
     onMounted(async () => {
       const idTypes = await idTypesRepository.getAll();

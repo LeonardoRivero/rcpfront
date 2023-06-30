@@ -258,92 +258,73 @@ export class InsuranceRepository
   }
 }
 
-export class DxMainCodeRepositor extends AbstractRepository<IDXMainCode> {
-  public url: string;
-  public urlWithParameters: string;
-  public constructor() {
-    super();
-    this.url = process.env.GENDER == undefined ? '' : process.env.GENDER;
-    this.urlWithParameters = '';
-  }
-}
-export class DxMainCodeRepository
-  implements IRepository<IDXMainCode, DXMainCodeResponse>
-{
-  private static instance: DxMainCodeRepository;
-  private constructor() {
-    return;
-  }
-  public static getInstance(): DxMainCodeRepository {
-    if (!DxMainCodeRepository.instance) {
-      DxMainCodeRepository.instance = new DxMainCodeRepository();
-    }
-    return DxMainCodeRepository.instance;
-  }
-  async findByParameters(
-    queryParameters: object
-  ): Promise<DXMainCodeResponse[]> {
-    const urlBase = EndPoints.buildFullUrl(process.env.DX_MAIN_CODE);
-    const url = EndPoints.urlQueryParameter(urlBase, queryParameters);
-    const response = await GET(url);
-    const data: DXMainCodeResponse[] = await response.json();
-    return data;
-  }
-  getById(id: number): Promise<DXMainCodeResponse | null> {
-    throw new Error('Method not implemented.' + { id });
-  }
-  async getAll(): Promise<DXMainCodeResponse[] | null> {
-    const url = EndPoints.buildFullUrl(process.env.DX_MAIN_CODE);
-    try {
-      const response = await GET(url);
-      if (response.status == HttpStatusCodes.NOT_FOUND) {
-        routerInstance.push('/:catchAll');
-        return null;
-      }
-      const data: DXMainCodeResponse[] = await response.json();
-      handleResponse(response);
-      return data;
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
-  async create(entity: IDXMainCode): Promise<DXMainCodeResponse | null> {
-    const url = EndPoints.buildFullUrl(process.env.DX_MAIN_CODE);
-    try {
-      const response = await POST(url, entity);
-      handleResponse(response);
-      if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
-        return null;
-      }
-      const data: DXMainCodeResponse = await response.json();
-      return data;
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
-  async update(
-    entity: Partial<IDXMainCode>
-  ): Promise<DXMainCodeResponse | null> {
-    if (entity.id == null) {
-      return null;
-    }
-    try {
-      const url = endpoint.updateDxMainCode(entity.id);
-      const response = await PUT(url, entity);
-      handleResponse(response, messages.updateSuccesfully);
-      if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST) {
-        return null;
-      }
-      const data: DXMainCodeResponse = await response.json();
-      return data;
-    } catch (error) {
-      throw Error(`Error in ${Object.name}:${error}`);
-    }
-  }
-  delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.' + { id });
-  }
-}
+// export class DxMainCodeRepository
+//   implements IRepository<IDXMainCode, DXMainCodeResponse>
+// {
+// private static instance: DxMainCodeRepository;
+// private constructor() {
+//   return;
+// }
+// public static getInstance(): DxMainCodeRepository {
+//   if (!DxMainCodeRepository.instance) {
+//     DxMainCodeRepository.instance = new DxMainCodeRepository();
+//   }
+//   return DxMainCodeRepository.instance;
+// }
+// async findByParameters(
+//   queryParameters: object
+// ): Promise<DXMainCodeResponse[]> {
+//   const urlBase = EndPoints.buildFullUrl(process.env.DX_MAIN_CODE);
+//   const url = EndPoints.urlQueryParameter(urlBase, queryParameters);
+//   const response = await GET(url);
+//   const data: DXMainCodeResponse[] = await response.json();
+//   return data;
+// }
+// getById(id: number): Promise<DXMainCodeResponse | null> {
+//   throw new Error('Method not implemented.' + { id });
+// }
+// async getAll(): Promise<DXMainCodeResponse[] | null> {
+//   const url = EndPoints.buildFullUrl(process.env.DX_MAIN_CODE);
+//   try {
+//     const response = await GET(url);
+//     if (response.status == HttpStatusCodes.NOT_FOUND) {
+//       routerInstance.push('/:catchAll');
+//       return null;
+//     }
+//     const data: DXMainCodeResponse[] = await response.json();
+//     handleResponse(response);
+//     return data;
+//   } catch (error) {
+//     throw Error(`Error in ${Object.name} : ${error}`);
+//   }
+// }
+// async create(entity: IDXMainCode): Promise<DXMainCodeResponse | null> {
+//   const url = EndPoints.buildFullUrl(process.env.DX_MAIN_CODE);
+//   try {
+//     const response = await POST(url, entity);
+//     handleResponse(response);
+//     const data: DXMainCodeResponse = await response.json();
+//     return data;
+//   } catch (error) {
+//     throw Error(`Error in ${Object.name} : ${error}`);
+//   }
+// }
+// async update(
+//   entity: Partial<IDXMainCode>
+// ): Promise<DXMainCodeResponse | null> {
+//   try {
+//     const url = endpoint.updateDxMainCode(entity.id);
+//     const response = await PUT(url, entity);
+//     handleResponse(response, messages.updateSuccesfully);
+//     return data;
+//   } catch (error) {
+//     throw Error(`Error in ${Object.name}:${error}`);
+//   }
+// }
+// delete(id: number): Promise<boolean> {
+//   throw new Error('Method not implemented.' + { id });
+// }
+// }
 
 export class RelationCodeRepository
   implements IRepository<IRelationCode, RelationCodeResponse>

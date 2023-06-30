@@ -1,7 +1,7 @@
 import { IKeyEmailRegistration, IUser } from 'src/Domine/ModelsDB';
 import { POST } from 'src/Infraestructure/Utilities/Request';
-import { IUserRepository, UserRepositori } from './Interface';
-import { RegisterResponse, UserResponse } from 'src/Domine/Responses';
+import { UserRepositori } from './Interface';
+// import { RegisterResponse, UserResponse } from 'src/Domine/Responses';
 import { EndPoints } from '../Utilities/EndPoints';
 import { login } from 'src/Domine/types';
 

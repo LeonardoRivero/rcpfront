@@ -1,5 +1,5 @@
 import { IKeyEmailRegistration, ILogin, IUser } from 'src/Domine/ModelsDB';
-import { IUserRepository, UserRepositori } from '../Repositories/Interface';
+import { UserRepositori } from '../Repositories/Interface';
 import { UserRepository } from '../Repositories/UserRepository';
 import {
   AuthResponse,

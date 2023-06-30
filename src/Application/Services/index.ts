@@ -7,3 +7,4 @@ export * from './PatientStatusService';
 export * from './PatientStatusService';
 export * from './PhysicalExamService';
 export * from './PathologicalHistoryService';
+export * from './GenderService';

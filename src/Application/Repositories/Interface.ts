@@ -13,14 +13,14 @@ export interface IRepository<T1, T2> {
   delete(id: number): Promise<boolean>;
   findByParameters(parameters: object): Promise<T2[]>;
 }
-export interface IUserRepository<T1, T2> extends IRepository<T1, T2> {
-  register(entity: T1): Promise<RegisterResponse | null>;
-  login(data: login): Promise<Response>;
-  logout(): Promise<Response>;
-  refreshToken(refresh_token: string): Promise<Response>;
-  validateToken(access_token: string): Promise<Response>;
-  confirmEmailRegistration(key: IKeyEmailRegistration): Promise<Response>;
-}
+// export interface IUserRepository<T1, T2> extends IRepository<T1, T2> {
+//   register(entity: T1): Promise<RegisterResponse | null>;
+//   login(data: login): Promise<Response>;
+//   logout(): Promise<Response>;
+//   refreshToken(refresh_token: string): Promise<Response>;
+//   validateToken(access_token: string): Promise<Response>;
+//   confirmEmailRegistration(key: IKeyEmailRegistration): Promise<Response>;
+// }
 
 export abstract class AbstractRepository<T1> {
   abstract url: string;
