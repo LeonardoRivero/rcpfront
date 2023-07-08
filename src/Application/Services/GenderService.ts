@@ -1,10 +1,10 @@
 import { IGender } from 'src/Domine/ModelsDB';
-import { AbstractRepository } from '../Repositories';
+import { Repository } from '../Repositories';
 import { GenderResponse } from 'src/Domine/Responses';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
 
 export class GenderService {
-  private repository: AbstractRepository<IGender>;
+  private repository: Repository<IGender>;
   public constructor() {
     this.repository = new GenderRepository();
     return;
@@ -45,12 +45,12 @@ export class GenderService {
     return data;
   }
 
-  public setRepository(repository: AbstractRepository<IGender>) {
+  public setRepository(repository: Repository<IGender>) {
     this.repository = repository;
   }
 }
 
-export class GenderRepository extends AbstractRepository<IGender> {
+export class GenderRepository extends Repository<IGender> {
   url: string;
   urlWithParameters: string;
   public constructor() {

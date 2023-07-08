@@ -1,10 +1,10 @@
 import { IRelationCode } from 'src/Domine/ModelsDB';
-import { IRepository } from '../Repositories/Interface';
+import { Repository } from '../Repositories/Interface';
 import { RelationCodeRepository } from '../Repositories/SettingsRepository';
 import { RelationCodeResponse } from 'src/Domine/Responses';
 
 export class RelationCodeService {
-  private repository: IRepository<IRelationCode, RelationCodeResponse>;
+  private repository: Repository<IRelationCode>;
   public constructor() {
     this.repository = RelationCodeRepository.getInstance();
     return;
@@ -13,22 +13,29 @@ export class RelationCodeService {
     payload: IRelationCode
   ): Promise<RelationCodeResponse | null> {
     const response = await this.repository.create(payload);
-    return response;
+    if (!response.ok) return null;
+    return await response.json();
   }
 
   public async update(
     payload: IRelationCode
   ): Promise<RelationCodeResponse | null> {
-    const response = await this.repository.update(payload);
-    return response;
+    if (payload.id == undefined) {
+      throw EvalError('id is undefined');
+    }
+    const response = await this.repository.update(payload, payload.id);
+    if (!response.ok) {
+      return null;
+    }
+    return await response.json();
   }
   public async findByParameters(
     queryParameters: object
   ): Promise<Array<RelationCodeResponse>> {
     const response = await this.repository.findByParameters(queryParameters);
-    if (response === null) {
+    if (!response.ok) {
       return [];
     }
-    return response;
+    return await response.json();
   }
 }

@@ -1,6 +1,6 @@
 import { IKeyEmailRegistration, IUser } from 'src/Domine/ModelsDB';
 import { POST } from 'src/Infraestructure/Utilities/Request';
-import { UserRepositori } from './Interface';
+import { LoginRepository } from './Interface';
 // import { RegisterResponse, UserResponse } from 'src/Domine/Responses';
 import { EndPoints } from '../Utilities/EndPoints';
 import { login } from 'src/Domine/types';
@@ -103,7 +103,7 @@ import { login } from 'src/Domine/types';
 //   }
 // }
 
-export class UserRepository extends UserRepositori {
+export class UserRepository extends LoginRepository {
   url: string;
   urlWithParameters: string;
 

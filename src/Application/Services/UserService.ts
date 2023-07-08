@@ -1,5 +1,5 @@
 import { IKeyEmailRegistration, ILogin, IUser } from 'src/Domine/ModelsDB';
-import { UserRepositori } from '../Repositories/Interface';
+import { LoginRepository } from '../Repositories/Interface';
 import { UserRepository } from '../Repositories/UserRepository';
 import {
   AuthResponse,
@@ -11,7 +11,7 @@ import HttpStatusCode from '../Utilities/HttpStatusCodes';
 
 type responses = UserResponse | RegisterResponse;
 export abstract class LoginService {
-  public userRepository: UserRepositori;
+  public userRepository: LoginRepository;
   private token: AuthResponse | null;
   public constructor() {
     this.userRepository = new UserRepository();

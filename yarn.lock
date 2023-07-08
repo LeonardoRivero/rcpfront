@@ -1053,9 +1053,9 @@
   dependencies:
     "once" "^1.4.0"
 
-"esbuild-windows-64@0.14.47":
-  "integrity" "sha512-/Pk5jIEH34T68r8PweKRi77W49KwanZ8X6lr3vDAtOlH5EumPE4pBHqkCUdELanvsT14yMXLQ/C/8XPi1pAtkQ=="
-  "resolved" "https://registry.npmjs.org/esbuild-windows-64/-/esbuild-windows-64-0.14.47.tgz"
+"esbuild-linux-64@0.14.47":
+  "integrity" "sha512-nFNOk9vWVfvWYF9YNYksZptgQAdstnDCMtR6m42l5Wfugbzu11VpMCY9XrD4yFxvPo9zmzcoUL/88y0lfJZJJw=="
+  "resolved" "https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.14.47.tgz"
   "version" "0.14.47"
 
 "esbuild@^0.14.27", "esbuild@0.14.47":
@@ -1599,6 +1599,11 @@
     "strip-ansi" "^6.0.0"
     "through" "^2.3.6"
     "wrap-ansi" "^7.0.0"
+
+"inversify@^6.0.1":
+  "integrity" "sha512-B3ex30927698TJENHR++8FfEaJGqoWOgI6ZY5Ht/nLUsFCwHn6akbwtnUAPCgUepAnTpe2qHxhDNjoKLyz6rgQ=="
+  "resolved" "https://registry.npmjs.org/inversify/-/inversify-6.0.1.tgz"
+  "version" "6.0.1"
 
 "ipaddr.js@1.9.1":
   "integrity" "sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g=="
@@ -2259,6 +2264,11 @@
   "version" "3.6.0"
   dependencies:
     "picomatch" "^2.2.1"
+
+"reflect-metadata@^0.1.13":
+  "integrity" "sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg=="
+  "resolved" "https://registry.npmjs.org/reflect-metadata/-/reflect-metadata-0.1.13.tgz"
+  "version" "0.1.13"
 
 "regexpp@^3.2.0":
   "integrity" "sha512-pq2bWo9mVD43nbts2wGv17XLiNLya+GklZ8kaDLV2Z08gDCsGpnKn9BFMepvWuHCbyVvY7J5o5+BVvoQbmlJLg=="

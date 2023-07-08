@@ -1,17 +1,16 @@
 import { IPatientStatus } from 'src/Domine/ModelsDB';
-import { IRepository } from '../Repositories/Interface';
+import { Repository } from '../Repositories/Interface';
 import { PatientStatusResponse } from 'src/Domine/Responses';
 import { PatientStatusRepository } from '../Repositories';
 
 export class PatientStatusService {
-  private repository: IRepository<IPatientStatus, PatientStatusResponse>;
+  private repository: Repository<IPatientStatus>;
   private allPatientStatus: Array<PatientStatusResponse>;
   private static instance: PatientStatusService;
 
   public constructor() {
     this.repository = new PatientStatusRepository();
     this.allPatientStatus = [];
-    return;
   }
 
   public static getInstance(): PatientStatusService {
@@ -26,8 +25,8 @@ export class PatientStatusService {
       return this.allPatientStatus;
     }
     const response = await this.repository.getAll();
-    if (response == null) return [];
-    this.allPatientStatus = response;
-    return response;
+    if (!response.ok) return [];
+    this.allPatientStatus = await response.json();
+    return this.allPatientStatus;
   }
 }

@@ -1,10 +1,10 @@
 import { IPaymentOptions } from 'src/Domine/ModelsDB';
-import { IRepository } from '../Repositories/Interface';
+import { Repository } from '../Repositories/Interface';
 import { PaymentOptionsResponse } from 'src/Domine/Responses';
 import { PaymentOptionsRepository } from '../Repositories';
 
 export class PaymentOptionsService {
-  private repository: IRepository<IPaymentOptions, PaymentOptionsResponse>;
+  private repository: Repository<IPaymentOptions>;
   private allPaymentOptions: Array<PaymentOptionsResponse>;
   private static instance: PaymentOptionsService;
 

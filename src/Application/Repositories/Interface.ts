@@ -4,15 +4,16 @@ import { login } from 'src/Domine/types';
 import { DELETE, GET, POST, PUT } from 'src/Infraestructure/Utilities/Request';
 import { EndPoints } from '../Utilities';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
-
-export interface IRepository<T1, T2> {
-  getById(id: number): Promise<T2 | null>;
-  getAll(): Promise<T2[] | null>;
-  create(entity: T1): Promise<T2 | null>;
-  update(entity: Partial<T1>): Promise<T2 | null>;
-  delete(id: number): Promise<boolean>;
-  findByParameters(parameters: object): Promise<T2[]>;
-}
+import 'reflect-metadata';
+import { injectable } from 'inversify';
+// export interface IRepository<T1, T2> {
+//   getById(id: number): Promise<T2 | null>;
+//   getAll(): Promise<T2[] | null>;
+//   create(entity: T1): Promise<T2 | null>;
+//   update(entity: Partial<T1>): Promise<T2 | null>;
+//   delete(id: number): Promise<boolean>;
+//   findByParameters(parameters: object): Promise<T2[]>;
+// }
 // export interface IUserRepository<T1, T2> extends IRepository<T1, T2> {
 //   register(entity: T1): Promise<RegisterResponse | null>;
 //   login(data: login): Promise<Response>;
@@ -21,8 +22,8 @@ export interface IRepository<T1, T2> {
 //   validateToken(access_token: string): Promise<Response>;
 //   confirmEmailRegistration(key: IKeyEmailRegistration): Promise<Response>;
 // }
-
-export abstract class AbstractRepository<T1> {
+@injectable()
+export abstract class Repository<T1> {
   abstract url: string;
   abstract urlWithParameters: string;
   public async getById(id: number): Promise<Response> {
@@ -34,6 +35,7 @@ export abstract class AbstractRepository<T1> {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
   }
+
   public async getAll(): Promise<Response> {
     try {
       const urlBase = EndPoints.buildFullUrl(this.url);
@@ -42,6 +44,7 @@ export abstract class AbstractRepository<T1> {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
   }
+
   public async create(entity: T1): Promise<Response> {
     try {
       const urlBase = EndPoints.buildFullUrl(this.url);
@@ -50,6 +53,7 @@ export abstract class AbstractRepository<T1> {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
   }
+
   public async update(entity: Partial<T1>, id: number): Promise<Response> {
     try {
       const url = EndPoints.urlByUpdateOrDelete(this.url, id);
@@ -58,6 +62,7 @@ export abstract class AbstractRepository<T1> {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
   }
+
   public async delete(id: number): Promise<boolean> {
     try {
       const url = EndPoints.urlByUpdateOrDelete(this.url, id);
@@ -70,6 +75,7 @@ export abstract class AbstractRepository<T1> {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
   }
+
   public async findByParameters(parameters: object): Promise<Response> {
     try {
       const urlBase = EndPoints.buildFullUrl(this.url);
@@ -81,7 +87,7 @@ export abstract class AbstractRepository<T1> {
   }
 }
 
-export abstract class UserRepositori extends AbstractRepository<IUser> {
+export abstract class LoginRepository extends Repository<IUser> {
   abstract login(data: login): Promise<Response>;
   abstract logout(): Promise<Response>;
   abstract refreshToken(refresh_token: string): Promise<Response>;

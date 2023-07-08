@@ -1,10 +1,10 @@
 import { EventSchedule } from 'src/Domine/ModelsDB';
-import { IRepository } from '../Repositories/Interface';
+import { Repository } from '../Repositories/Interface';
 import { EventScheduleResponse } from 'src/Domine/Responses';
 import { ScheduleRepository } from '../Repositories';
 
 export class ScheduleService {
-  private repository: IRepository<EventSchedule, EventScheduleResponse>;
+  private repository: Repository<EventSchedule>;
   public constructor() {
     this.repository = new ScheduleRepository();
     return;
@@ -13,38 +13,38 @@ export class ScheduleService {
     payload: EventSchedule
   ): Promise<EventScheduleResponse | null> {
     const response = await this.repository.create(payload);
-    return response;
+    if (!response.ok) return null;
+    return await response.json();
   }
 
   public async update(
     payload: EventSchedule
   ): Promise<EventScheduleResponse | null> {
-    const response = await this.repository.update(payload);
-    return response;
+    if (payload.id == null) {
+      throw EvalError('id is null or undefined');
+    }
+    const response = await this.repository.update(payload, payload.id);
+    if (!response.ok) return null;
+    return await response.json();
   }
 
   public async getById(id: number): Promise<EventScheduleResponse | null> {
     const response = await this.repository.getById(id);
-    return response;
+    if (!response.ok) return null;
+    return await response.json();
   }
 
   public async findByParameters(
     queryParameters: object
   ): Promise<Array<EventScheduleResponse> | EventScheduleResponse> {
     const response = await this.repository.findByParameters(queryParameters);
-    if (response == null) return [];
-    return response;
+    if (!response.ok) return [];
+    return await response.json();
   }
 
   public async delete(id: number): Promise<boolean> {
     const response = await this.repository.delete(id);
     return response;
-  }
-
-  public setRepository(
-    repository: IRepository<EventSchedule, EventScheduleResponse>
-  ) {
-    this.repository = repository;
   }
 
   public async findByIdentificationPatient(

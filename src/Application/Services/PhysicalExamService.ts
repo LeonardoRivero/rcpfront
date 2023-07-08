@@ -1,10 +1,10 @@
 import { IPhysicalExam } from 'src/Domine/ModelsDB';
-import { IRepository } from '../Repositories/Interface';
+import { Repository } from '../Repositories/Interface';
 import { PhysicalExamResponse } from 'src/Domine/Responses';
 import { PhysicalExamParameterRepository } from '../Repositories';
 
 export class PhysicalExamService {
-  private repository: IRepository<IPhysicalExam, PhysicalExamResponse>;
+  private repository: Repository<IPhysicalExam>;
   private allPaymentOptions: Array<PhysicalExamResponse>;
   private static instance: PhysicalExamService;
 
@@ -25,22 +25,27 @@ export class PhysicalExamService {
     queryParameters: object
   ): Promise<Array<PhysicalExamResponse>> {
     const response = await this.repository.findByParameters(queryParameters);
-    if (response == null || response.length === 0) return [];
-    return response;
+    if (!response.ok) return [];
+    return await response.json();
   }
 
   public async save(
     payload: IPhysicalExam
   ): Promise<PhysicalExamResponse | null> {
     const response = await this.repository.create(payload);
-    return response;
+    if (!response.ok) return null;
+    return await response.json();
   }
 
   public async update(
     payload: IPhysicalExam
   ): Promise<PhysicalExamResponse | null> {
-    const response = await this.repository.update(payload);
-    return response;
+    if (payload.id == undefined) {
+      throw EvalError('id is undefined');
+    }
+    const response = await this.repository.update(payload, payload.id);
+    if (!response.ok) return null;
+    return await response.json();
   }
 
   public async getAll(): Promise<Array<PhysicalExamResponse>> {
@@ -48,19 +53,14 @@ export class PhysicalExamService {
       return this.allPaymentOptions;
     }
     const response = await this.repository.getAll();
-    if (response == null) return [];
-    this.allPaymentOptions = response;
-    return response;
+    if (!response.ok) return [];
+    this.allPaymentOptions = await response.json();
+    return this.allPaymentOptions;
   }
 
   public async getById(id: number): Promise<PhysicalExamResponse | null> {
     const response = await this.repository.getById(id);
-    return response;
-  }
-
-  public setRepository(
-    repository: IRepository<IPhysicalExam, PhysicalExamResponse>
-  ) {
-    this.repository = repository;
+    if (!response.ok) return null;
+    return await response.json();
   }
 }

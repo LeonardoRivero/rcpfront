@@ -1,10 +1,10 @@
 import { IReasonConsult } from 'src/Domine/ModelsDB';
-import { IRepository } from '../Repositories/Interface';
+import { Repository } from '../Repositories/Interface';
 import { ReasonConsultResponse } from 'src/Domine/Responses';
 import { ReasonConsultRepository } from '../Repositories';
 
 export class ReasonConsultService {
-  private repository: IRepository<IReasonConsult, ReasonConsultResponse>;
+  private repository: Repository<IReasonConsult>;
   private allReasonConsult: Array<ReasonConsultResponse>;
   private static instance: ReasonConsultService;
 
@@ -26,8 +26,8 @@ export class ReasonConsultService {
       return this.allReasonConsult;
     }
     const response = await this.repository.getAll();
-    if (response == null) return [];
-    this.allReasonConsult = response;
-    return response;
+    if (!response.ok) return [];
+    this.allReasonConsult = await response.json();
+    return this.allReasonConsult;
   }
 }

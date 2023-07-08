@@ -4,6 +4,11 @@
     "baseUrl": ".",
     "target": "es5", //se agrego
     "module": "commonjs", //se agrego
-    "sourceMap": true //se agregon
+    "sourceMap": true, //se agregon
+    "lib": ["es6", "dom"],
+    "types": ["reflect-metadata"],
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }

@@ -1,15 +1,13 @@
 import { IDXMainCode } from 'src/Domine/ModelsDB';
-import { AbstractRepository, IRepository } from '../Repositories/Interface';
+import { Repository } from '../Repositories/Interface';
 import { DXMainCodeResponse } from 'src/Domine/Responses';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
-import { routerInstance } from 'src/boot/globalRouter';
+import { DxMainCodeRepository } from '../Repositories';
 
-export class DxMainCodeService
-  implements IRepository<IDXMainCode, DXMainCodeResponse>
-{
-  private repository: AbstractRepository<IDXMainCode>;
+export class DxMainCodeService {
+  private repository: Repository<IDXMainCode>;
   public constructor() {
-    this.repository = new DxMainCodeRepository();
+    this.repository = DxMainCodeRepository.getInstance();
     return;
   }
   getById(id: number): Promise<DXMainCodeResponse | null> {
@@ -18,7 +16,6 @@ export class DxMainCodeService
   public async getAll(): Promise<DXMainCodeResponse[] | null> {
     const response = await this.repository.getAll();
     if (response.status == HttpStatusCodes.NOT_FOUND) {
-      routerInstance.push('/:catchAll');
       return null;
     }
     const data: DXMainCodeResponse[] = await response.json();
@@ -62,19 +59,15 @@ export class DxMainCodeService
     const data: DXMainCodeResponse[] = await response.json();
     return data;
   }
-
-  public setRepository(repository: AbstractRepository<IDXMainCode>) {
-    this.repository = repository;
-  }
 }
 
-export class DxMainCodeRepository extends AbstractRepository<IDXMainCode> {
-  public url: string;
-  public urlWithParameters: string;
-  public constructor() {
-    super();
-    this.url =
-      process.env.DX_MAIN_CODE == undefined ? '' : process.env.DX_MAIN_CODE;
-    this.urlWithParameters = '';
-  }
-}
+// export class DxMainCodeRepository extends AbstractRepository<IDXMainCode> {
+//   public url: string;
+//   public urlWithParameters: string;
+//   public constructor() {
+//     super();
+//     this.url =
+//       process.env.DX_MAIN_CODE == undefined ? '' : process.env.DX_MAIN_CODE;
+//     this.urlWithParameters = '';
+//   }
+// }
