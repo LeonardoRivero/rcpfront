@@ -22,16 +22,16 @@ export class FactoryNotifactors implements IFactoryMethodNotifications {
     return FactoryNotifactors.instance;
   }
   createNotificator(notificationType: ModalType): Notificator {
-    if (notificationType == 'sweetAlert') {
+    if (notificationType.toString() === 'SweetAlert') {
       return new SweetAlertModal();
     }
-    if (notificationType == 'notifyQuasar') {
+    if (notificationType.toString() === 'NotifyQuasar') {
       return new Notification();
     }
-    if (notificationType == 'modalQuasar') {
+    if (notificationType.toString() === 'ModalQuasar') {
       return new DialogQuasar();
     }
-    if (notificationType == 'drawAttention') {
+    if (notificationType.toString() === 'DrawAttention') {
       return new SweetDrawAttention();
     }
     throw new Error('Notificacion type is not available');

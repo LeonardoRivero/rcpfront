@@ -257,6 +257,7 @@ import {
   PatientMediator,
   ScheduleMediator,
 } from 'src/Infraestructure/Mediators';
+import container from 'src/inversify.config';
 
 export default defineComponent({
   components: {},
@@ -302,7 +303,8 @@ export default defineComponent({
       calendar: {} as InstanceType<typeof FullCalendar>,
     });
     const adapter = ScheduleAdapter.getInstance(state);
-    const specialityService = new SpecialityService();
+    const specialityService =
+      container.get<SpecialityService>('SpecialityService');
     const doctorService = new DoctorService();
     const patientMediator = PatientMediator.getInstance();
     const messages = Messages.getInstance();

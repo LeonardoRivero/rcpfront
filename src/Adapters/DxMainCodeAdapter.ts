@@ -6,6 +6,7 @@ import { DXMainCodeResponse } from 'src/Domine/Responses';
 import {
   Controller,
   IControllersMediator,
+  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { DxMainCodeState } from 'src/Domine/IStates';
@@ -21,7 +22,7 @@ export class DxMainCodeController extends Controller {
   private static instance: DxMainCodeController;
   private convert = new Convert();
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
 
   sendData(data: unknown): void {
     throw new Error('Method not implemented.');

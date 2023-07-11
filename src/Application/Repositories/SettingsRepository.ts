@@ -8,7 +8,8 @@ import {
   IPathologycalHistory,
 } from 'src/Domine/ModelsDB';
 import { Repository } from './Interface';
-import { injectable } from 'inversify';
+import 'reflect-metadata';
+import { injectable, inject } from 'inversify';
 
 @injectable()
 export class PhysicalExamParameterRepository extends Repository<IPhysicalExam> {
@@ -17,9 +18,10 @@ export class PhysicalExamParameterRepository extends Repository<IPhysicalExam> {
   private static instance: PhysicalExamParameterRepository;
   public constructor() {
     super();
-    this.url = process.env.PHYSICAL_EXAM_PARAMETER
+    const urlAPI = process.env.PHYSICAL_EXAM_PARAMETER
       ? process.env.PHYSICAL_EXAM_PARAMETER
       : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
   public static getInstance(): PhysicalExamParameterRepository {
@@ -47,7 +49,8 @@ export class SpecialityRepository extends Repository<ISpeciality> {
   private static instance: SpecialityRepository;
   public constructor() {
     super();
-    this.url = process.env.SPECIALITY ? process.env.SPECIALITY : '';
+    const urlAPI = process.env.SPECIALITY ? process.env.SPECIALITY : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
   public override async findByParameters(
@@ -75,7 +78,8 @@ export class InsuranceRepository extends Repository<IHealthInsurance> {
   private static instance: InsuranceRepository;
   public constructor() {
     super();
-    this.url = process.env.INSURANCE ? process.env.INSURANCE : '';
+    const urlAPI = process.env.INSURANCE ? process.env.INSURANCE : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
   public override async findByParameters(
@@ -101,7 +105,8 @@ export class DxMainCodeRepository extends Repository<IDXMainCode> {
   private static instance: DxMainCodeRepository;
   public constructor() {
     super();
-    this.url = process.env.DX_MAIN_CODE ? process.env.DX_MAIN_CODE : '';
+    const urlAPI = process.env.DX_MAIN_CODE ? process.env.DX_MAIN_CODE : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
     return;
   }
@@ -128,7 +133,8 @@ export class RelationCodeRepository extends Repository<IRelationCode> {
   private static instance: RelationCodeRepository;
   public constructor() {
     super();
-    this.url = process.env.RELATION_CODE ? process.env.RELATION_CODE : '';
+    const urlAPI = process.env.RELATION_CODE ? process.env.RELATION_CODE : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
   public static getInstance(): RelationCodeRepository {
@@ -152,7 +158,8 @@ export class DoctorRepository extends Repository<IDoctor> {
   private static instance: DoctorRepository;
   public constructor() {
     super();
-    this.url = process.env.DOCTOR ? process.env.DOCTOR : '';
+    const urlAPI = process.env.DOCTOR ? process.env.DOCTOR : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
   public static getInstance(): DoctorRepository {
@@ -181,9 +188,11 @@ export class PathologicalHistoryRepository extends Repository<IPathologycalHisto
   urlWithParameters: string;
   public constructor() {
     super();
-    this.url = process.env.PATHOLOGY_HISTORY
+
+    const urlAPI = process.env.PATHOLOGY_HISTORY
       ? process.env.PATHOLOGY_HISTORY
       : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
 

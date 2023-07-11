@@ -3,18 +3,21 @@ export interface ISpeciality {
   description: string;
   code: number;
 }
+
 export interface IDXMainCode {
   id?: number;
   CUP: string;
   description: string;
   speciality: number;
 }
+
 export interface IRelationCode {
   id?: number;
   description: string;
   code: string;
   dxmaincode: number;
 }
+
 export interface IDoctor {
   id?: number;
   codigo: string;
@@ -22,21 +25,25 @@ export interface IDoctor {
   lastName: string;
   speciality: Array<number> | Array<ISpeciality>;
 }
+
 export interface IPhysicalExam {
   id?: number;
   description: string;
   speciality: number;
   active: boolean;
 }
+
 export interface IPatientStatus {
   id?: number;
   code: string;
   description: string;
 }
+
 export interface IReasonConsult {
   id?: number;
   abbreviation: string;
 }
+
 export interface IAppointment {
   id?: number;
   price: number;
@@ -52,6 +59,7 @@ export interface IAppointment {
   paymentMethod: number;
   codeTransaction: string | null;
 }
+
 export interface EventSchedule {
   id?: number;
   title: string;
@@ -62,21 +70,25 @@ export interface EventSchedule {
   doctor: number;
   observations: string;
 }
+
 export interface IGender {
   id: number;
   nameGender: string;
 }
+
 export interface IHealthInsurance {
   id?: number;
   nameInsurance: string;
   entityCode: string;
   takeCopayment: boolean;
 }
+
 export interface IIDType {
   id?: number;
   description: string;
   abbreviation: string;
 }
+
 export interface IPatient {
   id?: number;
   name: string;
@@ -89,29 +101,46 @@ export interface IPatient {
   gender: number;
   email: string;
 }
+
 export interface IPaymentOptions {
   id: number;
   description: string;
   code: string;
 }
+
 export interface IPathologycalHistory {
   id: number;
   description: string;
 }
+
 export interface IUser {
   id?: number;
   email: string;
   first_name: string;
   last_name: string;
-  password1: string;
-  password2: string;
   first_time: boolean;
+  group: number | null;
 }
+
 export interface ILogin {
+  id?: number;
   email: string;
   password: string;
 }
 
 export interface IKeyEmailRegistration {
   key: string;
+}
+
+export interface Permission {
+  id?: number;
+  name: string;
+  codename: string;
+  content_type: number;
+}
+
+export interface IExam {
+  id?: number;
+  description: string;
+  result: string;
 }

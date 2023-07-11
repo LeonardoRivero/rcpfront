@@ -1,6 +1,7 @@
 import { IPathologycalHistory } from 'src/Domine/ModelsDB';
 import { PathologicalHistoryResponse } from 'src/Domine/Responses';
 import { Repository, PathologicalHistoryRepository } from '../Repositories';
+import HttpStatusCode from '../Utilities/HttpStatusCodes';
 
 export class PathologicalHistoryService {
   private repository: Repository<IPathologycalHistory>;
@@ -37,8 +38,10 @@ export class PathologicalHistoryService {
 
   public async getAll(): Promise<Array<PathologicalHistoryResponse>> {
     const response = await this.repository.getAll();
-    if (!response.ok) return [];
-    return await response.json();
+    if (!response.ok || response.status == HttpStatusCode.NO_CONTENT) return [];
+    const data: Array<PathologicalHistoryResponse> = await response.json();
+    console.log(data);
+    return data;
   }
 
   public async getById(

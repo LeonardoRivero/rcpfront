@@ -79,20 +79,20 @@ import {
   useStoreUser,
 } from 'src/Infraestructure/Mediators/UserMediator';
 import { UserService } from 'src/Application/Services/UserService';
-import { login } from 'src/Domine/types';
+
 import {
   ContextUser,
   DoctorStrategy,
   SecretaryStrategy,
 } from 'src/Domine/StrategyUser';
-import { Notificator, StrategyUser } from 'src/Domine/IPatterns';
+import { ModalType, Notificator, StrategyUser } from 'src/Domine/IPatterns';
 import {
   required,
   emailRequired,
   short,
   noSpaces,
 } from 'src/Application/Utilities/Helpers';
-import { IKeyEmailRegistration } from 'src/Domine/ModelsDB';
+import { IKeyEmailRegistration, ILogin } from 'src/Domine/ModelsDB';
 import HttpStatusCode from 'src/Application/Utilities/HttpStatusCodes';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import router from 'src/router';
@@ -110,7 +110,9 @@ export default defineComponent({
       Doctor: new DoctorStrategy(),
     };
     const notifySweetAlert: Notificator =
-      FactoryNotifactors.getInstance().createNotificator('drawAttention');
+      FactoryNotifactors.getInstance().createNotificator(
+        ModalType.DrawAttention
+      );
 
     onMounted(async () => {
       if (window.location.pathname == '/') return;
@@ -139,12 +141,11 @@ export default defineComponent({
       async login() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;
-        const payload: login = {
+        const payload: ILogin = {
           email: email.value,
           password: password.value,
         };
         const response = await userService.login(payload);
-        console.log(response);
         if (response == null) {
           labelMessage.value =
             'Email o contraseña incorrecta. Intentelo de nuevo o comuniquise con el administrador del sistema';
@@ -152,6 +153,7 @@ export default defineComponent({
         }
         if (response.user.first_time) {
           routerInstance.push('/changepassword');
+          return;
         }
         // const namegroup = response.user.groups[0].name.toString();
         const namegroup = 'Secretaria';

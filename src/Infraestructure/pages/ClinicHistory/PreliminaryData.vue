@@ -56,6 +56,7 @@ import { PreliminaryDataState } from 'src/Domine/IStates';
 import { PreliminaryDataController } from 'src/Adapters';
 import { ClinicHistoryMediator, SettingsMediator } from '../../Mediators';
 import { ScheduleMediator } from '../../Mediators/ScheduleMediator';
+import { PhysicalExamResultService } from 'src/Application/Services/PhysicalExamResultService';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -81,6 +82,9 @@ export default defineComponent({
     onMounted(async () => {
       state.allPathologies = await settingsMediator.getAllPathologies();
       pathologies = state.allPathologies;
+      const tt = new PhysicalExamResultService();
+      const yy = await tt.getAll();
+      console.log(yy);
     });
 
     return {

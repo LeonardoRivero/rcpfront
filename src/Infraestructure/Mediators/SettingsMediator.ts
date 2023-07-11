@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { IDTypesRepository } from 'src/Application/Repositories';
+import { GroupsRepository } from 'src/Application/Repositories/UserRepository';
 import {
   InsuranceService,
   PathologicalHistoryService,
@@ -17,13 +18,15 @@ import {
   HealthInsuranceResponse,
   IDTypeResponse,
 } from 'src/Domine/Responses';
+import container from 'src/inversify.config';
 
 export class SettingsMediator implements IControllersMediator {
   private controllers: Controller[] = [];
   public store: IStoreSettings;
   private static instance: SettingsMediator;
   private service = new PathologicalHistoryService();
-  private serviceSpeciality = new SpecialityService();
+  private serviceSpeciality =
+    container.get<SpecialityService>('SpecialityService');
   private serviceHealthInsurance = new InsuranceService();
 
   private constructor() {
@@ -94,6 +97,7 @@ export class SettingsMediator implements IControllersMediator {
       return this.store.allPathologies;
     }
     const response = await this.service.getAll();
+    console.log(response);
     this.store.allPathologies = response;
     return response;
   }
@@ -108,8 +112,13 @@ export class SettingsMediator implements IControllersMediator {
   }
 
   public async getAllGroups(): Promise<Group[]> {
-    console.log(this.store.allGroups);
-    return [];
+    const groupRepository = GroupsRepository.getInstance();
+    const response = await groupRepository.getAll();
+    if (!response.ok) {
+      return [];
+    }
+    const data: Group[] = await response.json();
+    return data;
     // if(this.store.allGroups.length == 0){
     //   preguntar al this.mediator por los grupos
     //   return respuesta del mediador
@@ -122,13 +131,12 @@ export class SettingsMediator implements IControllersMediator {
       return this.store.allIdTypes;
     }
     const idTypesRepository = new IDTypesRepository();
-    let response = await idTypesRepository.getAll();
-    console.log(response);
-    if (response == null) {
-      response = <Array<IDTypeResponse>>[];
+    const response = await idTypesRepository.getAll();
+    if (!response.ok) {
+      return <Array<IDTypeResponse>>[];
     }
-    this.store.allIdTypes = response;
-    return response;
+    this.store.allIdTypes = await response.json();
+    return this.store.allIdTypes;
   }
   public async getAllInsurance(): Promise<Array<HealthInsuranceResponse>> {
     if (this.store.allInsurance.length > 0) {

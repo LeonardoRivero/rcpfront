@@ -67,7 +67,6 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive, ref } from 'vue';
 import { QForm } from 'quasar';
-import { UserRepo } from 'src/Application/Repositories/UserRepository';
 import { UserMediator } from 'src/Infraestructure/Mediators/UserMediator';
 import { required } from 'src/Application/Utilities/Helpers';
 import { ChangePasswordController } from 'src/Adapters/UserController';
@@ -76,7 +75,6 @@ import { ChangePasswordState } from 'src/Domine/IStates';
 export default defineComponent({
   name: 'ChangePassword',
   setup() {
-    const repo = new UserRepo();
     const form = ref<QForm>();
     const labelMessage = ref<string>('');
     const state: ChangePasswordState = reactive({

@@ -1,28 +1,30 @@
 import { IPatient } from 'src/Domine/ModelsDB';
-import { Repository } from '../Repositories/Interface';
+import { Repository, Service } from '../Repositories/Interface';
 import { PatientResponse } from 'src/Domine/Responses';
 import { PatientRepository } from '../Repositories/PatientRepository';
+import HttpStatusCode from '../Utilities/HttpStatusCodes';
 
-export class PatientService {
-  private repository: Repository<IPatient>;
+export class PatientService extends Service<IPatient, PatientResponse> {
+  public repository: Repository<IPatient>;
   public constructor() {
+    super();
     this.repository = new PatientRepository();
   }
 
-  public async save(payload: IPatient): Promise<PatientResponse | null> {
-    const response = await this.repository.create(payload);
-    if (!response.ok) return null;
-    return await response.json();
-  }
+  // public async save(payload: IPatient): Promise<PatientResponse | null> {
+  //   const response = await this.repository.create(payload);
+  //   if (!response.ok) return null;
+  //   return await response.json();
+  // }
 
-  public async update(payload: IPatient): Promise<PatientResponse | null> {
-    if (payload.id == undefined) {
-      throw EvalError('id is undefined');
-    }
-    const response = await this.repository.update(payload, payload.id);
-    if (!response.ok) return null;
-    return await response.json();
-  }
+  // public async update(payload: IPatient): Promise<PatientResponse | null> {
+  //   if (payload.id == undefined) {
+  //     throw EvalError('id is undefined');
+  //   }
+  //   const response = await this.repository.update(payload, payload.id);
+  //   if (!response.ok) return null;
+  //   return await response.json();
+  // }
 
   public async findByParameters(
     queryParameters: object
@@ -37,6 +39,9 @@ export class PatientService {
   ): Promise<PatientResponse | null> {
     const queryParameters = { identification: identification };
     const response = await this.repository.findByParameters(queryParameters);
+    if (!response.ok || response.status == HttpStatusCode.NO_CONTENT) {
+      return null;
+    }
     const data = [await response.json()];
     const register = data.pop();
     if (register === undefined) {

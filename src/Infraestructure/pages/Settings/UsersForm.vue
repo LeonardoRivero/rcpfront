@@ -70,7 +70,7 @@
                 </div>
               </div>
               <div class="row q-col-gutter-x-md">
-                <div class="col-6 col-md">
+                <!-- <div class="col-6 col-md">
                   <q-input
                     v-model="state.identification"
                     outlined
@@ -80,25 +80,28 @@
                     label="Numero Identificacion *"
                     :rules="[numberRequired]"
                   />
-                </div>
-                <div class="col-6 col-md">
+                </div> -->
+                <div class="col-12 col-md">
+                  {{ state.user }}
                   <q-select
-                    v-model="state.idType"
+                    v-model="state.user.group"
                     :readonly="disable"
                     dense
                     outlined
-                    :options="allIDTypes"
+                    :options="allGroups"
                     :option-value="(item) => (item === null ? null : item.id)"
-                    option-label="description"
+                    option-label="name"
                     map-options
-                    label="Tipo Documento *"
+                    label="Grupo *"
                     stack-label
                     emit-value
+                    input-debounce="0"
+                    :rules="[isNotNull]"
                   >
                   </q-select>
                 </div>
               </div>
-              <div class="row q-col-gutter-x-md">
+              <!-- <div class="row q-col-gutter-x-md">
                 <div class="col-6 col-md">
                   <q-input
                     v-model="state.phoneNumber"
@@ -147,7 +150,7 @@
                     </template>
                   </q-input>
                 </div>
-              </div>
+              </div> -->
               <div class="row q-col-gutter-x-md">
                 <div class="col-12 col-md">
                   <q-input
@@ -165,20 +168,15 @@
           </q-item>
         </q-list>
         <q-card-actions align="right" class="text-teal">
-          <q-btn
-            label="Guardar"
-            type="submit"
-            color="primary"
-            icon-right="mdi-content-save"
-          />
-          <q-btn
+          <q-btn label="Guardar" type="submit" color="primary" />
+          <!-- <q-btn
             v-if="disable"
             color="secondary"
             icon-right="mdi-pencil"
             label="Editar"
-            @click="enableEdition"
+            @click="enableEdition()"
             class="q-ml-sm"
-          />
+          /> -->
         </q-card-actions>
       </q-form>
     </q-card-section>
@@ -194,6 +192,7 @@ import {
   required,
   emailRequired,
   numberRequired,
+  isNotNull,
 } from 'src/Application/Utilities/Helpers';
 import { UserController } from 'src/Adapters/UserController';
 import { QForm } from 'quasar';
@@ -214,39 +213,44 @@ export default defineComponent({
         first_name: '',
         last_name: '',
         email: '',
-        password1: 'Rock1989#',
-        password2: 'Rock1989#',
-      } as IUser,
+        first_time: true,
+        group: null,
+      },
     });
     const form = ref<QForm>();
     const mediator = SettingsMediator.getInstance();
     const allGroups = ref<Array<Group>>([]);
-    const allIDTypes = ref<Array<IDTypeResponse>>([]);
+    // const allIDTypes = ref<Array<IDTypeResponse>>([]);
     const controller = UserController.getInstance(state);
 
-    const idTypesRepository = new IDTypesRepository();
+    // const idTypesRepository = new IDTypesRepository();
     onMounted(async () => {
       allGroups.value = await mediator.getAllGroups();
-      const idTypes = await idTypesRepository.getAll();
-      console.log(idTypes);
-      allIDTypes.value = idTypes == null ? [] : idTypes;
+      // const idTypes = await idTypesRepository.getAll();
+      // console.log(idTypes);
+      // allIDTypes.value = idTypes == null ? [] : idTypes;
     });
     return {
       required,
       numberRequired,
       emailRequired,
+      isNotNull,
       form,
       icons,
       state,
       disable: false,
       allGroups,
-      allIDTypes,
+      // allIDTypes,
       async confirmChanges() {
         const isValid = await form.value?.validate();
         if (isValid == false) {
           return;
         }
-        await controller.saveOrUpdate();
+        const response = await controller.saveOrUpdate();
+        if (response != null) {
+          form.value?.reset();
+          state.user = {} as IUser;
+        }
       },
     };
   },

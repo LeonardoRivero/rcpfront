@@ -167,7 +167,7 @@ export default defineComponent({
         mediator.notify(store, controller);
       },
 
-      clearSpeciality() {
+      clearSpeciality(val: any) {
         controller.clear();
       },
     };

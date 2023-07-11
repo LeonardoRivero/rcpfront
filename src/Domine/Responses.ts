@@ -1,3 +1,4 @@
+import { IExam, Permission } from './ModelsDB';
 export interface SpecialityResponse {
   id: number;
   description: string;
@@ -128,4 +129,12 @@ export interface RefreshTokenResponse {
 export interface Group {
   id: number;
   name: string;
+  permissions: Array<Permission>;
+}
+
+export interface PhysicalExamResultResponse {
+  _id: string;
+  date_exam: string | Date;
+  patient_id: number;
+  result: Array<IExam>;
 }

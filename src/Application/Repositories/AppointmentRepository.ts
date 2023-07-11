@@ -1,14 +1,15 @@
 import { IAppointment, IPaymentOptions } from 'src/Domine/ModelsDB';
-import { EndPoints } from 'src/Application/Utilities';
+// import { EndPoints } from 'src/Application/Utilities';
 import { Repository } from './Interface';
-const endpoint = EndPoints.getInstance();
+// const endpoint = EndPoints.getInstance();
 // type IAppointment = IAppointmentRequest | IAppointmentResponse | null;
 export class AppointmentRepository extends Repository<IAppointment> {
   url: string;
   urlWithParameters: string;
   public constructor() {
     super();
-    this.url = process.env.CONSULT ? process.env.CONSULT : '';
+    const urlAPI = process.env.CONSULT ? process.env.CONSULT : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
   // async getById(id: number): Promise<AppointmentResponse | null> {
@@ -72,7 +73,10 @@ export class PaymentOptionsRepository extends Repository<IPaymentOptions> {
   urlWithParameters: string;
   public constructor() {
     super();
-    this.url = process.env.PAYMENT_OPTIONS ? process.env.PAYMENT_OPTIONS : '';
+    const urlAPI = process.env.PAYMENT_OPTIONS
+      ? process.env.PAYMENT_OPTIONS
+      : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
   public override async getById(id: number): Promise<Response> {

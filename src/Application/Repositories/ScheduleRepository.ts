@@ -6,7 +6,8 @@ export class ScheduleRepository extends Repository<EventSchedule> {
 
   public constructor() {
     super();
-    this.url = process.env.SCHEDULE ? process.env.SCHEDULE : '';
+    const urlAPI = process.env.SCHEDULE ? process.env.SCHEDULE : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
 

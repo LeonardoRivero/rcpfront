@@ -1,6 +1,6 @@
 import { IAppointment } from 'src/Domine/ModelsDB';
 import { Messages } from 'src/Application/Utilities/Messages';
-import { Notificator } from 'src/Domine/IPatterns';
+import { ModalType, Notificator } from 'src/Domine/IPatterns';
 import { FactoryNotifactors } from './Creators/Factories';
 import { AppointmentState } from 'src/Domine/IStates';
 import { AppointmentService } from 'src/Application/Services';
@@ -17,7 +17,7 @@ export class AppointmentAdapter {
   private service = new AppointmentService();
   private static instance: AppointmentAdapter;
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private message = Messages.getInstance();
 
   private constructor(store: AppointmentState) {

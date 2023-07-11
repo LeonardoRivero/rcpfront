@@ -1,17 +1,20 @@
 import { IReasonConsult } from 'src/Domine/ModelsDB';
-import { Repository } from '../Repositories/Interface';
+import { Repository, Service } from '../Repositories/Interface';
 import { ReasonConsultResponse } from 'src/Domine/Responses';
 import { ReasonConsultRepository } from '../Repositories';
 
-export class ReasonConsultService {
-  private repository: Repository<IReasonConsult>;
+export class ReasonConsultService extends Service<
+  IReasonConsult,
+  ReasonConsultResponse
+> {
+  public repository: Repository<IReasonConsult>;
   private allReasonConsult: Array<ReasonConsultResponse>;
   private static instance: ReasonConsultService;
 
   public constructor() {
+    super();
     this.repository = new ReasonConsultRepository();
     this.allReasonConsult = [];
-    return;
   }
 
   public static getInstance(): ReasonConsultService {

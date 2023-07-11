@@ -6,10 +6,9 @@ import {
   StrategyUser,
 } from 'src/Domine/IPatterns';
 import { IStoreUser } from 'src/Domine/IStores';
-import { IUser } from 'src/Domine/ModelsDB';
+import { ILogin, IUser } from 'src/Domine/ModelsDB';
 import { AuthResponse } from 'src/Domine/Responses';
 import { DoctorStrategy, SecretaryStrategy } from 'src/Domine/StrategyUser';
-import { login } from 'src/Domine/types';
 
 export const useStoreUser = defineStore({
   id: 'storeUser',
@@ -85,11 +84,11 @@ export class UserMediator implements IControllersMediator {
     // }
     // this.notify(this.store);
   }
-  public login(): void {
-    const payload: login = {
-      email: 'carmen@yopmail.com',
-      password: 'Rock1989#',
-    };
-    this.userService.login(payload);
-  }
+  // public login(): void {
+  //   const payload: ILogin = {
+  //     email: 'carmen@yopmail.com',
+  //     password: 'Rock1989#',
+  //   };
+  //   this.userService.login(payload);
+  // }
 }

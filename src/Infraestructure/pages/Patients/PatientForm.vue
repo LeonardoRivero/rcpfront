@@ -199,7 +199,7 @@
                           v-model="state.currentPatient.email"
                           type="email"
                           :error="state.error"
-                          @blur="(evt) => isValidEmail(evt.target.value)"
+                          @blur="(evt) => isValidEmail(evt.target?.value)"
                         />
                       </div>
                     </div>
@@ -292,9 +292,9 @@ export default defineComponent({
       const idTypes = await idTypesRepository.getAll();
       const genders = await genderRepository.getAll();
       const insurance = await insuranceRepository.getAll();
-      state.allIDTypes = idTypes == null ? [] : idTypes;
+      state.allIDTypes = idTypes.ok == false ? [] : await idTypes.json();
       state.allGenders = genders == null ? [] : genders;
-      state.allInsurance = insurance == null ? [] : insurance;
+      state.allInsurance = insurance.ok == false ? [] : await insurance.json();
     });
 
     return {

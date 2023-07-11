@@ -7,7 +7,8 @@ export class PatientRepository extends Repository<IPatient> {
   urlWithParameters: string;
   public constructor() {
     super();
-    this.url = process.env.PATIENT ? process.env.PATIENT : '';
+    const urlAPI = process.env.PATIENT ? process.env.PATIENT : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
 
@@ -27,9 +28,10 @@ export class PatientRepository extends Repository<IPatient> {
 export class IDTypesRepository extends Repository<IIDType> {
   url: string;
   urlWithParameters: string;
-  private constructor() {
+  public constructor() {
     super();
-    this.url = process.env.ID_TYPE ? process.env.ID_TYPE : '';
+    const urlAPI = process.env.ID_TYPE ? process.env.ID_TYPE : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
   public override async getById(id: number): Promise<Response> {
@@ -56,7 +58,8 @@ export class PatientStatusRepository extends Repository<IPatientStatus> {
   urlWithParameters: string;
   public constructor() {
     super();
-    this.url = process.env.PATIENT_STATUS ? process.env.PATIENT_STATUS : '';
+    const urlAPI = process.env.PATIENT_STATUS ? process.env.PATIENT_STATUS : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
   public override async getById(id: number): Promise<Response> {
@@ -88,7 +91,8 @@ export class ReasonConsultRepository extends Repository<IReasonConsult> {
 
   public constructor() {
     super();
-    this.url = process.env.REASON_CONSULT ? process.env.REASON_CONSULT : '';
+    const urlAPI = process.env.REASON_CONSULT ? process.env.REASON_CONSULT : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
     this.urlWithParameters = '';
   }
   public override async getById(id: number): Promise<Response> {

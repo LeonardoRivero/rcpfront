@@ -5,12 +5,12 @@ import { Convert } from 'src/Application/Utilities';
 import { HealthInsuranceResponse } from 'src/Domine/Responses';
 import { InsuranceState } from 'src/Domine/IStates';
 import { FactoryNotifactors } from './Creators/Factories';
-import { Notificator } from 'src/Domine/IPatterns';
+import { ModalType, Notificator } from 'src/Domine/IPatterns';
 
 export class InsuranceAdapter {
   private state: InsuranceState;
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private messages = Messages.getInstance();
   private service = new InsuranceService();
   private static instance: InsuranceAdapter;
@@ -71,7 +71,7 @@ export class InsuranceAdapter {
       return null;
     }
 
-    const response = await this.service.create(payload);
+    const response = await this.service.save(payload);
     return response;
   }
 

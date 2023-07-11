@@ -1,24 +1,24 @@
-import { IUser } from 'src/Domine/ModelsDB';
+import { ILogin, IUser } from 'src/Domine/ModelsDB';
 import { Messages } from 'src/Application/Utilities/Messages';
-import { RegisterResponse, SpecialityResponse } from 'src/Domine/Responses';
+import { RegisterResponse } from 'src/Domine/Responses';
 import { ChangePasswordState, UserState } from 'src/Domine/IStates';
 import {
   Controller,
   IControllersMediator,
+  ModalType,
   Notificator,
   StrategyUser,
 } from 'src/Domine/IPatterns';
 import { UserService } from 'src/Application/Services/UserService';
 import { DoctorStrategy, SecretaryStrategy } from 'src/Domine/StrategyUser';
-import { login } from 'src/Domine/types';
 import { FactoryNotifactors } from './Creators/Factories';
 export class UserController extends Controller {
   public state: UserState;
   private messages = Messages.getInstance();
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private notifyQuasar: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('notifyQuasar');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
   private service = new UserService();
   private static instance: UserController;
   private profilesUser: Record<string, StrategyUser> = {
@@ -50,15 +50,16 @@ export class UserController extends Controller {
     throw new Error('Method not implemented.');
   }
 
-  public async saveOrUpdate(): Promise<void> {
+  public async saveOrUpdate(): Promise<RegisterResponse | null> {
     if (this.state.user.id == undefined) {
       delete this.state.user['id'];
       this.state.user.first_time = true;
-      await this.save(this.state.user);
+      return await this.save(this.state.user);
     }
     if (this.state.user.id != undefined) {
-      await this.update(this.state.user);
+      return await this.update(this.state.user);
     }
+    return null;
   }
 
   private async save(payload: IUser): Promise<RegisterResponse | null> {
@@ -83,7 +84,7 @@ export class UserController extends Controller {
     return response;
   }
 
-  private async update(payload: IUser): Promise<SpecialityResponse | null> {
+  private async update(payload: IUser): Promise<RegisterResponse | null> {
     this.notifySweetAlert.setType('question');
     const confirm = await this.notifySweetAlert.show(
       'Atención',
@@ -96,7 +97,7 @@ export class UserController extends Controller {
     return null;
   }
 
-  public async login(payload: login) {
+  public async login(payload: ILogin) {
     const response = await this.service.login(payload);
   }
 }

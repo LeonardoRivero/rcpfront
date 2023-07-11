@@ -149,7 +149,7 @@ export default defineComponent({
       state,
       icons: IconSVG.getInstance(),
       form,
-      clearInsurance() {
+      clearInsurance(val: any) {
         controller.clear();
         form.value?.reset();
       },

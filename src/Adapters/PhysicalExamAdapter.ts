@@ -10,6 +10,7 @@ import { PhysicalExamParameterState } from 'src/Domine/IStates';
 import {
   Controller,
   IControllersMediator,
+  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 
@@ -20,7 +21,7 @@ export class PhysicalExamParameterController
   public state: PhysicalExamParameterState;
   private service = PhysicalExamService.getInstance();
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private messages = Messages.getInstance();
   private static instance: PhysicalExamParameterController;
 

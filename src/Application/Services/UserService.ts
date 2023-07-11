@@ -1,5 +1,9 @@
 import { IKeyEmailRegistration, ILogin, IUser } from 'src/Domine/ModelsDB';
-import { LoginRepository } from '../Repositories/Interface';
+import {
+  LoginRepository,
+  Repository,
+  Service,
+} from '../Repositories/Interface';
 import { UserRepository } from '../Repositories/UserRepository';
 import {
   AuthResponse,
@@ -8,8 +12,11 @@ import {
   UserResponse,
 } from 'src/Domine/Responses';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
+import 'reflect-metadata';
+import { injectable } from 'inversify';
 
 type responses = UserResponse | RegisterResponse;
+@injectable()
 export abstract class LoginService {
   public userRepository: LoginRepository;
   private token: AuthResponse | null;
@@ -60,6 +67,7 @@ export abstract class LoginService {
   }
 }
 
+@injectable()
 export class UserService extends LoginService {
   public constructor() {
     super();
@@ -68,7 +76,7 @@ export class UserService extends LoginService {
   public async register(user: IUser): Promise<RegisterResponse | null> {
     console.log('consumir servicio register');
     const response = await this.userRepository.create(user);
-    if (response.status != HttpStatusCode.OK) {
+    if (!response.ok) {
       return null;
     }
     const data: RegisterResponse = await response.json();

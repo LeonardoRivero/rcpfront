@@ -3,13 +3,12 @@ import {
   AppointmentResponse,
   HealthInsuranceResponse,
 } from 'src/Domine/Responses';
-import { AppointmentRepository, Repository } from '../Repositories';
+import { AppointmentRepository, Repository, Service } from '../Repositories';
 
 export class AppointmentService {
-  private repository: Repository<IAppointment>;
+  public repository: Repository<IAppointment>;
   public constructor() {
     this.repository = new AppointmentRepository();
-    return;
   }
   public async save(
     payload: IAppointment

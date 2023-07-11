@@ -12,7 +12,7 @@ import esLocale from '@fullcalendar/core/locales/es';
 import FullCalendar from '@fullcalendar/vue3';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { Notification } from 'src/Infraestructure/Utilities/Notifications';
-import { EndPoints } from 'src/Application/Utilities';
+// import { EndPoints } from 'src/Application/Utilities';
 import { EventSchedule, IAppointment, IDoctor } from 'src/Domine/ModelsDB';
 import {
   DoctorResponse,
@@ -25,6 +25,7 @@ import { ScheduleAdapter } from 'src/Adapters';
 import {
   Controller,
   IControllersMediator,
+  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { routerInstance } from 'src/boot/globalRouter';
@@ -39,7 +40,7 @@ const MINUTES_APPOINTMENT = parseInt(DURATION_APPOINTMENT.split(':')[1]);
 
 const notification = new Notification();
 const messages = Messages.getInstance();
-const endpoint = EndPoints.getInstance();
+// const endpoint = EndPoints.getInstance();
 
 // export const useStoreSchedule = defineStore({
 //   id: 'storeSchedule',
@@ -145,7 +146,7 @@ export class ScheduleMediator implements IControllersMediator {
   private service = new ScheduleService();
   private static instance: ScheduleMediator;
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private messages = Messages.getInstance();
 
   private constructor() {

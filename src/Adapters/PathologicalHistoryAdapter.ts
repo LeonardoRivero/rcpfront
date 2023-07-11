@@ -1,5 +1,5 @@
 import { PathologicalHistoryService } from 'src/Application/Services';
-import { Notificator } from 'src/Domine/IPatterns';
+import { ModalType, Notificator } from 'src/Domine/IPatterns';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { IPathologycalHistory } from 'src/Domine/ModelsDB';
 import { PathologicalHistoryResponse } from 'src/Domine/Responses';
@@ -11,7 +11,7 @@ export class PathologicalHistoryAdapter {
   private store: PathologicalHistoryState;
   private messages = Messages.getInstance();
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private service = new PathologicalHistoryService();
   private convert = new Convert();
   private static instance: PathologicalHistoryAdapter;

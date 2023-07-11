@@ -32,11 +32,12 @@ export interface StrategyUser {
   setPermission(): Promise<void>;
 }
 
-export type ModalType =
-  | 'sweetAlert'
-  | 'notifyQuasar'
-  | 'modalQuasar'
-  | 'drawAttention';
+export enum ModalType {
+  SweetAlert = 'SweetAlert',
+  NotifyQuasar = 'NotifyQuasar',
+  ModalQuasar = 'ModalQuasar',
+  DrawAttention = 'DrawAttention',
+}
 export type NotificationType =
   | 'info'
   | 'warning'

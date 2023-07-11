@@ -3,6 +3,7 @@ import { Messages } from 'src/Application/Utilities';
 import {
   Controller,
   IControllersMediator,
+  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { IStoreSettings } from 'src/Domine/IStores';
@@ -11,6 +12,7 @@ import {
   DXMainCodeResponse,
   Group,
   HealthInsuranceResponse,
+  IDTypeResponse,
   PathologicalHistoryResponse,
   PatientResponse,
   RelationCodeResponse,
@@ -26,7 +28,7 @@ export class PatientMediator implements IControllersMediator {
   private static instance: PatientMediator;
   private service = new PatientService();
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private messages = Messages.getInstance();
 
   private constructor() {
@@ -44,6 +46,7 @@ export class PatientMediator implements IControllersMediator {
         currentDxMainCode: {} as DXMainCodeResponse,
         allInsurance: <Array<HealthInsuranceResponse>>[],
         allGroups: <Array<Group>>[],
+        allIdTypes: <Array<IDTypeResponse>>[],
       }),
     });
     return store();

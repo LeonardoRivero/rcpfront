@@ -1,6 +1,7 @@
 import {
   Controller,
   IControllersMediator,
+  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { FactoryNotifactors } from './Creators/Factories';
@@ -15,9 +16,9 @@ export class PatientController extends Controller {
   public state: PatientState;
   private messages = Messages.getInstance();
   private notifyQuasar: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('notifyQuasar');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
   private sweetAlertModal: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private validator = Validators.getInstance();
   private service = new PatientService();
 

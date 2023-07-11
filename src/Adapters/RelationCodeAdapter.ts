@@ -9,6 +9,7 @@ import { useStoreSpeciality } from 'src/Infraestructure/Mediators/SettingsPage/S
 import {
   Controller,
   IControllersMediator,
+  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { RelationCodeState } from 'src/Domine/IStates';
@@ -19,7 +20,7 @@ export class RelationCodeController extends Controller {
   private storeSpeciality = useStoreSpeciality();
   private repository = RelationCodeRepository.getInstance();
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private messages = Messages.getInstance();
   private service = new RelationCodeService();
 
@@ -134,7 +135,7 @@ export class RelationCodeController extends Controller {
       return null;
     }
 
-    const response = await this.service.create(payload);
+    const response = await this.service.save(payload);
     return response;
   }
 
@@ -153,11 +154,11 @@ export class RelationCodeController extends Controller {
 
   public async getAll(): Promise<Array<RelationCodeResponse> | null> {
     const response = await this.repository.getAll();
-    if (response === null || response.length === 0) {
+    if (!response.ok) {
       return (this.state.allRelationCodes = []);
     }
 
-    this.state.allRelationCodes = response;
+    this.state.allRelationCodes = await response.json();
     return null;
     // return response;
   }

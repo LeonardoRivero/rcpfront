@@ -2,9 +2,9 @@
   "extends": "@quasar/app-vite/tsconfig-preset",
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "es5", //se agrego
-    "module": "commonjs", //se agrego
-    "sourceMap": true, //se agregon
+    "target": "es5",
+    "module": "commonjs",
+    "sourceMap": true,
     "lib": ["es6", "dom"],
     "types": ["reflect-metadata"],
     "moduleResolution": "node",

@@ -1,14 +1,18 @@
 import { IPatientStatus } from 'src/Domine/ModelsDB';
-import { Repository } from '../Repositories/Interface';
+import { Repository, Service } from '../Repositories/Interface';
 import { PatientStatusResponse } from 'src/Domine/Responses';
 import { PatientStatusRepository } from '../Repositories';
 
-export class PatientStatusService {
-  private repository: Repository<IPatientStatus>;
+export class PatientStatusService extends Service<
+  IPatientStatus,
+  PatientStatusResponse
+> {
+  public repository: Repository<IPatientStatus>;
   private allPatientStatus: Array<PatientStatusResponse>;
   private static instance: PatientStatusService;
 
   public constructor() {
+    super();
     this.repository = new PatientStatusRepository();
     this.allPatientStatus = [];
   }
@@ -20,7 +24,7 @@ export class PatientStatusService {
     return PatientStatusService.instance;
   }
 
-  public async getAll(): Promise<Array<PatientStatusResponse>> {
+  public override async getAll(): Promise<Array<PatientStatusResponse>> {
     if (this.allPatientStatus.length !== 0) {
       return this.allPatientStatus;
     }

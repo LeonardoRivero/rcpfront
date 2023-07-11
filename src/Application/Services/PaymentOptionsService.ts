@@ -1,17 +1,21 @@
 import { IPaymentOptions } from 'src/Domine/ModelsDB';
-import { Repository } from '../Repositories/Interface';
+import { Repository, Service } from '../Repositories/Interface';
 import { PaymentOptionsResponse } from 'src/Domine/Responses';
 import { PaymentOptionsRepository } from '../Repositories';
+import HttpStatusCodes from '../Utilities/HttpStatusCodes';
 
-export class PaymentOptionsService {
-  private repository: Repository<IPaymentOptions>;
+export class PaymentOptionsService extends Service<
+  IPaymentOptions,
+  PaymentOptionsResponse
+> {
+  public repository: Repository<IPaymentOptions>;
   private allPaymentOptions: Array<PaymentOptionsResponse>;
   private static instance: PaymentOptionsService;
 
-  private constructor() {
+  public constructor() {
+    super();
     this.repository = new PaymentOptionsRepository();
     this.allPaymentOptions = [];
-    return;
   }
 
   public static getInstance(): PaymentOptionsService {
@@ -21,27 +25,28 @@ export class PaymentOptionsService {
     return PaymentOptionsService.instance;
   }
 
-  public async findByParameters(
-    queryParameters: object
-  ): Promise<Array<PaymentOptionsResponse>> {
-    const response = await this.repository.findByParameters(queryParameters);
-    if (response == null || response.length === 0) return [];
-    return response;
-  }
+  // public async findByParameters(
+  //   queryParameters: object
+  // ): Promise<Array<PaymentOptionsResponse>> {
+  //   const response = await this.repository.findByParameters(queryParameters);
+  //   if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT)
+  //     return [];
+  //   return await response.json();
+  // }
 
-  public async getAll(): Promise<Array<PaymentOptionsResponse>> {
+  public override async getAll(): Promise<Array<PaymentOptionsResponse>> {
     if (this.allPaymentOptions.length !== 0) {
       return this.allPaymentOptions;
     }
     const response = await this.repository.getAll();
-    if (response == null) return [];
-    this.allPaymentOptions = response;
-    return response;
+    if (!response.ok) return [];
+    this.allPaymentOptions = await response.json();
+    return this.allPaymentOptions;
   }
 
   public async getById(id: number): Promise<PaymentOptionsResponse | null> {
     const response = await this.repository.getById(id);
-    return response;
+    return await response.json();
   }
 
   public async paymentIsCash(id: number): Promise<boolean> {
@@ -54,11 +59,5 @@ export class PaymentOptionsService {
       return false;
     }
     return true;
-  }
-
-  public setRepository(
-    repository: IRepository<IPaymentOptions, PaymentOptionsResponse>
-  ) {
-    this.repository = repository;
   }
 }

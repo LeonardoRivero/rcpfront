@@ -19,6 +19,7 @@ import { ScheduleService } from 'src/Application/Services/ScheduleService';
 import {
   Controller,
   IControllersMediator,
+  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { FactoryNotifactors } from './Creators/Factories';
@@ -29,9 +30,9 @@ export class ScheduleAdapter extends Controller {
   public state: ScheduleState;
   private messages = Messages.getInstance();
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('sweetAlert');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private notifyQuasar: Notificator =
-    FactoryNotifactors.getInstance().createNotificator('notifyQuasar');
+    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
   // private repository: IRepository<EventSchedule, EventScheduleResponse>;
   private repositoryAppointment = new AppointmentRepository();
   private service = new ScheduleService();
