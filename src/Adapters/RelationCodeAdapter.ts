@@ -4,8 +4,6 @@ import { IRelationCode } from 'src/Domine/ModelsDB';
 import { RelationCodeService } from 'src/Application/Services/RelationCodeService';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { RelationCodeResponse } from 'src/Domine/Responses';
-import { useStoreDxMainCode } from 'src/Infraestructure/Mediators/SettingsPage/DxMainCodeStore';
-import { useStoreSpeciality } from 'src/Infraestructure/Mediators/SettingsPage/SpecialityStore';
 import {
   Controller,
   IControllersMediator,
@@ -14,10 +12,9 @@ import {
 } from 'src/Domine/IPatterns';
 import { RelationCodeState } from 'src/Domine/IStates';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
+import { IStoreSettings } from 'src/Domine/IStores';
 export class RelationCodeController extends Controller {
   public state: RelationCodeState;
-  private storeDxMainCode = useStoreDxMainCode();
-  private storeSpeciality = useStoreSpeciality();
   private repository = RelationCodeRepository.getInstance();
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
@@ -77,14 +74,15 @@ export class RelationCodeController extends Controller {
   }
 
   public async saveOrUpdate(): Promise<void> {
+    const store = this.mediator.getStore() as IStoreSettings;
     if (!this.state.currentRelationCode) return;
-    if (this.storeSpeciality.currentSpeciality?.id === undefined) {
+    if (store.currentSpeciality?.id === undefined) {
       this.state.errorSpeciality = true;
       return;
     }
 
     this.state.errorSpeciality = false;
-    if (this.storeDxMainCode.currentDxMainCode?.id === undefined) {
+    if (store.currentDxMainCode?.id === undefined) {
       this.state.errorDxMainCode = true;
       return;
     }
@@ -98,30 +96,23 @@ export class RelationCodeController extends Controller {
       payload = {
         code: data.code,
         description: data.description,
-        dxmaincode: this.storeDxMainCode.currentDxMainCode.id,
+        dxmaincode: store.currentDxMainCode.id,
       };
       response = await this.create(payload);
     }
+    // if (this.state.currentRelationCode.id != undefined) {
+    //   payload = {
+    //     id: data.id,
+    //     code: data.code,
+    //     description: data.description,
+    //     dxmaincode: this.storeDxMainCode.currentDxMainCode.id,
+    //   };
+    //   response = await this.update(payload);
+    // }
 
-    if (this.state.currentRelationCode.id != undefined) {
-      payload = {
-        id: data.id,
-        code: data.code,
-        description: data.description,
-        dxmaincode: this.storeDxMainCode.currentDxMainCode.id,
-      };
-      response = await this.update(payload);
-    }
-
-    if (response === null) return;
-    // this.state.currentRelationCode = response;
-    // const queryParameters = {
-    //   dxMainCodeId: this.storeDxMainCode.currentDxMainCode.id,
-    // };
-    // this.state.allRelationCodes = await this.service.findByParameters(
-    //   queryParameters
-    // );
-    // this.state.expandedk = false;
+    this.state.relationCode = response;
+    this.state.allRelationCodes = await this.service.getAll();
+    this.state.expanded = false;
   }
 
   private async create(

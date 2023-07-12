@@ -40,7 +40,7 @@
             <q-list>
               <q-expansion-item
                 popup
-                :icon="icon"
+                :icon="icons.outpatient"
                 :caption="PARAMETERS_PHYSICAL_EXAM"
                 label="Examen Fisico"
               >
@@ -56,7 +56,7 @@
 
               <q-expansion-item
                 popup
-                :icon="iconPathologies"
+                :icon="icons.medicalResults"
                 label="Antecedentes Patologicos"
                 :caption="PATHOLOGYCAL_HISTORY"
               >
@@ -122,28 +122,23 @@ export default defineComponent({
   },
 
   setup() {
-    const iconSVG = IconSVG.getInstance();
-    const icon = ref('');
-    const iconPathologies = ref<string>('');
-    const PARAMETERS_PHYSICAL_EXAM = ref<string>('');
-    const PATHOLOGYCAL_HISTORY = ref<string>('');
+    // const iconSVG = IconSVG.getInstance();
+    // const icon = ref('');
+    // const iconPathologies = ref<string>('');
+    // const PARAMETERS_PHYSICAL_EXAM = ref<string>('');
+    // const PATHOLOGYCAL_HISTORY = ref<string>('');
     // const r = ref();
     // const table = ref<TableOptions>();
-    // const { allSpecialities } = storeToRefs(useStoreSpeciality());
 
     onMounted(async () => {
-      icon.value = iconSVG.outpatient;
-      iconPathologies.value = iconSVG.medicalResults;
-      PARAMETERS_PHYSICAL_EXAM.value =
-        'En esta seccion puedes modificar los parametros que desea implementar en su examen fisico';
-      PATHOLOGYCAL_HISTORY.value =
-        'Aqui podras ver el listado de enfermedades que podrian poseer los pacientes';
-
+      // PARAMETERS_PHYSICAL_EXAM.value =
+      //   'En esta seccion puedes modificar los parametros que desea implementar en su examen fisico';
+      // PATHOLOGYCAL_HISTORY.value =
+      //   'Aqui podras ver el listado de enfermedades que podrian poseer los pacientes';
       // r.value = allSpecialities.value.map((row: ISpeciality) => ({
       //   id: row.id,
       //   description: row.description,
       // }));
-
       // const pp = new TableOptions(columnsPrueba, r);
       // pp.selectionRow = 'none' as SelectionType;
       // pp.title = 'Nueva Tabla';
@@ -160,10 +155,11 @@ export default defineComponent({
     return {
       tab: ref('MedicalHistory'),
       splitterModel: ref(20),
-      PARAMETERS_PHYSICAL_EXAM,
-      PATHOLOGYCAL_HISTORY,
-      icon,
-      iconPathologies,
+      PARAMETERS_PHYSICAL_EXAM:
+        'En esta seccion puedes modificar los parametros que desea implementar en su examen fisico',
+      PATHOLOGYCAL_HISTORY:
+        'Aqui podras ver el listado de enfermedades que podrian poseer los pacientes',
+      icons: IconSVG.getInstance(),
     };
   },
 });
