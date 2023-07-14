@@ -14,7 +14,6 @@ import { PatientState } from 'src/Domine/IStates';
 
 export class PatientController extends Controller {
   public state: PatientState;
-  private messages = Messages.getInstance();
   private notifyQuasar: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
   private sweetAlertModal: Notificator =
@@ -57,7 +56,7 @@ export class PatientController extends Controller {
     if (response === null) {
       this.clear();
       this.notifyQuasar.setType('warning');
-      this.notifyQuasar.show(undefined, this.messages.notInfoFound);
+      this.notifyQuasar.show(undefined, Messages.notInfoFound);
       this.state.disable = false;
       return null;
     }
@@ -110,7 +109,7 @@ export class PatientController extends Controller {
       response = await this.save(payload);
       if (response == null) {
         this.notifyQuasar.setType('error');
-        this.notifyQuasar.show(undefined, this.messages.patientNotSaved);
+        this.notifyQuasar.show(undefined, Messages.patientNotSaved);
         return null;
       }
     }
@@ -138,7 +137,7 @@ export class PatientController extends Controller {
   private async save(payload: IPatient): Promise<PatientResponse | null> {
     const confirm = await this.sweetAlertModal.show(
       'Atención',
-      this.messages.newRegister
+      Messages.newRegister
     );
     if (confirm === false) {
       return null;
@@ -151,7 +150,7 @@ export class PatientController extends Controller {
   private async update(payload: IPatient): Promise<PatientResponse | null> {
     const confirm = await this.sweetAlertModal.show(
       'Atención',
-      this.messages.updateRegister
+      Messages.updateRegister
     );
     if (confirm == false) return null;
 
@@ -176,7 +175,7 @@ export class PatientController extends Controller {
     this.sweetAlertModal.setType('error');
     const confirm = await this.sweetAlertModal.show(
       'Error',
-      this.messages.notFoundInfoPatient
+      Messages.notFoundInfoPatient
     );
     if (confirm == false) {
       return;

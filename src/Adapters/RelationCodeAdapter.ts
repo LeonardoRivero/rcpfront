@@ -18,7 +18,6 @@ export class RelationCodeController extends Controller {
   private repository = RelationCodeRepository.getInstance();
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
-  private messages = Messages.getInstance();
   private service = new RelationCodeService();
 
   private static instance: RelationCodeController;
@@ -120,7 +119,7 @@ export class RelationCodeController extends Controller {
   ): Promise<RelationCodeResponse | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.newRegister
+      Messages.newRegister
     );
     if (confirm === false) {
       return null;
@@ -135,7 +134,7 @@ export class RelationCodeController extends Controller {
   ): Promise<RelationCodeResponse | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.updateRegister
+      Messages.updateRegister
     );
 
     if (confirm == false) return null;

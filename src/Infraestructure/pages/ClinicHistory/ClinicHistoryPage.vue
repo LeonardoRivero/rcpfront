@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-sm">
     <div class="row q-col-gutter-sm">
-      <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+      <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
         <InfoPatientPanel />
         <br />
         <q-stepper
@@ -49,20 +49,28 @@
           </template>
         </q-stepper>
       </div>
-      <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12"></div>
+      <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+        <ClinicHistoryResume />
+      </div>
     </div>
   </q-page>
 </template>
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import { QForm, QStepper } from 'quasar';
 import InfoPatientPanel from './InfoPatientPanel.vue';
 import PreliminaryData from './PreliminaryData.vue';
 import MedicalProcedure from './MedicalProcedure.vue';
-import { QForm, QStepper } from 'quasar';
-import 'src/css/app.sass';
+import ClinicHistoryResume from './ClinicHistoryResume.vue';
 import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
+import 'src/css/app.sass';
 export default defineComponent({
-  components: { InfoPatientPanel, PreliminaryData, MedicalProcedure },
+  components: {
+    InfoPatientPanel,
+    PreliminaryData,
+    MedicalProcedure,
+    ClinicHistoryResume,
+  },
   setup() {
     const formStep1 = ref<QForm>();
     const stepper = ref<QStepper>();
@@ -74,7 +82,7 @@ export default defineComponent({
       formStep1,
       stepper,
       step,
-      disableContinue: store.currentSchedule == null ? true : false,
+      disableContinue: store.currentSchedule == null ? false : false,
       async onContinueStep() {
         const step1 = await formStep1.value?.validate();
         if (step1 === true && step.value == 1) {

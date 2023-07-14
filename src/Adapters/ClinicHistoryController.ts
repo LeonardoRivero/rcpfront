@@ -2,6 +2,7 @@ import {
   AppointmentResponse,
   PatientResponse,
   PhysicalExamResponse,
+  PhysicalExamResultResponse,
 } from 'src/Domine/Responses';
 import { IconSVG, Gender } from 'src/Application/Utilities';
 import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators/ClinicHistoryMediator';
@@ -11,10 +12,20 @@ import {
   MedicalProcedureState,
   PreliminaryDataState,
 } from 'src/Domine/IStates';
-import { Controller } from 'src/Domine/IPatterns';
+import {
+  Controller,
+  IControllersMediator,
+  ModalType,
+  Notificator,
+} from 'src/Domine/IPatterns';
+import { Service } from 'src/Application/Repositories';
+import { IExam } from 'src/Domine/ModelsDB';
+import { PhysicalExamResultService } from 'src/Application/Services/PhysicalExamResultService';
+import { PhysicalExamResume } from 'src/Domine/Types';
+import { FactoryNotifactors } from './Creators/Factories';
 
 export class InfoPatientPanelController extends Controller {
-  private iconSVG = IconSVG.getInstance();
+  private iconSVG = IconSVG;
   private static instance: InfoPatientPanelController;
   public state: InfoPatientState;
 
@@ -156,5 +167,60 @@ export class MedicalProcedureController extends Controller {
   }
   clear(): void {
     throw new Error('Method not implemented.');
+  }
+}
+
+export class ClinicHistoryResumeController extends Controller {
+  public state: object;
+  private service: Service<IExam, PhysicalExamResultResponse>;
+  private notifyQuasar: Notificator =
+    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
+  public constructor() {
+    super();
+    this.service = new PhysicalExamResultService();
+    this.state = {};
+  }
+  sendData(data: unknown): void {
+    throw new Error('Method not implemented.');
+  }
+  receiveData(data: IControllersMediator): void {
+    throw new Error('Method not implemented.');
+  }
+  clear(): void {
+    throw new Error('Method not implemented.');
+  }
+  public async getAll(): Promise<Array<PhysicalExamResultResponse>> {
+    try {
+      const items = await this.service.getAll();
+      return items;
+    } catch (error: any) {
+      this.notifyQuasar.setType('error');
+      this.notifyQuasar.show(
+        undefined,
+        'Lo sentimos no pudimos cargar el historial del paciente'
+      );
+      return [];
+    }
+  }
+
+  public adaptObject(
+    items: Array<PhysicalExamResultResponse>
+  ): Array<PhysicalExamResume> {
+    const groups = items.reduce((groups: any, game) => {
+      const date = new Date(game.date_exam.toString());
+      if (!groups[date.getFullYear()]) {
+        groups[date.getFullYear()] = [];
+      }
+      groups[date.getFullYear()].push(game);
+      return groups;
+    }, {});
+
+    const groupArrays = Object.keys(groups).map((year) => {
+      return {
+        year,
+        results: groups[year],
+      };
+    });
+    return groupArrays;
   }
 }

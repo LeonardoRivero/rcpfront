@@ -52,7 +52,7 @@ export default defineComponent({
       items: [],
     });
     return {
-      icons: IconSVG.getInstance(),
+      icons: IconSVG,
       state,
     };
   },

@@ -9,7 +9,6 @@ import { FactoryNotifactors } from './Creators/Factories';
 
 export class PathologicalHistoryAdapter {
   private store: PathologicalHistoryState;
-  private messages = Messages.getInstance();
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private service = new PathologicalHistoryService();
@@ -54,7 +53,7 @@ export class PathologicalHistoryAdapter {
   ): Promise<PathologicalHistoryResponse | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.newRegister
+      Messages.newRegister
     );
     if (confirm === false) {
       return null;
@@ -69,7 +68,7 @@ export class PathologicalHistoryAdapter {
   ): Promise<PathologicalHistoryResponse | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.updateRegister
+      Messages.updateRegister
     );
     if (confirm === false) {
       return null;

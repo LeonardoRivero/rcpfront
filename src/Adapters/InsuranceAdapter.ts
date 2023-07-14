@@ -11,7 +11,6 @@ export class InsuranceAdapter {
   private state: InsuranceState;
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
-  private messages = Messages.getInstance();
   private service = new InsuranceService();
   private static instance: InsuranceAdapter;
   private convert = new Convert();
@@ -65,7 +64,7 @@ export class InsuranceAdapter {
   ): Promise<IHealthInsurance | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.newRegister
+      Messages.newRegister
     );
     if (confirm === false) {
       return null;
@@ -80,7 +79,7 @@ export class InsuranceAdapter {
   ): Promise<IHealthInsurance | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.updateRegister
+      Messages.updateRegister
     );
     if (confirm === false) {
       return null;

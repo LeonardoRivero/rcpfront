@@ -14,7 +14,6 @@ import { DoctorStrategy, SecretaryStrategy } from 'src/Domine/StrategyUser';
 import { FactoryNotifactors } from './Creators/Factories';
 export class UserController extends Controller {
   public state: UserState;
-  private messages = Messages.getInstance();
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private notifyQuasar: Notificator =
@@ -66,7 +65,7 @@ export class UserController extends Controller {
     this.notifySweetAlert.setType('question');
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.newRegister
+      Messages.newRegister
     );
     if (confirm === false) {
       return null;
@@ -88,7 +87,7 @@ export class UserController extends Controller {
     this.notifySweetAlert.setType('question');
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.updateRegister
+      Messages.updateRegister
     );
     if (confirm === false) {
       return null;

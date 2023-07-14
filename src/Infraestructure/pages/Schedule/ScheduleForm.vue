@@ -307,7 +307,6 @@ export default defineComponent({
       container.get<SpecialityService>('SpecialityService');
     const doctorService = new DoctorService();
     const patientMediator = PatientMediator.getInstance();
-    const messages = Messages.getInstance();
     const form = ref<QForm>();
     const error = ref<boolean>(false);
 
@@ -331,7 +330,7 @@ export default defineComponent({
       storeSchedule,
       state,
       error,
-      errorMessage: messages.requiredForDelete,
+      errorMessage: Messages.requiredForDelete,
       CURRENTYEAR_MONTH,
       OPTIONS_HOURS,
       OPTIONS_MINUTES,

@@ -53,7 +53,7 @@
                     emit-value
                     :option-value="(item) => (item === null ? null : item.id)"
                     label="Especialidad"
-                    :rules="[required]"
+                    :rules="[isNotNull]"
                     @update:model-value="(val) => specialityChanged(val)"
                   >
                   </q-select>
@@ -117,7 +117,7 @@ import { SettingsMediator } from '../../Mediators';
 import { PhysicalExamParameterState } from 'src/Domine/IStates';
 import { PhysicalExamResponse } from 'src/Domine/Responses';
 import { QForm } from 'quasar';
-import { required } from 'src/Application/Utilities/Helpers';
+import { required, isNotNull } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -167,6 +167,7 @@ export default defineComponent({
       disable,
       userCanEdit,
       required,
+      isNotNull,
       async confirmChanges() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;

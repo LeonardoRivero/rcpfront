@@ -36,7 +36,7 @@ import { IconSVG } from 'src/Application/Utilities';
 export default defineComponent({
   components: { AppointmentForm },
   setup() {
-    const iconSVG = IconSVG.getInstance();
+    const iconSVG = IconSVG;
     const icon = ref<string>('');
     onMounted(async () => {
       icon.value = iconSVG.scheduleCalendar;

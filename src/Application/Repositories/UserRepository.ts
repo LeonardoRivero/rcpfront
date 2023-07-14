@@ -1,6 +1,8 @@
 import { IKeyEmailRegistration, ILogin, IUser } from 'src/Domine/ModelsDB';
 import { POST } from 'src/Infraestructure/Utilities/Request';
 import { LoginRepository, Repository } from './Interface';
+import 'reflect-metadata';
+import { injectable } from 'inversify';
 // import { RegisterResponse, UserResponse } from 'src/Domine/Responses';
 // import { EndPoints } from '../Utilities/EndPoints';
 
@@ -101,7 +103,7 @@ import { LoginRepository, Repository } from './Interface';
 //     }
 //   }
 // }
-
+@injectable()
 export class UserRepository extends LoginRepository {
   url: string;
   urlWithParameters: string;

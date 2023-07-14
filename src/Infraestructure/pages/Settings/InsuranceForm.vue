@@ -147,7 +147,7 @@ export default defineComponent({
 
     return {
       state,
-      icons: IconSVG.getInstance(),
+      icons: IconSVG,
       form,
       clearInsurance(val: any) {
         controller.clear();

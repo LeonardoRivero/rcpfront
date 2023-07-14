@@ -39,7 +39,6 @@ const DURATION_APPOINTMENT = '00:20';
 const MINUTES_APPOINTMENT = parseInt(DURATION_APPOINTMENT.split(':')[1]);
 
 const notification = new Notification();
-const messages = Messages.getInstance();
 // const endpoint = EndPoints.getInstance();
 
 // export const useStoreSchedule = defineStore({
@@ -147,7 +146,6 @@ export class ScheduleMediator implements IControllersMediator {
   private static instance: ScheduleMediator;
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
-  private messages = Messages.getInstance();
 
   private constructor() {
     this.store = this.createStore();
@@ -191,7 +189,7 @@ export class ScheduleMediator implements IControllersMediator {
   public async scheduleNotFound(): Promise<void> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.patientNotSchedule
+      Messages.patientNotSchedule
     );
     if (confirm == false) {
       return;

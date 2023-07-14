@@ -117,6 +117,7 @@ export abstract class Repository<T1> {
   }
 }
 
+@injectable()
 export abstract class LoginRepository extends Repository<IUser> {
   abstract login(data: ILogin): Promise<Response>;
   abstract logout(): Promise<Response>;

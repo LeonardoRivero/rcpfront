@@ -18,7 +18,6 @@ export class DxMainCodeController extends Controller {
   public state: DxMainCodeState;
   private store: IStoreSettings;
   private service = new DxMainCodeService();
-  private messages = Messages.getInstance();
   private static instance: DxMainCodeController;
   private convert = new Convert();
   private notifySweetAlert: Notificator =
@@ -136,7 +135,7 @@ export class DxMainCodeController extends Controller {
   private async save(payload: IDXMainCode): Promise<DXMainCodeResponse | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.newRegister
+      Messages.newRegister
     );
     if (confirm === false) return null;
 
@@ -149,7 +148,7 @@ export class DxMainCodeController extends Controller {
   ): Promise<DXMainCodeResponse | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.updateRegister
+      Messages.updateRegister
     );
 
     if (confirm == false) return null;

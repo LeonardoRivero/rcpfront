@@ -36,12 +36,12 @@ import esLocale from '@fullcalendar/core/locales/es';
 import ScheduleForm from './ScheduleForm.vue';
 import { ScheduleMediator } from '../../Mediators/ScheduleMediator';
 import { IconSVG } from 'src/Application/Utilities';
-import { Notificator } from 'src/Domine/IPatterns';
+import { ModalType, Notificator } from 'src/Domine/IPatterns';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { IStoreSchedule } from 'src/Domine/IStores';
 import { FORMAT_DATETIME } from 'src/Application/Utilities/Constants';
-const messages = Messages.getInstance();
+
 export default defineComponent({
   components: { FullCalendar, ScheduleForm },
 
@@ -75,9 +75,11 @@ export default defineComponent({
         method: 'GET',
         failure: async function () {
           const notifyQuasar: Notificator =
-            FactoryNotifactors.getInstance().createNotificator('notifyQuasar');
+            FactoryNotifactors.getInstance().createNotificator(
+              ModalType.NotifyQuasar
+            );
           notifyQuasar.setType('error');
-          await notifyQuasar.show(undefined, messages.connectionFailure);
+          await notifyQuasar.show(undefined, Messages.connectionFailure);
         },
         success: function (content: Array<unknown>) {
           const timeStamp = Date.now();
@@ -128,7 +130,7 @@ export default defineComponent({
       calOptions,
       store,
       calendar,
-      icons: IconSVG.getInstance(),
+      icons: IconSVG,
     };
   },
 });

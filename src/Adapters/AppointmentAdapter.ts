@@ -18,7 +18,6 @@ export class AppointmentAdapter {
   private static instance: AppointmentAdapter;
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
-  private message = Messages.getInstance();
 
   private constructor(store: AppointmentState) {
     this.store = store;
@@ -69,7 +68,7 @@ export class AppointmentAdapter {
   ): Promise<AppointmentResponse | null> {
     if (patientId == 0) {
       this.notifySweetAlert.setType('error');
-      this.notifySweetAlert.show(undefined, this.message.searchIncorrect);
+      this.notifySweetAlert.show(undefined, Messages.searchIncorrect);
       return null;
     }
 
@@ -164,7 +163,7 @@ export class AppointmentAdapter {
 
     if (response === null) {
       this.notifySweetAlert.setType('error');
-      this.notifySweetAlert.show(undefined, this.message.errorMessage);
+      this.notifySweetAlert.show(undefined, Messages.errorMessage);
     }
     return response;
   }
@@ -174,7 +173,7 @@ export class AppointmentAdapter {
   ): Promise<AppointmentResponse | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.message.newRegister
+      Messages.newRegister
     );
     if (confirm === false) {
       return null;
@@ -205,7 +204,7 @@ export class AppointmentAdapter {
     this.notifySweetAlert.setType('error');
     const confirm = await this.notifySweetAlert.show(
       'Error',
-      this.message.appointmentNotFound
+      Messages.appointmentNotFound
     );
     if (confirm == false) {
       return;

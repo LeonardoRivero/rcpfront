@@ -29,7 +29,6 @@ export class PatientMediator implements IControllersMediator {
   private service = new PatientService();
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
-  private messages = Messages.getInstance();
 
   private constructor() {
     this.store = this.createStore();
@@ -104,7 +103,7 @@ export class PatientMediator implements IControllersMediator {
     this.notifySweetAlert.setType('error');
     const confirm = await this.notifySweetAlert.show(
       'Error',
-      this.messages.notFoundInfoPatient
+      Messages.notFoundInfoPatient
     );
     if (confirm == false) {
       return;

@@ -22,7 +22,6 @@ export class PhysicalExamParameterController
   private service = PhysicalExamService.getInstance();
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
-  private messages = Messages.getInstance();
   private static instance: PhysicalExamParameterController;
 
   private constructor(state: PhysicalExamParameterState) {
@@ -204,7 +203,7 @@ export class PhysicalExamParameterController
   ): Promise<PhysicalExamResponse | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.newRegister
+      Messages.newRegister
     );
     if (confirm === false) {
       return null;
@@ -219,7 +218,7 @@ export class PhysicalExamParameterController
   ): Promise<PhysicalExamResponse | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.updateRegister
+      Messages.updateRegister
     );
     if (confirm == false) {
       return null;

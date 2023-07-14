@@ -130,7 +130,7 @@ export default defineComponent({
 
     return {
       state,
-      icons: IconSVG.getInstance(),
+      icons: IconSVG,
       store,
       form,
       required,

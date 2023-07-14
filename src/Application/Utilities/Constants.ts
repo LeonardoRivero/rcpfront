@@ -1,66 +1,25 @@
 import { date } from 'quasar';
 const timeStamp = Date.now();
 
-export class IconSVG {
-  private static instance: IconSVG;
-  private constructor() {
-    return;
-  }
-  public static getInstance(): IconSVG {
-    if (!IconSVG.instance) {
-      IconSVG.instance = new IconSVG();
-    }
-    return IconSVG.instance;
-  }
-  get stethoscope() {
-    return 'svguse:stethoscope.svg#icon-1';
-  }
-  get female_avatar() {
-    return 'img:female-avatar.svg';
-  }
-  get male_avatar() {
-    return 'img:male-user.svg';
-  }
-  get outpatient() {
-    return 'img:outpatient.svg';
-  }
-  get womanAndMan() {
-    return 'users.svg';
-  }
-  get medicalResults() {
-    return 'img:medical-results-folders.svg';
-  }
-  get bookMedical() {
-    return 'img:book-health-medical.svg';
-  }
-  get barCode() {
-    return 'img:barcode.svg';
-  }
-  get barCodePrice() {
-    return 'img:barcode-price.svg';
-  }
-  get medicalHospital() {
-    return 'img:medical-hospital-building.svg';
-  }
-  get calendarCheckMark() {
-    return 'img:calendar-checkmark.svg';
-  }
-  get scheduleCalendar() {
-    return 'img:schedule-calendar.svg';
-  }
-  get historyLog() {
-    return 'img:history-log.svg';
-  }
-  get hurt() {
-    return 'img:hurt.svg';
-  }
-  get physicalTherapy() {
-    return 'img:physical-therapy.svg';
-  }
-  get question() {
-    return 'img:question.svg';
-  }
+export enum IconSVG {
+  stethoscope = 'svguse:stethoscope.svg#icon-1',
+  female_avatar = 'img:female-avatar.svg',
+  male_avatar = 'img:male-user.svg',
+  outpatient = 'img:outpatient.svg',
+  womanAndMan = 'users.svg',
+  medicalResults = 'img:medical-results-folders.svg',
+  bookMedical = 'img:book-health-medical.svg',
+  barCode = 'img:barcode.svg',
+  barCodePrice = 'img:barcode-price.svg',
+  medicalHospital = 'img:medical-hospital-building.svg',
+  calendarCheckMark = 'img:calendar-checkmark.svg',
+  scheduleCalendar = 'img:schedule-calendar.svg',
+  historyLog = 'img:history-log.svg',
+  hurtreturn = 'img:hurt.svg',
+  physicalTherapy = 'img:physical-therapy.svg',
+  question = 'img:question.svg',
 }
+
 export enum Gender {
   FEMALE = 1,
   MALE = 2,

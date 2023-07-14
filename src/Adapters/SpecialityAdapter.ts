@@ -21,7 +21,6 @@ export class SpecialityController extends Controller {
   public state: SpecialityFormState;
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
-  private messages = Messages.getInstance();
   private service = container.get<SpecialityService>('SpecialityService');
   private static instance: SpecialityController;
 
@@ -83,7 +82,7 @@ export class SpecialityController extends Controller {
     this.notifySweetAlert.setType('question');
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.newRegister
+      Messages.newRegister
     );
     if (confirm === false) {
       return null;
@@ -98,7 +97,7 @@ export class SpecialityController extends Controller {
     this.notifySweetAlert.setType('question');
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.updateRegister
+      Messages.updateRegister
     );
     if (confirm === false) {
       return null;

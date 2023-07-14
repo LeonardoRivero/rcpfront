@@ -141,7 +141,7 @@ export default defineComponent({
     return {
       storePermissions,
       state,
-      icons: IconSVG.getInstance(),
+      icons: IconSVG,
       form,
       required,
       add() {

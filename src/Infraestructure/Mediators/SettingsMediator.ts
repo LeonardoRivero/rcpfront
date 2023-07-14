@@ -46,7 +46,7 @@ export class SettingsMediator implements IControllersMediator {
         allGroups: <Array<Group>>[],
         allInsurance: <Array<HealthInsuranceResponse>>[],
       }),
-      persist: true,
+      // persist: true,
     });
     return store();
   }

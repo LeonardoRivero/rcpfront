@@ -13,7 +13,7 @@ export class Notification implements Notificator {
   private message = '';
   private icon = 'none';
   private timer = 2000;
-  private icons = IconSVG.getInstance();
+  private icons = IconSVG;
   public async show(title?: string, message?: string): Promise<boolean> {
     if (message != undefined) this.message = message;
     const options: QNotifyCreateOptions = {

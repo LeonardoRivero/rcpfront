@@ -82,14 +82,11 @@ export default defineComponent({
     onMounted(async () => {
       state.allPathologies = await settingsMediator.getAllPathologies();
       pathologies = state.allPathologies;
-      const tt = new PhysicalExamResultService();
-      const yy = await tt.getAll();
-      console.log(yy);
     });
 
     return {
       FIELD_REQUIRED,
-      icons: IconSVG.getInstance(),
+      icons: IconSVG,
       state,
       splitterModel: 50,
       filterFn(val: string, update: any) {

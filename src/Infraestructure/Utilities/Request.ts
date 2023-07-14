@@ -2,12 +2,17 @@ import { Notify, Loading } from 'quasar';
 import HttpStatusCodes from 'src/Application/Utilities/HttpStatusCodes';
 import { Messages } from 'src/Application/Utilities/Messages';
 
-const messages = Messages.getInstance();
 export async function http(request: RequestInfo): Promise<Response> {
   try {
     Loading.show();
     console.log(request);
-    const response: Response = await fetch(request);
+
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), 25000);
+    const response: Response = await fetch(request, {
+      signal: controller.signal,
+    });
+    clearTimeout(id);
     console.log(response);
     Loading.hide();
     return response;
@@ -17,9 +22,9 @@ export async function http(request: RequestInfo): Promise<Response> {
     if (err.name === 'TimeoutError') {
       throw Error('Timeout: It took more than 5 seconds to get the result!');
     } else if (err.name === 'AbortError') {
-      throw Error('Fetch aborted by user action');
+      throw Error('Fetch aborted AbortSignal.timeout()');
     } else if (err.name === 'TypeError') {
-      throw Error('AbortSignal.timeout() method is not supported');
+      throw Error(' method is not supported');
     } else {
       throw Error(`Error: type: ${err.name}, message: ${err.message}`);
     }
@@ -98,7 +103,7 @@ export async function handleResponse(
   if (response.status == HttpStatusCodes.NOT_FOUND) {
     Notify.create({
       type: 'negative',
-      message: messages.errorMessage,
+      message: Messages.errorMessage,
       position: 'top-right',
       timeout: timeoutModal,
     });
@@ -106,7 +111,7 @@ export async function handleResponse(
   if (response.status == HttpStatusCodes.CREATED) {
     Notify.create({
       type: 'positive',
-      message: messages.successMessage,
+      message: Messages.successMessage,
       position: 'top-right',
       timeout: timeoutModal,
     });
@@ -114,7 +119,7 @@ export async function handleResponse(
   if (response.status == HttpStatusCodes.BAD_REQUEST) {
     Notify.create({
       type: 'negative',
-      message: messages.errorMessage,
+      message: Messages.errorMessage,
       position: 'top-right',
       timeout: timeoutModal,
     });

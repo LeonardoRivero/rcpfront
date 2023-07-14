@@ -28,7 +28,6 @@ import { ScheduleState } from 'src/Domine/IStates';
 const validator = Validators.getInstance();
 export class ScheduleAdapter extends Controller {
   public state: ScheduleState;
-  private messages = Messages.getInstance();
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private notifyQuasar: Notificator =
@@ -67,7 +66,7 @@ export class ScheduleAdapter extends Controller {
     this.notifySweetAlert.setType('warning');
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.deleteRegister
+      Messages.deleteRegister
     );
     if (confirm == false) {
       return;
@@ -76,7 +75,7 @@ export class ScheduleAdapter extends Controller {
     const response = await this.service.delete(scheduleId);
     if (response === false) {
       this.notifyQuasar.setType('warning');
-      this.notifyQuasar.show(undefined, this.messages.notInfoFound);
+      this.notifyQuasar.show(undefined, Messages.notInfoFound);
       return;
     }
 
@@ -87,7 +86,7 @@ export class ScheduleAdapter extends Controller {
   public async scheduleNotFound(): Promise<void> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.patientNotSchedule
+      Messages.patientNotSchedule
     );
     if (confirm == false) {
       return;
@@ -136,7 +135,7 @@ export class ScheduleAdapter extends Controller {
     const dateIsValid = validator.dateAndHour(this.state.currentSchedule.start);
     if (dateIsValid === false) {
       this.notifyQuasar.setType('error');
-      this.notifyQuasar.show(undefined, this.messages.dateOrHourNotValid);
+      this.notifyQuasar.show(undefined, Messages.dateOrHourNotValid);
       return;
     }
     if (
@@ -167,7 +166,7 @@ export class ScheduleAdapter extends Controller {
       response = await this.save(payload);
       if (response === null) {
         this.notifyQuasar.setType('error');
-        this.notifyQuasar.show(undefined, this.messages.scheduleExisting);
+        this.notifyQuasar.show(undefined, Messages.scheduleExisting);
         return;
       }
       this.state.card = false;
@@ -190,7 +189,7 @@ export class ScheduleAdapter extends Controller {
     }
 
     if (response === null) {
-      // notification.setMessage(this.messages.scheduleExisting);
+      // notification.setMessage(Messages.scheduleExisting);
       // notification.showError();
       return;
     }
@@ -213,7 +212,7 @@ export class ScheduleAdapter extends Controller {
   ): Promise<EventScheduleResponse | null> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
-      this.messages.updateRegister
+      Messages.updateRegister
     );
     if (confirm == false) return null;
     const response = await this.service.update(payload);

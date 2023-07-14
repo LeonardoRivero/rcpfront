@@ -159,7 +159,7 @@ export default defineComponent({
         'En esta seccion puedes modificar los parametros que desea implementar en su examen fisico',
       PATHOLOGYCAL_HISTORY:
         'Aqui podras ver el listado de enfermedades que podrian poseer los pacientes',
-      icons: IconSVG.getInstance(),
+      icons: IconSVG,
     };
   },
 });

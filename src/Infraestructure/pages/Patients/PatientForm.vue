@@ -304,7 +304,7 @@ export default defineComponent({
       emailRequired,
       numberRequired,
       isNotNull,
-      icons: IconSVG.getInstance(),
+      icons: IconSVG,
       async confirmChanges() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;

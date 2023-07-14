@@ -202,7 +202,7 @@ import { IDTypesRepository } from 'src/Application/Repositories';
 export default defineComponent({
   name: 'UsersForm',
   setup() {
-    const icons = IconSVG.getInstance();
+    const icons = IconSVG;
     const state: UserState = reactive({
       IdType: null,
       identification: null,
