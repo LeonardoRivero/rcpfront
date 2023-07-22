@@ -1,9 +1,56 @@
 <template>
-  <q-list bordered class="rounded-borders bg-white">
+  <div class="q-pa-md" v-if="!visible">
+    <q-item>
+      <q-item-section avatar>
+        <q-skeleton type="QAvatar" />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>
+          <q-skeleton type="text" />
+        </q-item-label>
+        <q-item-label caption>
+          <q-skeleton type="text" width="65%" />
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item>
+      <q-item-section avatar>
+        <q-skeleton type="QAvatar" />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>
+          <q-skeleton type="text" />
+        </q-item-label>
+        <q-item-label caption>
+          <q-skeleton type="text" width="90%" />
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item>
+      <q-item-section avatar>
+        <q-skeleton type="QAvatar" />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>
+          <q-skeleton type="text" width="35%" />
+        </q-item-label>
+        <q-item-label caption>
+          <q-skeleton type="text" />
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+  </div>
+
+  <q-list bordered class="rounded-borders bg-white" v-if="visible">
     <div v-for="item in items" :key="item.year">
       <q-expansion-item
         expand-separator
-        :icon="icons.historyLog"
+        :icon="icons.open_book"
         :label="`Año:${item.year}`"
         :caption="`Total visitas:${item.results.length.toString()}`"
         :default-opened="false"
@@ -45,15 +92,18 @@ export default defineComponent({
     // const items = ref<Array<PhysicalExamResultResponse>>([]);
     const items = ref<Array<PhysicalExamResume>>([]);
     const message = ref<string>('');
+    const visible = ref<boolean>(false);
     onMounted(async () => {
       const controller = new ClinicHistoryResumeController();
       const response = await controller.getAll();
       items.value = controller.adaptObject(response);
+      visible.value = response.length != 0;
       console.log(items.value);
     });
     return {
       items,
       icons: IconSVG,
+      visible,
     };
   },
 });

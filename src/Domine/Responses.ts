@@ -84,7 +84,7 @@ export interface PatientResponse {
   lastName: string;
   IDType: IDTypeResponse;
   identification: number;
-  dateBirth: string | Date;
+  dateBirth: string;
   phoneNumber: number;
   insurance: HealthInsuranceResponse;
   gender: GenderResponse;

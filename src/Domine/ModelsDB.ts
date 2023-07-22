@@ -99,7 +99,7 @@ export interface IPatient {
   phoneNumber: number;
   insurance: number;
   gender: number;
-  email: string;
+  email: string | null;
 }
 
 export interface IPaymentOptions {

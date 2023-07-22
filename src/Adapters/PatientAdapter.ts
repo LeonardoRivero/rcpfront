@@ -95,23 +95,18 @@ export class PatientController extends Controller {
     let payload: IPatient;
     let response: PatientResponse | null = null;
     if (this.state.currentPatient.id == undefined) {
-      payload = {
-        name: this.state.currentPatient.name,
-        lastName: this.state.currentPatient.lastName,
-        IDType: this.state.currentPatient.IDType,
-        identification: this.state.currentPatient.identification,
-        dateBirth: this.state.currentPatient.dateBirth,
-        phoneNumber: this.state.currentPatient.phoneNumber,
-        insurance: this.state.currentPatient.insurance,
-        gender: this.state.currentPatient.gender,
-        email: this.state.currentPatient.email,
-      };
-      response = await this.save(payload);
-      if (response == null) {
-        this.notifyQuasar.setType('error');
-        this.notifyQuasar.show(undefined, Messages.patientNotSaved);
-        return null;
-      }
+      // payload = {
+      //   name: this.state.currentPatient.name,
+      //   lastName: this.state.currentPatient.lastName,
+      //   IDType: this.state.currentPatient.IDType,
+      //   identification: this.state.currentPatient.identification,
+      //   dateBirth: this.state.currentPatient.dateBirth,
+      //   phoneNumber: this.state.currentPatient.phoneNumber,
+      //   insurance: this.state.currentPatient.insurance,
+      //   gender: this.state.currentPatient.gender,
+      //   email: this.state.currentPatient.email,
+      // };
+      response = await this.save(this.state.currentPatient);
     }
     if (this.state.currentPatient.id != undefined) {
       payload = {
@@ -128,7 +123,13 @@ export class PatientController extends Controller {
       };
       response = await this.update(payload);
     }
-    if (response !== null) {
+    if (response == null) {
+      this.notifyQuasar.setType('error');
+      this.notifyQuasar.show(undefined, Messages.patientNotSaved);
+    }
+    if (response != null) {
+      this.notifyQuasar.setType('success');
+      this.notifyQuasar.show(undefined, Messages.successMessage);
       this.clear();
     }
     return response;

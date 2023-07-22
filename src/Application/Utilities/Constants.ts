@@ -15,9 +15,10 @@ export enum IconSVG {
   calendarCheckMark = 'img:calendar-checkmark.svg',
   scheduleCalendar = 'img:schedule-calendar.svg',
   historyLog = 'img:history-log.svg',
-  hurtreturn = 'img:hurt.svg',
+  hurt = 'img:hurt.svg',
   physicalTherapy = 'img:physical-therapy.svg',
   question = 'img:question.svg',
+  open_book = 'img:open-book.svg',
 }
 
 export enum Gender {

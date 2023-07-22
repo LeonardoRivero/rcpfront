@@ -26,27 +26,28 @@ export class PatientService extends Service<IPatient, PatientResponse> {
   //   return await response.json();
   // }
 
-  public async findByParameters(
-    queryParameters: object
-  ): Promise<Array<PatientResponse> | PatientResponse> {
-    const response = await this.repository.findByParameters(queryParameters);
-    if (!response.ok) return [];
-    return await response.json();
-  }
+  // public override async findByParameters(
+  //   queryParameters: object
+  // ): Promise<Array<PatientResponse>> {
+  //   const response = await this.repository.findByParameters(queryParameters);
+  //   if (!response.ok) return [];
+  //   return await response.json();
+  // }
 
   public async findByIdentification(
     identification: string
   ): Promise<PatientResponse | null> {
     const queryParameters = { identification: identification };
-    const response = await this.repository.findByParameters(queryParameters);
-    if (!response.ok || response.status == HttpStatusCode.NO_CONTENT) {
+    const yyy = await this.repository.findByParameters(queryParameters);
+    if (!yyy.ok || yyy.status == HttpStatusCode.NO_CONTENT) {
       return null;
     }
-    const data = [await response.json()];
-    const register = data.pop();
-    if (register === undefined) {
-      return null;
-    }
-    return register;
+    const fgfg: PatientResponse = await yyy.json();
+    console.log(fgfg);
+    // const register = fgfg.pop();
+    // if (register === undefined) {
+    //   return null;
+    // }
+    return fgfg;
   }
 }

@@ -55,7 +55,7 @@ export class DxMainCodeService extends Service<
   //   return data;
   // }
 
-  public async findByParameters(
+  public override async findByParameters(
     queryParameters: object
   ): Promise<Array<DXMainCodeResponse>> {
     const response = await this.repository.findByParameters(queryParameters);

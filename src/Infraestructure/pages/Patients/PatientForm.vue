@@ -269,7 +269,7 @@ import { GenderService } from 'src/Application/Services';
 export default defineComponent({
   setup() {
     const state: PatientState = reactive({
-      currentPatient: {} as IPatient,
+      currentPatient: { email: null } as IPatient,
       allIDTypes: [] as Array<IDTypeResponse>,
       allGenders: [] as Array<GenderResponse>,
       allInsurance: [] as Array<HealthInsuranceResponse>,
