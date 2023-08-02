@@ -162,9 +162,9 @@ export default defineComponent({
 
       async specialityChanged(val: ISpeciality) {
         await controller.specialityChanged(val);
-        const store: IStoreSettings = mediator.getStore();
-        store.currentSpeciality = val;
-        mediator.notify(store, controller);
+        // const store: IStoreSettings = mediator.getStore();
+        // store.currentSpeciality = val;
+        // mediator.notify(store, controller);
       },
 
       clearSpeciality(val: any) {

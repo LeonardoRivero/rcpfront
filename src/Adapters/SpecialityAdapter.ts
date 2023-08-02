@@ -11,6 +11,7 @@ import {
 } from 'src/Domine/IPatterns';
 import { FactoryNotifactors } from './Creators/Factories';
 import container from 'src/inversify.config';
+import { IStoreSettings } from 'src/Domine/IStores';
 export class SpecialityController extends Controller {
   sendData(data: unknown): void {
     // this.mediator.handleData();
@@ -44,6 +45,9 @@ export class SpecialityController extends Controller {
   public async specialityChanged(val: ISpeciality | null): Promise<void> {
     if (val === null) return;
     this.state.currentSpeciality = val;
+    const store = this.mediator.getStore() as IStoreSettings;
+    store.currentSpeciality = val;
+    this.mediator.notify(store, this);
   }
 
   public add(): void {

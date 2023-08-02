@@ -55,11 +55,4 @@ export class ClinicHistoryMediator implements IControllersMediator {
   public getStore(): IStoreClinicHistory {
     return this.stores;
   }
-
-  public handleData(state: object): void {
-    // for (const controller of this.controllers) {
-    //   controller.receiveData(this.store);
-    // }
-    // this.notify(this.stores,sender);
-  }
 }

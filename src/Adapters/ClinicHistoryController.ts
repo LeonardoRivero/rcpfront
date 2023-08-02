@@ -131,13 +131,6 @@ export class PreliminaryDataController extends Controller {
     });
     this.adaptPhysicalExam(response, appointment);
   }
-
-  // public sendData(data: object): void {
-  //   if (this.mediator === null || this.mediator === undefined) {
-  //     throw new Error('Aun no se definido un mediador para esta operacion');
-  //   }
-  //   this.mediator.handleData();
-  // }
 }
 
 export class MedicalProcedureController extends Controller {

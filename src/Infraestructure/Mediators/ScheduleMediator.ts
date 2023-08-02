@@ -166,9 +166,7 @@ export class ScheduleMediator implements IControllersMediator {
   public getStore(): IStoreSchedule {
     return this.store;
   }
-  public handleData(state: object): void {
-    throw new Error('Method not implemented.');
-  }
+
   public notify(data: object, sender: Controller): void {
     for (const controller of this.controllers) {
       if (controller !== sender) {

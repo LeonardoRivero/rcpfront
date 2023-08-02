@@ -53,14 +53,6 @@ export class AppointmentAdapter {
       this.store.currentHealthInsurance,
       this.store.currentAppointment
     );
-    // if (this.store.currentHealthInsurance.takeCopayment == true) {
-    //   this.store.currentAppointment.amountPaid =
-    //     +this.store.currentAppointment.price -
-    //     +this.store.currentAppointment.copayment;
-    //   return;
-    // }
-    // this.store.currentAppointment.amountPaid =
-    //   this.store.currentAppointment.price;
   }
 
   public async searchByPatientId(
@@ -78,60 +70,11 @@ export class AppointmentAdapter {
     const appointment = response.pop();
     if (appointment === undefined) return null;
     return appointment;
-    // if (patient === null) {
-    //   storeSchedule.card = false;
-    //   this.storePatient.currentPatient = {
-    //     identification: parseInt(this.store.identificationPatient),
-    //   } as IPatient;
-    //   await this.servicePatient.patientNotFound();
-    //   return;
-    // }
-
-    // queryParameters = {
-    //   patientIdentification: this.store.identificationPatient,
-    // };
-    // const schedule = await this.repositorySchedule.findByParameters(
-    //   queryParameters
-    // );
-    // if (schedule === null) {
-    //   this.this.notification.setMessage(this.message.patientNotSchedule);
-    //   this.this.notification.showWarning();
-    //   return;
-    // }
-
-    // if (schedule.length == 0) {
-    //   const confirm = await this.serviceModal.showModal(
-    //     'Atención',
-    //     this.message.patientNotSchedule
-    //   );
-    //   if (confirm == false) {
-    //     return;
-    //   }
-
-    //   routerInstance.push('/schedule');
-    //   return;
-    // }
-
-    // const lastSchedule = schedule.pop();
-    // if (lastSchedule == undefined || !lastSchedule.id) return;
-
-    // this.store.currentAppointment.schedule = lastSchedule.id;
-    // this.store.currentAppointment.date = date.formatDate(
-    //   lastSchedule.start,
-    //   Constants.FORMAT_DATETIME
-    // );
-    // this.store.currentPatient = lastSchedule.patient as IPatient;
-    // this.store.currentHealthInsurance = lastSchedule.patient
-    //   .insurance as IHealthInsurance;
-    // this.store.speciality = lastSchedule.speciality;
-    // this.store.currentDoctor = lastSchedule.doctor;
   }
 
   public async getById(id: number): Promise<AppointmentResponse | null> {
     const response = await this.service.getById(id);
     return response;
-    // const entity = this.responseToEntity(response);
-    // this.store.currentAppointment = entity;
   }
 
   public async saveOrUpdate(

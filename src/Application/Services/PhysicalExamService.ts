@@ -24,33 +24,6 @@ export class PhysicalExamService extends Service<
     return PhysicalExamService.instance;
   }
 
-  // public async findByParameters(
-  //   queryParameters: object
-  // ): Promise<Array<PhysicalExamResponse>> {
-  //   const response = await this.repository.findByParameters(queryParameters);
-  //   if (!response.ok) return [];
-  //   return await response.json();
-  // }
-
-  // public async save(
-  //   payload: IPhysicalExam
-  // ): Promise<PhysicalExamResponse | null> {
-  //   const response = await this.repository.create(payload);
-  //   if (!response.ok) return null;
-  //   return await response.json();
-  // }
-
-  // public async update(
-  //   payload: IPhysicalExam
-  // ): Promise<PhysicalExamResponse | null> {
-  //   if (payload.id == undefined) {
-  //     throw EvalError('id is undefined');
-  //   }
-  //   const response = await this.repository.update(payload, payload.id);
-  //   if (!response.ok) return null;
-  //   return await response.json();
-  // }
-
   public override async getAll(): Promise<Array<PhysicalExamResponse>> {
     if (this.allPaymentOptions.length !== 0) {
       return this.allPaymentOptions;
@@ -60,10 +33,4 @@ export class PhysicalExamService extends Service<
     this.allPaymentOptions = await response.json();
     return this.allPaymentOptions;
   }
-
-  // public async getById(id: number): Promise<PhysicalExamResponse | null> {
-  //   const response = await this.repository.getById(id);
-  //   if (!response.ok) return null;
-  //   return await response.json();
-  // }
 }

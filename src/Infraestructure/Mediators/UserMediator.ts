@@ -77,18 +77,4 @@ export class UserMediator implements IControllersMediator {
       controller.clear();
     }
   }
-
-  public handleData(): void {
-    // for (const controller of this.controllers) {
-    //   controller.receiveData(this.store);
-    // }
-    // this.notify(this.store);
-  }
-  // public login(): void {
-  //   const payload: ILogin = {
-  //     email: 'carmen@yopmail.com',
-  //     password: 'Rock1989#',
-  //   };
-  //   this.userService.login(payload);
-  // }
 }

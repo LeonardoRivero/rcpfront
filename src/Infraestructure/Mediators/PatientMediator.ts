@@ -85,13 +85,6 @@ export class PatientMediator implements IControllersMediator {
     }
   }
 
-  public handleData(): void {
-    // for (const controller of this.controllers) {
-    //   controller.receiveData(this.store);
-    // }
-    // this.notify(this.store);
-  }
-
   public async searchByIdentificacion(
     identification: string
   ): Promise<PatientResponse | null> {

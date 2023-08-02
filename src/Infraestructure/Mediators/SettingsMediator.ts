@@ -85,13 +85,6 @@ export class SettingsMediator implements IControllersMediator {
     }
   }
 
-  public handleData(): void {
-    // for (const controller of this.controllers) {
-    //   controller.receiveData(this.store);
-    // }
-    // this.notify(this.store);
-  }
-
   public async getAllPathologies() {
     if (this.store.allPathologies.length != 0) {
       return this.store.allPathologies;

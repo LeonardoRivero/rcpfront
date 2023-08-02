@@ -21,7 +21,6 @@ export abstract class Controller {
 
 export interface IControllersMediator {
   add(subscriber: Controller): void;
-  handleData(state: object): void;
   notify(data: object, sender: Controller): void;
   createStore(): object;
   getStore(): object;
