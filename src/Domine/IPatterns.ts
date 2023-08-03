@@ -1,7 +1,8 @@
-import { IStorePermissions } from './IStores';
+import { Repository, Service } from 'src/Application/Repositories';
+import { NotificationType, ModalType } from './Types';
+import { DXMainCodeResponse } from './Responses';
 
 export abstract class Controller {
-  abstract sendData(data: unknown): void;
   abstract receiveData(data: IControllersMediator): void;
   abstract clear(): void;
   abstract state: object;
@@ -26,29 +27,27 @@ export interface IControllersMediator {
   getStore(): object;
 }
 
-export interface StrategyUser {
-  store: IStorePermissions | undefined;
-  setPermission(): Promise<void>;
-}
-
-export enum ModalType {
-  SweetAlert = 'SweetAlert',
-  NotifyQuasar = 'NotifyQuasar',
-  ModalQuasar = 'ModalQuasar',
-  DrawAttention = 'DrawAttention',
-}
-export type NotificationType =
-  | 'info'
-  | 'warning'
-  | 'success'
-  | 'error'
-  | 'question';
-
 export interface Notificator {
   show(title?: string, message?: string): Promise<boolean>;
   setType(type: NotificationType): void;
   setTime(timerMs: number): void;
 }
+
 export interface IFactoryMethodNotifications {
   createNotificator(notificationType: ModalType): Notificator;
+}
+
+// export interface AbstractFactory<T extends { id?: number | undefined }, T2> {
+//   createRepository(): Repository<T>;
+//   createController(): any;
+//   createService(): Service<T, T2>;
+// }
+
+// export abstract class DxMainCodeAbstractController extends Controller {
+//   abstract add(): void;
+//   abstract dxMainCodeChanged(val: DXMainCodeResponse): void;
+// }
+
+export interface ICommand {
+  execute(): void;
 }

@@ -117,6 +117,11 @@ export class Validators {
     const result = Math.abs(ageDate.getUTCFullYear() - BASE_YEAR);
     return result;
   }
+  public calculateMonths(birthday: string): number {
+    const dateBirthday = new Date(birthday);
+    const today = new Date();
+    return today.getMonth() - dateBirthday.getMonth();
+  }
   public randomPassword(): string {
     const chars =
       '0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ';

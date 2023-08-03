@@ -1,6 +1,6 @@
 import { IAppointment } from 'src/Domine/ModelsDB';
 import { Messages } from 'src/Application/Utilities/Messages';
-import { ModalType, Notificator } from 'src/Domine/IPatterns';
+import { Notificator } from 'src/Domine/IPatterns';
 import { FactoryNotifactors } from './Creators/Factories';
 import { AppointmentState } from 'src/Domine/IStates';
 import { AppointmentService } from 'src/Application/Services';
@@ -11,6 +11,7 @@ import {
   PatientResponse,
 } from 'src/Domine/Responses';
 import { routerInstance } from 'src/boot/globalRouter';
+import { ModalType } from 'src/Domine/Types';
 
 export class AppointmentAdapter {
   private store: AppointmentState;
@@ -64,8 +65,7 @@ export class AppointmentAdapter {
       return null;
     }
 
-    let queryParameters = new Object();
-    queryParameters = { patientId: patientId };
+    const queryParameters = { patientId: patientId };
     const response = await this.service.findByParameters(queryParameters);
     const appointment = response.pop();
     if (appointment === undefined) return null;

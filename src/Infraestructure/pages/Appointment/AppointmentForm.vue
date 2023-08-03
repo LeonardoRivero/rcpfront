@@ -249,7 +249,6 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted, reactive, ref } from 'vue';
-import { storeToRefs } from 'pinia';
 import {
   DoctorResponse,
   HealthInsuranceResponse,
@@ -265,7 +264,6 @@ import {
   FIELD_REQUIRED,
 } from 'src/Application/Utilities';
 import { AppointmentAdapter } from 'src/Adapters';
-import { useStoreAppointments } from 'src/Infraestructure/Mediators/Appointment/AppointmentStore';
 import { PaymentOptionsService } from 'src/Application/Services/PaymentOptionsService';
 import { ReasonConsultService } from 'src/Application/Services/ReasonConsultService';
 import { PatientStatusService } from 'src/Application/Services/PatientStatusService';
@@ -359,7 +357,7 @@ export default defineComponent({
         disableCodeTransaction.value = isCash;
         service.paymentIsCash(isCash);
       },
-      calculateAmountPaid() {
+      calculateAmountPaid(val: any) {
         service.calculateAmountPaid();
       },
       async searchPatient() {

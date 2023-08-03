@@ -1,20 +1,20 @@
-import { IStoreDoctor } from 'src/Infraestructure/Mediators/SettingsPage/DoctorStore';
 import { DoctorResponse } from 'src/Domine/Responses';
 import { DoctorService } from 'src/Application/Services/DoctorService';
+import { DoctorState } from 'src/Domine/IStates';
 
 export class DoctorAdapter {
-  private store: IStoreDoctor;
+  private store: DoctorState;
   // private serviceModal = modalService();
   // private messages = Messages.getInstance();
   private service = new DoctorService();
   private static instance: DoctorAdapter;
 
-  private constructor(store: IStoreDoctor) {
+  private constructor(store: DoctorState) {
     this.store = store;
     return;
   }
 
-  public static getInstance(store: IStoreDoctor): DoctorAdapter {
+  public static getInstance(store: DoctorState): DoctorAdapter {
     if (!DoctorAdapter.instance) {
       DoctorAdapter.instance = new DoctorAdapter(store);
     }

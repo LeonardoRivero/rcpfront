@@ -1,11 +1,12 @@
 import { PathologicalHistoryService } from 'src/Application/Services';
-import { ModalType, Notificator } from 'src/Domine/IPatterns';
+import { Notificator } from 'src/Domine/IPatterns';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { IPathologycalHistory } from 'src/Domine/ModelsDB';
 import { PathologicalHistoryResponse } from 'src/Domine/Responses';
 import { Convert } from 'src/Application/Utilities';
 import { PathologicalHistoryState } from 'src/Domine/IStates';
 import { FactoryNotifactors } from './Creators/Factories';
+import { ModalType } from 'src/Domine/Types';
 
 export class PathologicalHistoryAdapter {
   private store: PathologicalHistoryState;

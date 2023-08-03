@@ -5,7 +5,8 @@ import { Convert } from 'src/Application/Utilities';
 import { HealthInsuranceResponse } from 'src/Domine/Responses';
 import { InsuranceState } from 'src/Domine/IStates';
 import { FactoryNotifactors } from './Creators/Factories';
-import { ModalType, Notificator } from 'src/Domine/IPatterns';
+import { Notificator } from 'src/Domine/IPatterns';
+import { ModalType } from 'src/Domine/Types';
 
 export class InsuranceAdapter {
   private state: InsuranceState;

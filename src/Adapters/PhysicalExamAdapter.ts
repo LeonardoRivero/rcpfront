@@ -10,9 +10,9 @@ import { PhysicalExamParameterState } from 'src/Domine/IStates';
 import {
   Controller,
   IControllersMediator,
-  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
+import { ModalType } from 'src/Domine/Types';
 
 export class PhysicalExamParameterController
   extends Controller
@@ -40,9 +40,6 @@ export class PhysicalExamParameterController
     return PhysicalExamParameterController.instance;
   }
 
-  public sendData(data: unknown): void {
-    throw new Error('Method not implemented.');
-  }
   public receiveData(data: IControllersMediator): void {
     throw new Error('Method not implemented.');
   }

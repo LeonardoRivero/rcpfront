@@ -1,19 +1,19 @@
-import { reactive } from 'vue';
-import { QForm, date } from 'quasar';
+// import { reactive } from 'vue';
+// import { QForm, date } from 'quasar';
 import { defineStore } from 'pinia';
 import '@fullcalendar/core/vdom';
-import { EventClickArg } from '@fullcalendar/core';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import { CalendarOptions, DateSelectArg } from '@fullcalendar/vue3';
-import listPlugin from '@fullcalendar/list';
-import esLocale from '@fullcalendar/core/locales/es';
-import FullCalendar from '@fullcalendar/vue3';
+// import { EventClickArg } from '@fullcalendar/core';
+// import dayGridPlugin from '@fullcalendar/daygrid';
+// import interactionPlugin from '@fullcalendar/interaction';
+// import timeGridPlugin from '@fullcalendar/timegrid';
+// import { CalendarOptions, DateSelectArg } from '@fullcalendar/vue3';
+// import listPlugin from '@fullcalendar/list';
+// import esLocale from '@fullcalendar/core/locales/es';
+// import FullCalendar from '@fullcalendar/vue3';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { Notification } from 'src/Infraestructure/Utilities/Notifications';
 // import { EndPoints } from 'src/Application/Utilities';
-import { EventSchedule, IAppointment, IDoctor } from 'src/Domine/ModelsDB';
+// import { EventSchedule, IAppointment, IDoctor } from 'src/Domine/ModelsDB';
 import {
   DoctorResponse,
   EventScheduleResponse,
@@ -21,17 +21,17 @@ import {
   PatientResponse,
   SpecialityResponse,
 } from 'src/Domine/Responses';
-import { ScheduleAdapter } from 'src/Adapters';
+// import { ScheduleAdapter } from 'src/Adapters';
 import {
   Controller,
   IControllersMediator,
-  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { routerInstance } from 'src/boot/globalRouter';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import { IStoreSchedule } from 'src/Domine/IStores';
 import { ScheduleService } from 'src/Application/Services/ScheduleService';
+import { ModalType } from 'src/Domine/Types';
 
 const START_TIME = '07:00';
 const END_TIME = '23:00';

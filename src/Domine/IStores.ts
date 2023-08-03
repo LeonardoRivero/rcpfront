@@ -24,9 +24,9 @@ export interface IStoreClinicHistory {
   currentSchedule: EventScheduleResponse | null;
 }
 
-// export interface IStorePathologicalHistory {
-//   allPathologies: Array<PathologicalHistoryResponse>;
-// }
+export interface IStorePathologicalHistory {
+  allPathologies: Array<PathologicalHistoryResponse>;
+}
 
 export interface IStoreSettings {
   allSpecialities: Array<SpecialityResponse>;

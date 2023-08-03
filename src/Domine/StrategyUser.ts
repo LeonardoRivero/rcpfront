@@ -1,8 +1,12 @@
 import { IPermission } from 'src/Domine/ICommons';
 import { UserResponse } from 'src/Domine/Responses';
-import { StrategyUser } from './IPatterns';
+
 import { IStorePermissions } from './IStores';
 
+export interface StrategyUser {
+  store: IStorePermissions | undefined;
+  setPermission(): Promise<void>;
+}
 export class BasePermission implements IPermission {
   canCreate = true;
   canDelete = false;

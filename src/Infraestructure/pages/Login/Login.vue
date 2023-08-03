@@ -84,8 +84,9 @@ import {
   ContextUser,
   DoctorStrategy,
   SecretaryStrategy,
+  StrategyUser,
 } from 'src/Domine/StrategyUser';
-import { ModalType, Notificator, StrategyUser } from 'src/Domine/IPatterns';
+import { Notificator } from 'src/Domine/IPatterns';
 import {
   required,
   emailRequired,
@@ -96,6 +97,7 @@ import { IKeyEmailRegistration, ILogin } from 'src/Domine/ModelsDB';
 import HttpStatusCode from 'src/Application/Utilities/HttpStatusCodes';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import router from 'src/router';
+import { ModalType } from 'src/Domine/Types';
 
 export default defineComponent({
   name: 'LoginUser',

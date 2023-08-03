@@ -1,5 +1,13 @@
-import { IKeyEmailRegistration, ILogin, IUser } from 'src/Domine/ModelsDB';
-import { RegisterResponse } from 'src/Domine/Responses';
+import {
+  IExam,
+  IKeyEmailRegistration,
+  ILogin,
+  IUser,
+} from 'src/Domine/ModelsDB';
+import {
+  PhysicalExamResultResponse,
+  RegisterResponse,
+} from 'src/Domine/Responses';
 import { DELETE, GET, POST, PUT } from 'src/Infraestructure/Utilities/Request';
 // import { EndPoints } from '../Utilities';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
@@ -172,4 +180,13 @@ export abstract class Service<T extends { id?: number }, T2> {
     if (!response.ok) return null;
     return await response.json();
   }
+}
+
+export abstract class PhysicalExamResultAbstract extends Service<
+  IExam,
+  PhysicalExamResultResponse
+> {
+  abstract findHistoryPatient(
+    doc: string
+  ): Promise<Array<PhysicalExamResultResponse>>;
 }

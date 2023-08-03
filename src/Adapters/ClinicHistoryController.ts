@@ -15,13 +15,11 @@ import {
 import {
   Controller,
   IControllersMediator,
-  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
-import { Service } from 'src/Application/Repositories';
-import { IExam } from 'src/Domine/ModelsDB';
+import { PhysicalExamResultAbstract } from 'src/Application/Repositories';
 import { PhysicalExamResultService } from 'src/Application/Services/PhysicalExamResultService';
-import { PhysicalExamResume } from 'src/Domine/Types';
+import { ModalType, PhysicalExamResume } from 'src/Domine/Types';
 import { FactoryNotifactors } from './Creators/Factories';
 
 export class InfoPatientPanelController extends Controller {
@@ -63,7 +61,7 @@ export class InfoPatientPanelController extends Controller {
     console.log({ data });
   }
 
-  public receiveData<IStoreClinicHistory>(data: IStoreClinicHistory): void {
+  public receiveData(data: IControllersMediator): void {
     console.log('Desde InfoPatient', { data });
 
     const j = data;
@@ -74,17 +72,11 @@ export class InfoPatientPanelController extends Controller {
     if (this.mediator === null || this.mediator === undefined) {
       throw new Error('Aun no se definido un mediador para esta operacion');
     }
-    this.mediator.handleData(state);
+    this.mediator.notify(state, this);
   }
 }
 
 export class PreliminaryDataController extends Controller {
-  sendData(data: unknown): void {
-    throw new Error('Method not implemented.');
-  }
-  clear(): void {
-    throw new Error('Method not implemented.');
-  }
   private static instance: PreliminaryDataController;
   private service = PhysicalExamService.getInstance();
   public state: PreliminaryDataState;
@@ -103,6 +95,10 @@ export class PreliminaryDataController extends Controller {
     return PreliminaryDataController.instance;
   }
 
+  clear(): void {
+    throw new Error('Method not implemented.');
+  }
+
   public adaptPhysicalExam(
     physicalExamParameter: Array<PhysicalExamResponse>,
     appointment: AppointmentResponse
@@ -118,9 +114,7 @@ export class PreliminaryDataController extends Controller {
     return items;
   }
 
-  public async receiveData<ClinicHistoryMediator>(
-    data: ClinicHistoryMediator
-  ): Promise<void> {
+  public async receiveData(data: ClinicHistoryMediator): Promise<void> {
     if (!(data instanceof ClinicHistoryMediator)) {
       return;
     }
@@ -152,10 +146,7 @@ export class MedicalProcedureController extends Controller {
     return MedicalProcedureController.instance;
   }
 
-  sendData(data: unknown): void {
-    throw new Error('Method not implemented.');
-  }
-  receiveData<T>(data: T): void {
+  receiveData(data: IControllersMediator): void {
     throw new Error('Method not implemented.');
   }
   clear(): void {
@@ -165,7 +156,7 @@ export class MedicalProcedureController extends Controller {
 
 export class ClinicHistoryResumeController extends Controller {
   public state: object;
-  private service: Service<IExam, PhysicalExamResultResponse>;
+  private service: PhysicalExamResultAbstract;
   private notifyQuasar: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
   public constructor() {
@@ -173,15 +164,15 @@ export class ClinicHistoryResumeController extends Controller {
     this.service = new PhysicalExamResultService();
     this.state = {};
   }
-  sendData(data: unknown): void {
-    throw new Error('Method not implemented.');
-  }
+
   receiveData(data: IControllersMediator): void {
     throw new Error('Method not implemented.');
   }
+
   clear(): void {
     throw new Error('Method not implemented.');
   }
+
   public async getAll(): Promise<Array<PhysicalExamResultResponse>> {
     try {
       const items = await this.service.getAll();
@@ -215,5 +206,9 @@ export class ClinicHistoryResumeController extends Controller {
       };
     });
     return groupArrays;
+  }
+  public async getHistoryPatient(documentPatient: string) {
+    const parameters = { documentPatient: documentPatient };
+    const t = await this.service.findByParameters(parameters);
   }
 }

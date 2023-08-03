@@ -3,7 +3,6 @@ import { Messages } from 'src/Application/Utilities';
 import {
   Controller,
   IControllersMediator,
-  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { IStoreSettings } from 'src/Domine/IStores';
@@ -21,6 +20,7 @@ import {
 import { routerInstance } from 'src/boot/globalRouter';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import { PatientService } from 'src/Application/Services';
+import { ModalType } from 'src/Domine/Types';
 
 export class PatientMediator implements IControllersMediator {
   private controllers: Controller[] = [];

@@ -7,12 +7,12 @@ import { RelationCodeResponse } from 'src/Domine/Responses';
 import {
   Controller,
   IControllersMediator,
-  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { RelationCodeState } from 'src/Domine/IStates';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import { IStoreSettings } from 'src/Domine/IStores';
+import { ModalType } from 'src/Domine/Types';
 export class RelationCodeController extends Controller {
   public state: RelationCodeState;
   private repository = RelationCodeRepository.getInstance();
@@ -28,9 +28,6 @@ export class RelationCodeController extends Controller {
     return;
   }
 
-  sendData(data: unknown): void {
-    throw new Error('Method not implemented.');
-  }
   async receiveData(mediator: IControllersMediator): Promise<void> {
     if (mediator instanceof SettingsMediator) {
       const val = mediator.store.currentDxMainCode;
@@ -40,7 +37,6 @@ export class RelationCodeController extends Controller {
       }
       const queryParameters = { dxMainCodeId: val.id };
       const response = await this.findByParameters(queryParameters);
-      console.log(response);
       this.state.allRelationCodes = response;
     }
   }

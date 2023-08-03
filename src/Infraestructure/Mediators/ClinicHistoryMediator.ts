@@ -52,6 +52,9 @@ export class ClinicHistoryMediator implements IControllersMediator {
     }
   }
 
+  public getHistoryPatient() {
+    console.log('va a obtener la hisotria');
+  }
   public getStore(): IStoreClinicHistory {
     return this.stores;
   }

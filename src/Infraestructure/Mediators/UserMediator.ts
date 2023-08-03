@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia';
 import { UserService } from 'src/Application/Services/UserService';
-import {
-  Controller,
-  IControllersMediator,
-  StrategyUser,
-} from 'src/Domine/IPatterns';
+import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreUser } from 'src/Domine/IStores';
 import { ILogin, IUser } from 'src/Domine/ModelsDB';
 import { AuthResponse } from 'src/Domine/Responses';
-import { DoctorStrategy, SecretaryStrategy } from 'src/Domine/StrategyUser';
+import {
+  DoctorStrategy,
+  SecretaryStrategy,
+  StrategyUser,
+} from 'src/Domine/StrategyUser';
 
 export const useStoreUser = defineStore({
   id: 'storeUser',

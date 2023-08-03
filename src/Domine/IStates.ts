@@ -166,3 +166,10 @@ export interface ChangePasswordState {
   confirmPassword: string;
   visible: boolean;
 }
+
+export interface DoctorState {
+  allDoctor: Array<DoctorResponse>;
+  currentDoctor: IDoctor | null;
+  expanded: boolean;
+  error: boolean;
+}

@@ -1,7 +1,6 @@
 import {
   Controller,
   IControllersMediator,
-  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { FactoryNotifactors } from './Creators/Factories';
@@ -11,6 +10,7 @@ import { PatientService } from 'src/Application/Services/PatientService';
 import { IPatient } from 'src/Domine/ModelsDB';
 import { PatientResponse } from 'src/Domine/Responses';
 import { PatientState } from 'src/Domine/IStates';
+import { ModalType } from 'src/Domine/Types';
 
 export class PatientController extends Controller {
   public state: PatientState;
@@ -35,9 +35,6 @@ export class PatientController extends Controller {
     return PatientController.instance;
   }
 
-  public sendData(data: unknown): void {
-    throw new Error('Method not implemented.');
-  }
   public receiveData(data: IControllersMediator): void {
     throw new Error('Method not implemented.');
   }

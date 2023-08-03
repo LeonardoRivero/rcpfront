@@ -19,11 +19,11 @@ import { ScheduleService } from 'src/Application/Services/ScheduleService';
 import {
   Controller,
   IControllersMediator,
-  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { FactoryNotifactors } from './Creators/Factories';
 import { ScheduleState } from 'src/Domine/IStates';
+import { ModalType } from 'src/Domine/Types';
 
 const validator = Validators.getInstance();
 export class ScheduleAdapter extends Controller {
@@ -45,9 +45,7 @@ export class ScheduleAdapter extends Controller {
     // this.repository = new ScheduleRepository();
     return;
   }
-  sendData(data: unknown): void {
-    throw new Error('Method not implemented.');
-  }
+
   receiveData(data: IControllersMediator): void {
     throw new Error('Method not implemented.');
   }

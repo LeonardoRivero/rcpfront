@@ -35,29 +35,29 @@
         <q-card-section class="col-12 col-sm-6 col-xs-12">
           <b>Nombre Completo:</b>
           <div class="text-h6 q-mb-xs">
-            {{ state.currentPatient.name }}
-            {{ state.currentPatient.lastName }}
+            {{ state.currentPatient?.name }}
+            {{ state.currentPatient?.lastName }}
           </div>
           <q-separator />
           <b>Telefono/Celular:</b>
           <div>
-            {{ state.currentPatient.phoneNumber }}
+            {{ state.currentPatient?.phoneNumber }}
           </div>
           <q-separator />
           <b>Correo Electronico:</b>
           <div>
-            {{ state.currentPatient.email }}
+            {{ state.currentPatient?.email }}
           </div>
         </q-card-section>
         <q-card-section class="col-12 col-sm-6 col-xs-12">
           <b>Fecha Nacimiento:</b>
-          <div v-if="state.age != 0">
-            {{ state.currentPatient.dateBirth }}
-            <cite>({{ state.age }} años)</cite>
+          <div>
+            {{ state.currentPatient?.dateBirth }}
+            <cite v-if="state.age !== 0">({{ state.age }} {{ labelAge }})</cite>
           </div>
           <q-separator />
           <b>Entidad :</b>
-          <div v-if="state.currentPatient.insurance != null">
+          <div v-if="state.currentPatient?.insurance != null">
             {{ state.currentPatient.insurance.nameInsurance }}
           </div>
           <q-separator />
@@ -69,10 +69,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue';
-import { AppointmentAdapter, InfoPatientPanelController } from 'src/Adapters';
+import { defineComponent, reactive, ref } from 'vue';
+import { InfoPatientPanelController } from 'src/Adapters';
 import { Validators } from 'src/Application/Utilities';
-import { useStoreAppointments } from '../../Mediators/Appointment/AppointmentStore';
 import { ClinicHistoryMediator, PatientMediator } from '../../Mediators';
 import { PatientResponse } from 'src/Domine/Responses';
 import { InfoPatientState } from 'src/Domine/IStates';
@@ -85,15 +84,14 @@ export default defineComponent({
     const patientMediator = PatientMediator.getInstance();
     const scheduleService = new ScheduleService();
     const scheduleMediator = ScheduleMediator.getInstance();
-    const appointmentAdapter = AppointmentAdapter.getInstance(
-      useStoreAppointments()
-    );
+
     const state: InfoPatientState = reactive({
       identificationPatient: '',
       age: 0,
       currentPatient: {} as PatientResponse,
       iconAvatar: '',
     });
+    const labelAge = ref<string>('');
     const controller = InfoPatientPanelController.getInstance(state);
     const validator = Validators.getInstance();
     const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
@@ -109,12 +107,18 @@ export default defineComponent({
           await patientMediator.patientNotFound();
           return;
         }
-
+        clinicHistoryMediator.getHistoryPatient();
         state.currentPatient = patient;
-        // store.currentPatient.value = patient;
         state.age = validator.calculateAge(
           state.currentPatient.dateBirth.toString()
         );
+        labelAge.value = 'Años';
+        if (state.age == 0) {
+          state.age = validator.calculateMonths(
+            state.currentPatient.dateBirth.toString()
+          );
+          labelAge.value = 'Meses';
+        }
         const dateBirth = new Date(
           state.currentPatient.dateBirth.toLocaleString()
         );
@@ -139,16 +143,16 @@ export default defineComponent({
           return;
         }
 
-        const appointment = await appointmentAdapter.getById(schedule.id);
-        if (appointment == null) {
-          await appointmentAdapter.appointmentNotFound();
-          return;
-        }
-        // store.currentAppointment.value = appointment;
-        // store.speciality.value = schedule.speciality;
+        // !!falta arreglar esta parte
+        // const appointment = await appointmentAdapter.getById(schedule.id);
+        // if (appointment == null) {
+        //   await appointmentAdapter.appointmentNotFound();
+        //   return;
+        // }
         controller.sendData(state);
       },
       state,
+      labelAge,
     };
   },
 });

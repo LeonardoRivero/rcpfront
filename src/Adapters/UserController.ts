@@ -5,13 +5,16 @@ import { ChangePasswordState, UserState } from 'src/Domine/IStates';
 import {
   Controller,
   IControllersMediator,
-  ModalType,
   Notificator,
-  StrategyUser,
 } from 'src/Domine/IPatterns';
 import { UserService } from 'src/Application/Services/UserService';
-import { DoctorStrategy, SecretaryStrategy } from 'src/Domine/StrategyUser';
+import {
+  DoctorStrategy,
+  SecretaryStrategy,
+  StrategyUser,
+} from 'src/Domine/StrategyUser';
 import { FactoryNotifactors } from './Creators/Factories';
+import { ModalType } from 'src/Domine/Types';
 export class UserController extends Controller {
   public state: UserState;
   private notifySweetAlert: Notificator =
@@ -38,9 +41,6 @@ export class UserController extends Controller {
     return UserController.instance;
   }
 
-  public sendData(data: unknown): void {
-    // this.mediator.handleData();
-  }
   public receiveData(mediator: IControllersMediator): void {
     return;
   }
@@ -118,9 +118,6 @@ export class ChangePasswordController extends Controller {
     return ChangePasswordController.instance;
   }
 
-  sendData(data: unknown): void {
-    throw new Error('Method not implemented.');
-  }
   receiveData(data: IControllersMediator): void {
     throw new Error('Method not implemented.');
   }

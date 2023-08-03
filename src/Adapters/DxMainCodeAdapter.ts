@@ -6,13 +6,13 @@ import { DXMainCodeResponse } from 'src/Domine/Responses';
 import {
   Controller,
   IControllersMediator,
-  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { DxMainCodeState } from 'src/Domine/IStates';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import { IStoreSettings } from 'src/Domine/IStores';
 import { Convert } from 'src/Application/Utilities';
+import { ModalType } from 'src/Domine/Types';
 
 export class DxMainCodeController extends Controller {
   public state: DxMainCodeState;
@@ -23,9 +23,13 @@ export class DxMainCodeController extends Controller {
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
 
-  sendData(data: unknown): void {
-    throw new Error('Method not implemented.');
+  private constructor(state: DxMainCodeState) {
+    super();
+    this.state = state;
+    this.store = {} as IStoreSettings;
+    return;
   }
+
   async receiveData(mediator: IControllersMediator): Promise<void> {
     if (mediator instanceof SettingsMediator) {
       this.store = mediator.store;
@@ -38,16 +42,9 @@ export class DxMainCodeController extends Controller {
     }
   }
 
-  private constructor(state: DxMainCodeState) {
-    super();
-    this.state = state;
-    this.store = {} as IStoreSettings;
-    return;
-  }
-
-  public static getInstance(store: DxMainCodeState): DxMainCodeController {
+  public static getInstance(state: DxMainCodeState): DxMainCodeController {
     if (!DxMainCodeController.instance) {
-      DxMainCodeController.instance = new DxMainCodeController(store);
+      DxMainCodeController.instance = new DxMainCodeController(state);
     }
     return DxMainCodeController.instance;
   }

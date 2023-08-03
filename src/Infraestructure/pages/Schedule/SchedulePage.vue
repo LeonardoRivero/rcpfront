@@ -36,11 +36,12 @@ import esLocale from '@fullcalendar/core/locales/es';
 import ScheduleForm from './ScheduleForm.vue';
 import { ScheduleMediator } from '../../Mediators/ScheduleMediator';
 import { IconSVG } from 'src/Application/Utilities';
-import { ModalType, Notificator } from 'src/Domine/IPatterns';
+import { Notificator } from 'src/Domine/IPatterns';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { IStoreSchedule } from 'src/Domine/IStores';
 import { FORMAT_DATETIME } from 'src/Application/Utilities/Constants';
+import { ModalType } from 'src/Domine/Types';
 
 export default defineComponent({
   components: { FullCalendar, ScheduleForm },

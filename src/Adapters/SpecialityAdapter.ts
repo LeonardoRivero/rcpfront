@@ -6,19 +6,13 @@ import { SpecialityFormState } from 'src/Domine/IStates';
 import {
   Controller,
   IControllersMediator,
-  ModalType,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { FactoryNotifactors } from './Creators/Factories';
 import container from 'src/inversify.config';
 import { IStoreSettings } from 'src/Domine/IStores';
+import { ModalType } from 'src/Domine/Types';
 export class SpecialityController extends Controller {
-  sendData(data: unknown): void {
-    // this.mediator.handleData();
-  }
-  receiveData(mediator: IControllersMediator): void {
-    return;
-  }
   public state: SpecialityFormState;
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
@@ -28,6 +22,10 @@ export class SpecialityController extends Controller {
   private constructor(state: SpecialityFormState) {
     super();
     this.state = state;
+    return;
+  }
+
+  receiveData(mediator: IControllersMediator): void {
     return;
   }
 
