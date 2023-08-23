@@ -154,11 +154,11 @@
                 outlined
                 v-model="state.currentDoctor"
                 :options="state.allDoctors"
-                option-value="id"
+                :option-value="(item) => (item === null ? null : item.id)"
+                emit-value
                 label="Doctor"
-                lazy-rules
                 map-options
-                :rules="[(val) => val || FIELD_REQUIRED]"
+                :rules="[required]"
                 :display-value="`${
                   state.currentDoctor ? state.currentDoctor.name : ''
                 } ${state.currentDoctor ? state.currentDoctor.lastName : ''}`"
@@ -181,12 +181,12 @@
                 outlined
                 v-model="state.speciality"
                 :options="state.allSpecialities"
-                option-value="id"
+                :option-value="(item) => (item === null ? null : item.id)"
+                emit-value
                 option-label="description"
                 map-options
                 label="Especialidad"
-                lazy-rules
-                :rules="[(val) => val || FIELD_REQUIRED]"
+                :rules="[required]"
                 @clear="(val) => clearSpeciality(val)"
                 @update:model-value="(val) => specialityChanged(val)"
               >
@@ -233,13 +233,10 @@
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted, ref, reactive } from 'vue';
 import { date, QForm } from 'quasar';
-import {
-  HealthInsuranceResponse,
-  PatientResponse,
-  SpecialityResponse,
-} from 'src/Domine/Responses';
+import container from 'src/inversify.config';
+import { HealthInsuranceResponse, PatientResponse } from 'src/Domine/Responses';
 import { EventSchedule, IAppointment } from 'src/Domine/ModelsDB';
-import { ScheduleAdapter, PatientController } from 'src/Adapters';
+import { ScheduleAdapter } from 'src/Adapters';
 import {
   CURRENTYEAR_MONTH,
   FORMAT_DATETIME,
@@ -257,28 +254,12 @@ import {
   PatientMediator,
   ScheduleMediator,
 } from 'src/Infraestructure/Mediators';
-import container from 'src/inversify.config';
+import { required, isNotNull } from 'src/Application/Utilities/Helpers';
 
 export default defineComponent({
   components: {},
   setup() {
     const dates = date;
-    // const store = useStoreSchedule();
-    // const {
-    //   form,
-    //   currentAppointment,
-    //   currentSchedule,
-    //   identificationPatient,
-    //   currentPatient,
-    //   allDoctors,
-    //   currentDoctor,
-    //   allowToUpdate,
-    //   allowToDelete,
-    //   speciality,
-    //   allSpecialities,
-    //   isReadonly,
-    //   card,
-    // } = storeToRefs(store);
     const mediator = ScheduleMediator.getInstance();
     const storeSchedule = mediator.getStore();
     const state: ScheduleState = reactive({
@@ -327,6 +308,8 @@ export default defineComponent({
       state.identificationPatient = '';
     });
     return {
+      required,
+      isNotNull,
       storeSchedule,
       state,
       error,
@@ -338,17 +321,6 @@ export default defineComponent({
       FIELD_REQUIRED,
       form,
       dates,
-      // currentAppointment,
-      // currentSchedule,
-      // identificationPatient,
-      // currentPatient,
-      // allowToUpdate,
-      // allowToDelete,
-      // allDoctors,
-      // allSpecialities,
-      // speciality,
-      // currentDoctor,
-      // isReadonly,
       async confirmChanges() {
         const responsePatient = await patientMediator.searchByIdentificacion(
           state.identificationPatient
@@ -384,14 +356,15 @@ export default defineComponent({
         await adapter.confirmDeleteSchedule(val);
       },
 
-      async specialityChanged(val: SpecialityResponse) {
+      async specialityChanged(val: number) {
         // await specialityAdapter.specialityChanged(speciality.value);
         const queriesParameters = {
-          speciality: val.id,
+          speciality: val,
         };
         const response = await doctorService.findByParameters(
           queriesParameters
         );
+        console.log(response)
         state.currentDoctor = null;
         state.allDoctors = response;
         form.value?.resetValidation();

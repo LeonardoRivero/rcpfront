@@ -1,4 +1,6 @@
 import { Observer } from 'src/patterns/Observer/Observer';
+import { IKeyEmailRegistration, IUser } from './ModelsDB';
+import { RegisterResponse } from './Responses';
 export interface IColumnsDataTable {
   name: string;
   required?: boolean;
@@ -55,4 +57,10 @@ export interface IPermission {
   canUpdate: boolean;
   canDelete: boolean;
   canCreate: boolean;
+}
+
+export interface IUserService {
+  register(user: IUser): Promise<RegisterResponse | null>;
+  confirmEmailRegistration(key: IKeyEmailRegistration): Promise<Response>;
+  changePassword(user: IUser): Promise<void>;
 }

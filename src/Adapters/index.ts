@@ -3,6 +3,6 @@ export * from './DxMainCodeAdapter';
 export * from './RelationCodeAdapter';
 export * from './PatientAdapter';
 export * from './ScheduleAdapter';
-export * from './DoctorAdapter';
+export * from './DoctorController';
 export * from './AppointmentAdapter';
 export * from './ClinicHistoryController';

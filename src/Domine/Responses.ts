@@ -138,3 +138,14 @@ export interface PhysicalExamResultResponse {
   patient_id: number;
   result: Array<IExam>;
 }
+
+export interface DoctorSpecialityResponse {
+  codigo: string;
+  user: UserBase;
+}
+
+export interface UserBase {
+  id: number;
+  first_name: string;
+  last_name: string;
+}

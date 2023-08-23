@@ -1,26 +1,39 @@
 import { DoctorResponse } from 'src/Domine/Responses';
 import { DoctorService } from 'src/Application/Services/DoctorService';
 import { DoctorState } from 'src/Domine/IStates';
+import { ICommand } from 'src/Domine/IPatterns';
 
-export class DoctorAdapter {
+export class DoctorController {
   private store: DoctorState;
-  // private serviceModal = modalService();
-  // private messages = Messages.getInstance();
   private service = new DoctorService();
-  private static instance: DoctorAdapter;
+  private static instance: DoctorController;
+  private saveCommand: ICommand | undefined;
+  private updateCommand: ICommand | undefined;
+  private findByParametersCommand: ICommand | undefined;
 
   private constructor(store: DoctorState) {
     this.store = store;
     return;
   }
 
-  public static getInstance(store: DoctorState): DoctorAdapter {
-    if (!DoctorAdapter.instance) {
-      DoctorAdapter.instance = new DoctorAdapter(store);
+  public static getInstance(store: DoctorState): DoctorController {
+    if (!DoctorController.instance) {
+      DoctorController.instance = new DoctorController(store);
     }
-    return DoctorAdapter.instance;
+    return DoctorController.instance;
   }
 
+  public setOnSave(command: ICommand): void {
+    this.saveCommand = command;
+  }
+
+  public setOnUpdate(command: ICommand): void {
+    this.updateCommand = command;
+  }
+
+  public setOnFindByParameters(command: ICommand): void {
+    this.findByParametersCommand = command;
+  }
   // public clear() {
   //   this.store.insurance = null;
   //   this.store.currentInsurance = {} as IHealthInsurance;
@@ -116,5 +129,9 @@ export class DoctorAdapter {
     const response = await this.service.getAll();
     this.store.allDoctor = response;
     return response;
+  }
+
+  public async findByParameters() {
+    this.findByParametersCommand?.execute();
   }
 }

@@ -4,17 +4,13 @@ import {
   ILogin,
   IUser,
 } from 'src/Domine/ModelsDB';
-import {
-  PhysicalExamResultResponse,
-  RegisterResponse,
-} from 'src/Domine/Responses';
+import { PhysicalExamResultResponse } from 'src/Domine/Responses';
 import { DELETE, GET, POST, PUT } from 'src/Infraestructure/Utilities/Request';
-// import { EndPoints } from '../Utilities';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
 import 'reflect-metadata';
 import { injectable } from 'inversify';
 import { routerInstance } from 'src/boot/globalRouter';
-import { UserRepository } from './UserRepository';
+
 import { LoginService, UserService } from '../Services/UserService';
 // export interface IRepository<T1, T2> {
 //   getById(id: number): Promise<T2 | null>;
@@ -32,8 +28,64 @@ import { LoginService, UserService } from '../Services/UserService';
 //   validateToken(access_token: string): Promise<Response>;
 //   confirmEmailRegistration(key: IKeyEmailRegistration): Promise<Response>;
 // }
+
 @injectable()
-export abstract class Repository<T1> {
+export abstract class LoginRepository {
+  async login(data: ILogin): Promise<Response> {
+    // const url = EndPoints.buildFullUrl(process.env.LOGIN);
+    const url = `${process.env.RCP}${process.env.LOGIN}`;
+    try {
+      const response = await POST(url, data);
+      return response;
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
+  }
+  async logout(): Promise<Response> {
+    // const url = EndPoints.buildFullUrl(process.env.LOGOUT);
+    const url = `${process.env.RCP}${process.env.LOGOUT}`;
+    try {
+      const response = await POST(url, null);
+      return response;
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
+  }
+  async refreshToken(refresh_token: string): Promise<Response> {
+    // const url = EndPoints.buildFullUrl(process.env.REFRESH_TOKEN);
+    const url = `${process.env.RCP}${process.env.REFRESH_TOKEN}`;
+    try {
+      const response = await POST(url, refresh_token);
+      return response;
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
+  }
+  async validateToken(access_token: string): Promise<Response> {
+    // const url = EndPoints.buildFullUrl(process.env.VERIFY_TOKEN);
+    const url = `${process.env.RCP}${process.env.VERIFY_TOKEN}`;
+    try {
+      const response = await POST(url, access_token);
+      return response;
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
+  }
+  async confirmEmailRegistration(
+    key: IKeyEmailRegistration
+  ): Promise<Response> {
+    // const url = EndPoints.buildFullUrl(process.env.CONFIRM_EMAIL_REGISTRATION);
+    const url = `${process.env.RCP}${process.env.CONFIRM_EMAIL_REGISTRATION}`;
+    try {
+      return await POST(url, key);
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
+  }
+}
+
+@injectable()
+export abstract class Repository<T1> extends LoginRepository {
   abstract url: string;
   abstract urlWithParameters: string;
   public async getById(id: number): Promise<Response> {
@@ -126,20 +178,8 @@ export abstract class Repository<T1> {
 }
 
 @injectable()
-export abstract class LoginRepository extends Repository<IUser> {
-  abstract login(data: ILogin): Promise<Response>;
-  abstract logout(): Promise<Response>;
-  abstract refreshToken(refresh_token: string): Promise<Response>;
-  abstract validateToken(access_token: string): Promise<Response>;
-  abstract confirmEmailRegistration(
-    key: IKeyEmailRegistration
-  ): Promise<Response>;
-}
-
-@injectable()
 export abstract class Service<T extends { id?: number }, T2> {
   abstract repository: Repository<T>;
-  public loginService: LoginService = new UserService();
 
   public async save(payload: T): Promise<T2 | null> {
     const response = await this.repository.create(payload);

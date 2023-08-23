@@ -104,7 +104,7 @@ import { injectable } from 'inversify';
 //   }
 // }
 @injectable()
-export class UserRepository extends LoginRepository {
+export class UserRepository extends Repository<IUser> {
   url: string;
   urlWithParameters: string;
 
@@ -116,69 +116,72 @@ export class UserRepository extends LoginRepository {
   }
 
   public override async create(entity: IUser): Promise<Response> {
-    // const url = EndPoints.buildFullUrl(process.env.REGISTRATION);
+    const urlRegister = process.env.REGISTRATION
+      ? process.env.REGISTRATION
+      : '';
+    const url = `${process.env.RCP}${urlRegister}`;
     try {
-      return await POST(this.url, entity);
+      return await POST(url, entity);
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
   }
 
-  public async login(payload: ILogin): Promise<Response> {
-    // const url = EndPoints.buildFullUrl(process.env.LOGIN);
-    const url = `${process.env.RCP}${process.env.LOGIN}`;
-    try {
-      const response = await POST(url, payload);
-      return response;
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
+  // public async login(payload: ILogin): Promise<Response> {
+  //   // const url = EndPoints.buildFullUrl(process.env.LOGIN);
+  //   const url = `${process.env.RCP}${process.env.LOGIN}`;
+  //   try {
+  //     const response = await POST(url, payload);
+  //     return response;
+  //   } catch (error) {
+  //     throw Error(`Error in ${Object.name} : ${error}`);
+  //   }
+  // }
 
-  public async logout(): Promise<Response> {
-    // const url = EndPoints.buildFullUrl(process.env.LOGOUT);
-    const url = `${process.env.RCP}${process.env.LOGOUT}`;
-    try {
-      const response = await POST(url, null);
-      return response;
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
+  // public async logout(): Promise<Response> {
+  //   // const url = EndPoints.buildFullUrl(process.env.LOGOUT);
+  //   const url = `${process.env.RCP}${process.env.LOGOUT}`;
+  //   try {
+  //     const response = await POST(url, null);
+  //     return response;
+  //   } catch (error) {
+  //     throw Error(`Error in ${Object.name} : ${error}`);
+  //   }
+  // }
 
-  public async refreshToken(payload: string): Promise<Response> {
-    // const url = EndPoints.buildFullUrl(process.env.REFRESH_TOKEN);
-    const url = `${process.env.RCP}${process.env.REFRESH_TOKEN}`;
-    try {
-      const response = await POST(url, payload);
-      return response;
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
+  // public async refreshToken(payload: string): Promise<Response> {
+  //   // const url = EndPoints.buildFullUrl(process.env.REFRESH_TOKEN);
+  //   const url = `${process.env.RCP}${process.env.REFRESH_TOKEN}`;
+  //   try {
+  //     const response = await POST(url, payload);
+  //     return response;
+  //   } catch (error) {
+  //     throw Error(`Error in ${Object.name} : ${error}`);
+  //   }
+  // }
 
-  public async validateToken(access_token: string) {
-    // const url = EndPoints.buildFullUrl(process.env.VERIFY_TOKEN);
-    const url = `${process.env.RCP}${process.env.VERIFY_TOKEN}`;
-    try {
-      const response = await POST(url, access_token);
-      return response;
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
+  // public async validateToken(access_token: string) {
+  //   // const url = EndPoints.buildFullUrl(process.env.VERIFY_TOKEN);
+  //   const url = `${process.env.RCP}${process.env.VERIFY_TOKEN}`;
+  //   try {
+  //     const response = await POST(url, access_token);
+  //     return response;
+  //   } catch (error) {
+  //     throw Error(`Error in ${Object.name} : ${error}`);
+  //   }
+  // }
 
-  public async confirmEmailRegistration(
-    key: IKeyEmailRegistration
-  ): Promise<Response> {
-    // const url = EndPoints.buildFullUrl(process.env.CONFIRM_EMAIL_REGISTRATION);
-    const url = `${process.env.RCP}${process.env.CONFIRM_EMAIL_REGISTRATION}`;
-    try {
-      return await POST(url, key);
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
+  // public async confirmEmailRegistration(
+  //   key: IKeyEmailRegistration
+  // ): Promise<Response> {
+  //   // const url = EndPoints.buildFullUrl(process.env.CONFIRM_EMAIL_REGISTRATION);
+  //   const url = `${process.env.RCP}${process.env.CONFIRM_EMAIL_REGISTRATION}`;
+  //   try {
+  //     return await POST(url, key);
+  //   } catch (error) {
+  //     throw Error(`Error in ${Object.name} : ${error}`);
+  //   }
+  // }
 }
 
 export class GroupsRepository extends Repository<null> {

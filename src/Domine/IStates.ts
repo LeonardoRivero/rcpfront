@@ -124,6 +124,7 @@ export interface UserState {
   identification: number | null;
   phoneNumber: number | null;
   groups: Array<number>;
+  specialities: Array<number>;
   isActive: boolean;
   user: IUser;
 }

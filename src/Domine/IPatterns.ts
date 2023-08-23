@@ -1,7 +1,4 @@
-import { Repository, Service } from 'src/Application/Repositories';
 import { NotificationType, ModalType } from './Types';
-import { DXMainCodeResponse } from './Responses';
-
 export abstract class Controller {
   abstract receiveData(data: IControllersMediator): void;
   abstract clear(): void;
@@ -49,5 +46,5 @@ export interface IFactoryMethodNotifications {
 // }
 
 export interface ICommand {
-  execute(): void;
+  execute(): Promise<object | null>;
 }

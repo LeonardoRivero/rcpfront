@@ -14,8 +14,8 @@ import {
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
 import 'reflect-metadata';
 import { injectable } from 'inversify';
+import { IUserService } from 'src/Domine/ICommons';
 
-type responses = UserResponse | RegisterResponse;
 @injectable()
 export abstract class LoginService {
   public userRepository: LoginRepository;
@@ -67,33 +67,56 @@ export abstract class LoginService {
   }
 }
 
+// export class toFixUserService implements IUserService {
+//   public constructor() {
+//     super();
+//   }
+
+//   public async register(user: IUser): Promise<RegisterResponse | null> {
+//     console.log('consumir servicio register');
+//     const response = await this.userRepository.create(user);
+//     if (!response.ok) {
+//       return null;
+//     }
+//     const data: RegisterResponse = await response.json();
+//     return data;
+//   }
+
+//   public async confirmEmailRegistration(
+//     key: IKeyEmailRegistration
+//   ): Promise<Response> {
+//     return await this.userRepository.confirmEmailRegistration(key);
+//   }
+
+//   public async changePassword(user: IUser): Promise<void> {
+//     if (user.id == undefined) {
+//       throw Error('userId is undefined');
+//     }
+//     const response = await this.userRepository.update(user, user.id);
+//     const data = await response.json();
+//   }
+// }
 @injectable()
-export class UserService extends LoginService {
+export class UserService extends Service<IUser, UserResponse> {
+  public repository: Repository<IUser>;
   public constructor() {
     super();
+    this.repository = new UserRepository();
   }
 
-  public async register(user: IUser): Promise<RegisterResponse | null> {
+  public override async save(user: IUser): Promise<UserResponse | null> {
     console.log('consumir servicio register');
-    const response = await this.userRepository.create(user);
+    const response = await this.repository.create(user);
     if (!response.ok) {
       return null;
     }
-    const data: RegisterResponse = await response.json();
-    return data;
-  }
-
-  public async confirmEmailRegistration(
-    key: IKeyEmailRegistration
-  ): Promise<Response> {
-    return await this.userRepository.confirmEmailRegistration(key);
-  }
-
-  public async changePassword(user: IUser): Promise<void> {
-    if (user.id == undefined) {
-      throw Error('userId is undefined');
+    const responseUser = await this.repository.findByParameters({
+      email: user.email,
+    });
+    if (!responseUser.ok) {
+      return null;
     }
-    const response = await this.userRepository.update(user, user.id);
-    const data = await response.json();
+    const data: UserResponse = await responseUser.json();
+    return data;
   }
 }

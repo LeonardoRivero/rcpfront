@@ -169,10 +169,6 @@ export class DoctorRepository extends Repository<IDoctor> {
     return DoctorRepository.instance;
   }
 
-  public override async create(entity: IDoctor): Promise<Response> {
-    throw new Error('Method not implemented.' + { entity });
-  }
-
   public override async update(entity: Partial<IDoctor>): Promise<Response> {
     throw new Error('Method not implemented.' + { entity });
   }
