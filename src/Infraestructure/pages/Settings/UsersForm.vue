@@ -213,12 +213,7 @@ import { UserController } from 'src/Adapters/UserController';
 import { QForm } from 'quasar';
 import { IDoctor, IUser } from 'src/Domine/ModelsDB';
 import { DoctorService } from 'src/Application/Services';
-import {
-  CreateCommand,
-  RegisterUserCommand,
-  FindByParametersCommand,
-  UpdateCommand,
-} from 'src/Application/Commands';
+import { CreateCommand, UpdateCommand } from 'src/Application/Commands';
 import { UserService } from 'src/Application/Services/UserService';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import { Notificator } from 'src/Domine/IPatterns';
@@ -269,7 +264,6 @@ export default defineComponent({
       disable: false,
       allGroups,
       allSpecialities,
-      // allIDTypes,
       async confirmChanges() {
         controller.resetAllCommand();
         const isValid = await form.value?.validate();

@@ -1,3 +1,4 @@
+import { CalendarOptions } from '@fullcalendar/vue3';
 import { IPermission } from './ICommons';
 import { ISpeciality, IUser } from './ModelsDB';
 import {
@@ -15,6 +16,7 @@ import {
   HealthInsuranceResponse,
   IDTypeResponse,
 } from './Responses';
+import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 
 export interface IStoreClinicHistory {
   speciality: ISpeciality;
@@ -60,6 +62,10 @@ export interface IStorePermissions {
 }
 
 export interface IStoreSchedule {
-  dateSchedule: string | Date;
+  dateSchedule: string;
   card: boolean;
+  allSpecialities: Array<SpecialityResponse>;
+  calendar: InstanceType<typeof FullCalendar>;
+  calOptions: CalendarOptions;
+  scheduleId: number | null;
 }

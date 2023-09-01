@@ -17,6 +17,7 @@ import {
 import {
   DXMainCodeResponse,
   DoctorResponse,
+  DoctorSpecialityResponse,
   GenderResponse,
   HealthInsuranceResponse,
   IDTypeResponse,
@@ -135,15 +136,15 @@ export interface ScheduleState {
   currentAppointment: IAppointment;
   currentPatient: PatientResponse;
   currentSchedule: EventSchedule;
-  currentDoctor: IDoctor | null;
-  allDoctors: Array<DoctorResponse>;
-  speciality: SpecialityResponse | null;
+  currentDoctor: DoctorSpecialityResponse | null;
+  allDoctors: Array<DoctorSpecialityResponse>;
+  speciality: number | null;
   allSpecialities: Array<SpecialityResponse>;
   identificationPatient: string;
   allowToUpdate: boolean;
   allowToDelete: boolean;
-  card: boolean;
-  calendar: InstanceType<typeof FullCalendar>;
+  // card: boolean;
+  // calendar: InstanceType<typeof FullCalendar>;
 }
 
 export interface AppointmentState {

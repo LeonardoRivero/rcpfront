@@ -13,9 +13,9 @@ import {
   SecretaryStrategy,
   StrategyUser,
 } from 'src/Domine/StrategyUser';
+import { CreateCommand, UpdateCommand } from 'src/Application/Commands';
 export class UserController extends Controller {
   public state: UserState;
-  private service = new UserService();
   private static instance: UserController;
   private saveCommand: ICommand | undefined;
   private updateCommand: ICommand | undefined;
@@ -48,11 +48,17 @@ export class UserController extends Controller {
   }
 
   public async saveOrUpdate(): Promise<UserResponse | null> {
-    if (this.isCommand(this.saveCommand)) {
+    if (
+      this.isCommand(this.saveCommand) &&
+      this.saveCommand instanceof CreateCommand
+    ) {
       const response = <UserResponse>await this.saveCommand.execute();
       return response;
     }
-    if (this.isCommand(this.updateCommand)) {
+    if (
+      this.isCommand(this.updateCommand) &&
+      this.saveCommand instanceof UpdateCommand
+    ) {
       const response = <UserResponse>await this.updateCommand.execute();
       return response;
     }

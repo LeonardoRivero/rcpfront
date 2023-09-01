@@ -17,12 +17,14 @@
               <q-input
                 dense
                 outlined
-                v-model="storeSchedule.dateSchedule"
+                v-model="state.currentSchedule.start"
                 label="Fecha Cita"
                 :hint="`Finalizacion Cita: ${dates.formatDate(
-                  dates.addToDate(storeSchedule.dateSchedule, { minutes: 20 }),
+                  dates.addToDate(state.currentSchedule.start, { minutes: 20 }),
                   FORMAT_DATETIME
                 )}`"
+                :rules="[required]"
+                lazy-rules
               >
                 <template v-slot:prepend>
                   <q-icon name="event">
@@ -32,7 +34,7 @@
                     >
                       <q-date
                         today-btn
-                        v-model="storeSchedule.dateSchedule"
+                        v-model="state.currentSchedule.start"
                         :navigation-min-year-month="CURRENTYEAR_MONTH"
                         :mask="FORMAT_DATETIME"
                       />
@@ -47,7 +49,7 @@
                       transition-hide="scale"
                     >
                       <q-time
-                        v-model="storeSchedule.dateSchedule"
+                        v-model="state.currentSchedule.start"
                         :mask="FORMAT_DATETIME"
                         :minute-options="OPTIONS_MINUTES"
                         :hour-options="OPTIONS_HOURS"
@@ -154,20 +156,23 @@
                 outlined
                 v-model="state.currentDoctor"
                 :options="state.allDoctors"
-                :option-value="(item) => (item === null ? null : item.id)"
-                emit-value
+                :option-value="(item) => (item === null ? null : item.user.id)"
                 label="Doctor"
                 map-options
-                :rules="[required]"
+                lazy-rules
+                :rules="[isNotNull]"
                 :display-value="`${
-                  state.currentDoctor ? state.currentDoctor.name : ''
-                } ${state.currentDoctor ? state.currentDoctor.lastName : ''}`"
+                  state.currentDoctor ? state.currentDoctor.user.first_name : ''
+                } ${
+                  state.currentDoctor ? state.currentDoctor.user.last_name : ''
+                }`"
               >
                 <template v-slot:option="{ itemProps, opt }">
                   <q-item v-bind="itemProps">
                     <q-item-section>
                       <q-item-label
-                        >{{ opt.name }} {{ opt.lastName }}</q-item-label
+                        >{{ opt.user.first_name }}
+                        {{ opt.user.last_name }}</q-item-label
                       >
                     </q-item-section>
                   </q-item>
@@ -186,7 +191,8 @@
                 option-label="description"
                 map-options
                 label="Especialidad"
-                :rules="[required]"
+                :rules="[isNotNull]"
+                lazy-rules
                 @clear="(val) => clearSpeciality(val)"
                 @update:model-value="(val) => specialityChanged(val)"
               >
@@ -224,7 +230,7 @@
       <q-btn
         v-if="state.allowToDelete"
         label="Eliminar"
-        @click="confirmDeleteSchedule(currentSchedule.id)"
+        @click="confirmDeleteSchedule()"
         color="negative"
       />
     </q-card-actions>
@@ -233,8 +239,11 @@
 <script lang="ts">
 import { defineComponent, onMounted, onUnmounted, ref, reactive } from 'vue';
 import { date, QForm } from 'quasar';
-import container from 'src/inversify.config';
-import { HealthInsuranceResponse, PatientResponse } from 'src/Domine/Responses';
+import {
+  DoctorSpecialityResponse,
+  HealthInsuranceResponse,
+  PatientResponse,
+} from 'src/Domine/Responses';
 import { EventSchedule, IAppointment } from 'src/Domine/ModelsDB';
 import { ScheduleAdapter } from 'src/Adapters';
 import {
@@ -244,10 +253,8 @@ import {
   OPTIONS_MINUTES,
   FIELD_REQUIRED,
 } from 'src/Application/Utilities/Constants';
-import { DoctorService } from 'src/Application/Services/DoctorService';
 import 'src/css/app.sass';
 import { Messages } from 'src/Application/Utilities';
-import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { ScheduleState } from 'src/Domine/IStates';
 import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 import {
@@ -255,47 +262,54 @@ import {
   ScheduleMediator,
 } from 'src/Infraestructure/Mediators';
 import { required, isNotNull } from 'src/Application/Utilities/Helpers';
+import { Notificator } from 'src/Domine/IPatterns';
+import { ModalType } from 'src/Domine/Types';
+import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 
 export default defineComponent({
   components: {},
   setup() {
     const dates = date;
     const mediator = ScheduleMediator.getInstance();
-    const storeSchedule = mediator.getStore();
     const state: ScheduleState = reactive({
       lastConsult: {} as IAppointment,
       isReadonly: false,
-      card: false,
       currentAppointment: {} as IAppointment,
       currentPatient: {
         insurance: {} as HealthInsuranceResponse,
       } as PatientResponse,
       currentSchedule: {
         id: undefined,
-        start: storeSchedule.dateSchedule,
+        start: '',
+        observations: '',
       } as EventSchedule,
       currentDoctor: null,
-      allDoctors: [],
+      allDoctors: [] as Array<DoctorSpecialityResponse>,
       speciality: null,
       allSpecialities: [],
       identificationPatient: '',
       allowToUpdate: true,
       allowToDelete: false,
-      calendar: {} as InstanceType<typeof FullCalendar>,
+      // calendar: {} as InstanceType<typeof FullCalendar>,
     });
-    const adapter = ScheduleAdapter.getInstance(state);
-    const specialityService =
-      container.get<SpecialityService>('SpecialityService');
-    const doctorService = new DoctorService();
+
+    const controller = new ScheduleAdapter(state);
     const patientMediator = PatientMediator.getInstance();
     const form = ref<QForm>();
     const error = ref<boolean>(false);
+    const notifyQuasar: Notificator =
+      FactoryNotifactors.getInstance().createNotificator(
+        ModalType.NotifyQuasar
+      );
 
     onMounted(async () => {
-      const doctors = await doctorService.getAll();
-      const specialities = await specialityService.getAll();
-      state.allDoctors = doctors == null ? [] : doctors;
-      state.allSpecialities = specialities == null ? [] : specialities;
+      // const doctors = await doctorService.getAll();
+      state.allDoctors = [];
+      state.allSpecialities = await mediator.getAllSpecialities();
+      mediator.add(controller);
+      if (mediator.store.scheduleId != null) {
+        controller.eventClick(mediator.store.scheduleId);
+      }
     });
 
     onUnmounted(async () => {
@@ -310,7 +324,6 @@ export default defineComponent({
     return {
       required,
       isNotNull,
-      storeSchedule,
       state,
       error,
       errorMessage: Messages.requiredForDelete,
@@ -322,21 +335,20 @@ export default defineComponent({
       form,
       dates,
       async confirmChanges() {
-        const responsePatient = await patientMediator.searchByIdentificacion(
-          state.identificationPatient
-        );
-        if (responsePatient === null) {
-          storeSchedule.card = false;
-          await patientMediator.patientNotFound();
-          return;
+        try {
+          const isValid = await form.value?.validate();
+          if (isValid == false) return;
+          controller.executeValidations();
+          await controller.saveOrUpdate(state.currentSchedule);
+        } catch (error: any) {
+          const messageError = (error as Error).message;
+          notifyQuasar.setType('error');
+          notifyQuasar.show(undefined, messageError);
         }
-        state.currentPatient = responsePatient;
-        const isValid = await form.value?.validate();
-        if (isValid == false) return;
-        await adapter.saveOrUpdate(state.currentSchedule);
       },
 
       async searchPatient() {
+        mediator.notify({}, controller);
         const response = await patientMediator.searchByIdentificacion(
           state.identificationPatient
         );
@@ -344,34 +356,36 @@ export default defineComponent({
           state.currentPatient = response;
           return;
         }
+        const storeSchedule = mediator.getStore();
         storeSchedule.card = false;
         await patientMediator.patientNotFound();
       },
 
-      async confirmDeleteSchedule(val: number) {
-        if (state.currentSchedule.observations.length === 0) {
+      async confirmDeleteSchedule() {
+        if (
+          state.currentSchedule.observations.length === 0 ||
+          state.currentSchedule.id == undefined
+        ) {
           error.value = true;
           return;
         }
-        await adapter.confirmDeleteSchedule(val);
+
+        await controller.confirmDeleteSchedule(state.currentSchedule.id);
       },
 
       async specialityChanged(val: number) {
-        // await specialityAdapter.specialityChanged(speciality.value);
-        const queriesParameters = {
-          speciality: val,
-        };
-        const response = await doctorService.findByParameters(
-          queriesParameters
-        );
-        console.log(response)
-        state.currentDoctor = null;
-        state.allDoctors = response;
-        form.value?.resetValidation();
+        if (val == null) {
+          state.currentDoctor = null;
+          form.value?.resetValidation();
+          return;
+        }
+        await controller.getDoctorsBelongSpeciality(val);
+
+        // form.value?.resetValidation();
       },
 
-      async clearSpeciality() {
-        // specialityService.clear();
+      async clearSpeciality(val: any) {
+        const value = val;
       },
     };
   },

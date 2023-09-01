@@ -20,7 +20,7 @@
           map-options
           label="Descripcion"
           :hint="`Codigo CUP:  ${
-            state.currentDxMainCode.CUP != null
+            state.currentDxMainCode?.CUP != null
               ? state.currentDxMainCode.CUP
               : ''
           }`"

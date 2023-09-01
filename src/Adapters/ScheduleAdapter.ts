@@ -1,14 +1,6 @@
 import '@fullcalendar/core/vdom';
-import { EventAddArg, EventApi, EventClickArg } from '@fullcalendar/core';
-import { QForm, date } from 'quasar';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import { CalendarOptions, DateSelectArg } from '@fullcalendar/vue3';
-import listPlugin from '@fullcalendar/list';
-import esLocale from '@fullcalendar/core/locales/es';
-import FullCalendar from '@fullcalendar/vue3';
-import { Notification } from 'src/Infraestructure/Utilities/Notifications';
+import { EventClickArg } from '@fullcalendar/core';
+import { date } from 'quasar';
 import { Convert, Messages, Validators } from 'src/Application/Utilities';
 import * as Constants from 'src/Application/Utilities/Constants';
 import { routerInstance } from 'src/boot/globalRouter';
@@ -24,6 +16,9 @@ import {
 import { FactoryNotifactors } from './Creators/Factories';
 import { ScheduleState } from 'src/Domine/IStates';
 import { ModalType } from 'src/Domine/Types';
+import { DoctorSpecialityService } from 'src/Application/Services';
+import { IStoreSchedule } from 'src/Domine/IStores';
+import { ScheduleMediator } from 'src/Infraestructure/Mediators/ScheduleMediator';
 
 const validator = Validators.getInstance();
 export class ScheduleAdapter extends Controller {
@@ -37,30 +32,34 @@ export class ScheduleAdapter extends Controller {
   private service = new ScheduleService();
   private convert = new Convert();
 
-  private static instance: ScheduleAdapter;
+  // private static instance: ScheduleAdapter;
 
-  private constructor(state: ScheduleState) {
+  public constructor(state: ScheduleState) {
     super();
     this.state = state;
-    // this.repository = new ScheduleRepository();
-    return;
   }
 
-  receiveData(data: IControllersMediator): void {
-    throw new Error('Method not implemented.');
+  receiveData(handle: IControllersMediator): void {
+    console.log('onReceive');
+    if (handle instanceof ScheduleMediator) {
+      const store = handle.getStore();
+      this.eventClick(store.scheduleId);
+    }
   }
+
   clear(): void {
     throw new Error('Method not implemented.');
   }
-  public static getInstance(store: ScheduleState): ScheduleAdapter {
-    if (!ScheduleAdapter.instance) {
-      ScheduleAdapter.instance = new ScheduleAdapter(store);
-    }
-    return ScheduleAdapter.instance;
-  }
+
+  // public static getInstance(store: ScheduleState): ScheduleAdapter {
+  //   if (!ScheduleAdapter.instance) {
+  //     ScheduleAdapter.instance = new ScheduleAdapter(store);
+  //   }
+  //   return new ScheduleAdapter(store);
+  // }
 
   public async confirmDeleteSchedule(scheduleId: number): Promise<void> {
-    this.state.card = false;
+    this.showThisForm(false);
     this.notifySweetAlert.setType('warning');
     const confirm = await this.notifySweetAlert.show(
       'Atención',
@@ -77,8 +76,8 @@ export class ScheduleAdapter extends Controller {
       return;
     }
 
-    const apiCalendar = this.state.calendar.getApi();
-    apiCalendar.refetchEvents();
+    // const apiCalendar = this.state.calendar.getApi();
+    // apiCalendar.refetchEvents();
   }
 
   public async scheduleNotFound(): Promise<void> {
@@ -117,30 +116,7 @@ export class ScheduleAdapter extends Controller {
   }
 
   public async saveOrUpdate(schedule: EventSchedule): Promise<void> {
-    // // const queriesParameters = {
-    // //   identification: this.store.identificationPatient,
-    // // };
-    // const responsePatient = await this.repositoryPatients.findByParameters(
-    //   queriesParameters
-    // );
-    // if (responsePatient === null || responsePatient.id == null) {
-    //   notification.setMessage(messages.notInfoFound);
-    //   notification.showWarning();
-    //   this.store.card = false;
-    //   await serviceModal.showModal('Atención', messages.notFoundInfoPatient);
-    //   return;
-    // }
-    const dateIsValid = validator.dateAndHour(this.state.currentSchedule.start);
-    if (dateIsValid === false) {
-      this.notifyQuasar.setType('error');
-      this.notifyQuasar.show(undefined, Messages.dateOrHourNotValid);
-      return;
-    }
-    if (
-      !this.state.currentSchedule ||
-      !this.state.currentDoctor?.id ||
-      this.state.speciality === null
-    )
+    if (!this.state.currentDoctor?.user.id || this.state.speciality === null)
       return;
     let response: EventScheduleResponse | null = null;
     let payload: EventSchedule;
@@ -149,16 +125,16 @@ export class ScheduleAdapter extends Controller {
       minutes: Constants.MINUTES_APPOINTMENT,
     });
     schedule.end = date.formatDate(endAppointment, Constants.FORMAT_DATETIME);
-    const name = this.convert.toTitle(this.state.currentPatient.name);
-    const lastName = this.convert.toTitle(this.state.currentPatient.lastName);
+    const name = this.state.currentPatient.name;
+    const lastName = this.state.currentPatient.lastName;
     if (schedule.id == undefined) {
       payload = {
         title: `${name} ${lastName}`,
         start: schedule.start,
         end: schedule.end,
         patient: this.state.currentPatient.id,
-        speciality: this.state.speciality.id,
-        doctor: this.state.currentDoctor.id,
+        speciality: this.state.speciality,
+        doctor: this.state.currentDoctor.user.id,
         observations: this.state.currentSchedule.observations,
       };
       response = await this.save(payload);
@@ -167,20 +143,22 @@ export class ScheduleAdapter extends Controller {
         this.notifyQuasar.show(undefined, Messages.scheduleExisting);
         return;
       }
-      this.state.card = false;
+
+      // this.mediator.notify({}, this);
+      this.showThisForm(false);
       return;
     }
 
     if (this.state.currentSchedule.id != undefined) {
-      this.state.card = false;
+      this.showThisForm(false);
       payload = {
         id: this.state.currentSchedule.id,
         title: `${this.state.currentPatient.name} ${this.state.currentPatient.lastName}`,
         start: this.state.currentSchedule.start,
         end: this.state.currentSchedule.end,
         patient: this.state.currentPatient.id,
-        speciality: this.state.speciality.id,
-        doctor: this.state.currentDoctor.id,
+        speciality: this.state.speciality,
+        doctor: this.state.currentDoctor.user.id,
         observations: this.state.currentSchedule.observations,
       };
       response = await this.update(payload);
@@ -189,19 +167,23 @@ export class ScheduleAdapter extends Controller {
     if (response === null) {
       // notification.setMessage(Messages.scheduleExisting);
       // notification.showError();
+      this.notifyQuasar.setType('error');
+      this.notifyQuasar.show(undefined, Messages.errorMessage);
       return;
     }
-    this.state.card = false;
-    const apiCalendar = this.state.calendar.getApi();
-    apiCalendar.refetchEvents();
+    this.showThisForm(false);
+    this.notifyQuasar.setType('success');
+    this.notifyQuasar.show(undefined, Messages.successMessage);
+    // const apiCalendar = this.state.calendar.getApi();
+    // apiCalendar.refetchEvents();
   }
 
   private async save(
     payload: EventSchedule
   ): Promise<EventScheduleResponse | null> {
     const response = await this.service.save(payload);
-    const apiCalendar = this.state.calendar.getApi();
-    apiCalendar.refetchEvents();
+    // const apiCalendar = this.state.calendar.getApi();
+    // apiCalendar.refetchEvents();
     return response;
   }
 
@@ -229,11 +211,12 @@ export class ScheduleAdapter extends Controller {
   //   this.state.isReadonly = false;
   // }
 
-  public async eventClick(arg: EventClickArg): Promise<void> {
-    const schedule = await this.service.getById(parseInt(arg.event.id));
+  public async eventClick(id: number): Promise<void> {
+    const schedule = await this.service.getById(id);
     if (schedule === null) {
       return;
     }
+    console.log(schedule);
     this.state.currentPatient = schedule.patient;
     this.state.identificationPatient =
       schedule.patient.identification.toString();
@@ -248,25 +231,26 @@ export class ScheduleAdapter extends Controller {
     );
     this.state.currentSchedule.observations = schedule.observations;
     if (schedule.speciality == null || schedule.id == undefined) return;
-    this.state.speciality = schedule.speciality;
+    this.state.speciality = schedule.speciality.id;
     this.state.currentDoctor = schedule.doctor;
     const dateIsValid = validator.dateAndHour(schedule.start);
     this.state.allowToUpdate = true;
     if (dateIsValid == false) {
       this.state.allowToUpdate = false;
       this.state.allowToDelete = false;
-      this.state.card = true;
+      this.showThisForm(true);
       return;
     }
     const response = await this.repositoryAppointment.getById(schedule.id);
     this.state.allowToDelete = false;
-    this.state.card = true;
+    this.showThisForm(true);
     if (response === null) {
       this.state.allowToDelete = true;
       this.state.isReadonly = true;
       return;
     }
   }
+
   public async findByIdentificationPatient(
     identification: string
   ): Promise<EventScheduleResponse | null> {
@@ -274,5 +258,28 @@ export class ScheduleAdapter extends Controller {
       identification
     );
     return register;
+  }
+
+  public async getDoctorsBelongSpeciality(specialityId: number): Promise<void> {
+    const queriesParameters = {
+      speciality: specialityId,
+    };
+    const service = new DoctorSpecialityService();
+    const response = await service.findByParameters(queriesParameters);
+    this.state.currentDoctor = null;
+    this.state.allDoctors = response;
+  }
+
+  public showThisForm(visibility: boolean) {
+    const store = <IStoreSchedule>this.mediator.getStore();
+    store.card = visibility;
+  }
+
+  public executeValidations(): boolean {
+    const dateIsValid = validator.dateAndHour(this.state.currentSchedule.start);
+    if (dateIsValid === false) {
+      throw new Error(Messages.dateOrHourNotValid);
+    }
+    return true;
   }
 }

@@ -60,7 +60,7 @@ export interface EventScheduleResponse {
   end: string;
   patient: PatientResponse;
   speciality: SpecialityResponse;
-  doctor: DoctorResponse;
+  doctor: DoctorSpecialityResponse;
   observations: string;
 }
 export interface GenderResponse {

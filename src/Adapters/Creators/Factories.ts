@@ -31,21 +31,3 @@ export class FactoryNotifactors implements IFactoryMethodNotifications {
     throw new Error('Notificacion type is not available');
   }
 }
-
-// export class FactorySpecialities
-//   implements AbstractFactory<ISpeciality, SpecialityResponse>
-// {
-//   private repository: Repository<ISpeciality>;
-//   public constructor() {
-//     this.repository = this.createRepository();
-//   }
-//   createController(): ControllerTest {
-//     throw new Error('Method not implemented.');
-//   }
-//   createService(): Service<ISpeciality, SpecialityResponse> {
-//     return new SpecialityService(this.repository);
-//   }
-//   createRepository() {
-//     return new SpecialityRepository();
-//   }
-// }
