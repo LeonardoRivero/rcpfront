@@ -251,6 +251,7 @@
 import { defineComponent, onMounted, onUnmounted, reactive, ref } from 'vue';
 import {
   DoctorResponse,
+  DoctorSpecialityResponse,
   HealthInsuranceResponse,
   PatientResponse,
   PatientStatusResponse,
@@ -268,6 +269,7 @@ import { PaymentOptionsService } from 'src/Application/Services/PaymentOptionsSe
 import { ReasonConsultService } from 'src/Application/Services/ReasonConsultService';
 import { PatientStatusService } from 'src/Application/Services/PatientStatusService';
 import {
+  AppointmentMediator,
   PatientMediator,
   ScheduleMediator,
   SettingsMediator,
@@ -290,7 +292,7 @@ export default defineComponent({
       currentHealthInsurance: null,
       reasonConsult: null,
       speciality: {} as ISpeciality,
-      currentDoctor: {} as DoctorResponse,
+      currentDoctor: {} as DoctorSpecialityResponse,
       currentAppointment: {} as IAppointment,
       currentPatient: {} as PatientResponse,
       currentPaymentOption: null,
@@ -299,13 +301,10 @@ export default defineComponent({
       allPatientStatus: <Array<PatientStatusResponse>>[],
     });
     const service = AppointmentAdapter.getInstance(state);
-    // const { allSpecialities, clearSpeciality, getAllSpecialities } =
-    //   specialityService();
-    // const servicePatient = patientService.getInstance();
+    const mediator = AppointmentMediator.getInstance();
     const patientMediator = PatientMediator.getInstance();
     const scheduleMediator = ScheduleMediator.getInstance();
     const settingsMediator = SettingsMediator.getInstance();
-    const servicePaymentOptions = PaymentOptionsService.getInstance();
     const serviceReasonConsult = ReasonConsultService.getInstance();
     const servicePatienStatus = PatientStatusService.getInstance();
     const listInsurancePatient = ref<Array<HealthInsuranceResponse>>([]);
@@ -313,7 +312,7 @@ export default defineComponent({
     const disableListInsurance = ref<boolean>(true);
     const disableCodeTransaction = ref<boolean>(false);
     onMounted(async () => {
-      state.allPaymentOptions = await servicePaymentOptions.getAll();
+      state.allPaymentOptions = await mediator.getAllPaymentOptions();
       state.allReasonConsult = await serviceReasonConsult.getAll();
       state.allPatientStatus = await servicePatienStatus.getAll();
     });
@@ -336,19 +335,19 @@ export default defineComponent({
       async confirmChanges() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;
-        const response = await service.saveOrUpdate(
-          state.currentAppointment,
-          state.currentPatient,
-          state.currentDoctor
-        );
-        if (response != null) {
-          state.currentAppointment = {} as IAppointment;
-          state.currentPatient = {} as PatientResponse;
-          state.currentHealthInsurance = null;
-          state.speciality = {} as ISpeciality;
-          state.identificationPatient = '';
-          form.value?.reset();
-        }
+        // const response = await service.saveOrUpdate(
+        //   state.currentAppointment,
+        //   state.currentPatient,
+        //   state.currentDoctor
+        // );
+        // if (response != null) {
+        //   state.currentAppointment = {} as IAppointment;
+        //   state.currentPatient = {} as PatientResponse;
+        //   state.currentHealthInsurance = null;
+        //   state.speciality = {} as ISpeciality;
+        //   state.identificationPatient = '';
+        //   form.value?.reset();
+        // }
       },
       async changePaymentMethod(idPaymentOption: number) {
         const isCash = await servicePaymentOptions.paymentIsCash(
@@ -357,9 +356,11 @@ export default defineComponent({
         disableCodeTransaction.value = isCash;
         service.paymentIsCash(isCash);
       },
+
       calculateAmountPaid(val: any) {
         service.calculateAmountPaid();
       },
+
       async searchPatient() {
         const patient = await patientMediator.searchByIdentificacion(
           state.identificationPatient
@@ -375,18 +376,18 @@ export default defineComponent({
           await scheduleMediator.scheduleNotFound();
           return;
         }
-        state.currentAppointment.schedule = schedule.id;
-        state.currentAppointment.date = new Date(
-          schedule.start
-        ).toLocaleString();
-        state.currentPatient = schedule.patient;
-        state.currentHealthInsurance = schedule.patient.insurance;
-        state.speciality = schedule.speciality;
-        state.currentDoctor = schedule.doctor;
-        listInsurancePatient.value = settingsMediator.addToArrayDefault(
-          schedule.patient.insurance
-        );
-        disableListInsurance.value = false;
+        // state.currentAppointment.schedule = schedule.id;
+        // state.currentAppointment.date = new Date(
+        //   schedule.start
+        // ).toLocaleString();
+        // state.currentPatient = schedule.patient;
+        // state.currentHealthInsurance = schedule.patient.insurance;
+        // state.speciality = schedule.speciality;
+        // state.currentDoctor = schedule.doctor;
+        // listInsurancePatient.value = settingsMediator.addToArrayDefault(
+        //   schedule.patient.insurance
+        // );
+        // disableListInsurance.value = false;
       },
       listInsurancePatient,
       state,

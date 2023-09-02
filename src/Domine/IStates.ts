@@ -153,7 +153,7 @@ export interface AppointmentState {
   currentHealthInsurance: HealthInsuranceResponse | null;
   reasonConsult: IReasonConsult | null;
   speciality: ISpeciality;
-  currentDoctor: DoctorResponse;
+  currentDoctor: DoctorSpecialityResponse;
   currentAppointment: IAppointment;
   currentPatient: PatientResponse;
   currentPaymentOption: PaymentOptionsResponse | null;

@@ -15,6 +15,9 @@ import {
   UserResponse,
   HealthInsuranceResponse,
   IDTypeResponse,
+  PaymentOptionsResponse,
+  ReasonConsultResponse,
+  PatientStatusResponse,
 } from './Responses';
 import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 
@@ -68,4 +71,9 @@ export interface IStoreSchedule {
   calendar: InstanceType<typeof FullCalendar>;
   calOptions: CalendarOptions;
   scheduleId: number | null;
+}
+export interface IStoreAppointment {
+  allPaymentOptions: Array<PaymentOptionsResponse>;
+  allReasonConsult: Array<ReasonConsultResponse>;
+  allPatientStatus: Array<PatientStatusResponse>;
 }

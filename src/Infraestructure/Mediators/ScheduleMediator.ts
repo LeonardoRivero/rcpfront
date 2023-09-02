@@ -2,7 +2,7 @@ import { reactive } from 'vue';
 import { date } from 'quasar';
 import { StoreGeneric, defineStore } from 'pinia';
 import '@fullcalendar/core/vdom';
-import { EventClickArg, EventMountArg } from '@fullcalendar/core';
+import { EventClickArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -27,13 +27,12 @@ import { ModalType } from 'src/Domine/Types';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import container from 'src/inversify.config';
 import { FORMAT_DATETIME } from 'src/Application/Utilities/Constants';
-import { ScheduleState } from 'src/Domine/IStates';
+
 const START_TIME = '07:00';
 const END_TIME = '23:00';
 const DURATION_APPOINTMENT = '00:20';
 const MINUTES_APPOINTMENT = parseInt(DURATION_APPOINTMENT.split(':')[1]);
 
-const notification = new Notification();
 // const endpoint = EndPoints.getInstance();
 
 // export const useStoreSchedule = defineStore({
@@ -152,6 +151,7 @@ export class ScheduleMediator implements IControllersMediator {
     }
     return ScheduleMediator.instance;
   }
+
   public add(controller: Controller): void {
     const isExist = this.controllers.includes(controller);
     if (isExist) {

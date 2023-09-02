@@ -193,7 +193,6 @@
                 label="Especialidad"
                 :rules="[isNotNull]"
                 lazy-rules
-                @clear="(val) => clearSpeciality(val)"
                 @update:model-value="(val) => specialityChanged(val)"
               >
               </q-select>
@@ -256,7 +255,6 @@ import {
 import 'src/css/app.sass';
 import { Messages } from 'src/Application/Utilities';
 import { ScheduleState } from 'src/Domine/IStates';
-import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 import {
   PatientMediator,
   ScheduleMediator,
@@ -348,7 +346,6 @@ export default defineComponent({
       },
 
       async searchPatient() {
-        mediator.notify({}, controller);
         const response = await patientMediator.searchByIdentificacion(
           state.identificationPatient
         );
@@ -382,10 +379,6 @@ export default defineComponent({
         await controller.getDoctorsBelongSpeciality(val);
 
         // form.value?.resetValidation();
-      },
-
-      async clearSpeciality(val: any) {
-        const value = val;
       },
     };
   },
