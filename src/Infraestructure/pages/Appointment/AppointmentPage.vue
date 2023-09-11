@@ -7,8 +7,8 @@
             <q-card class="my-card" bordered>
               <q-card-section>
                 <div class="text-h6">
-                  <q-icon :name="icon.scheduleCalendar" size="32px" /> Registrar
-                  o Actualizar Cita
+                  <q-icon name="img:schedule-calendar.svg" size="32px" />
+                  Registrar o Actualizar Cita
                 </div>
               </q-card-section>
               <q-separator inset></q-separator>

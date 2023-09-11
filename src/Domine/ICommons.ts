@@ -1,14 +1,19 @@
 import { Observer } from 'src/patterns/Observer/Observer';
 import { IKeyEmailRegistration, IUser } from './ModelsDB';
 import { RegisterResponse } from './Responses';
+import { QTableProps } from 'quasar';
 export interface IColumnsDataTable {
   name: string;
-  required?: boolean;
   label: string;
-  align?: string;
   field: string;
+  required?: boolean;
+  align?: 'left' | 'right' | 'center';
   sortable: boolean;
+  format?: any;
   style?: string;
+  classes?: string;
+  headerStyle?: string;
+  headerClasses?: string;
 }
 export interface ITableSelect {
   optionValue: string;
@@ -17,7 +22,7 @@ export interface ITableSelect {
   label: string;
   style: string;
 }
-export type SelectionType = 'none' | 'single' | 'multiple';
+export type SelectionRow = 'none' | 'single' | 'multiple' | undefined;
 
 export class TableSelect implements ITableSelect {
   optionValue = 'none';
@@ -30,10 +35,11 @@ export class TableSelect implements ITableSelect {
 export interface ITableOptions {
   virtualScroll?: boolean;
   title: string;
-  columns: Array<IColumnsDataTable>;
-  data: unknown;
+  columns: Array<IColumnsDataTable> | undefined;
+  rows: any[] | undefined;
   enableSearch?: boolean;
-  selectionRow: string;
+  tableProps: QTableProps;
+  selectionRow: SelectionRow;
   enableSelect?: boolean;
   select: TableSelect;
   textCite: string;

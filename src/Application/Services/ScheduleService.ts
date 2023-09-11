@@ -63,6 +63,6 @@ export class ScheduleService extends Service<
     if (register === undefined) {
       return null;
     }
-    return register;
+    return await this.getById(register.id);
   }
 }

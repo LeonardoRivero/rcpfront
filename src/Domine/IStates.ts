@@ -18,6 +18,7 @@ import {
   DXMainCodeResponse,
   DoctorResponse,
   DoctorSpecialityResponse,
+  EventScheduleResponse,
   GenderResponse,
   HealthInsuranceResponse,
   IDTypeResponse,
@@ -149,17 +150,16 @@ export interface ScheduleState {
 
 export interface AppointmentState {
   identificationPatient: string;
-  currentPatientStatus: IPatientStatus | null;
-  currentHealthInsurance: HealthInsuranceResponse | null;
+  // currentHealthInsurance: HealthInsuranceResponse | null;
   reasonConsult: IReasonConsult | null;
-  speciality: ISpeciality;
-  currentDoctor: DoctorSpecialityResponse;
   currentAppointment: IAppointment;
-  currentPatient: PatientResponse;
-  currentPaymentOption: PaymentOptionsResponse | null;
+  // currentPatient: PatientResponse;
   allPaymentOptions: Array<PaymentOptionsResponse>;
   allReasonConsult: Array<ReasonConsultResponse>;
   allPatientStatus: Array<PatientStatusResponse>;
+  start: string;
+  end: string;
+  schedule: EventScheduleResponse;
 }
 
 export interface ChangePasswordState {

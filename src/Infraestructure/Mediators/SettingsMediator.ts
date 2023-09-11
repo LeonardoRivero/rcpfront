@@ -90,7 +90,6 @@ export class SettingsMediator implements IControllersMediator {
       return this.store.allPathologies;
     }
     const response = await this.service.getAll();
-    console.log(response);
     this.store.allPathologies = response;
     return response;
   }
@@ -120,7 +119,6 @@ export class SettingsMediator implements IControllersMediator {
   }
   public async getAllIdTypes(): Promise<Array<IDTypeResponse>> {
     if (this.store.allIdTypes.length != 0) {
-      console.log(this.store.allIdTypes);
       return this.store.allIdTypes;
     }
     const idTypesRepository = new IDTypesRepository();
@@ -139,16 +137,17 @@ export class SettingsMediator implements IControllersMediator {
     this.store.allInsurance = response;
     return response;
   }
-  public addToArrayDefault(
-    item: HealthInsuranceResponse
-  ): Array<HealthInsuranceResponse> {
-    if (this.store.allInsurance.length == 0) {
-      this.getAllInsurance();
-    }
-    const particular = this.store.allInsurance.filter(
-      (x) => x.nameInsurance == 'Particular'
-    );
-    particular.push(item);
-    return particular;
-  }
+
+  // public async addToArrayDefault(
+  //   item: HealthInsuranceResponse
+  // ): Promise<Array<HealthInsuranceResponse>> {
+  //   if (this.store.allInsurance.length == 0) {
+  //     await this.getAllInsurance();
+  //   }
+  //   const particular = this.store.allInsurance.filter(
+  //     (x) => x.nameInsurance == 'Particular'
+  //   );
+  //   particular.push(item);
+  //   return particular;
+  // }
 }

@@ -52,6 +52,7 @@ export interface AppointmentResponse {
   doctor: DoctorResponse;
   paymentMethod: PaymentOptionsResponse;
   codeTransaction: string;
+  isPrivate: boolean;
 }
 export interface EventScheduleResponse {
   id: number;

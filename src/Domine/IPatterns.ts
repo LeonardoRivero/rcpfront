@@ -1,3 +1,4 @@
+import { ITableOptions } from './ICommons';
 import { NotificationType, ModalType } from './Types';
 export abstract class Controller {
   abstract receiveData(data: IControllersMediator): void;
@@ -47,4 +48,20 @@ export interface IFactoryMethodNotifications {
 
 export interface ICommand {
   execute(): Promise<object | null>;
+}
+
+export abstract class Builder {
+  public abstract table: ITableOptions;
+  public abstract setData(
+    columns: any[],
+    rows: any[],
+    title: string | undefined
+  ): void;
+  public abstract getResult(): ITableOptions;
+  public setSelectionRow() {
+    this.table.tableProps.selection = 'none';
+  }
+  public hasSearchField() {
+    this.table.enableSearch = true;
+  }
 }

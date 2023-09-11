@@ -1,9 +1,10 @@
 import {
   IColumnsDataTable,
   ITableOptions,
-  SelectionType,
+  SelectionRow,
   TableSelect,
 } from 'src/Domine/ICommons';
+import { Builder } from 'src/Domine/IPatterns';
 import { DataTableState } from 'src/Domine/IStates';
 import { Observer, Subject } from 'src/patterns/Observer/Observer';
 
@@ -64,23 +65,24 @@ export class BuilderTables {
       virtualScroll: false,
       title: '',
       columns: [] as Array<IColumnsDataTable>,
-      data: [] as Array<unknown>,
+      rows: [] as Array<unknown>,
       enableSearch: false,
       enableSelect: false,
       selectionRow: 'none',
       select: new TableSelect(),
       textCite: '',
       observer: null,
+      tableProps: {},
     };
     return;
   }
   public setData(
     column: Array<IColumnsDataTable>,
-    data: unknown,
+    data: any,
     title: string
   ): void {
     this.table.columns = column;
-    this.table.data = data;
+    this.table.rows = data;
     this.table.title = title;
   }
 
@@ -93,7 +95,7 @@ export class BuilderTables {
     this.table.select = optionsSelect;
   }
 
-  public setSelectionRow(selection: SelectionType) {
+  public setSelectionRow(selection: SelectionRow) {
     this.table.selectionRow = selection;
   }
 
@@ -103,5 +105,22 @@ export class BuilderTables {
 
   public getResult(): ITableOptions {
     return this.table;
+  }
+}
+
+export class BuilderTablesWithFetchToServer extends Builder {
+  public table: ITableOptions;
+
+  public constructor() {
+    super();
+    this.table = { enableSearch: true, selectionRow: 'none' } as ITableOptions;
+  }
+
+  public setData(columns: any[], rows: any[], title: string | undefined): void {
+    throw new Error('Method not implemented.');
+  }
+
+  public getResult(): ITableOptions {
+    throw new Error('Method not implemented.');
   }
 }

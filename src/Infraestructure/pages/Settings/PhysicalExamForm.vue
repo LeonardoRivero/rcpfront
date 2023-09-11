@@ -186,7 +186,7 @@ export default defineComponent({
         const response = await controller.specialityChanged(id);
         const [columns, dataRows] = controller.getColumnsAndRows(response);
         tableOptions.value.columns = columns;
-        tableOptions.value.data = dataRows;
+        tableOptions.value.rows = dataRows;
         // dataTableController.updateData(columns, dataRows);
       },
       async add() {

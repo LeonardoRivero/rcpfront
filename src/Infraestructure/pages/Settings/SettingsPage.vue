@@ -20,7 +20,9 @@
         <q-tab-panels v-model="tab" animated>
           <q-tab-panel name="Insurance">
             <div class="row">
-              <div class="col-6 col-md-6 col-xs-12"><Insurance /></div>
+              <div class="col-6 col-md-6 col-xs-12">
+                <Insurance />
+              </div>
             </div>
           </q-tab-panel>
           <q-tab-panel name="Speciality">

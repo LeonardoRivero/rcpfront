@@ -1,11 +1,12 @@
 import { Dialog, Notify, QNotifyCreateOptions } from 'quasar';
-import { NotificationType, Notificator } from 'src/Domine/IPatterns';
+import { Notificator } from 'src/Domine/IPatterns';
 import { IconSVG } from 'src/Application/Utilities';
 import Swal, {
   SweetAlertIcon,
   SweetAlertOptions,
   SweetAlertResult,
 } from 'sweetalert2';
+import { NotificationType } from 'src/Domine/Types';
 export class Notification implements Notificator {
   private type: 'positive' | 'negative' | 'warning' | 'info' | 'ongoing' =
     'info';

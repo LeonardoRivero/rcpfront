@@ -164,3 +164,6 @@ export const short = (val: string) =>
 export const noSpaces = (val: string) =>
   noSpacesPattern.test(val) ||
   'Minimo 8 caracteres. Únicamente letras, dígitos y @ . + - _';
+
+export const noLowerZero = (val: string) =>
+  parseInt(val) >= 0 || 'Valor negativo no permitido';

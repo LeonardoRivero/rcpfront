@@ -29,8 +29,8 @@ export const useStoreDataTable = defineStore({
       tableOptions: {
         virtualScroll: false,
         title: '',
-        columns: [] as Array<IColumnsDataTable>,
-        data: [] as Array<unknown>,
+        columns: undefined,
+        rows: undefined,
         enableSearch: false,
         enableSelect: false,
         selectionRow: 'none',

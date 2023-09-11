@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <q-item clickable tag="a" link :to="link">
     <q-item-section v-if="icon" avatar>
       <q-icon :name="icon" />
@@ -38,4 +38,4 @@ export default defineComponent({
     },
   },
 });
-</script>
+</script> -->

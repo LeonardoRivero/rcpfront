@@ -2,9 +2,9 @@
   <div class="my-card">
     <q-table
       :title="tableOptions.title"
-      :dense="$q.screen.lt.xs"
+      :dense="$q.screen.lt.sm"
       virtual-scroll
-      :rows="tableOptions.data"
+      :rows="tableOptions.rows"
       :columns="tableOptions.columns"
       row-key="description"
       :hide-bottom="false"
@@ -66,11 +66,11 @@
           </template>
         </q-input>
       </template>
-      <template v-slot:no-data="{ icon, message, filter }">
+      <template v-slot:no-data="{ icon, message }">
         <div
           class="full-width row flex-center text-accent q-gutter-sm text-blue"
         >
-          <q-icon size="2em" :name="filter ? 'warning' : icon" />
+          <q-icon size="2em" name="mdi-alert" />
           <span> Lo sentimos.. {{ message }} </span>
         </div>
       </template>
@@ -89,6 +89,7 @@ import {
 import { DataTableController } from 'src/Adapters/DataTableAdapter';
 import { DataTableState } from 'src/Domine/IStates';
 import { Controller } from 'src/Domine/IPatterns';
+import { QTable } from 'quasar';
 
 export default defineComponent({
   name: 'DataTable',
@@ -99,15 +100,16 @@ export default defineComponent({
       default: {
         virtualScroll: false,
         title: '',
-        columns: [] as Array<IColumnsDataTable>,
-        data: [] as unknown,
+        columns: [],
+        rows: [],
         enableSearch: false,
         enableSelect: false,
-        selectionRow: 'none',
+        selectionRow: 'single',
         select: new TableSelect(),
         textCite: '',
         observer: null,
-      } as ITableOptions,
+        options: {},
+      },
     },
     controller: {
       type: Object as PropType<Controller>,
@@ -146,7 +148,7 @@ export default defineComponent({
       removeRow() {
         console.log('remove');
       },
-      rowClicked(val: Array<object>) {
+      rowClicked(val: readonly any[]) {
         console.log(val);
         if (val === undefined) {
           val = [];

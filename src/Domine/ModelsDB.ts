@@ -58,6 +58,7 @@ export interface IAppointment {
   doctor: number;
   paymentMethod: number;
   codeTransaction: string | null;
+  isPrivate: boolean;
 }
 
 export interface EventSchedule {
