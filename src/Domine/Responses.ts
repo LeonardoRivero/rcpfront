@@ -150,3 +150,48 @@ export interface UserBase {
   first_name: string;
   last_name: string;
 }
+
+export interface CountryResponse {
+  url: string;
+  name: string;
+  name_ascii: string;
+  slug: string;
+  geoname_id: number;
+  alternate_names: string;
+  code2: string;
+  code3: string;
+  continent: string;
+  tld: string;
+  phone: string;
+}
+
+export interface SubRegionResponse {
+  url: string;
+  country: string;
+  region: string;
+  name: string;
+  name_ascii: string;
+  geoname_id: number;
+  alternate_names: string;
+  display_name: string;
+  geoname_code: string;
+}
+
+export interface RegionResponse {
+  url: string;
+  country: string;
+  name: string;
+  name_ascii: string;
+  geoname_id: number;
+  alternate_names: string;
+  display_name: string;
+  geoname_code: string;
+}
+
+export interface MedicalOfficeResponse {
+  id: number;
+  address: string;
+  country: number;
+  department: number;
+  city: number;
+}

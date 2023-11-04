@@ -20,7 +20,7 @@
           label="Patologia"
           :rules="[required]"
           @update:model-value="(val) => pathologyChanged(val)"
-          @clear="(val) => clear(val)"
+          @clear="(val) => clear()"
         >
         </q-select>
       </q-card-section>

@@ -14,10 +14,7 @@
           @click="$q.dark.toggle()"
           :icon="$q.dark.isActive ? 'nights_stay' : 'wb_sunny'"
         />
-        <q-img
-          style="height: 45%; width: 45%"
-          src="https://svgsilh.com/svg/1301891.svg"
-        ></q-img>
+        <q-img style="width: 100%" :src="icons.index"></q-img>
         <q-card
           class="login-form"
           v-bind:style="
@@ -32,11 +29,14 @@
 
 <script type="text/javascript"></script>
 <script>
+import { IconSVG } from 'src/Application/Utilities/Constants';
+
 export default {
   data() {
     return {
       username: 'admin',
       password: 'Admin@CRM',
+      icons: IconSVG,
     };
   },
   methods: {

@@ -7,6 +7,7 @@ import {
 import { Builder } from 'src/Domine/IPatterns';
 import { DataTableState } from 'src/Domine/IStates';
 import { Observer, Subject } from 'src/patterns/Observer/Observer';
+import { reactive } from 'vue';
 
 export class DataTableController implements Subject {
   public state: DataTableState;
@@ -72,7 +73,7 @@ export class BuilderTables {
       select: new TableSelect(),
       textCite: '',
       observer: null,
-      tableProps: {},
+      showButtonActions: false,
     };
     return;
   }
@@ -113,14 +114,35 @@ export class BuilderTablesWithFetchToServer extends Builder {
 
   public constructor() {
     super();
-    this.table = { enableSearch: true, selectionRow: 'none' } as ITableOptions;
+    this.table = reactive({
+      virtualScroll: false,
+      title: '',
+      columns: [] as Array<IColumnsDataTable>,
+      rows: [] as Array<unknown>,
+      enableSearch: false,
+      enableSelect: false,
+      selectionRow: 'none',
+      select: new TableSelect(),
+      textCite: '',
+      observer: null,
+      showButtonActions: false,
+    });
   }
 
   public setData(columns: any[], rows: any[], title: string | undefined): void {
-    throw new Error('Method not implemented.');
+    this.table.columns = columns;
+    this.table.rows = rows;
+    this.table.title = title == undefined ? '' : title;
   }
 
   public getResult(): ITableOptions {
-    throw new Error('Method not implemented.');
+    return this.table;
+  }
+
+  public enableSearch(enable: boolean) {
+    this.table.enableSearch = enable;
+  }
+  public showButtonActions() {
+    this.table.showButtonActions = true;
   }
 }

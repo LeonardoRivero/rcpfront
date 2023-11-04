@@ -1,6 +1,7 @@
 import { IAppointment, IPaymentOptions } from 'src/Domine/ModelsDB';
-// import { EndPoints } from 'src/Application/Utilities';
 import { Repository } from './Interface';
+// import { EndPoints } from 'src/Application/Utilities';
+
 // const endpoint = EndPoints.getInstance();
 // type IAppointment = IAppointmentRequest | IAppointmentResponse | null;
 export class AppointmentRepository extends Repository<IAppointment> {

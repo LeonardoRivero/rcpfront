@@ -23,6 +23,9 @@
               <div class="col-6 col-md-6 col-xs-12">
                 <Insurance />
               </div>
+              <div class="col-6 col-md-6 col-xs-12">
+                <MedicalOffice />
+              </div>
             </div>
           </q-tab-panel>
           <q-tab-panel name="Speciality">
@@ -108,6 +111,7 @@ import DxMainCode from './DxMainCodeForm.vue';
 import RelationCode from './RelationCode.vue';
 import Insurance from './InsuranceForm.vue';
 import PhysicalExamForm from './PhysicalExamForm.vue';
+import MedicalOffice from './MedicalOffice.vue';
 import PathologicalHistoryForm from './PathologicalHistoryForm.vue';
 import { IconSVG } from 'src/Application/Utilities/Constants';
 import UsersForm from './UsersForm.vue';
@@ -121,6 +125,7 @@ export default defineComponent({
     PhysicalExamForm,
     PathologicalHistoryForm,
     UsersForm,
+    MedicalOffice,
   },
 
   setup() {

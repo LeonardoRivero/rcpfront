@@ -102,7 +102,7 @@
               checked-icon="task_alt"
               unchecked-icon="highlight_off"
               label=" Valor de cita incluye Copago "
-              :rules="[(val) => (val && val == undefined) || 'Campo requerido']"
+              :rules="[(val:any) => (val && val == undefined) || 'Campo requerido']"
             >
               <small>
                 <cite title="Ayuda">(Segun acuerdo previo con entidad)</cite>

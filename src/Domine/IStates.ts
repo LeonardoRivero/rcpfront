@@ -15,6 +15,7 @@ import {
   IUser,
 } from './ModelsDB';
 import {
+  CountryResponse,
   DXMainCodeResponse,
   DoctorResponse,
   DoctorSpecialityResponse,
@@ -22,14 +23,17 @@ import {
   GenderResponse,
   HealthInsuranceResponse,
   IDTypeResponse,
+  MedicalOfficeResponse,
   PathologicalHistoryResponse,
   PatientResponse,
   PatientStatusResponse,
   PaymentOptionsResponse,
   PhysicalExamResponse,
   ReasonConsultResponse,
+  RegionResponse,
   RelationCodeResponse,
   SpecialityResponse,
+  SubRegionResponse,
 } from './Responses';
 import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 
@@ -174,4 +178,17 @@ export interface DoctorState {
   currentDoctor: IDoctor | null;
   expanded: boolean;
   error: boolean;
+}
+
+export interface MedicalOfficeState {
+  countries: Array<CountryResponse>;
+  subRegions: Array<SubRegionResponse>;
+  medicalOffices: Array<MedicalOfficeResponse>;
+  currentMedicalOffice: MedicalOfficeResponse;
+  addressMedicalOffice: string;
+  subRegion?: number;
+  regions: Array<RegionResponse>;
+  region?: number;
+  address: string;
+  expanded: boolean;
 }

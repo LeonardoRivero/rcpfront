@@ -8,10 +8,17 @@ import { PhysicalExamResultResponse } from 'src/Domine/Responses';
 import { DELETE, GET, POST, PUT } from 'src/Infraestructure/Utilities/Request';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
 import 'reflect-metadata';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { routerInstance } from 'src/boot/globalRouter';
 
 import { LoginService, UserService } from '../Services/UserService';
+import {
+  HTTPClient,
+  IToCreate,
+  IToRead,
+  IToUpdate,
+} from 'src/Domine/IPatterns';
+import { ClientAPI } from 'src/Infraestructure/ClientsAPI/SettingClientsAPI';
 // export interface IRepository<T1, T2> {
 //   getById(id: number): Promise<T2 | null>;
 //   getAll(): Promise<T2[] | null>;
@@ -92,6 +99,9 @@ export abstract class Repository<T1> extends LoginRepository {
     try {
       // const urlBase = EndPoints.buildFullUrl(this.url);
       // const fullUrl = `${this.url}${id}/`;
+      if (Number.isNaN(id)) {
+        throw new URIError('id is Nan');
+      }
       if (this.url == undefined) {
         throw new URIError('url is undefined');
       }
@@ -217,6 +227,65 @@ export abstract class Service<T extends { id?: number }, T2> {
 
   public async getById(id: number): Promise<T2 | null> {
     const response = await this.repository.getById(id);
+    if (!response.ok) return null;
+    return await response.json();
+  }
+}
+
+@injectable()
+export abstract class GenericService<T extends { id?: number }, T2>
+  implements IToCreate<T, T2>, IToRead<T2>, IToUpdate<T, T2>
+{
+  abstract urlCreate: string;
+  abstract urlList: string;
+  private httpClient: HTTPClient;
+  abstract urlBase: string;
+  abstract urlUpdate: string;
+
+  public constructor() {
+    this.httpClient = new ClientAPI();
+  }
+
+  public async create(entity: T): Promise<T2 | null> {
+    const response = await this.httpClient.POST(this.urlCreate, entity);
+    if (!response.ok) return null;
+    return await response.json();
+  }
+
+  public async update(payload: T, id: number): Promise<T2 | null> {
+    const urlUpdate = `${this.urlUpdate}${id}`;
+    if (id == null) {
+      throw EvalError('id is null or undefined');
+    }
+    const response = await this.httpClient.PUT(urlUpdate, payload);
+    if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST)
+      return null;
+    return await response.json();
+  }
+
+  public async getAll(): Promise<Array<T2>> {
+    const response = await this.httpClient.GET(this.urlList);
+    if (response.status == HttpStatusCodes.NOT_FOUND) {
+      routerInstance.push('/:catchAll');
+    }
+    if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT)
+      return [];
+    return await response.json();
+  }
+
+  public async findByParameters(
+    queryParameters: object
+  ): Promise<Array<object>> {
+    const response = await this.httpClient.GET(this.urlBase, queryParameters);
+    if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT)
+      return [];
+    const data: object[] = await response.json();
+    return data;
+  }
+
+  public async getById(id: number): Promise<T2 | null> {
+    const urlById = `${this.urlBase}${id}`;
+    const response = await this.httpClient.GET(urlById);
     if (!response.ok) return null;
     return await response.json();
   }

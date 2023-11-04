@@ -145,3 +145,11 @@ export interface IExam {
   description: string;
   result: string;
 }
+
+export interface IMedicalOffice {
+  id?: number;
+  country: number;
+  city: number;
+  department: number;
+  address: string;
+}

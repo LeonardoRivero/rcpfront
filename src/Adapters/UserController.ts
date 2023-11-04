@@ -137,10 +137,6 @@ export class UserController extends Controller {
     this.findByParametersCommand = command;
   }
 
-  private isCommand(object: any): object is ICommand {
-    return object.execute !== undefined;
-  }
-
   public resetAllCommand() {
     this.saveCommand = undefined;
     this.updateCommand = undefined;

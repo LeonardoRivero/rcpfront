@@ -6,10 +6,17 @@ import {
   ISpeciality,
   IHealthInsurance,
   IPathologycalHistory,
+  IMedicalOffice,
 } from 'src/Domine/ModelsDB';
 import { Repository } from './Interface';
 import 'reflect-metadata';
 import { injectable, inject } from 'inversify';
+import {
+  CountryResponse,
+  MedicalOfficeResponse,
+  RegionResponse,
+  SubRegionResponse,
+} from 'src/Domine/Responses';
 
 @injectable()
 export class PhysicalExamParameterRepository extends Repository<IPhysicalExam> {
@@ -204,5 +211,114 @@ export class PathologicalHistoryRepository extends Repository<IPathologycalHisto
     parameters: object
   ): Promise<Response> {
     throw new Error('Method not implemented.' + { parameters });
+  }
+}
+
+@injectable()
+export class MedicalOfficeRepository extends Repository<MedicalOfficeResponse> {
+  url: string;
+  urlWithParameters: string;
+  public constructor() {
+    super();
+
+    const urlAPI = process.env.MEDICAL_OFFICE_LIST
+      ? process.env.MEDICAL_OFFICE_LIST
+      : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
+    this.urlWithParameters = '';
+  }
+  public override async getById(id: number): Promise<Response> {
+    throw new Error('Method not implemented.' + { id });
+  }
+
+  public override async delete(id: number): Promise<boolean> {
+    throw new Error('Method not implemented.' + { id });
+  }
+
+  public override async findByParameters(
+    parameters: object
+  ): Promise<Response> {
+    throw new Error('Method not implemented.' + { parameters });
+  }
+}
+
+@injectable()
+export class CountryRepository extends Repository<CountryResponse> {
+  url: string;
+  urlWithParameters: string;
+  public constructor() {
+    super();
+    const urlAPI = process.env.COUNTRIES ? process.env.COUNTRIES : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
+    this.urlWithParameters = '';
+  }
+
+  public override async create(entity: CountryResponse): Promise<Response> {
+    throw new Error('Method not implemented.' + { entity });
+  }
+
+  public override async delete(id: number): Promise<boolean> {
+    throw new Error('Method not implemented.' + { id });
+  }
+
+  public override async update(
+    entity: CountryResponse,
+    id: number
+  ): Promise<Response> {
+    throw new Error('Method not implemented.' + { entity } + { id });
+  }
+}
+
+@injectable()
+export class SubRegionRepository extends Repository<SubRegionResponse> {
+  url: string;
+  urlWithParameters: string;
+  public constructor() {
+    super();
+    const urlAPI = process.env.SUBREGIONS ? process.env.SUBREGIONS : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
+    this.urlWithParameters = '';
+  }
+
+  public override async create(entity: SubRegionResponse): Promise<Response> {
+    throw new Error('Method not implemented.' + { entity });
+  }
+
+  public override async delete(id: number): Promise<boolean> {
+    throw new Error('Method not implemented.' + { id });
+  }
+
+  public override async update(
+    entity: CountryResponse,
+    id: number
+  ): Promise<Response> {
+    throw new Error('Method not implemented.' + { entity } + { id });
+  }
+}
+
+@injectable()
+export class RegionRepository extends Repository<RegionResponse> {
+  url: string;
+  urlWithParameters: string;
+  public constructor() {
+    super();
+    const urlAPI = process.env.REGIONS ? process.env.REGIONS : '';
+    this.url = `${process.env.RCP}${urlAPI}`;
+    this.urlWithParameters = '';
+  }
+
+  public override async create(entity: SubRegionResponse): Promise<Response> {
+    throw new Error('Method not implemented.' + { entity });
+  }
+
+  public override async delete(id: number): Promise<boolean> {
+    throw new Error('Method not implemented.' + { id });
+  }
+
+  public override async update(
+    entity: CountryResponse,
+    id: number
+  ): Promise<Response> {
+    throw new Error('Method not implemented.' + { entity } + { id });
   }
 }

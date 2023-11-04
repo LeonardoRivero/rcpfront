@@ -1,5 +1,5 @@
-import { ICommand, Notificator } from 'src/Domine/IPatterns';
-import { Service } from './Repositories/Interface';
+import { ICommand, IToCreate, Notificator } from 'src/Domine/IPatterns';
+import { GenericService, Service } from './Repositories/Interface';
 import { IUser } from 'src/Domine/ModelsDB';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import { ModalType } from 'src/Domine/Types';
@@ -88,6 +88,30 @@ export class RegisterUserCommand implements ICommand {
       this.notifyQuasar.setType('success');
       this.notifyQuasar.show(undefined, response.detail);
     }
+    return response;
+  }
+}
+
+export class InsertCommand implements ICommand {
+  public payload: object;
+  public service: GenericService<any, any>;
+  private notifySweetAlert: Notificator =
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
+
+  constructor(payload: object, service: GenericService<any, any>) {
+    this.payload = payload;
+    this.service = service;
+  }
+  async execute(): Promise<object | null> {
+    this.notifySweetAlert.setType('question');
+    const confirm = await this.notifySweetAlert.show(
+      'Atención',
+      Messages.newRegister
+    );
+    if (confirm === false) {
+      return null;
+    }
+    const response = await this.service.create(this.payload);
     return response;
   }
 }

@@ -16,6 +16,10 @@ export abstract class Controller {
   public setMediator(mediator: IControllersMediator): void {
     this.mediator = mediator;
   }
+
+  public isCommand(object: any): object is ICommand {
+    return object.execute !== undefined;
+  }
 }
 
 export interface IControllersMediator {
@@ -64,4 +68,32 @@ export abstract class Builder {
   public hasSearchField() {
     this.table.enableSearch = true;
   }
+}
+
+export interface IToCreate<T, T2> {
+  urlCreate: string;
+  create(entity: T): Promise<T2 | null>;
+}
+
+export interface IToRead<T> {
+  urlList: string;
+  urlBase: string;
+  getAll(): Promise<Array<T>>;
+  getById(id: number): Promise<T | null>;
+}
+
+export interface IToUpdate<T, T2> {
+  urlUpdate: string;
+  update(payload: T, id: number): Promise<T | null | T2>;
+}
+
+export interface IToDelete {
+  urlDelete: string;
+  delete(id: number): Promise<object | null>;
+}
+export interface HTTPClient {
+  GET(path: string, queryparams?: object): Promise<Response>;
+  POST(path: string, body: unknown): Promise<Response>;
+  PUT(path: string, body: unknown): Promise<Response>;
+  DELETE(path: string): Promise<Response>;
 }
