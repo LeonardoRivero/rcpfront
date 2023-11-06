@@ -18,7 +18,7 @@ export abstract class Controller {
   }
 
   public isCommand(object: any): object is ICommand {
-    return object.execute !== undefined;
+    return object !== undefined;
   }
 }
 

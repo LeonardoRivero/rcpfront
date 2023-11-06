@@ -18,6 +18,6 @@ export class MedicalOfficeService extends GenericService<
     this.urlBase = process.env.MEDICAL_OFFICE ? process.env.MEDICAL_OFFICE : '';
     this.urlCreate = `${process.env.RCP}${this.urlBase}create/`;
     this.urlList = `${process.env.RCP}${this.urlBase}list/`;
-    this.urlUpdate = this.urlBase;
+    this.urlUpdate = `${process.env.RCP}${this.urlBase}update/`;
   }
 }

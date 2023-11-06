@@ -151,8 +151,7 @@ export interface UserBase {
   last_name: string;
 }
 
-export interface CountryResponse {
-  url: string;
+interface Country {
   name: string;
   name_ascii: string;
   slug: string;
@@ -165,10 +164,35 @@ export interface CountryResponse {
   phone: string;
 }
 
-export interface SubRegionResponse {
+export interface CountryResponse extends Country {
   url: string;
+}
+
+interface CountryResponseModel extends Country {
+  id: number;
+}
+
+interface SubRegion {
+  name: string;
   country: string;
   region: string;
+  name_ascii: string;
+  geoname_id: number;
+  alternate_names: string;
+  display_name: string;
+  geoname_code: string;
+}
+export interface SubRegionResponse extends SubRegion {
+  url: string;
+}
+
+export interface SubRegionResponseModel extends SubRegion {
+  id: number;
+  slug: string;
+}
+
+interface Region {
+  country: number;
   name: string;
   name_ascii: string;
   geoname_id: number;
@@ -177,21 +201,19 @@ export interface SubRegionResponse {
   geoname_code: string;
 }
 
-export interface RegionResponse {
+export interface RegionResponse extends Region {
   url: string;
-  country: string;
-  name: string;
-  name_ascii: string;
-  geoname_id: number;
-  alternate_names: string;
-  display_name: string;
-  geoname_code: string;
+}
+
+export interface RegionResponseModel extends Region {
+  id: number;
+  slug: string;
 }
 
 export interface MedicalOfficeResponse {
   id: number;
   address: string;
-  country: number;
-  department: number;
-  city: number;
+  country: CountryResponseModel;
+  department: RegionResponseModel;
+  city: SubRegionResponseModel;
 }

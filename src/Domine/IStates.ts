@@ -5,6 +5,7 @@ import {
   IDXMainCode,
   IDoctor,
   IHealthInsurance,
+  IMedicalOffice,
   IPathologycalHistory,
   IPatient,
   IPatientStatus,
@@ -184,11 +185,11 @@ export interface MedicalOfficeState {
   countries: Array<CountryResponse>;
   subRegions: Array<SubRegionResponse>;
   medicalOffices: Array<MedicalOfficeResponse>;
-  currentMedicalOffice: MedicalOfficeResponse;
-  addressMedicalOffice: string;
+  medicalOfficeResponse: MedicalOfficeResponse;
+  medicalOfficeEntity: IMedicalOffice;
   subRegion?: number;
   regions: Array<RegionResponse>;
-  region?: number;
+  region?: string;
   address: string;
   expanded: boolean;
 }

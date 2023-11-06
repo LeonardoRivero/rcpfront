@@ -37,7 +37,7 @@
       </q-select>
     </q-card-section>
     <q-card-actions>
-      <q-btn flat round color="primary" icon="mdi-plus" @click="add">
+      <q-btn flat round color="primary" icon="mdi-plus" @click="add()">
         <q-tooltip transition-show="scale" transition-hide="scale">
           Agregar
         </q-tooltip>
@@ -102,7 +102,7 @@
               checked-icon="task_alt"
               unchecked-icon="highlight_off"
               label=" Valor de cita incluye Copago "
-              :rules="[(val:any) => (val && val == undefined) || 'Campo requerido']"
+              :rules="[required]"
             >
               <small>
                 <cite title="Ayuda">(Segun acuerdo previo con entidad)</cite>
@@ -125,6 +125,7 @@ import { InsuranceAdapter } from 'src/Adapters/InsuranceAdapter';
 import { IconSVG } from 'src/Application/Utilities';
 import { HealthInsuranceResponse } from 'src/Domine/Responses';
 import { InsuranceState } from 'src/Domine/IStates';
+import { required, isNotNull } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -146,10 +147,12 @@ export default defineComponent({
     });
 
     return {
+      required,
+      isNotNull,
       state,
       icons: IconSVG,
       form,
-      clearInsurance(val: any) {
+      clearInsurance() {
         controller.clear();
         form.value?.reset();
       },

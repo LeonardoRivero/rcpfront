@@ -1,5 +1,10 @@
 import { Messages } from 'src/Application/Utilities/Messages';
-import { MedicalOfficeResponse, SubRegionResponse } from 'src/Domine/Responses';
+import {
+  MedicalOfficeResponse,
+  RegionResponseModel,
+  SubRegionResponse,
+  SubRegionResponseModel,
+} from 'src/Domine/Responses';
 import { MedicalOfficeState } from 'src/Domine/IStates';
 import {
   Controller,
@@ -11,7 +16,12 @@ import { FactoryNotifactors } from './Creators/Factories';
 import container from 'src/inversify.config';
 import { ModalType } from 'src/Domine/Types';
 import { SubRegionService } from 'src/Application/Services/GeographicCollectionService';
-import { CreateCommand, InsertCommand } from 'src/Application/Commands';
+import {
+  CreateCommand,
+  EditCommand,
+  InsertCommand,
+  UpdateCommand,
+} from 'src/Application/Commands';
 import { MedicalOfficeService } from 'src/Application/Services/MedicalOfficeService';
 
 export class MedicalOfficeController extends Controller {
@@ -47,6 +57,14 @@ export class MedicalOfficeController extends Controller {
     this.state.address = '';
     this.state.region = undefined;
     this.state.subRegion = undefined;
+    this.state.medicalOfficeResponse = {
+      department: {} as RegionResponseModel,
+      city: {} as SubRegionResponseModel,
+    } as MedicalOfficeResponse;
+  }
+
+  public edit(): void {
+    this.state.expanded = true;
   }
 
   public resetAllCommand() {
@@ -58,6 +76,9 @@ export class MedicalOfficeController extends Controller {
     this.saveCommand = command;
   }
 
+  public setOnUpdate(command: ICommand): void {
+    this.updateCommand = command;
+  }
   public async saveOrUpdate(): Promise<MedicalOfficeResponse | null> {
     let response: MedicalOfficeResponse | null = null;
     if (
@@ -65,6 +86,14 @@ export class MedicalOfficeController extends Controller {
       this.saveCommand instanceof InsertCommand
     ) {
       response = <MedicalOfficeResponse | null>await this.saveCommand.execute();
+    }
+    if (
+      this.isCommand(this.updateCommand) &&
+      this.updateCommand instanceof EditCommand
+    ) {
+      response = <MedicalOfficeResponse | null>(
+        await this.updateCommand.execute()
+      );
     }
 
     if (response === null) {
@@ -88,14 +117,12 @@ export class MedicalOfficeController extends Controller {
   }
 
   public async getCitiesByDepartment(
-    url: string
+    id: number
   ): Promise<Array<SubRegionResponse>> {
-    const id = this.getIdByUrl(url);
     const response = await this.subRegionService.findByParameters({
       region_id: id,
     });
     this.state.subRegions = response;
-    this.state.subRegion = undefined;
     return response;
   }
 
@@ -108,16 +135,26 @@ export class MedicalOfficeController extends Controller {
   }
 
   public showInfoMedicalOffice(id: number) {
-    this.state.medicalOffices.length;
     const medicalOffice = this.state.medicalOffices.find(
       (element) => element.id == id
     );
     if (medicalOffice == undefined) return;
-    this.state.region = medicalOffice.department;
-    this.state.subRegion = medicalOffice.city;
-    this.state.address = medicalOffice.address;
+    // this.state.region = medicalOffice.department.name;
+    // this.state.subRegion = medicalOffice.city.id;
+    // this.state.address = medicalOffice.address;
+    this.state.medicalOfficeResponse = medicalOffice;
     console.log(medicalOffice);
   }
+
+  // public async getAllCities(): Promise<void> {
+  //   console.log(this.state.subRegions);
+  //   if (this.state.subRegions.length != 0) {
+  //     return;
+  //   }
+  //   const subRegionService =
+  //     container.get<SubRegionService>('SubRegionService');
+  //   this.state.subRegions = await subRegionService.getAll();
+  // }
 
   public async getAllMedicalOffice() {
     const serviceMedicalOffice = container.get<MedicalOfficeService>(

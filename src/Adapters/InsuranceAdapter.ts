@@ -34,8 +34,8 @@ export class InsuranceAdapter {
   }
 
   public add(): void {
-    this.state.currentInsurance = { takeCopayment: false } as IHealthInsurance;
     this.state.expanded = true;
+    this.state.currentInsurance = { takeCopayment: false } as IHealthInsurance;
   }
 
   public async saveOrUpdate(payload: IHealthInsurance): Promise<void> {

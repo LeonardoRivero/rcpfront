@@ -115,3 +115,18 @@ export class InsertCommand implements ICommand {
     return response;
   }
 }
+
+export class EditCommand implements ICommand {
+  public payload: unknown;
+  public service: GenericService<any, any>;
+  public id: number;
+  constructor(payload: unknown, id: number, service: GenericService<any, any>) {
+    this.payload = payload;
+    this.service = service;
+    this.id = id;
+  }
+  async execute(): Promise<object | null> {
+    const response = await this.service.update(this.payload, this.id);
+    return response;
+  }
+}

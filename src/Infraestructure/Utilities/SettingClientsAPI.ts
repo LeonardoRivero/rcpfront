@@ -44,7 +44,7 @@ export class ClientAPI implements HTTPClient {
   }
 
   private validateUrl(url: string) {
-    if (url == undefined) {
+    if (url === undefined || url === '') {
       throw new URIError('url is undefined');
     }
   }

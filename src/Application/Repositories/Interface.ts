@@ -18,7 +18,7 @@ import {
   IToRead,
   IToUpdate,
 } from 'src/Domine/IPatterns';
-import { ClientAPI } from 'src/Infraestructure/ClientsAPI/SettingClientsAPI';
+import { ClientAPI } from 'src/Infraestructure/Utilities/SettingClientsAPI';
 // export interface IRepository<T1, T2> {
 //   getById(id: number): Promise<T2 | null>;
 //   getAll(): Promise<T2[] | null>;
@@ -253,7 +253,7 @@ export abstract class GenericService<T extends { id?: number }, T2>
   }
 
   public async update(payload: T, id: number): Promise<T2 | null> {
-    const urlUpdate = `${this.urlUpdate}${id}`;
+    const urlUpdate = `${this.urlUpdate}${id}/`;
     if (id == null) {
       throw EvalError('id is null or undefined');
     }
@@ -273,13 +273,11 @@ export abstract class GenericService<T extends { id?: number }, T2>
     return await response.json();
   }
 
-  public async findByParameters(
-    queryParameters: object
-  ): Promise<Array<object>> {
+  public async findByParameters(queryParameters: object): Promise<Array<T2>> {
     const response = await this.httpClient.GET(this.urlBase, queryParameters);
     if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT)
       return [];
-    const data: object[] = await response.json();
+    const data: T2[] = await response.json();
     return data;
   }
 

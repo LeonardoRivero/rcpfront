@@ -3,46 +3,54 @@ import {
   RegionResponse,
   SubRegionResponse,
 } from 'src/Domine/Responses';
-import { GenericService, Repository, Service } from '../Repositories/Interface';
-import { SpecialityResponse } from 'src/Domine/Responses';
+import { GenericService } from '../Repositories/Interface';
 import 'reflect-metadata';
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 
 @injectable()
-export class CountryService extends Service<any, CountryResponse> {
-  public repository: Repository<CountryResponse>;
-  public constructor(
-    @inject('CountryRepository')
-    repository: Repository<CountryResponse>
-  ) {
+export class CountryService extends GenericService<any, CountryResponse> {
+  urlCreate: string;
+  urlList: string;
+  urlBase: string;
+  urlUpdate: string;
+  public constructor() {
     super();
-    this.repository = repository;
-    return;
+    this.urlBase = process.env.COUNTRIES ? process.env.COUNTRIES : '';
+    this.urlCreate = '';
+    this.urlList = `${process.env.RCP}${this.urlBase}`;
+    this.urlUpdate = '';
   }
 }
 
 @injectable()
-export class SubRegionService extends Service<any, SubRegionResponse> {
-  public repository: Repository<SubRegionResponse>;
-  public constructor(
-    @inject('SubRegionRepository')
-    repository: Repository<SubRegionResponse>
-  ) {
+export class SubRegionService extends GenericService<any, SubRegionResponse> {
+  urlCreate: string;
+  urlList: string;
+  urlBase: string;
+  urlUpdate: string;
+
+  public constructor() {
     super();
-    this.repository = repository;
-    return;
+    const url = process.env.SUBREGIONS ? process.env.SUBREGIONS : '';
+    this.urlBase = `${process.env.RCP}${url}`;
+    this.urlCreate = '';
+    this.urlList = this.urlBase;
+    this.urlUpdate = '';
   }
 }
 
 @injectable()
-export class RegionService extends Service<any, RegionResponse> {
-  public repository: Repository<RegionResponse>;
-  public constructor(
-    @inject('RegionRepository')
-    repository: Repository<RegionResponse>
-  ) {
+export class RegionService extends GenericService<any, RegionResponse> {
+  urlCreate: string;
+  urlList: string;
+  urlBase: string;
+  urlUpdate: string;
+
+  public constructor() {
     super();
-    this.repository = repository;
-    return;
+    this.urlBase = process.env.REGIONS ? process.env.REGIONS : '';
+    this.urlCreate = '';
+    this.urlList = `${process.env.RCP}${this.urlBase}`;
+    this.urlUpdate = '';
   }
 }
