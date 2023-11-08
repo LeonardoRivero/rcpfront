@@ -16,12 +16,7 @@ import { FactoryNotifactors } from './Creators/Factories';
 import container from 'src/inversify.config';
 import { ModalType } from 'src/Domine/Types';
 import { SubRegionService } from 'src/Application/Services/GeographicCollectionService';
-import {
-  CreateCommand,
-  EditCommand,
-  InsertCommand,
-  UpdateCommand,
-} from 'src/Application/Commands';
+import { EditCommand, InsertCommand } from 'src/Application/Commands';
 import { MedicalOfficeService } from 'src/Application/Services/MedicalOfficeService';
 
 export class MedicalOfficeController extends Controller {
@@ -55,8 +50,8 @@ export class MedicalOfficeController extends Controller {
 
   public clear(): void {
     this.state.address = '';
-    this.state.region = undefined;
-    this.state.subRegion = undefined;
+    this.state.enableForEdit = true;
+    this.state.expanded = true;
     this.state.medicalOfficeResponse = {
       department: {} as RegionResponseModel,
       city: {} as SubRegionResponseModel,
@@ -65,6 +60,7 @@ export class MedicalOfficeController extends Controller {
 
   public edit(): void {
     this.state.expanded = true;
+    this.state.enableForEdit = true;
   }
 
   public resetAllCommand() {
@@ -79,6 +75,7 @@ export class MedicalOfficeController extends Controller {
   public setOnUpdate(command: ICommand): void {
     this.updateCommand = command;
   }
+
   public async saveOrUpdate(): Promise<MedicalOfficeResponse | null> {
     let response: MedicalOfficeResponse | null = null;
     if (
@@ -106,13 +103,6 @@ export class MedicalOfficeController extends Controller {
     }
 
     this.state.expanded = false;
-    // if (
-    //   this.isCommand(this.updateCommand) &&
-    //   this.saveCommand instanceof UpdateCommand
-    // ) {
-    //   const response = <UserResponse>await this.updateCommand.execute();
-    //   return response;
-    // }
     return response;
   }
 
@@ -134,32 +124,26 @@ export class MedicalOfficeController extends Controller {
     return parseInt(id);
   }
 
-  public showInfoMedicalOffice(id: number) {
+  public async showInfoMedicalOffice(id: number) {
+    this.state.visibleEdit = true;
+    this.state.expanded = true;
     const medicalOffice = this.state.medicalOffices.find(
       (element) => element.id == id
     );
     if (medicalOffice == undefined) return;
-    // this.state.region = medicalOffice.department.name;
-    // this.state.subRegion = medicalOffice.city.id;
-    // this.state.address = medicalOffice.address;
     this.state.medicalOfficeResponse = medicalOffice;
     console.log(medicalOffice);
-  }
 
-  // public async getAllCities(): Promise<void> {
-  //   console.log(this.state.subRegions);
-  //   if (this.state.subRegions.length != 0) {
-  //     return;
-  //   }
-  //   const subRegionService =
-  //     container.get<SubRegionService>('SubRegionService');
-  //   this.state.subRegions = await subRegionService.getAll();
-  // }
+    await this.getCitiesByDepartment(
+      this.state.medicalOfficeResponse.department.id
+    );
+  }
 
   public async getAllMedicalOffice() {
     const serviceMedicalOffice = container.get<MedicalOfficeService>(
       'MedicalOfficeService'
     );
     this.state.medicalOffices = await serviceMedicalOffice.getAll();
+    this.state.disableSelectAddress = false;
   }
 }

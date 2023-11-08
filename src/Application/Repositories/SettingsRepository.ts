@@ -50,35 +50,6 @@ export class PhysicalExamParameterRepository extends Repository<IPhysicalExam> {
 }
 
 @injectable()
-export class SpecialityRepository extends Repository<ISpeciality> {
-  url: string;
-  urlWithParameters: string;
-  private static instance: SpecialityRepository;
-  public constructor() {
-    super();
-    const urlAPI = process.env.SPECIALITY ? process.env.SPECIALITY : '';
-    this.url = `${process.env.RCP}${urlAPI}`;
-    this.urlWithParameters = '';
-  }
-  public override async findByParameters(
-    parameters: object
-  ): Promise<Response> {
-    throw new Error('Method not implemented.' + { parameters });
-  }
-
-  public static getInstance(): SpecialityRepository {
-    if (!SpecialityRepository.instance) {
-      SpecialityRepository.instance = new SpecialityRepository();
-    }
-    return SpecialityRepository.instance;
-  }
-
-  public override async delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.' + { id });
-  }
-}
-
-@injectable()
 export class InsuranceRepository extends Repository<IHealthInsurance> {
   url: string;
   urlWithParameters: string;

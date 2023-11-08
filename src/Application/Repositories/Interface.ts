@@ -18,7 +18,7 @@ import {
   IToRead,
   IToUpdate,
 } from 'src/Domine/IPatterns';
-import { ClientAPI } from 'src/Infraestructure/Utilities/SettingClientsAPI';
+import { ClientAPI } from 'src/Infraestructure/Utilities/HttpClientAPI';
 // export interface IRepository<T1, T2> {
 //   getById(id: number): Promise<T2 | null>;
 //   getAll(): Promise<T2[] | null>;

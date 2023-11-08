@@ -1,4 +1,4 @@
-export * from './SpecialityAdapter';
+export * from './SpecialityController';
 export * from './DxMainCodeAdapter';
 export * from './RelationCodeAdapter';
 export * from './PatientAdapter';

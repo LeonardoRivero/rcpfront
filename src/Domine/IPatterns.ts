@@ -1,3 +1,4 @@
+import { GenericService } from 'src/Application/Repositories/Interface';
 import { ITableOptions } from './ICommons';
 import { NotificationType, ModalType } from './Types';
 export abstract class Controller {
@@ -40,9 +41,8 @@ export interface IFactoryMethodNotifications {
 }
 
 // export interface AbstractFactory<T extends { id?: number | undefined }, T2> {
-//   createRepository(): Repository<T>;
 //   createController(): any;
-//   createService(): Service<T, T2>;
+//   createService(): GenericService<T, T2>;
 // }
 
 // export abstract class DxMainCodeAbstractController extends Controller {

@@ -1,23 +1,22 @@
 import { ISpeciality } from 'src/Domine/ModelsDB';
-import { Messages } from 'src/Application/Utilities/Messages';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { SpecialityResponse } from 'src/Domine/Responses';
 import { SpecialityFormState } from 'src/Domine/IStates';
 import {
   Controller,
+  ICommand,
   IControllersMediator,
-  Notificator,
 } from 'src/Domine/IPatterns';
-import { FactoryNotifactors } from './Creators/Factories';
 import container from 'src/inversify.config';
 import { IStoreSettings } from 'src/Domine/IStores';
-import { ModalType } from 'src/Domine/Types';
+import { EditCommand, InsertCommand } from 'src/Application/Commands';
+
 export class SpecialityController extends Controller {
   public state: SpecialityFormState;
-  private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private service = container.get<SpecialityService>('SpecialityService');
   private static instance: SpecialityController;
+  private saveCommand: ICommand | undefined;
+  private updateCommand: ICommand | undefined;
 
   private constructor(state: SpecialityFormState) {
     super();
@@ -40,7 +39,20 @@ export class SpecialityController extends Controller {
     this.state.currentSpeciality = {} as ISpeciality;
   }
 
-  public async specialityChanged(val: ISpeciality | null): Promise<void> {
+  public resetAllCommand() {
+    this.saveCommand = undefined;
+    this.updateCommand = undefined;
+  }
+
+  public setOnSave(command: ICommand): void {
+    this.saveCommand = command;
+  }
+
+  public setOnUpdate(command: ICommand): void {
+    this.updateCommand = command;
+  }
+
+  public async notifySpeciality(val: ISpeciality | null): Promise<void> {
     if (val === null) return;
     this.state.currentSpeciality = val;
     const store = this.mediator.getStore() as IStoreSettings;
@@ -61,51 +73,24 @@ export class SpecialityController extends Controller {
     this.state.currentSpeciality = this.state.speciality as ISpeciality;
   }
 
-  public async saveOrUpdate(data: ISpeciality | null): Promise<void> {
-    this.metodoPrueba();
-    if (!data) return;
-
-    let response = null;
-    if (data.id == undefined) {
-      response = await this.save(data);
+  public async saveOrUpdate(): Promise<SpecialityResponse | null> {
+    let response: SpecialityResponse | null = null;
+    if (
+      this.isCommand(this.saveCommand) &&
+      this.saveCommand instanceof InsertCommand
+    ) {
+      response = <SpecialityResponse | null>await this.saveCommand.execute();
     }
-
-    if (data.id != undefined) {
-      response = await this.update(data);
+    if (
+      this.isCommand(this.updateCommand) &&
+      this.updateCommand instanceof EditCommand
+    ) {
+      response = <SpecialityResponse | null>await this.updateCommand.execute();
     }
-
-    if (response == null) return;
+    if (response == null) return response;
     this.state.currentSpeciality = response;
     this.state.allSpecialities = await this.service.getAll();
     this.state.expanded = false;
-  }
-
-  private async save(payload: ISpeciality): Promise<SpecialityResponse | null> {
-    this.notifySweetAlert.setType('question');
-    const confirm = await this.notifySweetAlert.show(
-      'Atención',
-      Messages.newRegister
-    );
-    if (confirm === false) {
-      return null;
-    }
-    const response = await this.service.save(payload);
-    return response;
-  }
-
-  private async update(
-    payload: ISpeciality
-  ): Promise<SpecialityResponse | null> {
-    this.notifySweetAlert.setType('question');
-    const confirm = await this.notifySweetAlert.show(
-      'Atención',
-      Messages.updateRegister
-    );
-    if (confirm === false) {
-      return null;
-    }
-
-    const response = await this.service.update(payload);
     return response;
   }
 }

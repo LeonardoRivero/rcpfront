@@ -60,7 +60,7 @@ export interface PathologicalHistoryState {
 }
 
 export interface SpecialityFormState {
-  currentSpeciality: ISpeciality | null;
+  currentSpeciality: ISpeciality;
   expanded: boolean;
   speciality: ISpeciality | null;
   allSpecialities: Array<SpecialityResponse>;
@@ -187,9 +187,10 @@ export interface MedicalOfficeState {
   medicalOffices: Array<MedicalOfficeResponse>;
   medicalOfficeResponse: MedicalOfficeResponse;
   medicalOfficeEntity: IMedicalOffice;
-  subRegion?: number;
   regions: Array<RegionResponse>;
-  region?: string;
   address: string;
   expanded: boolean;
+  disableSelectAddress: boolean;
+  enableForEdit: boolean;
+  visibleEdit: boolean;
 }

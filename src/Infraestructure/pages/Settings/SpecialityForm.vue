@@ -110,10 +110,12 @@ import { IconSVG } from 'src/Application/Utilities';
 import { SpecialityResponse } from 'src/Domine/Responses';
 import { SpecialityFormState } from 'src/Domine/IStates';
 import { SettingsMediator } from '../../Mediators';
-import { IStoreSettings } from 'src/Domine/IStores';
 import { ContextUser } from 'src/Domine/StrategyUser';
 import { required } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
+import { EditCommand, InsertCommand } from 'src/Application/Commands';
+import container from 'src/inversify.config';
+import { SpecialityService } from 'src/Application/Services/SpecialityService';
 
 export default defineComponent({
   name: 'SpecialityForm',
@@ -154,17 +156,28 @@ export default defineComponent({
       },
 
       async confirmChanges() {
+        controller.resetAllCommand();
         const isValid = await form.value?.validate();
-        if (isValid == false) return;
-        await controller.saveOrUpdate(state.currentSpeciality);
+        if (isValid == false || !state.currentSpeciality) return;
+        const service = container.get<SpecialityService>('SpecialityService');
+        let payload: ISpeciality = state.currentSpeciality;
+
+        if (state.currentSpeciality?.id == undefined) {
+          const createCommand = new InsertCommand(payload, service);
+          controller.setOnSave(createCommand);
+        } else {
+          const id = state.currentSpeciality.id;
+          payload.id = id;
+          const upateCommand = new EditCommand(payload, id, service);
+          controller.setOnUpdate(upateCommand);
+        }
+
+        await controller.saveOrUpdate();
         store.allSpecialities = state.allSpecialities;
       },
 
       async specialityChanged(val: ISpeciality) {
-        await controller.specialityChanged(val);
-        // const store: IStoreSettings = mediator.getStore();
-        // store.currentSpeciality = val;
-        // mediator.notify(store, controller);
+        await controller.notifySpeciality(val);
       },
 
       clearSpeciality(val: any) {

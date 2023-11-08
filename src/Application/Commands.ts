@@ -117,15 +117,27 @@ export class InsertCommand implements ICommand {
 }
 
 export class EditCommand implements ICommand {
-  public payload: unknown;
+  public payload: object;
   public service: GenericService<any, any>;
   public id: number;
-  constructor(payload: unknown, id: number, service: GenericService<any, any>) {
+  private notifySweetAlert: Notificator =
+    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
+
+  constructor(payload: object, id: number, service: GenericService<any, any>) {
     this.payload = payload;
     this.service = service;
     this.id = id;
   }
+
   async execute(): Promise<object | null> {
+    this.notifySweetAlert.setType('question');
+    const confirm = await this.notifySweetAlert.show(
+      'Atención',
+      Messages.updateRegister
+    );
+    if (confirm === false) {
+      return null;
+    }
     const response = await this.service.update(this.payload, this.id);
     return response;
   }

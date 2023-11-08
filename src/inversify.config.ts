@@ -2,7 +2,6 @@ import { Container } from 'inversify';
 import {
   MedicalOfficeRepository,
   Repository,
-  SpecialityRepository,
 } from 'src/Application/Repositories';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { ISpeciality } from 'src/Domine/ModelsDB';
@@ -11,22 +10,13 @@ import {
   RegionService,
   SubRegionService,
 } from './Application/Services/GeographicCollectionService';
-import {
-  CountryResponse,
-  MedicalOfficeResponse,
-  RegionResponse,
-  SubRegionResponse,
-} from './Domine/Responses';
+import { MedicalOfficeResponse } from './Domine/Responses';
 import { MedicalOfficeService } from './Application/Services/MedicalOfficeService';
-import { ClientAPI } from './Infraestructure/Utilities/SettingClientsAPI';
+import { ClientAPI } from './Infraestructure/Utilities/HttpClientAPI';
 import { HTTPClient } from './Domine/IPatterns';
 
 const container = new Container();
 container.bind<HTTPClient>('HTTPClient').to(ClientAPI);
-
-container
-  .bind<Repository<ISpeciality>>('SpecialityRepository')
-  .to(SpecialityRepository);
 container.bind<SpecialityService>('SpecialityService').to(SpecialityService);
 
 container.bind<CountryService>('CountryService').to(CountryService);

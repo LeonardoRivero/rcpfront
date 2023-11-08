@@ -9,7 +9,7 @@
           dense
           clearable
           outlined
-          v-model="state.addressMedicalOffice"
+          v-model="state.address"
           :options="state.medicalOffices"
           :option-value="(item) => (item === null ? null : item.id)"
           option-label="address"
@@ -20,7 +20,7 @@
           @clear="(val) => clearForm(val)"
           style="overflow: auto"
           class="col-grow"
-          :disable="disableSelectAddress"
+          :disable="state.disableSelectAddress"
         />
         <q-btn color="grey-7" round flat icon="more_vert">
           <q-tooltip transition-show="scale" transition-hide="scale">
@@ -51,7 +51,7 @@
         color="green"
         icon="mdi-pencil"
         @click="edit()"
-        v-if="visibleEdit"
+        v-if="state.visibleEdit"
       >
         <q-tooltip transition-show="scale" transition-hide="scale">
           Editar
@@ -80,7 +80,7 @@
               disable
             />
             <q-select
-              :disable="!enableForEdit"
+              :disable="!state.enableForEdit"
               dense
               clearable
               outlined
@@ -97,7 +97,7 @@
             >
             </q-select>
             <q-select
-              :disable="!enableForEdit"
+              :disable="!state.enableForEdit"
               dense
               clearable
               outlined
@@ -114,7 +114,7 @@
             >
             </q-select>
             <q-input
-              :disable="!enableForEdit"
+              :disable="!state.enableForEdit"
               dense
               outlined
               v-model="state.medicalOfficeResponse.address"
@@ -147,15 +147,10 @@ import 'src/css/app.sass';
 import {
   CountryService,
   RegionService,
-  SubRegionService,
 } from 'src/Application/Services/GeographicCollectionService';
 import container from 'src/inversify.config';
 import { MedicalOfficeController } from 'src/Adapters/MedicalOfficeController';
-import {
-  EditCommand,
-  InsertCommand,
-  UpdateCommand,
-} from 'src/Application/Commands';
+import { EditCommand, InsertCommand } from 'src/Application/Commands';
 import { IMedicalOffice } from 'src/Domine/ModelsDB';
 import { MedicalOfficeService } from 'src/Application/Services/MedicalOfficeService';
 import { required, isNotNull } from 'src/Application/Utilities/Helpers';
@@ -168,9 +163,6 @@ export default defineComponent({
       regions: [] as Array<RegionResponse>,
       subRegions: [] as Array<SubRegionResponse>,
       medicalOffices: [] as Array<MedicalOfficeResponse>,
-      addressMedicalOffice: '',
-      region: undefined,
-      subRegion: undefined,
       address: '',
       expanded: false,
       medicalOfficeResponse: {
@@ -178,33 +170,28 @@ export default defineComponent({
         city: {} as SubRegionResponseModel,
       } as MedicalOfficeResponse,
       medicalOfficeEntity: {} as IMedicalOffice,
+      disableSelectAddress: true,
+      enableForEdit: false,
+      visibleEdit: false,
     });
 
     const controller = MedicalOfficeController.getInstance(state);
     const form = ref<QForm>();
-    const disableSelectAddress = ref<boolean>(true);
-    const enableForEdit = ref<boolean>(false);
-    const visibleEdit = ref<boolean>(false);
 
     onMounted(async () => {
       const countryService = container.get<CountryService>('CountryService');
       const regionService = container.get<RegionService>('RegionService');
-      // const subRegionService = container.get<SubRegionService>('RegionService');
 
       state.countries = await countryService.getAll();
       state.regions = await regionService.getAll();
-      // state.subRegions = await subRegionService.getAll();
     });
 
     return {
       required,
       isNotNull,
-      enableForEdit,
       state,
       icons: IconSVG,
       form,
-      disableSelectAddress,
-      visibleEdit,
       clearForm(val: any) {
         controller.clear();
         form.value?.reset();
@@ -212,71 +199,53 @@ export default defineComponent({
       async departmentChanged(url: string) {
         const id = controller.getIdByUrl(url);
         await controller.getCitiesByDepartment(id);
-        state.subRegion = undefined;
+        state.medicalOfficeResponse.city = {} as SubRegionResponseModel;
         state.medicalOfficeEntity.department = id;
       },
       async cityChanged(id: string) {
         state.medicalOfficeEntity.city = parseInt(id);
       },
       async addressMedicalOfficeChanged(id: number) {
-        console.log(id);
-        visibleEdit.value = true;
-        state.expanded = true;
         controller.showInfoMedicalOffice(id);
-        await controller.getCitiesByDepartment(id);
       },
       edit() {
         controller.edit();
-        enableForEdit.value = true;
-        // if (state.expanded === false) {
-        //   state.expanded = !state.expanded;
-        // }
-        // state.currentInsurance = state.insurance as HealthInsuranceResponse;
       },
       async getAllMedicalOffice() {
         await controller.getAllMedicalOffice();
-        disableSelectAddress.value = false;
       },
       async add() {
-        enableForEdit.value = true;
-        state.expanded = true;
-        visibleEdit.value = false;
+        state.visibleEdit = false;
         controller.clear();
         form.value?.reset();
       },
       async confirmChanges() {
         controller.resetAllCommand();
         const isValid = await form.value?.validate();
-        if (isValid == false) {
-          return;
-        }
-        // if (state.region == undefined || state.subRegion == undefined) {
-        //   throw new TypeError('City or Department is undefined');
-        // }
-
-        // const idCountry = controller.getIdByUrl(state.countries[0].url);
-        // const idRegion = controller.getIdByUrl(state.region);
+        if (isValid == false) return;
 
         const service = container.get<MedicalOfficeService>(
           'MedicalOfficeService'
         );
-        const payload: IMedicalOffice = state.medicalOfficeEntity;
+        let payload: IMedicalOffice = state.medicalOfficeEntity;
         payload.address = state.medicalOfficeResponse.address;
+        payload.country = controller.getIdByUrl(state.countries[0].url);
 
         if (state.medicalOfficeResponse?.id == undefined) {
           const createCommand = new InsertCommand(payload, service);
           controller.setOnSave(createCommand);
         } else {
           const id = state.medicalOfficeResponse?.id;
+          payload.id = id;
           const upateCommand = new EditCommand(payload, id, service);
           controller.setOnUpdate(upateCommand);
         }
 
         const response = await controller.saveOrUpdate();
-        // if (response != null) {
-        //   controller.clear();
-        //   form.value?.reset();
-        // }
+        if (response != null) {
+          controller.clear();
+          form.value?.reset();
+        }
       },
     };
   },
