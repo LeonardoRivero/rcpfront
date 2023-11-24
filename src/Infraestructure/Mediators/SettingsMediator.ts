@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { IDTypesRepository } from 'src/Application/Repositories';
-import { GroupsRepository } from 'src/Application/Repositories/UserRepository';
+import { GroupsService } from 'src/Application/Repositories/UserRepository';
 import {
   InsuranceService,
   PathologicalHistoryService,
@@ -41,7 +41,7 @@ export class SettingsMediator implements IControllersMediator {
         allPathologies: <Array<PathologicalHistoryResponse>>[],
         allRelationCode: <Array<RelationCodeResponse>>[],
         allIdTypes: <Array<IDTypeResponse>>[],
-        currentSpeciality: {} as ISpeciality,
+        currentSpeciality: {} as SpecialityResponse,
         currentDxMainCode: {} as DXMainCodeResponse,
         allGroups: <Array<Group>>[],
         allInsurance: <Array<HealthInsuranceResponse>>[],
@@ -104,12 +104,12 @@ export class SettingsMediator implements IControllersMediator {
   }
 
   public async getAllGroups(): Promise<Group[]> {
-    const groupRepository = GroupsRepository.getInstance();
-    const response = await groupRepository.getAll();
-    if (!response.ok) {
-      return [];
-    }
-    const data: Group[] = await response.json();
+    const groupRepository = GroupsService.getInstance();
+    const data = await groupRepository.getAll();
+    // if (!response.ok) {
+    //   return [];
+    // }
+    // const data: Group[] = await response.json();
     return data;
     // if(this.store.allGroups.length == 0){
     //   preguntar al this.mediator por los grupos
@@ -117,6 +117,7 @@ export class SettingsMediator implements IControllersMediator {
     // }
     // return this.allGroups
   }
+
   public async getAllIdTypes(): Promise<Array<IDTypeResponse>> {
     if (this.store.allIdTypes.length != 0) {
       return this.store.allIdTypes;

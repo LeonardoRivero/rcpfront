@@ -23,7 +23,7 @@
             state.relationCode == undefined ? '' : state.relationCode.code
           }`"
           @update:model-value="(val) => relationCodeChanged(val)"
-          @clear="(val) => clearRelationCode(val)"
+          @clear="(val) => clearRelationCode()"
         >
         </q-select>
       </q-card-section>
@@ -63,18 +63,18 @@
               <q-input
                 dense
                 outlined
-                disable
+                readonly
                 v-model="store.currentSpeciality.description"
                 label="Especialidad"
-                :error="state.errorSpeciality"
+                :rules="[required]"
               />
               <q-input
                 dense
                 outlined
-                disable
+                readonly
                 v-model="store.currentDxMainCode.description"
                 label="Codigo Principal"
-                :error="state.errorDxMainCode"
+                :rules="[isNotNull]"
               />
               <q-input
                 dense
@@ -112,7 +112,7 @@ import { IconSVG } from 'src/Application/Utilities';
 import { RelationCodeState } from 'src/Domine/IStates';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import { IStoreSettings } from 'src/Domine/IStores';
-import { required } from 'src/Application/Utilities/Helpers';
+import { isNotNull, required } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -120,11 +120,14 @@ export default defineComponent({
   setup() {
     const state: RelationCodeState = reactive({
       allRelationCodes: [],
-      currentRelationCode: {} as IRelationCode,
+      currentRelationCode: {
+        id: undefined,
+        description: '',
+        code: '',
+        dxmaincode: 0,
+      },
       expanded: false,
       relationCode: null,
-      errorDxMainCode: false,
-      errorSpeciality: false,
     });
     const controller = RelationCodeController.getInstance(state);
     const mediator = SettingsMediator.getInstance();
@@ -138,6 +141,7 @@ export default defineComponent({
       icons: IconSVG,
       form,
       required,
+      isNotNull,
       edit() {
         controller.edit();
       },
@@ -146,9 +150,7 @@ export default defineComponent({
       },
       async confirmChanges() {
         const isValid = await form.value?.validate();
-        if (isValid == false) {
-          return;
-        }
+        if (isValid == false) return;
         await controller.saveOrUpdate();
       },
       async clearRelationCode() {

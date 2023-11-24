@@ -98,6 +98,7 @@ import HttpStatusCode from 'src/Application/Utilities/HttpStatusCodes';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import router from 'src/router';
 import { ModalType } from 'src/Domine/Types';
+import { AuthResponse } from 'src/Domine/Responses';
 
 export default defineComponent({
   name: 'LoginUser',
@@ -148,12 +149,15 @@ export default defineComponent({
           password: password.value,
         };
         const response = await userService.login(payload);
-        if (response == null) {
+        if (!response.ok) {
           labelMessage.value =
             'Email o contraseña incorrecta. Intentelo de nuevo o comuniquise con el administrador del sistema';
           return;
         }
-        if (response.user.first_time) {
+
+        const data: AuthResponse = await response.json();
+
+        if (data.user.first_time) {
           routerInstance.push('/changepassword');
           return;
         }
@@ -161,7 +165,7 @@ export default defineComponent({
         const namegroup = 'Secretaria';
         const strategy = profilesUser[namegroup];
         const contextUser = ContextUser.getInstance(strategy);
-        contextUser.setUserData(response.user);
+        contextUser.setUserData(data.user);
         await contextUser.execute();
         const { isAuthenticated } = storeToRefs(useStoreUser());
         isAuthenticated.value = true;

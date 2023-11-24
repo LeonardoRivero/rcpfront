@@ -25,7 +25,7 @@
               : ''
           }`"
           @update:model-value="(val) => dxMainCodeChanged(val)"
-          @clear="(val) => clearDxMainCode(val)"
+          @clear="(val) => clearDxMainCode()"
         >
         </q-select>
       </q-card-section>
@@ -61,14 +61,15 @@
         <div v-show="state.expanded">
           <q-separator />
           <q-card-section class="text-subitle2">
+            {{ store.currentSpeciality.description }}
             <q-form @submit="confirmChanges" ref="form">
               <q-input
                 dense
                 outlined
-                disable
+                readonly
                 v-model="store.currentSpeciality.description"
                 label="Especialidad"
-                :error="state.error"
+                :rules="[isNotUndefined]"
               />
               <q-input
                 dense
@@ -107,8 +108,7 @@ import { IconSVG } from 'src/Application/Utilities';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import { DxMainCodeState } from 'src/Domine/IStates';
 import { IStoreSettings } from 'src/Domine/IStores';
-import { IDXMainCode } from 'src/Domine/ModelsDB';
-import { required } from 'src/Application/Utilities/Helpers';
+import { required, isNotUndefined } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
 
 export default defineComponent({
@@ -116,7 +116,12 @@ export default defineComponent({
   setup() {
     const state: DxMainCodeState = reactive({
       allDxMainCodes: <Array<DXMainCodeResponse>>[],
-      currentDxMainCode: {} as IDXMainCode,
+      currentDxMainCode: {
+        id: undefined,
+        CUP: '',
+        description: '',
+        speciality: 0,
+      },
       expanded: false,
       dxMainCode: null,
       error: false,
@@ -134,14 +139,12 @@ export default defineComponent({
       store,
       form,
       required,
+      isNotUndefined,
       async clearDxMainCode() {
         await controller.clear();
       },
       async dxMainCodeChanged(val: DXMainCodeResponse) {
         await controller.dxMainCodeChanged(val);
-        const store: IStoreSettings = mediator.getStore();
-        store.currentDxMainCode = val;
-        mediator.notify(store, controller);
       },
       edit() {
         controller.edit();

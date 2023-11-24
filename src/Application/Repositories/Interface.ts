@@ -38,11 +38,15 @@ import { ClientAPI } from 'src/Infraestructure/Utilities/HttpClientAPI';
 
 @injectable()
 export abstract class LoginRepository {
+  public httpClient: HTTPClient;
+  public constructor() {
+    this.httpClient = new ClientAPI();
+  }
   async login(data: ILogin): Promise<Response> {
     // const url = EndPoints.buildFullUrl(process.env.LOGIN);
     const url = `${process.env.RCP}${process.env.LOGIN}`;
     try {
-      const response = await POST(url, data);
+      const response = await this.httpClient.POST(url, data);
       return response;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -52,7 +56,7 @@ export abstract class LoginRepository {
     // const url = EndPoints.buildFullUrl(process.env.LOGOUT);
     const url = `${process.env.RCP}${process.env.LOGOUT}`;
     try {
-      const response = await POST(url, null);
+      const response = await this.httpClient.POST(url, null);
       return response;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -62,7 +66,7 @@ export abstract class LoginRepository {
     // const url = EndPoints.buildFullUrl(process.env.REFRESH_TOKEN);
     const url = `${process.env.RCP}${process.env.REFRESH_TOKEN}`;
     try {
-      const response = await POST(url, refresh_token);
+      const response = await this.httpClient.POST(url, refresh_token);
       return response;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -72,7 +76,7 @@ export abstract class LoginRepository {
     // const url = EndPoints.buildFullUrl(process.env.VERIFY_TOKEN);
     const url = `${process.env.RCP}${process.env.VERIFY_TOKEN}`;
     try {
-      const response = await POST(url, access_token);
+      const response = await this.httpClient.POST(url, access_token);
       return response;
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
@@ -84,7 +88,7 @@ export abstract class LoginRepository {
     // const url = EndPoints.buildFullUrl(process.env.CONFIRM_EMAIL_REGISTRATION);
     const url = `${process.env.RCP}${process.env.CONFIRM_EMAIL_REGISTRATION}`;
     try {
-      return await POST(url, key);
+      return await this.httpClient.POST(url, key);
     } catch (error) {
       throw Error(`Error in ${Object.name} : ${error}`);
     }
@@ -234,16 +238,16 @@ export abstract class Service<T extends { id?: number }, T2> {
 
 @injectable()
 export abstract class GenericService<T extends { id?: number }, T2>
+  extends LoginRepository
   implements IToCreate<T, T2>, IToRead<T2>, IToUpdate<T, T2>
 {
   abstract urlCreate: string;
   abstract urlList: string;
-  private httpClient: HTTPClient;
   abstract urlBase: string;
   abstract urlUpdate: string;
 
   public constructor() {
-    this.httpClient = new ClientAPI();
+    super();
   }
 
   public async create(entity: T): Promise<T2 | null> {

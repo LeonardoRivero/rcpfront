@@ -1,5 +1,6 @@
 import { IKeyEmailRegistration, ILogin, IUser } from 'src/Domine/ModelsDB';
 import {
+  GenericService,
   LoginRepository,
   Repository,
   Service,
@@ -97,20 +98,29 @@ export abstract class LoginService {
 //   }
 // }
 @injectable()
-export class UserService extends Service<IUser, UserResponse> {
-  public repository: Repository<IUser>;
+export class UserService extends GenericService<IUser, UserResponse> {
+  urlCreate: string;
+  urlList: string;
+  urlBase: string;
+  urlUpdate: string;
   public constructor() {
     super();
-    this.repository = new UserRepository();
+    const urlRegister = process.env.REGISTRATION
+      ? process.env.REGISTRATION
+      : '';
+    this.urlCreate = `${process.env.RCP}${urlRegister}`;
+    this.urlList = '';
+    const urlAPI = process.env.USER ? process.env.USER : '';
+    this.urlBase = `${process.env.RCP}${urlAPI}`;
+    this.urlUpdate = '';
   }
 
-  public override async save(user: IUser): Promise<UserResponse | null> {
-    console.log('consumir servicio register');
-    const response = await this.repository.create(user);
+  public override async create(user: IUser): Promise<UserResponse | null> {
+    const response = await this.httpClient.POST(this.urlCreate, user);
     if (!response.ok) {
       return null;
     }
-    const responseUser = await this.repository.findByParameters({
+    const responseUser = await this.httpClient.GET(this.urlBase, {
       email: user.email,
     });
     if (!responseUser.ok) {

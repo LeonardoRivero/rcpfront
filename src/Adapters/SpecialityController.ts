@@ -52,7 +52,7 @@ export class SpecialityController extends Controller {
     this.updateCommand = command;
   }
 
-  public async notifySpeciality(val: ISpeciality | null): Promise<void> {
+  public async notifySpeciality(val: SpecialityResponse | null): Promise<void> {
     if (val === null) return;
     this.state.currentSpeciality = val;
     const store = this.mediator.getStore() as IStoreSettings;

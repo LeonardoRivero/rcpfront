@@ -21,8 +21,7 @@ export interface IRelationCode {
 export interface IDoctor {
   id?: number;
   codigo: string;
-  name: string;
-  lastName: string;
+  user: number;
   speciality: Array<number> | Array<ISpeciality>;
 }
 
@@ -110,7 +109,7 @@ export interface IPaymentOptions {
 }
 
 export interface IPathologycalHistory {
-  id: number;
+  id?: number;
   description: string;
 }
 
@@ -121,6 +120,7 @@ export interface IUser {
   last_name: string;
   first_time: boolean;
   group: number | null;
+  medical_office: number | null;
 }
 
 export interface ILogin {

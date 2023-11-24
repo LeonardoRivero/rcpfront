@@ -47,16 +47,17 @@ export class UpdateCommand implements ICommand {
 
 export class FindByParametersCommand implements ICommand {
   public parameters: object;
-  public service: Service<any, object>;
-  constructor(parameters: object, service: Service<any, object>) {
+  public service: GenericService<any, any>;
+  constructor(parameters: object, service: GenericService<any, object>) {
     this.parameters = parameters;
     this.service = service;
   }
-  execute(): Promise<object | null> {
-    const response = this.service.findByParameters(this.parameters);
+  async execute(): Promise<Array<object> | null> {
+    const response = await this.service.findByParameters(this.parameters);
     return response;
   }
 }
+
 export class RegisterUserCommand implements ICommand {
   public payload: IUser;
   public service: IUserService;
@@ -97,6 +98,8 @@ export class InsertCommand implements ICommand {
   public service: GenericService<any, any>;
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
+  private notifyQuasar: Notificator =
+    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
 
   constructor(payload: object, service: GenericService<any, any>) {
     this.payload = payload;
@@ -114,6 +117,16 @@ export class InsertCommand implements ICommand {
     const response = await this.service.create(this.payload);
     return response;
   }
+
+  public showNotification(response: object | null): void {
+    if (response == null) {
+      this.notifyQuasar.setType('error');
+      this.notifyQuasar.show(undefined, Messages.errorMessage);
+      return;
+    }
+    this.notifyQuasar.setType('success');
+    this.notifyQuasar.show(undefined, Messages.successMessage);
+  }
 }
 
 export class EditCommand implements ICommand {
@@ -122,6 +135,9 @@ export class EditCommand implements ICommand {
   public id: number;
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
+
+  private notifyQuasar: Notificator =
+    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
 
   constructor(payload: object, id: number, service: GenericService<any, any>) {
     this.payload = payload;
@@ -140,5 +156,14 @@ export class EditCommand implements ICommand {
     }
     const response = await this.service.update(this.payload, this.id);
     return response;
+  }
+  public showNotification(response: object | null): void {
+    if (response == null) {
+      this.notifyQuasar.setType('error');
+      this.notifyQuasar.show(undefined, Messages.errorMessage);
+      return;
+    }
+    this.notifyQuasar.setType('success');
+    this.notifyQuasar.show(undefined, Messages.updateSuccesfully);
   }
 }

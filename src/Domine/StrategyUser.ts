@@ -1,6 +1,5 @@
 import { IPermission } from 'src/Domine/ICommons';
 import { UserResponse } from 'src/Domine/Responses';
-
 import { IStorePermissions } from './IStores';
 
 export interface StrategyUser {

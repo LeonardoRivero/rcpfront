@@ -29,6 +29,10 @@ export enum Gender {
   FEMALE = 1,
   MALE = 2,
 }
+
+export enum GroupUser {
+  DOCTOR = 'Doctor',
+}
 export const MININUM_AGE = 18;
 export const BASE_YEAR = 1970;
 export const FORMAT_DATE = 'YYYY/MM/DD';

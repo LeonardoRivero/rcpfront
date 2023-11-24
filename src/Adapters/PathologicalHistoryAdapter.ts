@@ -1,94 +1,93 @@
 import { PathologicalHistoryService } from 'src/Application/Services';
-import { Notificator } from 'src/Domine/IPatterns';
-import { Messages } from 'src/Application/Utilities/Messages';
 import { IPathologycalHistory } from 'src/Domine/ModelsDB';
 import { PathologicalHistoryResponse } from 'src/Domine/Responses';
-import { Convert } from 'src/Application/Utilities';
 import { PathologicalHistoryState } from 'src/Domine/IStates';
-import { FactoryNotifactors } from './Creators/Factories';
-import { ModalType } from 'src/Domine/Types';
+import { EditCommand, InsertCommand } from 'src/Application/Commands';
 
-export class PathologicalHistoryAdapter {
-  private store: PathologicalHistoryState;
-  private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
+export class PathologicalHistoryController {
+  private state: PathologicalHistoryState;
   private service = new PathologicalHistoryService();
-  private convert = new Convert();
-  private static instance: PathologicalHistoryAdapter;
+  private static instance: PathologicalHistoryController;
 
-  private constructor(store: PathologicalHistoryState) {
-    this.store = store;
+  private constructor(state: PathologicalHistoryState) {
+    this.state = state;
     return;
   }
 
   public static getInstance(
     store: PathologicalHistoryState
-  ): PathologicalHistoryAdapter {
-    if (!PathologicalHistoryAdapter.instance) {
-      PathologicalHistoryAdapter.instance = new PathologicalHistoryAdapter(
-        store
-      );
+  ): PathologicalHistoryController {
+    if (!PathologicalHistoryController.instance) {
+      PathologicalHistoryController.instance =
+        new PathologicalHistoryController(store);
     }
-    return PathologicalHistoryAdapter.instance;
+    return PathologicalHistoryController.instance;
   }
 
-  public async saveOrUpdate(
-    payload: IPathologycalHistory
-  ): Promise<PathologicalHistoryResponse | null> {
-    if (!payload) return null;
+  public add(): void {
+    this.state.expanded = true;
+    this.state.currentPathology = {} as IPathologycalHistory;
+  }
+
+  public async saveOrUpdate(): Promise<void> {
+    if (!this.state.currentPathology) return;
     let response: PathologicalHistoryResponse | null = null;
-    payload.description = this.convert.toTitle(payload.description);
-    if (payload.id == undefined) {
-      response = await this.create(payload);
+    let payload: IPathologycalHistory;
+
+    if (this.state.currentPathology.id == undefined) {
+      delete this.state.currentPathology['id'];
+      const insertCommand = new InsertCommand(
+        this.state.currentPathology,
+        this.service
+      );
+      response = <PathologicalHistoryResponse | null>(
+        await insertCommand.execute()
+      );
+      insertCommand.showNotification(response);
     }
 
-    if (payload.id != undefined) {
-      response = await this.update(payload);
+    if (this.state.currentPathology.id != undefined) {
+      payload = {
+        id: this.state.currentPathology.id,
+        description: this.state.currentPathology.description,
+      };
+      const editCommand = new EditCommand(
+        payload,
+        this.state.currentPathology.id,
+        this.service
+      );
+      response = <PathologicalHistoryResponse | null>(
+        await editCommand.execute()
+      );
+      editCommand.showNotification(response);
     }
-    this.store.allPathologies = await this.service.getAll();
-    return response;
+
+    if (response == null) {
+      return;
+    }
+    this.state.allPathologies = await this.service.getAll();
+    this.state.pathology = response;
+    this.state.currentPathology = {} as IPathologycalHistory;
+    this.state.expanded = false;
   }
 
-  private async create(
-    payload: IPathologycalHistory
-  ): Promise<PathologicalHistoryResponse | null> {
-    const confirm = await this.notifySweetAlert.show(
-      'Atención',
-      Messages.newRegister
-    );
-    if (confirm === false) {
-      return null;
+  public async edit() {
+    if (this.state.expanded === false) {
+      this.state.expanded = !this.state.expanded;
     }
-
-    const response = await this.service.save(payload);
-    return response;
-  }
-
-  private async update(
-    payload: IPathologycalHistory
-  ): Promise<PathologicalHistoryResponse | null> {
-    const confirm = await this.notifySweetAlert.show(
-      'Atención',
-      Messages.updateRegister
-    );
-    if (confirm === false) {
-      return null;
-    }
-
-    const response = await this.service.update(payload);
-    return response;
+    this.state.currentPathology = this.responseToEntity(this.state.pathology);
   }
 
   public async getAll(): Promise<Array<PathologicalHistoryResponse>> {
-    if (this.store.allPathologies.length != 0) {
-      return this.store.allPathologies;
+    if (this.state.allPathologies.length != 0) {
+      return this.state.allPathologies;
     }
     const response = await this.service.getAll();
-    this.store.allPathologies = response;
+    this.state.allPathologies = response;
     return response;
   }
 
-  public responseToEntity(
+  private responseToEntity(
     payload: PathologicalHistoryResponse | null
   ): IPathologycalHistory {
     if (payload === null) {
@@ -99,5 +98,10 @@ export class PathologicalHistoryAdapter {
       id: payload.id,
     };
     return entity;
+  }
+
+  public pathologyChanged(val: PathologicalHistoryResponse): void {
+    const entity = this.responseToEntity(val);
+    this.state.currentPathology = entity;
   }
 }

@@ -39,7 +39,7 @@ export interface IStoreSettings {
   allRelationCode: Array<RelationCodeResponse>;
   allInsurance: Array<HealthInsuranceResponse>;
   allIdTypes: Array<IDTypeResponse>;
-  currentSpeciality: ISpeciality;
+  currentSpeciality: SpecialityResponse;
   currentDxMainCode: DXMainCodeResponse | null;
   allGroups: Array<Group>;
 }

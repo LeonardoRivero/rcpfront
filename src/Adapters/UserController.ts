@@ -1,76 +1,96 @@
-import { ILogin } from 'src/Domine/ModelsDB';
-
+import { IDoctor, ILogin, IUser } from 'src/Domine/ModelsDB';
+import { Messages } from 'src/Application/Utilities/Messages';
 import { Group, RegisterResponse, UserResponse } from 'src/Domine/Responses';
 import { ChangePasswordState, UserState } from 'src/Domine/IStates';
 import {
   Controller,
   ICommand,
   IControllersMediator,
+  Notificator,
 } from 'src/Domine/IPatterns';
-import { UserService } from 'src/Application/Services/UserService';
 import {
   DoctorStrategy,
   SecretaryStrategy,
   StrategyUser,
 } from 'src/Domine/StrategyUser';
-import { CreateCommand, UpdateCommand } from 'src/Application/Commands';
+import { EditCommand, InsertCommand } from 'src/Application/Commands';
+import { FactoryNotifactors } from './Creators/Factories';
+import { ModalType } from 'src/Domine/Types';
+import { GroupUser } from 'src/Application/Utilities';
+import { DoctorService } from 'src/Application/Services';
 export class UserController extends Controller {
   public state: UserState;
   private static instance: UserController;
   private saveCommand: ICommand | undefined;
   private updateCommand: ICommand | undefined;
   private findByParametersCommand: ICommand | undefined;
+  private notifyQuasar: Notificator =
+    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
 
   private profilesUser: Record<string, StrategyUser> = {
     Secretaria: new SecretaryStrategy(),
     Doctor: new DoctorStrategy(),
   };
 
-  private constructor(state: UserState) {
+  public constructor(state: UserState) {
     super();
     this.state = state;
     return;
   }
 
-  public static getInstance(state: UserState): UserController {
-    if (!UserController.instance) {
-      UserController.instance = new UserController(state);
-    }
-    return UserController.instance;
-  }
+  // public static getInstance(state: UserState): UserController {
+  //   if (!UserController.instance) {
+  //     UserController.instance = new UserController(state);
+  //   }
+  //   return UserController.instance;
+  // }
 
   public receiveData(mediator: IControllersMediator): void {
     return;
   }
 
   public clear(): void {
-    throw new Error('Method not implemented.');
+    this.state.user = {} as IUser;
+    this.state.showSelectSpecialities = false;
   }
 
   public async saveOrUpdate(): Promise<UserResponse | null> {
+    let response: UserResponse | null = null;
     if (
       this.isCommand(this.saveCommand) &&
-      this.saveCommand instanceof CreateCommand
+      this.saveCommand instanceof InsertCommand
     ) {
-      const response = <UserResponse>await this.saveCommand.execute();
-      return response;
+      response = <UserResponse>await this.saveCommand.execute();
     }
     if (
       this.isCommand(this.updateCommand) &&
-      this.saveCommand instanceof UpdateCommand
+      this.saveCommand instanceof EditCommand
     ) {
-      const response = <UserResponse>await this.updateCommand.execute();
-      return response;
+      response = <UserResponse>await this.updateCommand.execute();
     }
-    return null;
-    // if (this.state.user.id == undefined) {
-    //   delete this.state.user['id'];
-    //   return await this.save(this.state.user);
-    // }
-    // if (this.state.user.id != undefined) {
-    //   return await this.update(this.state.user);
-    // }
-    // return null;
+
+    if (response === null) {
+      this.notifyQuasar.setType('error');
+      this.notifyQuasar.show(undefined, Messages.errorMessage);
+    } else {
+      this.saveProfileUser(response);
+      this.notifyQuasar.setType('success');
+      this.notifyQuasar.show(undefined, Messages.successMessage);
+    }
+    return response;
+  }
+
+  private async saveProfileUser(user: UserResponse) {
+    console.log(user);
+    if (user.groups[0].name == GroupUser.DOCTOR) {
+      const service = new DoctorService();
+      const payload: IDoctor = {
+        codigo: '43433',
+        user: user.id,
+        speciality: this.state.specialities,
+      };
+      await service.create(payload);
+    }
   }
 
   public async findByParameters() {
@@ -78,50 +98,13 @@ export class UserController extends Controller {
       this.findByParametersCommand.execute();
     }
   }
-  // private async save(payload: IUser): Promise<RegisterResponse | null> {
-  //   this.notifySweetAlert.setType('question');
-  //   const confirm = await this.notifySweetAlert.show(
-  //     'Atención',
-  //     Messages.newRegister
-  //   );
-  //   if (confirm === false) {
-  //     return null;
-  //   }
-  //   console.log({ payload });
-  //   const response = await this.service.register(payload);
-  //   if (response == null) {
-  //     this.notifyQuasar.setType('error');
-  //     this.notifyQuasar.show(undefined, 'Ocurrio un error en la operacion.');
-  //   }
-  //   if (response != null) {
-  //     this.notifyQuasar.setType('success');
-  //     this.notifyQuasar.show(undefined, response.detail);
-  //   }
-  //   return response;
-  // }
-
-  // private async update(payload: IUser): Promise<RegisterResponse | null> {
-  //   this.notifySweetAlert.setType('question');
-  //   const confirm = await this.notifySweetAlert.show(
-  //     'Atención',
-  //     Messages.updateRegister
-  //   );
-  //   if (confirm === false) {
-  //     return null;
-  //   }
-  //   const response = await this.service.register(payload);
-  //   return null;
-  // }
-
-  public async login(payload: ILogin) {
-    // const response = await this.service.login(payload);
-    throw new Error('verificar en login UserController');
-  }
 
   public checkGroup(selectedGroups: number, allGroups: Array<Group>) {
     const group = allGroups.find((x) => x.id == selectedGroups)?.name;
+    this.state.showSelectSpecialities = false;
     if (group == 'Doctor') {
       console.log(group);
+      this.state.showSelectSpecialities = true;
     }
   }
 

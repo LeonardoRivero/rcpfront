@@ -72,7 +72,7 @@ export interface MedicalProcedureState {
 
 export interface DxMainCodeState {
   allDxMainCodes: Array<DXMainCodeResponse>;
-  currentDxMainCode: IDXMainCode | null;
+  currentDxMainCode: IDXMainCode;
   expanded: boolean;
   dxMainCode: DXMainCodeResponse | null;
   error: boolean;
@@ -80,11 +80,9 @@ export interface DxMainCodeState {
 
 export interface RelationCodeState {
   allRelationCodes: Array<RelationCodeResponse>;
-  currentRelationCode: IRelationCode | null;
+  currentRelationCode: IRelationCode;
   expanded: boolean;
   relationCode: RelationCodeResponse | null;
-  errorDxMainCode: boolean;
-  errorSpeciality: boolean;
 }
 
 export interface InsuranceState {
@@ -134,6 +132,7 @@ export interface UserState {
   specialities: Array<number>;
   isActive: boolean;
   user: IUser;
+  showSelectSpecialities: boolean;
 }
 
 export interface ScheduleState {

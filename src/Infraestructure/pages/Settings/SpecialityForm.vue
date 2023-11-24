@@ -176,7 +176,7 @@ export default defineComponent({
         store.allSpecialities = state.allSpecialities;
       },
 
-      async specialityChanged(val: ISpeciality) {
+      async specialityChanged(val: SpecialityResponse) {
         await controller.notifySpeciality(val);
       },
 

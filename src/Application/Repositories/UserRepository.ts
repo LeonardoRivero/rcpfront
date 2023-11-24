@@ -3,6 +3,10 @@ import { POST } from 'src/Infraestructure/Utilities/Request';
 import { LoginRepository, Repository } from './Interface';
 import 'reflect-metadata';
 import { injectable } from 'inversify';
+import { IToRead } from 'src/Domine/IPatterns';
+import { Group } from 'src/Domine/Responses';
+import HttpStatusCodes from '../Utilities/HttpStatusCodes';
+import { routerInstance } from 'src/boot/globalRouter';
 // import { RegisterResponse, UserResponse } from 'src/Domine/Responses';
 // import { EndPoints } from '../Utilities/EndPoints';
 
@@ -184,49 +188,39 @@ export class UserRepository extends Repository<IUser> {
   // }
 }
 
-export class GroupsRepository extends Repository<null> {
-  url: string;
-  urlWithParameters: string;
-  private static instance: GroupsRepository;
+export class GroupsService extends LoginRepository implements IToRead<Group> {
+  private static instance: GroupsService;
+  urlList: string;
+  urlBase: string;
 
   public constructor() {
     super();
     const urlAPI = process.env.GROUPS ? process.env.GROUPS : '';
-    this.url = `${process.env.RCP}${urlAPI}`;
-    this.urlWithParameters = '';
+    this.urlBase = `${process.env.RCP}${urlAPI}`;
+    this.urlList = `${this.urlBase}list`;
   }
-  public static getInstance(): GroupsRepository {
-    if (!GroupsRepository.instance) {
-      GroupsRepository.instance = new GroupsRepository();
+
+  public static getInstance(): GroupsService {
+    if (!GroupsService.instance) {
+      GroupsService.instance = new GroupsService();
     }
-    return GroupsRepository.instance;
+    return GroupsService.instance;
   }
-  public override async getById(id: number): Promise<Response> {
-    throw new Error('Method not implemented.' + { id });
+
+  public async getById(id: number): Promise<Group | null> {
+    const urlById = `${this.urlBase}${id}`;
+    const response = await this.httpClient.GET(urlById);
+    if (!response.ok) return null;
+    return await response.json();
   }
-  // public async getAll(): Promise<Group[] | null> {
-  //   const url = EndPoints.buildFullUrl(process.env.GROUPS);
-  //   try {
-  //     const response = await GET(url);
-  //     if (!response.ok || response.status == HttpStatusCodes.BAD_REQUEST)
-  //       return null;
-  //     return await response.json();
-  //   } catch (error) {
-  //     throw Error(`Error in ${Object.name} : ${error}`);
-  //   }
-  // }
-  public override async create(entity: null): Promise<Response> {
-    throw new Error('Method not implemented.');
-  }
-  public override async update(entity: null): Promise<Response> {
-    throw new Error('Method not implemented.');
-  }
-  public override async delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.' + { id });
-  }
-  public override async findByParameters(
-    parameters: object
-  ): Promise<Response> {
-    throw new Error('Method not implemented.');
+
+  public async getAll(): Promise<Group[]> {
+    const response = await this.httpClient.GET(this.urlList);
+    if (response.status == HttpStatusCodes.NOT_FOUND) {
+      routerInstance.push('/:catchAll');
+    }
+    if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT)
+      return [];
+    return await response.json();
   }
 }

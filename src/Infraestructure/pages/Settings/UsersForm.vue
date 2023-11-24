@@ -12,36 +12,7 @@
     </q-card-section>
     <q-separator inset></q-separator>
     <q-card-section>
-      <div class="text-black">
-        <q-toolbar>
-          <q-space />
-          <!-- <q-input
-            label="Nº Documento usuario"
-            clearable
-            dense
-            v-model="state.identification"
-            type="number"
-            @keydown.enter.prevent="searchPatient"
-            lazy-rules
-            :rules="[(val) => val > 0 || 'Numero invalido']"
-          >
-            <template v-slot:append
-              ><q-btn
-                flat
-                round
-                dense
-                icon="search"
-                class="q-mr-xs"
-                @click="searchPatient"
-              />
-              <q-tooltip transition-show="scale" transition-hide="scale">
-                Buscar usuario por N° identificacion
-              </q-tooltip></template
-            ></q-input
-          > -->
-        </q-toolbar>
-      </div>
-      <q-form @submit="confirmChanges" ref="form">
+      <q-form @submit="confirmChanges()" ref="form">
         <q-list>
           <q-item>
             <q-item-section>
@@ -68,17 +39,6 @@
                 </div>
               </div>
               <div class="row q-col-gutter-x-md">
-                <!-- <div class="col-6 col-md">
-                  <q-input
-                    v-model="state.identification"
-                    outlined
-                    :readonly="disable"
-                    dense
-                    type="number"
-                    label="Numero Identificacion *"
-                    :rules="[numberRequired]"
-                  />
-                </div> -->
                 <div class="col-12 col-md">
                   {{ state }}
                   <q-select
@@ -102,7 +62,7 @@
               <div class="row q-col-gutter-x-md">
                 <div class="col-6 col-md">
                   <q-select
-                    v-if="state.user.group == 1"
+                    v-if="state.showSelectSpecialities"
                     v-model="state.specialities"
                     dense
                     outlined
@@ -168,6 +128,25 @@
               </div>
               <div class="row q-col-gutter-x-md">
                 <div class="col-12 col-md">
+                  <q-select
+                    v-model="state.user.medical_office"
+                    dense
+                    outlined
+                    :options="allMedicalOffices"
+                    :option-value="(item) => (item === null ? null : item.id)"
+                    option-label="address"
+                    map-options
+                    label="Consultorio *"
+                    stack-label
+                    emit-value
+                    input-debounce="0"
+                    :rules="[isNotNull]"
+                  >
+                  </q-select>
+                </div>
+              </div>
+              <div class="row q-col-gutter-x-md">
+                <div class="col-12 col-md">
                   <q-input
                     :readonly="disable"
                     label="Correo electronico"
@@ -200,9 +179,13 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive, ref } from 'vue';
 import { UserState } from 'src/Domine/IStates';
-import { IconSVG, Messages } from 'src/Application/Utilities';
+import { IconSVG } from 'src/Application/Utilities';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
-import { Group, SpecialityResponse } from 'src/Domine/Responses';
+import {
+  Group,
+  MedicalOfficeResponse,
+  SpecialityResponse,
+} from 'src/Domine/Responses';
 import {
   required,
   emailRequired,
@@ -211,13 +194,10 @@ import {
 } from 'src/Application/Utilities/Helpers';
 import { UserController } from 'src/Adapters/UserController';
 import { QForm } from 'quasar';
-import { IDoctor, IUser } from 'src/Domine/ModelsDB';
-import { DoctorService } from 'src/Application/Services';
-import { CreateCommand, UpdateCommand } from 'src/Application/Commands';
+import { EditCommand, InsertCommand } from 'src/Application/Commands';
 import { UserService } from 'src/Application/Services/UserService';
-import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
-import { Notificator } from 'src/Domine/IPatterns';
-import { ModalType } from 'src/Domine/Types';
+import container from 'src/inversify.config';
+import { MedicalOfficeService } from 'src/Application/Services/MedicalOfficeService';
 
 export default defineComponent({
   name: 'UsersForm',
@@ -236,22 +216,24 @@ export default defineComponent({
         email: '',
         first_time: true,
         group: null,
+        medical_office: null,
       },
+      showSelectSpecialities: false,
     });
     const form = ref<QForm>();
     const mediator = SettingsMediator.getInstance();
     const allGroups = ref<Array<Group>>([]);
     const allSpecialities = ref<Array<SpecialityResponse>>([]);
-    const controller = UserController.getInstance(state);
+    const allMedicalOffices = ref<Array<MedicalOfficeResponse>>([]);
+    const controller = new UserController(state);
+    const serviceMedicalOffice = container.get<MedicalOfficeService>(
+      'MedicalOfficeService'
+    );
     controller.setMediator(mediator);
-    const notifyQuasar: Notificator =
-      FactoryNotifactors.getInstance().createNotificator(
-        ModalType.NotifyQuasar
-      );
 
     onMounted(async () => {
       allGroups.value = await mediator.getAllGroups();
-      allSpecialities.value = await mediator.getAllSpecialities();
+      allMedicalOffices.value = await serviceMedicalOffice.getAll();
     });
     return {
       required,
@@ -264,6 +246,7 @@ export default defineComponent({
       disable: false,
       allGroups,
       allSpecialities,
+      allMedicalOffices,
       async confirmChanges() {
         controller.resetAllCommand();
         const isValid = await form.value?.validate();
@@ -272,44 +255,25 @@ export default defineComponent({
         const service = new UserService();
         if (state.user.id == undefined) {
           delete state.user['id'];
-          const register = new CreateCommand(state.user, service);
+          const register = new InsertCommand(state.user, service);
           controller.setOnSave(register);
         }
         if (state.user.id != undefined) {
-          const register = new UpdateCommand(state.user, service);
+          const register = new EditCommand(state.user, state.user.id, service);
           controller.setOnUpdate(register);
         }
 
         const response = await controller.saveOrUpdate();
         if (response != null) {
+          controller.clear();
           form.value?.reset();
-          state.user = {} as IUser;
-          notifyQuasar.setType('success');
-          notifyQuasar.show(Messages.successMessage);
         }
-        // const findByParameter = new FindByParametersCommand(
-        //   { email: state.user.email },
-        //   service
-        // );
-        // controller.setOnFindByParameters(findByParameter);
-        // controller.findByParameters();
-        // const payload: IDoctor = {
-        //   codigo: '892348',
-        //   name: state.user.first_name,
-        //   lastName: state.user.last_name,
-        //   speciality: state.specialities,
-        // };
-        // const service = new DoctorService();
-        // const commandGuardar = new CreateCommand(payload, service);
-        // controller.setOnSave(commandGuardar);
-        // controller.intentoGuardar();
       },
       async groupChanged(val: number) {
         controller.checkGroup(val, allGroups.value);
-        //await controller.specialityChanged(val);
-        // const store: IStoreSettings = mediator.getStore();
-        // store.currentSpeciality = val;
-        // mediator.notify(store, controller);
+        if (state.showSelectSpecialities) {
+          allSpecialities.value = await mediator.getAllSpecialities();
+        }
       },
     };
   },

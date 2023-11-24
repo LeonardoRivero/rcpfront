@@ -1,15 +1,23 @@
 import { IRelationCode } from 'src/Domine/ModelsDB';
-import { Repository, Service } from '../Repositories/Interface';
-import { RelationCodeRepository } from '../Repositories/SettingsRepository';
+import { GenericService } from '../Repositories/Interface';
 import { RelationCodeResponse } from 'src/Domine/Responses';
 
-export class RelationCodeService extends Service<
+export class RelationCodeService extends GenericService<
   IRelationCode,
   RelationCodeResponse
 > {
-  public repository: Repository<IRelationCode>;
+  urlCreate: string;
+  urlList: string;
+  urlBase: string;
+  urlUpdate: string;
+  // public repository: Repository<IRelationCode>;
   public constructor() {
     super();
-    this.repository = RelationCodeRepository.getInstance();
+    // this.repository = RelationCodeRepository.getInstance();
+    const urlAPI = process.env.RELATION_CODE ? process.env.RELATION_CODE : '';
+    this.urlBase = `${process.env.RCP}${urlAPI}all/`;
+    this.urlCreate = `${process.env.RCP}${urlAPI}all/`;
+    this.urlList = `${process.env.RCP}${this.urlBase}all/`;
+    this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
   }
 }

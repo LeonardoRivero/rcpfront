@@ -158,6 +158,8 @@ export const required = (val: any) =>
 
 export const numberRequired = (val: any) => val > 0 || 'Numero invalido';
 export const isNotNull = (val: any) => (val && val != null) || 'Campo nulo';
+export const isNotUndefined = (val: any) =>
+  (val && val != undefined) || 'Campo nulo';
 export const short = (val: string) =>
   (val && val.length > 3) || 'Longitud mayor a 3 caracteres';
 
