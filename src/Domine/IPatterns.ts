@@ -80,6 +80,7 @@ export interface IToRead<T> {
   urlBase: string;
   getAll(): Promise<Array<T>>;
   getById(id: number): Promise<T | null>;
+  findByParameters(queryParameters: object): Promise<Array<T>>;
 }
 
 export interface IToUpdate<T, T2> {

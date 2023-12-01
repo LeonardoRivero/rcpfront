@@ -1,14 +1,23 @@
 import { IPatient } from 'src/Domine/ModelsDB';
-import { Repository, Service } from '../Repositories/Interface';
+import { GenericService, Repository, Service } from '../Repositories/Interface';
 import { PatientResponse } from 'src/Domine/Responses';
 import { PatientRepository } from '../Repositories/PatientRepository';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
 
-export class PatientService extends Service<IPatient, PatientResponse> {
-  public repository: Repository<IPatient>;
+export class PatientService extends GenericService<IPatient, PatientResponse> {
+  urlCreate: string;
+  urlList: string;
+  urlBase: string;
+  urlUpdate: string;
+  // public repository: Repository<IPatient>;
   public constructor() {
     super();
-    this.repository = new PatientRepository();
+    // this.repository = new PatientRepository();
+    const urlAPI = process.env.PATIENT ? process.env.PATIENT : '';
+    this.urlBase = `${process.env.RCP}${urlAPI}all/`;
+    this.urlCreate = `${process.env.RCP}${urlAPI}all/`;
+    this.urlList = `${process.env.RCP}${this.urlBase}all/`;
+    this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
   }
 
   // public async save(payload: IPatient): Promise<PatientResponse | null> {
@@ -38,7 +47,7 @@ export class PatientService extends Service<IPatient, PatientResponse> {
     identification: string
   ): Promise<PatientResponse | null> {
     const queryParameters = { identification: identification };
-    const yyy = await this.repository.findByParameters(queryParameters);
+    const yyy = await this.httpClient.GET(this.urlBase, queryParameters);
     if (!yyy.ok || yyy.status == HttpStatusCode.NO_CONTENT) {
       return null;
     }

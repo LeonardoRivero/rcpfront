@@ -27,7 +27,7 @@
         map-options
         label="Descripcion"
         @update:model-value="(val) => insuranceChanged(val)"
-        @clear="(val) => clearInsurance(val)"
+        @clear="(val) => clearInsurance()"
         :hint="`Codigo Entidad: ${
           state.currentInsurance.entityCode == undefined
             ? ''
@@ -121,7 +121,7 @@
 import { defineComponent, onMounted, reactive, ref } from 'vue';
 import { QForm } from 'quasar';
 import { IHealthInsurance } from 'src/Domine/ModelsDB';
-import { InsuranceAdapter } from 'src/Adapters/InsuranceAdapter';
+import { InsuranceController } from 'src/Adapters/InsuranceAdapter';
 import { IconSVG } from 'src/Application/Utilities';
 import { HealthInsuranceResponse } from 'src/Domine/Responses';
 import { InsuranceState } from 'src/Domine/IStates';
@@ -139,7 +139,7 @@ export default defineComponent({
       error: false,
       insurance: null,
     });
-    const controller = InsuranceAdapter.getInstance(state);
+    const controller = InsuranceController.getInstance(state);
     const form = ref<QForm>();
 
     onMounted(async () => {
@@ -157,13 +157,10 @@ export default defineComponent({
         form.value?.reset();
       },
       insuranceChanged(val: HealthInsuranceResponse) {
-        state.currentInsurance = val;
+        controller.insuranceSelectChanged(val);
       },
       edit() {
-        if (state.expanded === false) {
-          state.expanded = !state.expanded;
-        }
-        state.currentInsurance = state.insurance as HealthInsuranceResponse;
+        controller.edit();
       },
       add() {
         controller.add();
@@ -173,7 +170,7 @@ export default defineComponent({
         if (isValid == false) {
           return;
         }
-        await controller.saveOrUpdate(state.currentInsurance);
+        await controller.saveOrUpdate();
       },
     };
   },

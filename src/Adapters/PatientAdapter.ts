@@ -11,6 +11,7 @@ import { IPatient } from 'src/Domine/ModelsDB';
 import { PatientResponse } from 'src/Domine/Responses';
 import { PatientState } from 'src/Domine/IStates';
 import { ModalType } from 'src/Domine/Types';
+import { EditCommand, InsertCommand } from 'src/Application/Commands';
 
 export class PatientController extends Controller {
   public state: PatientState;
@@ -91,68 +92,27 @@ export class PatientController extends Controller {
     if (!this.state.currentPatient) return null;
     let payload: IPatient;
     let response: PatientResponse | null = null;
+
     if (this.state.currentPatient.id == undefined) {
-      // payload = {
-      //   name: this.state.currentPatient.name,
-      //   lastName: this.state.currentPatient.lastName,
-      //   IDType: this.state.currentPatient.IDType,
-      //   identification: this.state.currentPatient.identification,
-      //   dateBirth: this.state.currentPatient.dateBirth,
-      //   phoneNumber: this.state.currentPatient.phoneNumber,
-      //   insurance: this.state.currentPatient.insurance,
-      //   gender: this.state.currentPatient.gender,
-      //   email: this.state.currentPatient.email,
-      // };
-      response = await this.save(this.state.currentPatient);
+      delete this.state.currentPatient['id'];
+      const insertCommand = new InsertCommand(
+        this.state.currentPatient,
+        this.service
+      );
+      response = <PatientResponse | null>await insertCommand.execute();
+      insertCommand.showNotification(response);
     }
+
     if (this.state.currentPatient.id != undefined) {
-      payload = {
-        id: this.state.currentPatient.id,
-        name: this.state.currentPatient.name,
-        lastName: this.state.currentPatient.lastName,
-        IDType: this.state.currentPatient.IDType,
-        identification: this.state.currentPatient.identification,
-        dateBirth: this.state.currentPatient.dateBirth,
-        phoneNumber: this.state.currentPatient.phoneNumber,
-        insurance: this.state.currentPatient.insurance,
-        gender: this.state.currentPatient.gender,
-        email: this.state.currentPatient.email,
-      };
-      response = await this.update(payload);
+      payload = this.state.currentPatient;
+      const editCommand = new EditCommand(
+        payload,
+        this.state.currentPatient.id,
+        this.service
+      );
+      response = <PatientResponse | null>await editCommand.execute();
+      editCommand.showNotification(response);
     }
-    if (response == null) {
-      this.notifyQuasar.setType('error');
-      this.notifyQuasar.show(undefined, Messages.patientNotSaved);
-    }
-    if (response != null) {
-      this.notifyQuasar.setType('success');
-      this.notifyQuasar.show(undefined, Messages.successMessage);
-      this.clear();
-    }
-    return response;
-  }
-
-  private async save(payload: IPatient): Promise<PatientResponse | null> {
-    const confirm = await this.sweetAlertModal.show(
-      'Atención',
-      Messages.newRegister
-    );
-    if (confirm === false) {
-      return null;
-    }
-
-    const response = await this.service.save(payload);
-    return response;
-  }
-
-  private async update(payload: IPatient): Promise<PatientResponse | null> {
-    const confirm = await this.sweetAlertModal.show(
-      'Atención',
-      Messages.updateRegister
-    );
-    if (confirm == false) return null;
-
-    const response = await this.service.update(payload);
     return response;
   }
 

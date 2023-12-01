@@ -198,8 +198,8 @@
                           dense
                           v-model="state.currentPatient.email"
                           type="email"
-                          :error="state.error"
-                          @blur="(evt) => isValidEmail(evt.target?.value)"
+                          lazy-rules
+                          :rules="[emailRequired]"
                         />
                       </div>
                     </div>
@@ -249,7 +249,6 @@ import {
 import { IconSVG } from 'src/Application/Utilities/Constants';
 import { IDTypesRepository } from 'src/Application/Repositories/PatientRepository';
 import 'src/css/app.sass';
-import { InsuranceRepository } from 'src/Application/Repositories/SettingsRepository';
 import { PatientState } from 'src/Domine/IStates';
 import {
   GenderResponse,
@@ -264,7 +263,7 @@ import {
   isNotNull,
   numberRequired,
 } from 'src/Application/Utilities/Helpers';
-import { GenderService } from 'src/Application/Services';
+import { GenderService, InsuranceService } from 'src/Application/Services';
 
 export default defineComponent({
   setup() {
@@ -284,17 +283,16 @@ export default defineComponent({
 
     const form = ref<QForm>();
     const controller = PatientController.getInstance(state);
-    const insuranceRepository = InsuranceRepository.getInstance();
+    const insuranceService = new InsuranceService();
     const idTypesRepository = new IDTypesRepository();
     const genderRepository = new GenderService();
 
     onMounted(async () => {
       const idTypes = await idTypesRepository.getAll();
       const genders = await genderRepository.getAll();
-      const insurance = await insuranceRepository.getAll();
+      state.allInsurance = await insuranceService.getAll();
       state.allIDTypes = idTypes.ok == false ? [] : await idTypes.json();
       state.allGenders = genders == null ? [] : genders;
-      state.allInsurance = insurance.ok == false ? [] : await insurance.json();
     });
 
     return {

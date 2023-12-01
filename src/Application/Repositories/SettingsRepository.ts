@@ -49,32 +49,32 @@ export class PhysicalExamParameterRepository extends Repository<IPhysicalExam> {
   }
 }
 
-@injectable()
-export class InsuranceRepository extends Repository<IHealthInsurance> {
-  url: string;
-  urlWithParameters: string;
-  private static instance: InsuranceRepository;
-  public constructor() {
-    super();
-    const urlAPI = process.env.INSURANCE ? process.env.INSURANCE : '';
-    this.url = `${process.env.RCP}${urlAPI}`;
-    this.urlWithParameters = '';
-  }
-  public override async findByParameters(
-    parameters: object
-  ): Promise<Response> {
-    throw new Error('Method not implemented.' + { parameters });
-  }
-  public static getInstance(): InsuranceRepository {
-    if (!InsuranceRepository.instance) {
-      InsuranceRepository.instance = new InsuranceRepository();
-    }
-    return InsuranceRepository.instance;
-  }
-  public override async getById(id: number): Promise<Response> {
-    throw new Error('Method not implemented.' + { id });
-  }
-}
+// @injectable()
+// export class InsuranceRepository extends Repository<IHealthInsurance> {
+//   url: string;
+//   urlWithParameters: string;
+//   private static instance: InsuranceRepository;
+//   public constructor() {
+//     super();
+//     const urlAPI = process.env.INSURANCE ? process.env.INSURANCE : '';
+//     this.url = `${process.env.RCP}${urlAPI}`;
+//     this.urlWithParameters = '';
+//   }
+//   public override async findByParameters(
+//     parameters: object
+//   ): Promise<Response> {
+//     throw new Error('Method not implemented.' + { parameters });
+//   }
+//   public static getInstance(): InsuranceRepository {
+//     if (!InsuranceRepository.instance) {
+//       InsuranceRepository.instance = new InsuranceRepository();
+//     }
+//     return InsuranceRepository.instance;
+//   }
+//   public override async getById(id: number): Promise<Response> {
+//     throw new Error('Method not implemented.' + { id });
+//   }
+// }
 
 // @injectable()
 // export class DxMainCodeRepository extends Repository<IDXMainCode> {
@@ -129,34 +129,34 @@ export class InsuranceRepository extends Repository<IHealthInsurance> {
 //   }
 // }
 
-@injectable()
-export class DoctorRepository extends Repository<IDoctor> {
-  url: string;
-  urlWithParameters: string;
-  private static instance: DoctorRepository;
-  public constructor() {
-    super();
-    const urlAPI = process.env.DOCTOR_SPECIALITY
-      ? process.env.DOCTOR_SPECIALITY
-      : '';
-    this.url = `${process.env.RCP}${urlAPI}`;
-    this.urlWithParameters = '';
-  }
-  public static getInstance(): DoctorRepository {
-    if (!DoctorRepository.instance) {
-      DoctorRepository.instance = new DoctorRepository();
-    }
-    return DoctorRepository.instance;
-  }
+//@injectable()
+// export class DoctorRepository extends Repository<IDoctor> {
+//   url: string;
+//   urlWithParameters: string;
+//   private static instance: DoctorRepository;
+//   public constructor() {
+//     super();
+//     const urlAPI = process.env.DOCTOR_SPECIALITY
+//       ? process.env.DOCTOR_SPECIALITY
+//       : '';
+//     this.url = `${process.env.RCP}${urlAPI}`;
+//     this.urlWithParameters = '';
+//   }
+//   public static getInstance(): DoctorRepository {
+//     if (!DoctorRepository.instance) {
+//       DoctorRepository.instance = new DoctorRepository();
+//     }
+//     return DoctorRepository.instance;
+//   }
 
-  public override async update(entity: Partial<IDoctor>): Promise<Response> {
-    throw new Error('Method not implemented.' + { entity });
-  }
+//   public override async update(entity: Partial<IDoctor>): Promise<Response> {
+//     throw new Error('Method not implemented.' + { entity });
+//   }
 
-  public override async delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.' + { id });
-  }
-}
+//   public override async delete(id: number): Promise<boolean> {
+//     throw new Error('Method not implemented.' + { id });
+//   }
+// }
 
 // @injectable()
 // export class PathologicalHistoryRepository extends Repository<IPathologycalHistory> {
@@ -187,30 +187,30 @@ export class DoctorRepository extends Repository<IDoctor> {
 //   }
 // }
 
-@injectable()
-export class MedicalOfficeRepository extends Repository<MedicalOfficeResponse> {
-  url: string;
-  urlWithParameters: string;
-  public constructor() {
-    super();
+// @injectable()
+// export class MedicalOfficeRepository extends Repository<MedicalOfficeResponse> {
+//   url: string;
+//   urlWithParameters: string;
+//   public constructor() {
+//     super();
 
-    const urlAPI = process.env.MEDICAL_OFFICE_LIST
-      ? process.env.MEDICAL_OFFICE_LIST
-      : '';
-    this.url = `${process.env.RCP}${urlAPI}`;
-    this.urlWithParameters = '';
-  }
-  public override async getById(id: number): Promise<Response> {
-    throw new Error('Method not implemented.' + { id });
-  }
+//     const urlAPI = process.env.MEDICAL_OFFICE_LIST
+//       ? process.env.MEDICAL_OFFICE_LIST
+//       : '';
+//     this.url = `${process.env.RCP}${urlAPI}`;
+//     this.urlWithParameters = '';
+//   }
+//   public override async getById(id: number): Promise<Response> {
+//     throw new Error('Method not implemented.' + { id });
+//   }
 
-  public override async delete(id: number): Promise<boolean> {
-    throw new Error('Method not implemented.' + { id });
-  }
+//   public override async delete(id: number): Promise<boolean> {
+//     throw new Error('Method not implemented.' + { id });
+//   }
 
-  public override async findByParameters(
-    parameters: object
-  ): Promise<Response> {
-    throw new Error('Method not implemented.' + { parameters });
-  }
-}
+//   public override async findByParameters(
+//     parameters: object
+//   ): Promise<Response> {
+//     throw new Error('Method not implemented.' + { parameters });
+//   }
+// }

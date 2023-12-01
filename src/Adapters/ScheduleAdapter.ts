@@ -10,6 +10,7 @@ import { EventScheduleResponse } from 'src/Domine/Responses';
 import { ScheduleService } from 'src/Application/Services/ScheduleService';
 import {
   Controller,
+  HTTPClient,
   IControllersMediator,
   Notificator,
 } from 'src/Domine/IPatterns';
@@ -19,6 +20,7 @@ import { ModalType } from 'src/Domine/Types';
 import { DoctorSpecialityService } from 'src/Application/Services';
 import { IStoreSchedule } from 'src/Domine/IStores';
 import { ScheduleMediator } from 'src/Infraestructure/Mediators/ScheduleMediator';
+import container from 'src/inversify.config';
 
 const validator = Validators.getInstance();
 export class ScheduleAdapter extends Controller {
@@ -264,7 +266,9 @@ export class ScheduleAdapter extends Controller {
     const queriesParameters = {
       speciality: specialityId,
     };
-    const service = new DoctorSpecialityService();
+    const service = new DoctorSpecialityService(
+      container.get<HTTPClient>('HTTPClient')
+    );
     const response = await service.findByParameters(queriesParameters);
     this.state.currentDoctor = null;
     this.state.allDoctors = response;

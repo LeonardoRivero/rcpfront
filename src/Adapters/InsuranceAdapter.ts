@@ -1,31 +1,24 @@
 import { InsuranceService } from 'src/Application/Services/InsuranceService';
-import { Messages } from 'src/Application/Utilities/Messages';
 import { IHealthInsurance } from 'src/Domine/ModelsDB';
-import { Convert } from 'src/Application/Utilities';
 import { HealthInsuranceResponse } from 'src/Domine/Responses';
 import { InsuranceState } from 'src/Domine/IStates';
-import { FactoryNotifactors } from './Creators/Factories';
-import { Notificator } from 'src/Domine/IPatterns';
-import { ModalType } from 'src/Domine/Types';
+import { EditCommand, InsertCommand } from 'src/Application/Commands';
 
-export class InsuranceAdapter {
+export class InsuranceController {
   private state: InsuranceState;
-  private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private service = new InsuranceService();
-  private static instance: InsuranceAdapter;
-  private convert = new Convert();
+  private static instance: InsuranceController;
 
   private constructor(state: InsuranceState) {
     this.state = state;
     return;
   }
 
-  public static getInstance(state: InsuranceState): InsuranceAdapter {
-    if (!InsuranceAdapter.instance) {
-      InsuranceAdapter.instance = new InsuranceAdapter(state);
+  public static getInstance(state: InsuranceState): InsuranceController {
+    if (!InsuranceController.instance) {
+      InsuranceController.instance = new InsuranceController(state);
     }
-    return InsuranceAdapter.instance;
+    return InsuranceController.instance;
   }
 
   public clear() {
@@ -38,18 +31,39 @@ export class InsuranceAdapter {
     this.state.currentInsurance = { takeCopayment: false } as IHealthInsurance;
   }
 
-  public async saveOrUpdate(payload: IHealthInsurance): Promise<void> {
+  public edit(): void {
+    if (this.state.expanded === false) {
+      this.state.expanded = !this.state.expanded;
+    }
+    this.state.currentInsurance = this.state
+      .insurance as HealthInsuranceResponse;
+  }
+
+  public insuranceSelectChanged(val: HealthInsuranceResponse) {
+    this.state.currentInsurance = val;
+  }
+  public async saveOrUpdate(): Promise<void> {
     if (!this.state.currentInsurance) return;
 
     let response: IHealthInsurance | null = null;
-    payload.nameInsurance = this.convert.toTitle(payload.nameInsurance);
-
     if (this.state.currentInsurance.id == undefined) {
-      response = await this.create(payload);
+      delete this.state.currentInsurance['id'];
+      const insertCommand = new InsertCommand(
+        this.state.currentInsurance,
+        this.service
+      );
+      response = <IHealthInsurance | null>await insertCommand.execute();
+      insertCommand.showNotification(response);
     }
 
     if (this.state.currentInsurance.id != undefined) {
-      response = await this.update(payload);
+      const editCommand = new EditCommand(
+        this.state.currentInsurance,
+        this.state.currentInsurance.id,
+        this.service
+      );
+      response = <IHealthInsurance | null>await editCommand.execute();
+      editCommand.showNotification(response);
     }
 
     if (response == null) {
@@ -58,36 +72,6 @@ export class InsuranceAdapter {
     this.state.currentInsurance = response;
     this.state.allInsurance = await this.service.getAll();
     this.state.expanded = false;
-  }
-
-  private async create(
-    payload: IHealthInsurance
-  ): Promise<IHealthInsurance | null> {
-    const confirm = await this.notifySweetAlert.show(
-      'Atención',
-      Messages.newRegister
-    );
-    if (confirm === false) {
-      return null;
-    }
-
-    const response = await this.service.save(payload);
-    return response;
-  }
-
-  private async update(
-    payload: IHealthInsurance
-  ): Promise<IHealthInsurance | null> {
-    const confirm = await this.notifySweetAlert.show(
-      'Atención',
-      Messages.updateRegister
-    );
-    if (confirm === false) {
-      return null;
-    }
-
-    const response = await this.service.update(payload);
-    return response;
   }
 
   public async getAll(): Promise<Array<HealthInsuranceResponse>> {
@@ -99,6 +83,7 @@ export class InsuranceAdapter {
 
     return response;
   }
+
   public responseToEntity(
     payload: HealthInsuranceResponse | null
   ): IHealthInsurance {

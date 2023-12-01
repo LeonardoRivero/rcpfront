@@ -1,8 +1,5 @@
 import { Container } from 'inversify';
-import {
-  MedicalOfficeRepository,
-  Repository,
-} from 'src/Application/Repositories';
+import { Repository } from 'src/Application/Repositories';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
@@ -23,9 +20,9 @@ container.bind<CountryService>('CountryService').to(CountryService);
 
 container.bind<SubRegionService>('SubRegionService').to(SubRegionService);
 
-container
-  .bind<Repository<MedicalOfficeResponse>>('MedicalOfficeRepository')
-  .to(MedicalOfficeRepository);
+// container
+//   .bind<Repository<MedicalOfficeResponse>>('MedicalOfficeRepository')
+//   .to(MedicalOfficeRepository);
 container
   .bind<MedicalOfficeService>('MedicalOfficeService')
   .to(MedicalOfficeService);
