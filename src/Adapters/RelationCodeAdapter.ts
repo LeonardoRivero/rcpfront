@@ -1,11 +1,7 @@
 import { IRelationCode } from 'src/Domine/ModelsDB';
 import { RelationCodeService } from 'src/Application/Services/RelationCodeService';
 import { RelationCodeResponse } from 'src/Domine/Responses';
-import {
-  Controller,
-  ICommand,
-  IControllersMediator,
-} from 'src/Domine/IPatterns';
+import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
 import { RelationCodeState } from 'src/Domine/IStates';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import { IStoreSettings } from 'src/Domine/IStores';
@@ -28,7 +24,7 @@ export class RelationCodeController extends Controller {
       if (val == null || val.id == undefined) return;
 
       const queryParameters = { dxMainCodeId: val.id };
-      const response = await this.findByParameters(queryParameters);
+      const response = await this.service.findByParameters(queryParameters);
       this.state.allRelationCodes = response;
     }
   }

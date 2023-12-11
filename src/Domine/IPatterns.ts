@@ -1,24 +1,27 @@
 import { GenericService } from 'src/Application/Repositories/Interface';
 import { ITableOptions } from './ICommons';
-import { NotificationType, ModalType } from './Types';
+import { NotificationType, ModalType, ServicesType } from './Types';
+
 export abstract class Controller {
   abstract receiveData(data: IControllersMediator): void;
   abstract clear(): void;
   abstract state: object;
+  protected factoryService: IFactoryService | undefined;
   protected mediator: IControllersMediator;
-  public metodoPrueba(): void {
-    console.log('este es el metodo de prueba');
-  }
 
-  constructor(mediator?: IControllersMediator) {
+  constructor(
+    mediator?: IControllersMediator,
+    factoryService?: IFactoryService
+  ) {
     this.mediator = mediator!;
+    this.factoryService = factoryService;
   }
 
   public setMediator(mediator: IControllersMediator): void {
     this.mediator = mediator;
   }
 
-  public isCommand(object: any): object is ICommand {
+  public isCommand(object: unknown): object is ICommand {
     return object !== undefined;
   }
 }
@@ -40,14 +43,12 @@ export interface IFactoryMethodNotifications {
   createNotificator(notificationType: ModalType): Notificator;
 }
 
+export interface IFactoryService {
+  createService(serviceType: ServicesType): GenericService<unknown, unknown>;
+}
 // export interface AbstractFactory<T extends { id?: number | undefined }, T2> {
 //   createController(): any;
 //   createService(): GenericService<T, T2>;
-// }
-
-// export abstract class DxMainCodeAbstractController extends Controller {
-//   abstract add(): void;
-//   abstract dxMainCodeChanged(val: DXMainCodeResponse): void;
 // }
 
 export interface ICommand {
@@ -57,8 +58,8 @@ export interface ICommand {
 export abstract class Builder {
   public abstract table: ITableOptions;
   public abstract setData(
-    columns: any[],
-    rows: any[],
+    columns: unknown[],
+    rows: unknown[],
     title: string | undefined
   ): void;
   public abstract getResult(): ITableOptions;
@@ -92,6 +93,7 @@ export interface IToDelete {
   urlDelete: string;
   delete(id: number): Promise<object | null>;
 }
+
 export interface HTTPClient {
   GET(path: string, queryparams?: object): Promise<Response>;
   POST(path: string, body: unknown): Promise<Response>;

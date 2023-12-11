@@ -5,7 +5,6 @@ import { ReasonConsultService } from 'src/Application/Services/ReasonConsultServ
 import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreAppointment } from 'src/Domine/IStores';
 import {
-  HealthInsuranceResponse,
   PatientStatusResponse,
   PaymentOptionsResponse,
   ReasonConsultResponse,
@@ -14,7 +13,7 @@ import {
 export class AppointmentMediator implements IControllersMediator {
   public store: StoreGeneric;
   private static instance: AppointmentMediator;
-  private servicePaymentOptions = PaymentOptionsService.getInstance();
+  private servicePaymentOptions = new PaymentOptionsService();
   private serviceReasonConsult = ReasonConsultService.getInstance();
   private servicePatientStatus = PatientStatusService.getInstance();
 

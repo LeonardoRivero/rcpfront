@@ -154,16 +154,16 @@ export interface ScheduleState {
 
 export interface AppointmentState {
   identificationPatient: string;
-  // currentHealthInsurance: HealthInsuranceResponse | null;
   reasonConsult: IReasonConsult | null;
   currentAppointment: IAppointment;
-  // currentPatient: PatientResponse;
   allPaymentOptions: Array<PaymentOptionsResponse>;
   allReasonConsult: Array<ReasonConsultResponse>;
   allPatientStatus: Array<PatientStatusResponse>;
   start: string;
   end: string;
   schedule: EventScheduleResponse;
+  disableCodeTransaction: boolean;
+  disableButtonSave: boolean;
 }
 
 export interface ChangePasswordState {

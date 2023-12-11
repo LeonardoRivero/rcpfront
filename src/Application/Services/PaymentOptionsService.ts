@@ -1,55 +1,40 @@
 import { IPaymentOptions } from 'src/Domine/ModelsDB';
-import { Repository, Service } from '../Repositories/Interface';
+import { GenericService } from '../Repositories/Interface';
 import { PaymentOptionsResponse } from 'src/Domine/Responses';
-import { PaymentOptionsRepository } from '../Repositories';
-import HttpStatusCodes from '../Utilities/HttpStatusCodes';
-
-export class PaymentOptionsService extends Service<
+import { IPaymentOptionsService } from 'src/Domine/IServices';
+import 'reflect-metadata';
+import { injectable } from 'inversify';
+export class PaymentOptionsGenericService extends GenericService<
   IPaymentOptions,
   PaymentOptionsResponse
 > {
-  public repository: Repository<IPaymentOptions>;
-  private allPaymentOptions: Array<PaymentOptionsResponse>;
-  private static instance: PaymentOptionsService;
+  urlCreate: string;
+  urlList: string;
+  urlBase: string;
+  urlUpdate: string;
 
   public constructor() {
     super();
-    this.repository = new PaymentOptionsRepository();
+    const urlAPI = process.env.PAYMENT_OPTIONS
+      ? process.env.PAYMENT_OPTIONS
+      : '';
+    this.urlBase = `${process.env.RCP}${urlAPI}`;
+    this.urlCreate = `${this.urlBase}all/`;
+    this.urlList = `${this.urlBase}all/`;
+    this.urlUpdate = this.urlBase;
+  }
+}
+
+@injectable()
+export class PaymentOptionsService implements IPaymentOptionsService {
+  GenericService: GenericService<IPaymentOptions, PaymentOptionsResponse>;
+  private allPaymentOptions: Array<PaymentOptionsResponse>;
+  constructor() {
+    this.GenericService = new PaymentOptionsGenericService();
     this.allPaymentOptions = [];
   }
 
-  public static getInstance(): PaymentOptionsService {
-    if (!PaymentOptionsService.instance) {
-      PaymentOptionsService.instance = new PaymentOptionsService();
-    }
-    return PaymentOptionsService.instance;
-  }
-
-  // public async findByParameters(
-  //   queryParameters: object
-  // ): Promise<Array<PaymentOptionsResponse>> {
-  //   const response = await this.repository.findByParameters(queryParameters);
-  //   if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT)
-  //     return [];
-  //   return await response.json();
-  // }
-
-  public override async getAll(): Promise<Array<PaymentOptionsResponse>> {
-    if (this.allPaymentOptions.length !== 0) {
-      return this.allPaymentOptions;
-    }
-    const response = await this.repository.getAll();
-    if (!response.ok) return [];
-    this.allPaymentOptions = await response.json();
-    return this.allPaymentOptions;
-  }
-
-  public async getById(id: number): Promise<PaymentOptionsResponse | null> {
-    const response = await this.repository.getById(id);
-    return await response.json();
-  }
-
-  public async paymentIsCash(id: number): Promise<boolean> {
+  async paymentIsCash(id: number): Promise<boolean> {
     const allPaymentOptions = await this.getAll();
     const result = allPaymentOptions.filter(
       (po) => po.description == 'Efectivo'
@@ -59,5 +44,23 @@ export class PaymentOptionsService extends Service<
       return false;
     }
     return true;
+  }
+
+  async getById(id: number): Promise<PaymentOptionsResponse | null> {
+    const url = `${this.GenericService.urlBase}${id}/`;
+    const response = await this.GenericService.httpClient.GET(url);
+    return await response.json();
+  }
+
+  public async getAll(): Promise<Array<PaymentOptionsResponse>> {
+    if (this.allPaymentOptions.length !== 0) {
+      return this.allPaymentOptions;
+    }
+    const response = await this.GenericService.httpClient.GET(
+      this.GenericService.urlList
+    );
+    if (!response.ok) return [];
+    this.allPaymentOptions = await response.json();
+    return this.allPaymentOptions;
   }
 }

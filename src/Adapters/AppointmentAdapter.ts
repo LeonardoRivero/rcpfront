@@ -1,4 +1,4 @@
-import { IAppointment, ISpeciality } from 'src/Domine/ModelsDB';
+import { IAppointment } from 'src/Domine/ModelsDB';
 import { Messages } from 'src/Application/Utilities/Messages';
 import {
   Controller,
@@ -10,17 +10,19 @@ import { AppointmentState } from 'src/Domine/IStates';
 import { AppointmentService } from 'src/Application/Services';
 import {
   AppointmentResponse,
-  DoctorResponse,
   EventScheduleResponse,
-  PatientResponse,
 } from 'src/Domine/Responses';
 import { routerInstance } from 'src/boot/globalRouter';
 import { ModalType } from 'src/Domine/Types';
-import { CreateCommand } from 'src/Application/Commands';
+import { IPaymentOptionsService } from 'src/Domine/IServices';
+import container from 'src/inversify.config';
 
 export class AppointmentAdapter extends Controller {
   public state: AppointmentState;
   private service = new AppointmentService();
+  private servicePaymentOptions: IPaymentOptionsService = container.get(
+    'PaymentOptionsService'
+  );
   private static instance: AppointmentAdapter;
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
@@ -63,8 +65,6 @@ export class AppointmentAdapter extends Controller {
     if (this.state.currentAppointment.copayment == undefined) {
       this.state.currentAppointment.copayment = 0;
     }
-    // if (this.state.schedule.patient.insurance == null) return;
-
     this.state.currentAppointment.amountPaid = this.service.calculateAmountPaid(
       this.state.schedule.patient.insurance,
       this.state.currentAppointment
@@ -94,7 +94,8 @@ export class AppointmentAdapter extends Controller {
 
   public async saveOrUpdate(): Promise<AppointmentResponse | null> {
     if (!this.state.currentAppointment) return null;
-
+    const confirm = await this.showModalConfirmation();
+    if (confirm == false) return null;
     let response = null;
     let payload: IAppointment | null;
     if (this.state.currentAppointment.id == undefined) {
@@ -113,7 +114,7 @@ export class AppointmentAdapter extends Controller {
         codeTransaction: this.state.currentAppointment.codeTransaction,
         isPrivate: this.state.currentAppointment.isPrivate,
       };
-      response = await this.service.save(payload);
+      response = await this.service.create(payload);
     }
 
     if (response === null) {
@@ -123,12 +124,18 @@ export class AppointmentAdapter extends Controller {
     return response;
   }
 
-  public async showModalConfirmation(): Promise<boolean> {
+  private async showModalConfirmation(): Promise<boolean> {
     const confirm = await this.notifySweetAlert.show(
       'Atención',
       Messages.newRegister
     );
     return confirm;
+  }
+
+  public async changedPaymentMethod(val: number) {
+    const isCash = await this.servicePaymentOptions.paymentIsCash(val);
+    this.state.disableCodeTransaction = isCash;
+    this.paymentIsCash(isCash);
   }
 
   public responseToEntity(response: EventScheduleResponse) {
@@ -160,5 +167,13 @@ export class AppointmentAdapter extends Controller {
 
     routerInstance.push('/appointment');
     return;
+  }
+
+  public setInfoSchedule(schedule: EventScheduleResponse) {
+    this.state.schedule = schedule;
+    this.state.currentAppointment.schedule = schedule.id;
+    this.state.schedule.start = new Date(schedule.start).toLocaleString();
+    this.state.schedule.end = new Date(schedule.end).toLocaleString();
+    this.state.disableButtonSave = false;
   }
 }

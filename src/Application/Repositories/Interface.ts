@@ -1,9 +1,4 @@
-import {
-  IExam,
-  IKeyEmailRegistration,
-  ILogin,
-  IUser,
-} from 'src/Domine/ModelsDB';
+import { IExam, IKeyEmailRegistration, ILogin } from 'src/Domine/ModelsDB';
 import { PhysicalExamResultResponse } from 'src/Domine/Responses';
 import { DELETE, GET, POST, PUT } from 'src/Infraestructure/Utilities/Request';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
@@ -11,7 +6,6 @@ import 'reflect-metadata';
 import { inject, injectable } from 'inversify';
 import { routerInstance } from 'src/boot/globalRouter';
 
-import { LoginService, UserService } from '../Services/UserService';
 import {
   HTTPClient,
   IToCreate,
@@ -237,7 +231,7 @@ export abstract class Service<T extends { id?: number }, T2> {
 }
 
 @injectable()
-export abstract class GenericService<T extends { id?: number }, T2>
+export abstract class GenericService<T, T2>
   extends LoginRepository
   implements IToCreate<T, T2>, IToRead<T2>, IToUpdate<T, T2>
 {

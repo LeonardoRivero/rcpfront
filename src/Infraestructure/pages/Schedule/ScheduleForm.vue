@@ -337,7 +337,7 @@ export default defineComponent({
           const isValid = await form.value?.validate();
           if (isValid == false) return;
           controller.executeValidations();
-          await controller.saveOrUpdate(state.currentSchedule);
+          await controller.saveOrUpdate();
         } catch (error: any) {
           const messageError = (error as Error).message;
           notifyQuasar.setType('error');

@@ -182,7 +182,7 @@
                 outlined
                 label="Codigo Transaccion"
                 v-model="state.currentAppointment.codeTransaction"
-                :disable="disableCodeTransaction"
+                :disable="state.disableCodeTransaction"
               />
             </div>
             <div class="col-12 col-md-4">
@@ -253,22 +253,19 @@
         label="Guardar"
         type="submit"
         color="primary"
-        :disable="disableButtonSave"
+        :disable="state.disableButtonSave"
       />
     </q-card-actions>
   </q-form>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { defineComponent, onMounted, reactive, ref } from 'vue';
 import {
-  DoctorSpecialityResponse,
   EventScheduleResponse,
   HealthInsuranceResponse,
-  PatientResponse,
-  PatientStatusResponse,
 } from 'src/Domine/Responses';
-import { IAppointment, ISpeciality } from 'src/Domine/ModelsDB';
+import { IAppointment } from 'src/Domine/ModelsDB';
 import {
   OPTIONS_HOURS,
   OPTIONS_MINUTES,
@@ -277,7 +274,6 @@ import {
   FIELD_REQUIRED,
 } from 'src/Application/Utilities';
 import { AppointmentAdapter } from 'src/Adapters';
-import { PaymentOptionsService } from 'src/Application/Services/PaymentOptionsService';
 import {
   required,
   noLowerZero,
@@ -288,7 +284,6 @@ import {
   AppointmentMediator,
   PatientMediator,
   ScheduleMediator,
-  SettingsMediator,
 } from 'src/Infraestructure/Mediators';
 import { QForm } from 'quasar';
 import { AppointmentState } from 'src/Domine/IStates';
@@ -299,17 +294,11 @@ export default defineComponent({
   setup() {
     const HOURS_ALLOWED = OPTIONS_HOURS;
     const MINUTES_ALLOWED = OPTIONS_MINUTES;
-    // const CURRENTYEARMONTH = CURRENTYEAR_MONTH;
-    // const FORMATDATETIME = FORMAT_DATETIME;
     const form = ref<QForm>();
     const state: AppointmentState = reactive({
       identificationPatient: '',
-      // currentHealthInsurance: null,
       reasonConsult: null,
       currentAppointment: { isPrivate: false } as IAppointment,
-      // currentPatient: {
-      //   insurance: {} as HealthInsuranceResponse,
-      // } as PatientResponse,
       allPaymentOptions: [],
       allReasonConsult: [],
       allPatientStatus: [],
@@ -322,17 +311,15 @@ export default defineComponent({
         end: '',
         start: '',
       } as EventScheduleResponse,
+      disableCodeTransaction: false,
+      disableButtonSave: true,
     });
     const controller = AppointmentAdapter.getInstance(state);
     const mediator = AppointmentMediator.getInstance();
     const patientMediator = PatientMediator.getInstance();
-    const settingsMediator = SettingsMediator.getInstance();
     const scheduleMediator = ScheduleMediator.getInstance();
-    const servicePaymentOptions = PaymentOptionsService.getInstance();
     const listInsurancePatient = ref<Array<HealthInsuranceResponse>>([]);
     const store = mediator.getStore();
-    const disableButtonSave = ref<boolean>(true);
-    const disableCodeTransaction = ref<boolean>(false);
 
     onMounted(async () => {
       await mediator.getAllPaymentOptions();
@@ -354,12 +341,9 @@ export default defineComponent({
       FORMAT_DATETIME,
       FIELD_REQUIRED,
       form,
-      disableButtonSave,
       async confirmChanges() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;
-        const confirm = await controller.showModalConfirmation();
-        if (confirm == false) return;
         const response = await controller.saveOrUpdate();
         if (response != null) {
           controller.clear();
@@ -367,11 +351,7 @@ export default defineComponent({
         }
       },
       async changePaymentMethod(idPaymentOption: number) {
-        const isCash = await servicePaymentOptions.paymentIsCash(
-          idPaymentOption
-        );
-        disableCodeTransaction.value = isCash;
-        controller.paymentIsCash(isCash);
+        controller.changedPaymentMethod(idPaymentOption);
       },
 
       calculateAmountPaid(val: any) {
@@ -379,7 +359,6 @@ export default defineComponent({
       },
 
       async patientHasAppointment() {
-        console.log(state.schedule.id);
         const patient = await patientMediator.searchByIdentificacion(
           state.identificationPatient
         );
@@ -394,19 +373,11 @@ export default defineComponent({
           await scheduleMediator.scheduleNotFound();
           return;
         }
-        state.schedule = schedule;
-        state.currentAppointment.schedule = schedule.id;
-        state.schedule.start = new Date(schedule.start).toLocaleString();
-        state.schedule.end = new Date(schedule.end).toLocaleString();
-        disableButtonSave.value = false;
-        // state.currentPatient = schedule.patient;
-        // state.currentHealthInsurance = schedule.patient.insurance;
-        // state.currentDoctor = schedule.doctor;
+        controller.setInfoSchedule(schedule);
       },
       listInsurancePatient,
       state,
       store,
-      disableCodeTransaction,
       required,
       noLowerZero,
       numberRequired,

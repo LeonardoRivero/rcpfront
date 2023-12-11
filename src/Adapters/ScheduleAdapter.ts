@@ -1,11 +1,8 @@
-import '@fullcalendar/core/vdom';
-import { EventClickArg } from '@fullcalendar/core';
 import { date } from 'quasar';
-import { Convert, Messages, Validators } from 'src/Application/Utilities';
+import { Messages, Validators } from 'src/Application/Utilities';
 import * as Constants from 'src/Application/Utilities/Constants';
 import { routerInstance } from 'src/boot/globalRouter';
 import { EventSchedule } from 'src/Domine/ModelsDB';
-import { AppointmentRepository } from 'src/Application/Repositories/AppointmentRepository';
 import { EventScheduleResponse } from 'src/Domine/Responses';
 import { ScheduleService } from 'src/Application/Services/ScheduleService';
 import {
@@ -17,7 +14,10 @@ import {
 import { FactoryNotifactors } from './Creators/Factories';
 import { ScheduleState } from 'src/Domine/IStates';
 import { ModalType } from 'src/Domine/Types';
-import { DoctorSpecialityService } from 'src/Application/Services';
+import {
+  AppointmentService,
+  DoctorSpecialityService,
+} from 'src/Application/Services';
 import { IStoreSchedule } from 'src/Domine/IStores';
 import { ScheduleMediator } from 'src/Infraestructure/Mediators/ScheduleMediator';
 import container from 'src/inversify.config';
@@ -30,9 +30,8 @@ export class ScheduleAdapter extends Controller {
   private notifyQuasar: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
   // private repository: IRepository<EventSchedule, EventScheduleResponse>;
-  private repositoryAppointment = new AppointmentRepository();
+  private repositoryAppointment = new AppointmentService();
   private service = new ScheduleService();
-  private convert = new Convert();
 
   // private static instance: ScheduleAdapter;
 
@@ -117,7 +116,7 @@ export class ScheduleAdapter extends Controller {
     // return;
   }
 
-  public async saveOrUpdate(schedule: EventSchedule): Promise<void> {
+  public async saveOrUpdate(): Promise<void> {
     if (!this.state.currentDoctor?.user.id || this.state.speciality === null)
       return;
     let response: EventScheduleResponse | null = null;
@@ -126,14 +125,18 @@ export class ScheduleAdapter extends Controller {
     const endAppointment = date.addToDate(this.state.currentSchedule.start, {
       minutes: Constants.MINUTES_APPOINTMENT,
     });
-    schedule.end = date.formatDate(endAppointment, Constants.FORMAT_DATETIME);
+    this.state.currentSchedule.end = date.formatDate(
+      endAppointment,
+      Constants.FORMAT_DATETIME
+    );
     const name = this.state.currentPatient.name;
     const lastName = this.state.currentPatient.lastName;
-    if (schedule.id == undefined) {
+    if (this.state.currentSchedule.id == undefined) {
+      delete this.state.currentSchedule['id'];
       payload = {
         title: `${name} ${lastName}`,
-        start: schedule.start,
-        end: schedule.end,
+        start: this.state.currentSchedule.start,
+        end: this.state.currentSchedule.end,
         patient: this.state.currentPatient.id,
         speciality: this.state.speciality,
         doctor: this.state.currentDoctor.user.id,

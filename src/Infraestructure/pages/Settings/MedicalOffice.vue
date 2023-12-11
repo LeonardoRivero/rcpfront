@@ -17,7 +17,7 @@
           emit-value
           label="Consultorios"
           @update:model-value="(val) => addressMedicalOfficeChanged(val)"
-          @clear="(val) => clearForm(val)"
+          @clear="(val) => clearForm()"
           style="overflow: auto"
           class="col-grow"
           :disable="state.disableSelectAddress"
@@ -192,7 +192,7 @@ export default defineComponent({
       state,
       icons: IconSVG,
       form,
-      clearForm(val: any) {
+      clearForm() {
         controller.clear();
         form.value?.reset();
       },

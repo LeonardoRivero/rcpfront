@@ -18,3 +18,7 @@ export type NotificationType =
   | 'success'
   | 'error'
   | 'question';
+
+export enum ServicesType {
+  Appointment = 'Appointment',
+}

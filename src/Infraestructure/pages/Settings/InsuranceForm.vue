@@ -167,9 +167,7 @@ export default defineComponent({
       },
       async confirmChanges() {
         const isValid = await form.value?.validate();
-        if (isValid == false) {
-          return;
-        }
+        if (isValid == false) return;
         await controller.saveOrUpdate();
       },
     };

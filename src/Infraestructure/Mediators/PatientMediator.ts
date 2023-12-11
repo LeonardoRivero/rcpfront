@@ -41,7 +41,7 @@ export class PatientMediator implements IControllersMediator {
         allSpecialities: <Array<SpecialityResponse>>[],
         allPathologies: <Array<PathologicalHistoryResponse>>[],
         allRelationCode: <Array<RelationCodeResponse>>[],
-        currentSpeciality: {} as ISpeciality,
+        currentSpeciality: {} as SpecialityResponse,
         currentDxMainCode: {} as DXMainCodeResponse,
         allInsurance: <Array<HealthInsuranceResponse>>[],
         allGroups: <Array<Group>>[],
