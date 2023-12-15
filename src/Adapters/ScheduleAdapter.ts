@@ -29,8 +29,7 @@ export class ScheduleAdapter extends Controller {
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private notifyQuasar: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
-  // private repository: IRepository<EventSchedule, EventScheduleResponse>;
-  private repositoryAppointment = new AppointmentService();
+  private appointmentService = new AppointmentService();
   private service = new ScheduleService();
 
   // private static instance: ScheduleAdapter;
@@ -186,7 +185,7 @@ export class ScheduleAdapter extends Controller {
   private async save(
     payload: EventSchedule
   ): Promise<EventScheduleResponse | null> {
-    const response = await this.service.save(payload);
+    const response = await this.service.create(payload);
     // const apiCalendar = this.state.calendar.getApi();
     // apiCalendar.refetchEvents();
     return response;
@@ -200,7 +199,8 @@ export class ScheduleAdapter extends Controller {
       Messages.updateRegister
     );
     if (confirm == false) return null;
-    const response = await this.service.update(payload);
+    if (payload.id == null) return null;
+    const response = await this.service.update(payload, payload.id);
     return response;
   }
 
@@ -246,7 +246,7 @@ export class ScheduleAdapter extends Controller {
       this.showThisForm(true);
       return;
     }
-    const response = await this.repositoryAppointment.getById(schedule.id);
+    const response = await this.appointmentService.getById(schedule.id);
     this.state.allowToDelete = false;
     this.showThisForm(true);
     if (response === null) {

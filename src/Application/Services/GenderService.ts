@@ -1,61 +1,34 @@
-import { IGender } from 'src/Domine/ModelsDB';
-import { Repository, Service } from '../Repositories';
 import { GenderResponse } from 'src/Domine/Responses';
-import HttpStatusCode from '../Utilities/HttpStatusCodes';
+import { HTTPClient, IToRead } from 'src/Domine/IPatterns';
+import container from 'src/inversify.config';
+import HttpStatusCodes from '../Utilities/HttpStatusCodes';
 
-export class GenderService extends Service<IGender, GenderResponse> {
-  public repository: Repository<IGender>;
+export class GenderService implements IToRead<GenderResponse> {
+  public urlList: string;
+  public urlBase: string;
+  public httpClient: HTTPClient;
   public constructor() {
-    super();
-    this.repository = new GenderRepository();
+    const urlAPI = process.env.GENDER ? process.env.GENDER : '';
+    this.urlBase = `${process.env.RCP}${urlAPI}`;
+    this.urlList = `${this.urlBase}all/`;
+    this.httpClient = container.get<HTTPClient>('HTTPClient');
   }
 
-  public override async save(payload: IGender): Promise<GenderResponse | null> {
-    throw new Error('Method not implemented.' + { payload });
-  }
-
-  public override async update(
-    payload: IGender
-  ): Promise<GenderResponse | null> {
-    throw new Error('Method not implemented.' + { payload });
-    const response = await this.repository.update(payload, payload.id);
-    if (response.status != HttpStatusCode.ACCEPTED) return null;
-    const data = await response.json();
-    return data;
-  }
-
-  public override async findByParameters(
+  public async findByParameters(
     queryParameters: object
-  ): Promise<Array<GenderResponse>> {
+  ): Promise<GenderResponse[]> {
     throw new Error('Method not implemented.' + { queryParameters });
-    const response = await this.repository.findByParameters(queryParameters);
-    const data = await response.json();
-    if (response.status != HttpStatusCode.ACCEPTED) return [];
-    return data;
   }
 
   public async getAll(): Promise<Array<GenderResponse>> {
-    const response = await this.repository.getAll();
-    const data = await response.json();
-    if (response.status != HttpStatusCode.ACCEPTED) return [];
+    const response = await this.httpClient.GET(this.urlList);
+    if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT)
+      return [];
+    const data: GenderResponse[] = await response.json();
     return data;
   }
 
   public async getById(id: number): Promise<GenderResponse | null> {
     throw new Error('Method not implemented.' + { id });
-    const response = await this.repository.getById(id);
-    const data = await response.json();
-    return data;
-  }
-}
-
-export class GenderRepository extends Repository<IGender> {
-  url: string;
-  urlWithParameters: string;
-  public constructor() {
-    super();
-    const urlAPI = process.env.GENDER ? process.env.GENDER : '';
-    this.url = `${process.env.RCP}${urlAPI}`;
-    this.urlWithParameters = '';
   }
 }

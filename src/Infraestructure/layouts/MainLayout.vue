@@ -82,8 +82,12 @@ import { storeToRefs } from 'pinia';
 import { ContextUser } from 'src/Domine/StrategyUser';
 import { UserService } from 'src/Application/Services/UserService';
 import { routerInstance } from 'src/boot/globalRouter';
-import { useStoreUser } from 'src/Infraestructure/Mediators/UserMediator';
+import {
+  UserMediator,
+  useStoreUser,
+} from 'src/Infraestructure/Mediators/UserMediator';
 import MenuTree from './MenuTree.vue';
+import { IStoreUser } from 'src/Domine/IStores';
 // const linksList = [
 //   {
 //     title: 'Inicio',
@@ -147,10 +151,13 @@ export default defineComponent({
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
       async logout() {
-        await userService.repository.logout();
-        const store = useStoreUser();
-        const { isAuthenticated } = storeToRefs(store);
-        isAuthenticated.value = false;
+        await userService.logout();
+        // const store = useStoreUser();
+        // const { isAuthenticated } = storeToRefs(store);
+        // isAuthenticated.value = false;
+        const mediator = UserMediator.getInstance();
+        const userStore = <IStoreUser>mediator.getStore();
+        userStore.isAuthenticated = false;
         routerInstance.push('/');
       },
     };

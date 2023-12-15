@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia';
-import { UserService } from 'src/Application/Services/UserService';
+// import { UserService } from 'src/Application/Services/UserService';
 import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreUser } from 'src/Domine/IStores';
-import { ILogin, IUser } from 'src/Domine/ModelsDB';
+import { IUser } from 'src/Domine/ModelsDB';
 import { AuthResponse } from 'src/Domine/Responses';
-import {
-  DoctorStrategy,
-  SecretaryStrategy,
-  StrategyUser,
-} from 'src/Domine/StrategyUser';
+// import {
+//   DoctorStrategy,
+//   SecretaryStrategy,
+//   StrategyUser,
+// } from 'src/Domine/StrategyUser';
 
 export const useStoreUser = defineStore({
   id: 'storeUser',
@@ -21,11 +21,11 @@ export class UserMediator implements IControllersMediator {
   private controllers: Controller[] = [];
   public store: IStoreUser;
   private static instance: UserMediator;
-  private userService = new UserService();
-  private profilesUser: Record<string, StrategyUser> = {
-    Secretaria: new SecretaryStrategy(),
-    Doctor: new DoctorStrategy(),
-  };
+  // private userService = new UserService();
+  // private profilesUser: Record<string, StrategyUser> = {
+  //   Secretaria: new SecretaryStrategy(),
+  //   Doctor: new DoctorStrategy(),
+  // };
 
   private constructor() {
     this.store = this.createStore();

@@ -14,7 +14,7 @@
           @click="$q.dark.toggle()"
           :icon="$q.dark.isActive ? 'nights_stay' : 'wb_sunny'"
         />
-        <q-img style="width: 100%" :src="icons.index"></q-img>
+        <q-img style="width: 95%" :src="icons.index"></q-img>
         <q-card
           class="login-form"
           v-bind:style="

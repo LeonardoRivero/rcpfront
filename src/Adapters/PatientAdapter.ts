@@ -6,7 +6,10 @@ import {
 import { FactoryNotifactors } from './Creators/Factories';
 import { routerInstance } from 'src/boot/globalRouter';
 import { Validators, Messages } from 'src/Application/Utilities';
-import { PatientService } from 'src/Application/Services/PatientService';
+import {
+  FindPatientByIdentificationUseCase,
+  PatientService,
+} from 'src/Application/Services/PatientService';
 import { IPatient } from 'src/Domine/ModelsDB';
 import { PatientResponse } from 'src/Domine/Responses';
 import { PatientState } from 'src/Domine/IStates';
@@ -20,9 +23,10 @@ export class PatientController extends Controller {
   private sweetAlertModal: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
   private validator = Validators.getInstance();
-  private service = new PatientService();
-
   private static instance: PatientController;
+  private service = new PatientService();
+  private findPatientByIdentificationUseCase =
+    new FindPatientByIdentificationUseCase();
 
   private constructor(state: PatientState) {
     super();
@@ -50,7 +54,9 @@ export class PatientController extends Controller {
   public async searchByIdentificacion(
     identification: string
   ): Promise<PatientResponse | null> {
-    const response = await this.service.findByIdentification(identification);
+    const response = await this.findPatientByIdentificationUseCase.execute(
+      identification
+    );
     if (response === null) {
       this.clear();
       this.notifyQuasar.setType('warning');
@@ -58,6 +64,7 @@ export class PatientController extends Controller {
       this.state.disable = false;
       return null;
     }
+    this.setData(response);
     return response;
   }
 

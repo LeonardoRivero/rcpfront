@@ -46,13 +46,18 @@ export interface IFactoryMethodNotifications {
 export interface IFactoryService {
   createService(serviceType: ServicesType): GenericService<unknown, unknown>;
 }
-// export interface AbstractFactory<T extends { id?: number | undefined }, T2> {
-//   createController(): any;
-//   createService(): GenericService<T, T2>;
-// }
 
 export interface ICommand {
   execute(): Promise<object | null>;
+}
+
+export interface UseCase<IRequest, IResponse> {
+  GenericService:
+    | GenericService<unknown, unknown>
+    | IToRead<unknown>
+    | IToCreate<unknown, unknown>
+    | IToUpdate<unknown, unknown>;
+  execute(request?: IRequest): Promise<IResponse> | IResponse;
 }
 
 export abstract class Builder {

@@ -19,7 +19,7 @@
                   <q-input
                     square
                     clearable
-                    v-model="email"
+                    v-model="state.email"
                     type="email"
                     lazy-rules
                     :rules="[required, emailRequired, short]"
@@ -32,7 +32,7 @@
                   <q-input
                     square
                     clearable
-                    v-model="password"
+                    v-model="state.password"
                     type="password"
                     lazy-rules
                     :rules="[required, short]"
@@ -44,7 +44,7 @@
                   </q-input>
                   <q-item-section>
                     <q-item-label class="text-center text-red">
-                      {{ labelMessage }}
+                      {{ state.labelMessage }}
                     </q-item-label>
                   </q-item-section>
                 </q-form>
@@ -70,106 +70,48 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, reactive, ref } from 'vue';
 import { QForm } from 'quasar';
-import { routerInstance } from 'src/boot/globalRouter';
-import { storeToRefs } from 'pinia';
-import {
-  UserMediator,
-  useStoreUser,
-} from 'src/Infraestructure/Mediators/UserMediator';
-import { UserService } from 'src/Application/Services/UserService';
-
-import {
-  ContextUser,
-  DoctorStrategy,
-  SecretaryStrategy,
-  StrategyUser,
-} from 'src/Domine/StrategyUser';
-import { Notificator } from 'src/Domine/IPatterns';
+import { UserMediator } from 'src/Infraestructure/Mediators/UserMediator';
 import {
   required,
   emailRequired,
   short,
   noSpaces,
 } from 'src/Application/Utilities/Helpers';
-import { IKeyEmailRegistration, ILogin } from 'src/Domine/ModelsDB';
-import HttpStatusCode from 'src/Application/Utilities/HttpStatusCodes';
-import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
-import router from 'src/router';
-import { ModalType } from 'src/Domine/Types';
-import { AuthResponse } from 'src/Domine/Responses';
+import { IKeyEmailRegistration } from 'src/Domine/ModelsDB';
+import { LoginState } from 'src/Domine/IStates';
+import { LoginController } from 'src/Adapters/LoginController';
 
 export default defineComponent({
   name: 'LoginUser',
   setup() {
     const form = ref<QForm>();
-    const email = ref<string>('');
-    const password = ref<string>('');
-    const labelMessage = ref<string>('');
-    const userService = new UserService();
-    const profilesUser: Record<string, StrategyUser> = {
-      Secretaria: new SecretaryStrategy(),
-      Doctor: new DoctorStrategy(),
-    };
-    const notifySweetAlert: Notificator =
-      FactoryNotifactors.getInstance().createNotificator(
-        ModalType.DrawAttention
-      );
+    const state: LoginState = reactive({
+      email: '',
+      password: '',
+      labelMessage: '',
+    });
+    const controller = new LoginController(state);
+    controller.setMediator(UserMediator.getInstance());
 
     onMounted(async () => {
       if (window.location.pathname == '/') return;
       const path = window.location.pathname.split('/');
       const key: IKeyEmailRegistration = { key: path[2] };
-      const response = await userService.confirmEmailRegistration(key);
-      if (response.status != HttpStatusCode.OK) {
-        notifySweetAlert.setType('error');
-        await notifySweetAlert.show(
-          undefined,
-          'No fue posible verificar su email.'
-        );
-        return;
-      }
-      notifySweetAlert.setType('success');
-      notifySweetAlert.show(undefined, 'Email verificado correctamente');
+      controller.confirmEmail(key);
     });
     return {
       required,
-      // diffPassword(val: string) {
-      //   return password.value == repassword.value || 'Password no coinciden!';
-      // },
       short,
       emailRequired,
       noSpaces,
+      state,
       async login() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;
-        const payload: ILogin = {
-          email: email.value,
-          password: password.value,
-        };
-        const response = await userService.login(payload);
-        if (!response.ok) {
-          labelMessage.value =
-            'Email o contraseña incorrecta. Intentelo de nuevo o comuniquise con el administrador del sistema';
-          return;
-        }
-
-        const data: AuthResponse = await response.json();
-
-        if (data.user.first_time) {
-          routerInstance.push('/changepassword');
-          return;
-        }
+        await controller.login();
         // const namegroup = response.user.groups[0].name.toString();
-        const namegroup = 'Secretaria';
-        const strategy = profilesUser[namegroup];
-        const contextUser = ContextUser.getInstance(strategy);
-        contextUser.setUserData(data.user);
-        await contextUser.execute();
-        const { isAuthenticated } = storeToRefs(useStoreUser());
-        isAuthenticated.value = true;
-        routerInstance.push('/index');
       },
       // async register() {
       //   const isValid = await form.value?.validate();
@@ -196,9 +138,6 @@ export default defineComponent({
       //     : 'visibility';
       // },
       form,
-      email,
-      password,
-      labelMessage,
       // repassword,
       // btnLabel,
     };

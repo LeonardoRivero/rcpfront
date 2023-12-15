@@ -1,20 +1,26 @@
 import { IPatientStatus } from 'src/Domine/ModelsDB';
-import { Repository, Service } from '../Repositories/Interface';
+import { GenericService } from '../Repositories/Interface';
 import { PatientStatusResponse } from 'src/Domine/Responses';
-import { PatientStatusRepository } from '../Repositories';
 
-export class PatientStatusService extends Service<
+export class PatientStatusService extends GenericService<
   IPatientStatus,
   PatientStatusResponse
 > {
-  public repository: Repository<IPatientStatus>;
+  urlCreate: string;
+  urlList: string;
+  urlBase: string;
+  urlUpdate: string;
   private allPatientStatus: Array<PatientStatusResponse>;
   private static instance: PatientStatusService;
 
   public constructor() {
     super();
-    this.repository = new PatientStatusRepository();
     this.allPatientStatus = [];
+    const urlAPI = process.env.PATIENT_STATUS ? process.env.PATIENT_STATUS : '';
+    this.urlBase = `${process.env.RCP}${urlAPI}all/`;
+    this.urlCreate = `${process.env.RCP}${urlAPI}all/`;
+    this.urlList = `${process.env.RCP}${this.urlBase}all/`;
+    this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
   }
 
   public static getInstance(): PatientStatusService {
@@ -28,7 +34,7 @@ export class PatientStatusService extends Service<
     if (this.allPatientStatus.length !== 0) {
       return this.allPatientStatus;
     }
-    const response = await this.repository.getAll();
+    const response = await this.httpClient.GET(this.urlList);
     if (!response.ok) return [];
     this.allPatientStatus = await response.json();
     return this.allPatientStatus;

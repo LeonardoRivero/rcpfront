@@ -9,7 +9,7 @@ import { MedicalOfficeService } from './Application/Services/MedicalOfficeServic
 import { ClientAPI } from './Infraestructure/Utilities/HttpClientAPI';
 import { HTTPClient } from './Domine/IPatterns';
 import { PaymentOptionsService } from './Application/Services/PaymentOptionsService';
-import { IPatientService, IPaymentOptionsService } from './Domine/IServices';
+import { IPaymentOptionsService } from './Domine/IServices';
 
 const container = new Container();
 container.bind<HTTPClient>('HTTPClient').to(ClientAPI);
@@ -21,9 +21,9 @@ container
   .bind<MedicalOfficeService>('MedicalOfficeService')
   .to(MedicalOfficeService);
 
-container
-  .bind<IPaymentOptionsService>('PaymentOptionsService')
-  .to(PaymentOptionsService);
+// container
+//   .bind<IPaymentOptionsService>('PaymentOptionsService')
+//   .to(PaymentOptionsService);
 // container
 //   .bind<IPatientService>('PaymentOptionsService')
 //   .to(PatientService);

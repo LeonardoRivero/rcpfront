@@ -1,10 +1,10 @@
 import { IPaymentOptions } from 'src/Domine/ModelsDB';
 import { GenericService } from '../Repositories/Interface';
 import { PaymentOptionsResponse } from 'src/Domine/Responses';
-import { IPaymentOptionsService } from 'src/Domine/IServices';
 import 'reflect-metadata';
 import { injectable } from 'inversify';
-export class PaymentOptionsGenericService extends GenericService<
+import { UseCase } from 'src/Domine/IPatterns';
+export class PaymentOptionsService extends GenericService<
   IPaymentOptions,
   PaymentOptionsResponse
 > {
@@ -12,6 +12,7 @@ export class PaymentOptionsGenericService extends GenericService<
   urlList: string;
   urlBase: string;
   urlUpdate: string;
+  private allPaymentOptions: Array<PaymentOptionsResponse>;
 
   public constructor() {
     super();
@@ -22,20 +23,37 @@ export class PaymentOptionsGenericService extends GenericService<
     this.urlCreate = `${this.urlBase}all/`;
     this.urlList = `${this.urlBase}all/`;
     this.urlUpdate = this.urlBase;
-  }
-}
-
-@injectable()
-export class PaymentOptionsService implements IPaymentOptionsService {
-  GenericService: GenericService<IPaymentOptions, PaymentOptionsResponse>;
-  private allPaymentOptions: Array<PaymentOptionsResponse>;
-  constructor() {
-    this.GenericService = new PaymentOptionsGenericService();
     this.allPaymentOptions = [];
   }
 
-  async paymentIsCash(id: number): Promise<boolean> {
-    const allPaymentOptions = await this.getAll();
+  public override async getById(
+    id: number
+  ): Promise<PaymentOptionsResponse | null> {
+    const url = `${this.urlBase}${id}/`;
+    const response = await this.httpClient.GET(url);
+    return await response.json();
+  }
+
+  public async getAll(): Promise<Array<PaymentOptionsResponse>> {
+    if (this.allPaymentOptions.length !== 0) {
+      return this.allPaymentOptions;
+    }
+    const response = await this.httpClient.GET(this.urlList);
+    if (!response.ok) return [];
+    this.allPaymentOptions = await response.json();
+    return this.allPaymentOptions;
+  }
+}
+
+// @injectable()
+export class PaymentOptionIsCashUseCase implements UseCase<number, boolean> {
+  GenericService: GenericService<IPaymentOptions, PaymentOptionsResponse>;
+
+  constructor() {
+    this.GenericService = new PaymentOptionsService();
+  }
+  async execute(id: number): Promise<boolean> {
+    const allPaymentOptions = await this.GenericService.getAll();
     const result = allPaymentOptions.filter(
       (po) => po.description == 'Efectivo'
     );
@@ -44,23 +62,5 @@ export class PaymentOptionsService implements IPaymentOptionsService {
       return false;
     }
     return true;
-  }
-
-  async getById(id: number): Promise<PaymentOptionsResponse | null> {
-    const url = `${this.GenericService.urlBase}${id}/`;
-    const response = await this.GenericService.httpClient.GET(url);
-    return await response.json();
-  }
-
-  public async getAll(): Promise<Array<PaymentOptionsResponse>> {
-    if (this.allPaymentOptions.length !== 0) {
-      return this.allPaymentOptions;
-    }
-    const response = await this.GenericService.httpClient.GET(
-      this.GenericService.urlList
-    );
-    if (!response.ok) return [];
-    this.allPaymentOptions = await response.json();
-    return this.allPaymentOptions;
   }
 }

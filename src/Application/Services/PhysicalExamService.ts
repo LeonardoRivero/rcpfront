@@ -1,20 +1,28 @@
 import { IPhysicalExam } from 'src/Domine/ModelsDB';
-import { Repository, Service } from '../Repositories/Interface';
+import { GenericService } from '../Repositories/Interface';
 import { PhysicalExamResponse } from 'src/Domine/Responses';
-import { PhysicalExamParameterRepository } from '../Repositories';
 
-export class PhysicalExamService extends Service<
+export class PhysicalExamService extends GenericService<
   IPhysicalExam,
   PhysicalExamResponse
 > {
-  public repository: Repository<IPhysicalExam>;
+  urlCreate: string;
+  urlList: string;
+  urlBase: string;
+  urlUpdate: string;
   private allPaymentOptions: Array<PhysicalExamResponse>;
   private static instance: PhysicalExamService;
 
   private constructor() {
     super();
-    this.repository = PhysicalExamParameterRepository.getInstance();
     this.allPaymentOptions = [];
+    const urlAPI = process.env.PHYSICAL_EXAM_PARAMETER
+      ? process.env.PHYSICAL_EXAM_PARAMETER
+      : '';
+    this.urlBase = `${process.env.RCP}${urlAPI}all/`;
+    this.urlCreate = `${process.env.RCP}${urlAPI}all/`;
+    this.urlList = `${process.env.RCP}${this.urlBase}all/`;
+    this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
   }
 
   public static getInstance(): PhysicalExamService {
@@ -28,9 +36,11 @@ export class PhysicalExamService extends Service<
     if (this.allPaymentOptions.length !== 0) {
       return this.allPaymentOptions;
     }
-    const response = await this.repository.getAll();
-    if (!response.ok) return [];
-    this.allPaymentOptions = await response.json();
+    this.allPaymentOptions = await this.getAll();
     return this.allPaymentOptions;
+  }
+
+  public override getById(id: number): Promise<PhysicalExamResponse> {
+    throw new Error('Method not implemented.' + { id });
   }
 }

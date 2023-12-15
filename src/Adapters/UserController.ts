@@ -1,6 +1,6 @@
-import { IDoctor, ILogin, IUser } from 'src/Domine/ModelsDB';
+import { IDoctor, IUser } from 'src/Domine/ModelsDB';
 import { Messages } from 'src/Application/Utilities/Messages';
-import { Group, RegisterResponse, UserResponse } from 'src/Domine/Responses';
+import { Group, UserResponse } from 'src/Domine/Responses';
 import { ChangePasswordState, UserState } from 'src/Domine/IStates';
 import {
   Controller,

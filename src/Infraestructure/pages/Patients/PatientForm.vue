@@ -247,7 +247,6 @@ import {
   IPatient,
 } from 'src/Domine/ModelsDB';
 import { IconSVG } from 'src/Application/Utilities/Constants';
-import { IDTypesRepository } from 'src/Application/Repositories/PatientRepository';
 import 'src/css/app.sass';
 import { PatientState } from 'src/Domine/IStates';
 import {
@@ -264,6 +263,7 @@ import {
   numberRequired,
 } from 'src/Application/Utilities/Helpers';
 import { GenderService, InsuranceService } from 'src/Application/Services';
+import { IDTypesService } from 'src/Application/Services/IDTypeService';
 
 export default defineComponent({
   setup() {
@@ -284,15 +284,13 @@ export default defineComponent({
     const form = ref<QForm>();
     const controller = PatientController.getInstance(state);
     const insuranceService = new InsuranceService();
-    const idTypesRepository = new IDTypesRepository();
-    const genderRepository = new GenderService();
+    const idTypesService = new IDTypesService();
+    const genderService = new GenderService();
 
     onMounted(async () => {
-      const idTypes = await idTypesRepository.getAll();
-      const genders = await genderRepository.getAll();
+      state.allIDTypes = await idTypesService.getAll();
+      state.allGenders = await genderService.getAll();
       state.allInsurance = await insuranceService.getAll();
-      state.allIDTypes = idTypes.ok == false ? [] : await idTypes.json();
-      state.allGenders = genders == null ? [] : genders;
     });
 
     return {
@@ -330,9 +328,7 @@ export default defineComponent({
         const response = await controller.searchByIdentificacion(
           state.identificationPatient
         );
-        if (response !== null) {
-          controller.setData(response);
-        } else {
+        if (response === null) {
           form.value?.reset();
         }
       },

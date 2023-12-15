@@ -159,7 +159,7 @@ export class PhysicalExamParameterController
     // };
 
     // this.state.allPhysicalMedicalParameter =
-    //   await this.repository.findByParameters(queryParameters);
+
     // // const data = response.parsedBody as Array<IPhysicalExamResponse>;
     // // this.state.columnsr = [
     // //   {
@@ -206,7 +206,7 @@ export class PhysicalExamParameterController
       return null;
     }
 
-    const response = await this.service.save(payload);
+    const response = await this.service.create(payload);
     return response;
   }
 
@@ -220,8 +220,8 @@ export class PhysicalExamParameterController
     if (confirm == false) {
       return null;
     }
-
-    const response = await this.service.update(payload);
+    if (payload.id == null) return null;
+    const response = await this.service.update(payload, payload.id);
     return response;
   }
 }

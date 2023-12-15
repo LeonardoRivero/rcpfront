@@ -2,7 +2,7 @@ import { IPatient } from 'src/Domine/ModelsDB';
 import { GenericService } from '../Repositories/Interface';
 import { PatientResponse } from 'src/Domine/Responses';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
-import { IPatientService } from 'src/Domine/IServices';
+import { UseCase } from 'src/Domine/IPatterns';
 
 export class PatientService extends GenericService<IPatient, PatientResponse> {
   urlCreate: string;
@@ -18,46 +18,33 @@ export class PatientService extends GenericService<IPatient, PatientResponse> {
     this.urlList = `${process.env.RCP}${this.urlBase}all/`;
     this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
   }
+}
 
-  async findByIdentification(
-    identification: string
+export class FindPatientByIdentificationUseCase
+  implements UseCase<string, PatientResponse | null>
+{
+  GenericService: GenericService<unknown, unknown>;
+  constructor() {
+    this.GenericService = new PatientService();
+  }
+
+  async execute(
+    identification: string | undefined
   ): Promise<PatientResponse | null> {
     const queryParameters = { identification: identification };
-    const yyy = await this.httpClient.GET(this.urlBase, queryParameters);
-    if (!yyy.ok || yyy.status == HttpStatusCode.NO_CONTENT) {
+    const response = await this.GenericService.httpClient.GET(
+      this.GenericService.urlBase,
+      queryParameters
+    );
+    if (!response.ok || response.status == HttpStatusCode.NO_CONTENT) {
       return null;
     }
-    const fgfg: PatientResponse = await yyy.json();
-    console.log(fgfg);
+    const patient: PatientResponse = await response.json();
+    console.log({ patient });
     // const register = fgfg.pop();
     // if (register === undefined) {
     //   return null;
     // }
-    return fgfg;
+    return patient;
   }
 }
-// export class PatientService implements IPatientService {
-//   GenericService: GenericService<unknown, unknown>;
-//   constructor() {
-//     this.GenericService = new PatientGenericService();
-//   }
-//   async findByIdentification(
-//     identification: string
-//   ): Promise<PatientResponse | null> {
-//     const queryParameters = { identification: identification };
-//     const yyy = await this.GenericService.httpClient.GET(
-//       this.GenericService.urlBase,
-//       queryParameters
-//     );
-//     if (!yyy.ok || yyy.status == HttpStatusCode.NO_CONTENT) {
-//       return null;
-//     }
-//     const fgfg: PatientResponse = await yyy.json();
-//     console.log(fgfg);
-//     // const register = fgfg.pop();
-//     // if (register === undefined) {
-//     //   return null;
-//     // }
-//     return fgfg;
-//   }
-// }

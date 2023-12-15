@@ -36,7 +36,6 @@ import {
   SpecialityResponse,
   SubRegionResponse,
 } from './Responses';
-import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 
 export interface InfoPatientState {
   identificationPatient: string;
@@ -192,4 +191,10 @@ export interface MedicalOfficeState {
   disableSelectAddress: boolean;
   enableForEdit: boolean;
   visibleEdit: boolean;
+}
+
+export interface LoginState {
+  email: string;
+  password: string;
+  labelMessage: string;
 }

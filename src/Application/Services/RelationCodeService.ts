@@ -10,10 +10,9 @@ export class RelationCodeService extends GenericService<
   urlList: string;
   urlBase: string;
   urlUpdate: string;
-  // public repository: Repository<IRelationCode>;
+
   public constructor() {
     super();
-    // this.repository = RelationCodeRepository.getInstance();
     const urlAPI = process.env.RELATION_CODE ? process.env.RELATION_CODE : '';
     this.urlBase = `${process.env.RCP}${urlAPI}all/`;
     this.urlCreate = `${process.env.RCP}${urlAPI}all/`;

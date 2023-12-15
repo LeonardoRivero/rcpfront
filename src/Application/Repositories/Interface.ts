@@ -1,5 +1,4 @@
-import { IExam, IKeyEmailRegistration, ILogin } from 'src/Domine/ModelsDB';
-import { PhysicalExamResultResponse } from 'src/Domine/Responses';
+import { IKeyEmailRegistration, ILogin } from 'src/Domine/ModelsDB';
 import { DELETE, GET, POST, PUT } from 'src/Infraestructure/Utilities/Request';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
 import 'reflect-metadata';
@@ -13,22 +12,7 @@ import {
   IToUpdate,
 } from 'src/Domine/IPatterns';
 import { ClientAPI } from 'src/Infraestructure/Utilities/HttpClientAPI';
-// export interface IRepository<T1, T2> {
-//   getById(id: number): Promise<T2 | null>;
-//   getAll(): Promise<T2[] | null>;
-//   create(entity: T1): Promise<T2 | null>;
-//   update(entity: Partial<T1>): Promise<T2 | null>;
-//   delete(id: number): Promise<boolean>;
-//   findByParameters(parameters: object): Promise<T2[]>;
-// }
-// export interface IUserRepository<T1, T2> extends IRepository<T1, T2> {
-//   register(entity: T1): Promise<RegisterResponse | null>;
-//   login(data: login): Promise<Response>;
-//   logout(): Promise<Response>;
-//   refreshToken(refresh_token: string): Promise<Response>;
-//   validateToken(access_token: string): Promise<Response>;
-//   confirmEmailRegistration(key: IKeyEmailRegistration): Promise<Response>;
-// }
+import { AuthResponse } from 'src/Domine/Responses';
 
 @injectable()
 export abstract class LoginRepository {
@@ -36,18 +20,26 @@ export abstract class LoginRepository {
   public constructor() {
     this.httpClient = new ClientAPI();
   }
-  async login(data: ILogin): Promise<Response> {
-    // const url = EndPoints.buildFullUrl(process.env.LOGIN);
+  async login(data: ILogin): Promise<AuthResponse> {
     const url = `${process.env.RCP}${process.env.LOGIN}`;
     try {
       const response = await this.httpClient.POST(url, data);
-      return response;
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
+      if (!response.ok) {
+        throw new Error(
+          'Email o contraseña incorrecta. Intentelo de nuevo o comuniquise con el administrador del sistema'
+        );
+      }
+      const authResponse: AuthResponse = await response.json();
+      if (authResponse.user.first_time) {
+        routerInstance.push('/changepassword');
+      }
+      return authResponse;
+    } catch (ex) {
+      const messageError = (ex as Error).message;
+      throw Error(messageError);
     }
   }
   async logout(): Promise<Response> {
-    // const url = EndPoints.buildFullUrl(process.env.LOGOUT);
     const url = `${process.env.RCP}${process.env.LOGOUT}`;
     try {
       const response = await this.httpClient.POST(url, null);
@@ -57,7 +49,6 @@ export abstract class LoginRepository {
     }
   }
   async refreshToken(refresh_token: string): Promise<Response> {
-    // const url = EndPoints.buildFullUrl(process.env.REFRESH_TOKEN);
     const url = `${process.env.RCP}${process.env.REFRESH_TOKEN}`;
     try {
       const response = await this.httpClient.POST(url, refresh_token);
@@ -67,7 +58,6 @@ export abstract class LoginRepository {
     }
   }
   async validateToken(access_token: string): Promise<Response> {
-    // const url = EndPoints.buildFullUrl(process.env.VERIFY_TOKEN);
     const url = `${process.env.RCP}${process.env.VERIFY_TOKEN}`;
     try {
       const response = await this.httpClient.POST(url, access_token);
@@ -79,7 +69,6 @@ export abstract class LoginRepository {
   async confirmEmailRegistration(
     key: IKeyEmailRegistration
   ): Promise<Response> {
-    // const url = EndPoints.buildFullUrl(process.env.CONFIRM_EMAIL_REGISTRATION);
     const url = `${process.env.RCP}${process.env.CONFIRM_EMAIL_REGISTRATION}`;
     try {
       return await this.httpClient.POST(url, key);
@@ -89,7 +78,7 @@ export abstract class LoginRepository {
   }
 }
 
-@injectable()
+// @injectable()
 export abstract class Repository<T1> extends LoginRepository {
   abstract url: string;
   abstract urlWithParameters: string;
@@ -185,50 +174,7 @@ export abstract class Repository<T1> extends LoginRepository {
   }
 }
 
-@injectable()
-export abstract class Service<T extends { id?: number }, T2> {
-  abstract repository: Repository<T>;
-
-  public async save(payload: T): Promise<T2 | null> {
-    const response = await this.repository.create(payload);
-    if (!response.ok) return null;
-    return await response.json();
-  }
-
-  public async update(payload: T): Promise<T2 | null> {
-    if (payload.id == null) {
-      throw EvalError('id is null or undefined');
-    }
-    const response = await this.repository.update(payload, payload.id);
-    if (!response.ok || response.status === HttpStatusCodes.BAD_REQUEST)
-      return null;
-    return await response.json();
-  }
-
-  public async getAll(): Promise<Array<T2>> {
-    const response = await this.repository.getAll();
-    if (response.status == HttpStatusCodes.NOT_FOUND) {
-      routerInstance.push('/:catchAll');
-    }
-    if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT)
-      return [];
-    return await response.json();
-  }
-
-  public async findByParameters(queryParameters: object): Promise<Array<T2>> {
-    const response = await this.repository.findByParameters(queryParameters);
-    if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT)
-      return [];
-    const data: T2[] = await response.json();
-    return data;
-  }
-
-  public async getById(id: number): Promise<T2 | null> {
-    const response = await this.repository.getById(id);
-    if (!response.ok) return null;
-    return await response.json();
-  }
-}
+// @injectable()
 
 @injectable()
 export abstract class GenericService<T, T2>
@@ -285,13 +231,4 @@ export abstract class GenericService<T, T2>
     if (!response.ok) return null;
     return await response.json();
   }
-}
-
-export abstract class PhysicalExamResultAbstract extends Service<
-  IExam,
-  PhysicalExamResultResponse
-> {
-  abstract findHistoryPatient(
-    doc: string
-  ): Promise<Array<PhysicalExamResultResponse>>;
 }

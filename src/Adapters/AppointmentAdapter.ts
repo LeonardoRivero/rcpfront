@@ -14,15 +14,12 @@ import {
 } from 'src/Domine/Responses';
 import { routerInstance } from 'src/boot/globalRouter';
 import { ModalType } from 'src/Domine/Types';
-import { IPaymentOptionsService } from 'src/Domine/IServices';
-import container from 'src/inversify.config';
+import { PaymentOptionIsCashUseCase } from 'src/Application/Services/PaymentOptionsService';
 
 export class AppointmentAdapter extends Controller {
   public state: AppointmentState;
   private service = new AppointmentService();
-  private servicePaymentOptions: IPaymentOptionsService = container.get(
-    'PaymentOptionsService'
-  );
+  private paymentOptionIsCashUseCase = new PaymentOptionIsCashUseCase();
   private static instance: AppointmentAdapter;
   private notifySweetAlert: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
@@ -133,7 +130,7 @@ export class AppointmentAdapter extends Controller {
   }
 
   public async changedPaymentMethod(val: number) {
-    const isCash = await this.servicePaymentOptions.paymentIsCash(val);
+    const isCash = await this.paymentOptionIsCashUseCase.execute(val);
     this.state.disableCodeTransaction = isCash;
     this.paymentIsCash(isCash);
   }

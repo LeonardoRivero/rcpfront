@@ -1,6 +1,5 @@
 import { IHealthInsurance } from 'src/Domine/ModelsDB';
-import { GenericService, Repository, Service } from '../Repositories/Interface';
-// import { InsuranceRepository } from '../Repositories/SettingsRepository';
+import { GenericService } from '../Repositories/Interface';
 import { HealthInsuranceResponse } from 'src/Domine/Responses';
 
 export class InsuranceService extends GenericService<

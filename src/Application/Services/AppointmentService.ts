@@ -4,6 +4,7 @@ import {
   HealthInsuranceResponse,
 } from 'src/Domine/Responses';
 import { GenericService } from '../Repositories';
+import { IToCreate, IToRead, IToUpdate, UseCase } from 'src/Domine/IPatterns';
 
 export class AppointmentService extends GenericService<
   IAppointment,
@@ -21,50 +22,20 @@ export class AppointmentService extends GenericService<
     this.urlList = `${this.urlBase}all/`;
     this.urlUpdate = this.urlBase;
   }
-  // public async save(
-  //   payload: IAppointment
-  // ): Promise<AppointmentResponse | null> {
-  //   const response = await this.repository.create(payload);
-  //   if (!response.ok) return null;
-  //   return await response.json();
-  // }
+}
 
-  // public async update(
-  //   payload: IAppointment
-  // ): Promise<AppointmentResponse | null> {
-  //   if (payload.id == undefined) {
-  //     throw EvalError('id is undefined');
-  //   }
-  //   const response = await this.repository.update(payload, payload.id);
-  //   if (!response.ok) return null;
-  //   return await response.json();
-  // }
+export class CalculateAmountPaidAppointment
+  implements UseCase<IAppointment, number>
+{
+  public GenericService: GenericService<IAppointment, AppointmentResponse>;
+  private insurance: HealthInsuranceResponse;
+  constructor(insurance: HealthInsuranceResponse) {
+    this.GenericService = new AppointmentService();
+    this.insurance = insurance;
+  }
 
-  // public async findByParameters(
-  //   queryParameters: object
-  // ): Promise<Array<AppointmentResponse>> {
-  //   const response = await this.repository.findByParameters(queryParameters);
-  //   if (!response.ok) return [];
-  //   const data: AppointmentResponse[] = await response.json();
-  //   return data;
-  // }
-
-  // public async getAll(): Promise<Array<AppointmentResponse>> {
-  //   const response = await this.repository.getAll();
-  //   if (response == null) return [];
-  //   return await response.json();
-  // }
-
-  // public async getById(id: number): Promise<AppointmentResponse | null> {
-  //   const response = await this.repository.getById(id);
-  //   return await response.json();
-  // }
-
-  public calculateAmountPaid(
-    insurance: HealthInsuranceResponse,
-    appointment: IAppointment
-  ): number {
-    if (insurance.takeCopayment == true) {
+  execute(appointment: IAppointment): number {
+    if (this.insurance.takeCopayment == true) {
       return +appointment.price - +appointment.copayment;
     }
     return appointment.price;

@@ -17,10 +17,11 @@ import {
   IControllersMediator,
   Notificator,
 } from 'src/Domine/IPatterns';
-import { PhysicalExamResultAbstract } from 'src/Application/Repositories';
+import { GenericService } from 'src/Application/Repositories';
 import { PhysicalExamResultService } from 'src/Application/Services/PhysicalExamResultService';
 import { ModalType, PhysicalExamResume } from 'src/Domine/Types';
 import { FactoryNotifactors } from './Creators/Factories';
+import { IExam } from 'src/Domine/ModelsDB';
 
 export class InfoPatientPanelController extends Controller {
   private iconSVG = IconSVG;
@@ -156,7 +157,7 @@ export class MedicalProcedureController extends Controller {
 
 export class ClinicHistoryResumeController extends Controller {
   public state: object;
-  private service: PhysicalExamResultAbstract;
+  private service: GenericService<IExam, PhysicalExamResultResponse>;
   private notifyQuasar: Notificator =
     FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
   public constructor() {
