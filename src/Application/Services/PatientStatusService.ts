@@ -18,8 +18,8 @@ export class PatientStatusService extends GenericService<
     this.allPatientStatus = [];
     const urlAPI = process.env.PATIENT_STATUS ? process.env.PATIENT_STATUS : '';
     this.urlBase = `${process.env.RCP}${urlAPI}all/`;
-    this.urlCreate = `${process.env.RCP}${urlAPI}all/`;
-    this.urlList = `${process.env.RCP}${this.urlBase}all/`;
+    this.urlCreate = `${process.env.RCP}${urlAPI}create/`;
+    this.urlList = `${process.env.RCP}${urlAPI}list/`;
     this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
   }
 

@@ -95,7 +95,7 @@ export interface IPatient {
   lastName: string;
   IDType: number;
   identification: number;
-  dateBirth: string | Date;
+  dateBirth: string;
   phoneNumber: number;
   insurance: number;
   gender: number;

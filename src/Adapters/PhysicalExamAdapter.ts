@@ -1,18 +1,21 @@
 import { IColumnsDataTable } from 'src/Domine/ICommons';
 import { FactoryNotifactors } from './Creators/Factories';
-import { Observer, Subject } from 'src/patterns/Observer/Observer';
 import { PhysicalExamResponse } from 'src/Domine/Responses';
 import { IPhysicalExam } from 'src/Domine/ModelsDB';
-import { DataTableController } from './DataTableAdapter';
+import { DataTableController } from './DataTableController';
 import { Messages } from 'src/Application/Utilities';
 import { PhysicalExamService } from 'src/Application/Services/PhysicalExamService';
 import { PhysicalExamParameterState } from 'src/Domine/IStates';
 import {
   Controller,
   IControllersMediator,
+  IFactoryMethodNotifications,
   Notificator,
+  Observer,
+  Subject,
 } from 'src/Domine/IPatterns';
 import { ModalType } from 'src/Domine/Types';
+import { EditCommand, InsertCommand } from 'src/Application/Commands';
 
 export class PhysicalExamParameterController
   extends Controller
@@ -20,25 +23,29 @@ export class PhysicalExamParameterController
 {
   public state: PhysicalExamParameterState;
   private service = PhysicalExamService.getInstance();
-  private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
-  private static instance: PhysicalExamParameterController;
+  private notifySweetAlert: Notificator;
+  // private static instance: PhysicalExamParameterController;
 
-  private constructor(state: PhysicalExamParameterState) {
+  public constructor(
+    state: PhysicalExamParameterState,
+    factoryNotificator: IFactoryMethodNotifications
+  ) {
     super();
     this.state = state;
-    return;
+    this.notifySweetAlert = factoryNotificator.createNotificator(
+      ModalType.SweetAlert
+    );
   }
 
-  public static getInstance(
-    state: PhysicalExamParameterState
-  ): PhysicalExamParameterController {
-    if (!PhysicalExamParameterController.instance) {
-      PhysicalExamParameterController.instance =
-        new PhysicalExamParameterController(state);
-    }
-    return PhysicalExamParameterController.instance;
-  }
+  // public static getInstance(
+  //   state: PhysicalExamParameterState
+  // ): PhysicalExamParameterController {
+  //   if (!PhysicalExamParameterController.instance) {
+  //     PhysicalExamParameterController.instance =
+  //       new PhysicalExamParameterController(state);
+  //   }
+  //   return PhysicalExamParameterController.instance;
+  // }
 
   public receiveData(data: IControllersMediator): void {
     throw new Error('Method not implemented.');
@@ -140,16 +147,34 @@ export class PhysicalExamParameterController
     return [columns, rows];
   }
 
-  public async saveOrUpdate(
-    payload: IPhysicalExam
-  ): Promise<PhysicalExamResponse | null> {
+  public async saveOrUpdate(): Promise<PhysicalExamResponse | null> {
     let response: PhysicalExamResponse | null = null;
-    if (payload.id == undefined) {
-      response = await this.create(payload);
+    let payload: IPhysicalExam;
+    if (this.state.currentPhysicalExamParameter.id == undefined) {
+      delete this.state.currentPhysicalExamParameter['id'];
+      const insertCommand = new InsertCommand(
+        this.state.currentPhysicalExamParameter,
+        this.service
+      );
+      response = <PhysicalExamResponse | null>await insertCommand.execute();
+      insertCommand.showNotification(response);
     }
 
-    if (payload.id != undefined) {
-      response = await this.update(payload);
+    if (this.state.currentPhysicalExamParameter.id != undefined) {
+      payload = this.state.currentPhysicalExamParameter;
+      const editCommand = new EditCommand(
+        payload,
+        this.state.currentPhysicalExamParameter.id,
+        this.service
+      );
+      response = <PhysicalExamResponse | null>await editCommand.execute();
+      editCommand.showNotification(response);
+    }
+
+    if (response != null) {
+      this.state.currentPhysicalExamParameter = {
+        active: true,
+      } as IPhysicalExam;
     }
     return response;
 
@@ -160,70 +185,70 @@ export class PhysicalExamParameterController
 
     // this.state.allPhysicalMedicalParameter =
 
-    // // const data = response.parsedBody as Array<IPhysicalExamResponse>;
-    // // this.state.columnsr = [
-    // //   {
-    // //     name: 'id',
-    // //     required: true,
-    // //     align: 'center',
-    // //     label: 'Id',
-    // //     field: 'id',
-    // //     sortable: true,
-    // //   },
-    // //   {
-    // //     name: 'description',
-    // //     required: true,
-    // //     align: 'center',
-    // //     label: 'Descripcion Parametro',
-    // //     field: 'description',
-    // //     sortable: true,
-    // //   },
-    // //   {
-    // //     name: 'active',
-    // //     required: true,
-    // //     align: 'center',
-    // //     label: 'Estado',
-    // //     field: 'active',
-    // //     sortable: true,
-    // //   },
-    // // ] as Array<IColumnsDataTable>;
-    // // const r =  this.state.allPhysicalMedicalParameter.map((row) => ({
-    // //   id: row.id,
-    // //   description: row.description,
-    // //   active: row.active == true ? 'Activo' : 'Inactivo',
-    // // }));
-    // // this.state.rows = r;
+    // const data = response.parsedBody as Array<IPhysicalExamResponse>;
+    // this.state.columnsr = [
+    //   {
+    //     name: 'id',
+    //     required: true,
+    //     align: 'center',
+    //     label: 'Id',
+    //     field: 'id',
+    //     sortable: true,
+    //   },
+    //   {
+    //     name: 'description',
+    //     required: true,
+    //     align: 'center',
+    //     label: 'Descripcion Parametro',
+    //     field: 'description',
+    //     sortable: true,
+    //   },
+    //   {
+    //     name: 'active',
+    //     required: true,
+    //     align: 'center',
+    //     label: 'Estado',
+    //     field: 'active',
+    //     sortable: true,
+    //   },
+    // ] as Array<IColumnsDataTable>;
+    // const r =  this.state.allPhysicalMedicalParameter.map((row) => ({
+    //   id: row.id,
+    //   description: row.description,
+    //   active: row.active == true ? 'Activo' : 'Inactivo',
+    // }));
+    // this.state.rows = r;
   }
 
-  public async create(
-    payload: IPhysicalExam
-  ): Promise<PhysicalExamResponse | null> {
-    const confirm = await this.notifySweetAlert.show(
-      'Atención',
-      Messages.newRegister
-    );
-    if (confirm === false) {
-      return null;
-    }
+  // public async create(
+  //   payload: IPhysicalExam
+  // ): Promise<PhysicalExamResponse | null> {
+  //   const confirm = await this.notifySweetAlert.show(
+  //     'Atención',
+  //     Messages.newRegister
+  //   );
+  //   if (confirm === false) {
+  //     return null;
+  //   }
 
-    const response = await this.service.create(payload);
-    return response;
-  }
+  //   const response = await this.service.create(payload);
+  //   return response;
+  // }
 
-  public async update(
-    payload: IPhysicalExam
-  ): Promise<PhysicalExamResponse | null> {
-    const confirm = await this.notifySweetAlert.show(
-      'Atención',
-      Messages.updateRegister
-    );
-    if (confirm == false) {
-      return null;
-    }
-    if (payload.id == null) return null;
-    const response = await this.service.update(payload, payload.id);
-    return response;
-  }
+  // public async update(
+  //   payload: IPhysicalExam
+  // ): Promise<PhysicalExamResponse | null> {
+  //   const confirm = await this.notifySweetAlert.show(
+  //     'Atención',
+  //     Messages.updateRegister
+  //   );
+  //   if (confirm == false) {
+  //     return null;
+  //   }
+  //   if (payload.id == null) return null;
+  //   const response = await this.service.update(payload, payload.id);
+  //   return response;
+  // }
 }
 
 // export function physicalExamServices() {

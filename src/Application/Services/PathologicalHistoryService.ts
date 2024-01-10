@@ -18,7 +18,7 @@ export class PathologicalHistoryService extends GenericService<
       : '';
     this.urlBase = `${process.env.RCP}${urlAPI}`;
     this.urlCreate = `${process.env.RCP}${urlAPI}all/`;
-    this.urlList = `${this.urlBase}all/`;
+    this.urlList = `${this.urlBase}list/`;
     this.urlUpdate = `${this.urlBase}`;
   }
 }

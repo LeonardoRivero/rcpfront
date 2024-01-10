@@ -1,4 +1,8 @@
-import { IColumnsDataTable } from './ICommons';
+import {
+  IColumnsDataTable,
+  IPaginationDataTable,
+  ITableOptions,
+} from './ICommons';
 import {
   EventSchedule,
   IAppointment,
@@ -102,11 +106,13 @@ export interface PhysicalExamParameterState {
 
 export interface DataTableState {
   title: string;
-  columns: Array<IColumnsDataTable>;
-  data: object;
-  listOptions: Array<unknown>;
+  // columns: Array<IColumnsDataTable>;
+  // data: object;
+  // listOptions: Array<unknown>;
   option: unknown | null;
   selected: Array<unknown>;
+  pagination: IPaginationDataTable;
+  loading: boolean;
 }
 
 export interface PatientState {
@@ -147,6 +153,7 @@ export interface ScheduleState {
   identificationPatient: string;
   allowToUpdate: boolean;
   allowToDelete: boolean;
+  error: boolean;
   // card: boolean;
   // calendar: InstanceType<typeof FullCalendar>;
 }
@@ -197,4 +204,8 @@ export interface LoginState {
   email: string;
   password: string;
   labelMessage: string;
+}
+
+export interface AppointmentListState {
+  tableOptions: ITableOptions;
 }

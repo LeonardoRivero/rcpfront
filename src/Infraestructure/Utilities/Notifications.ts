@@ -33,6 +33,7 @@ export class Notification implements Notificator {
   }
 
   setType(type: NotificationType): void {
+    if (type == 'warning') this.type = 'warning';
     if (type == 'error') this.type = 'negative';
     if (type == 'success') this.type = 'positive';
     if (type == 'question') {

@@ -16,7 +16,7 @@ export class DoctorService extends GenericService<IDoctor, DoctorResponse> {
     super();
     const urlAPI = process.env.DOCTOR ? process.env.DOCTOR : '';
     this.urlBase = `${process.env.RCP}${urlAPI}`;
-    this.urlCreate = `${this.urlBase}all/`;
+    this.urlCreate = `${this.urlBase}create/`;
     this.urlList = `${this.urlBase}all/`;
     this.urlUpdate = this.urlBase;
   }

@@ -1,5 +1,5 @@
 import { GenericService } from 'src/Application/Repositories/Interface';
-import { ITableOptions } from './ICommons';
+import { IColumnsDataTable, ITableOptions } from './ICommons';
 import { NotificationType, ModalType, ServicesType } from './Types';
 
 export abstract class Controller {
@@ -8,13 +8,16 @@ export abstract class Controller {
   abstract state: object;
   protected factoryService: IFactoryService | undefined;
   protected mediator: IControllersMediator;
+  protected factoryNotifications: IFactoryMethodNotifications | undefined;
 
   constructor(
     mediator?: IControllersMediator,
+    factoryNotify?: IFactoryMethodNotifications,
     factoryService?: IFactoryService
   ) {
     this.mediator = mediator!;
     this.factoryService = factoryService;
+    this.factoryNotifications = factoryNotify;
   }
 
   public setMediator(mediator: IControllersMediator): void {
@@ -48,7 +51,13 @@ export interface IFactoryService {
 }
 
 export interface ICommand {
-  execute(): Promise<object | null>;
+  execute(): Promise<object | null | void | boolean>;
+}
+
+export interface HandlerEvent<RequestInfo> extends ICommand {
+  type: 'hasChange' | 'click' | 'submit' | 'check' | 'redirect';
+  controller: Controller;
+  data: RequestInfo;
 }
 
 export interface UseCase<IRequest, IResponse> {
@@ -69,10 +78,13 @@ export abstract class Builder {
   ): void;
   public abstract getResult(): ITableOptions;
   public setSelectionRow() {
-    this.table.tableProps.selection = 'none';
+    this.table.selectionRow = 'none';
   }
   public hasSearchField() {
     this.table.enableSearch = true;
+  }
+  public showButtonActions() {
+    this.table.showButtonActions = true;
   }
 }
 
@@ -104,4 +116,19 @@ export interface HTTPClient {
   POST(path: string, body: unknown): Promise<Response>;
   PUT(path: string, body: unknown): Promise<Response>;
   DELETE(path: string): Promise<Response>;
+}
+
+export abstract class Subject {
+  attach(observer: Observer): void {
+    return;
+  }
+  detach(observer: Observer): void {
+    return;
+  }
+  notify(data: object): void {
+    return;
+  }
+}
+export interface Observer {
+  handleNotification(subject: Subject, data: object): void;
 }

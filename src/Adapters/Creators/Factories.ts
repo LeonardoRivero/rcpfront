@@ -1,3 +1,4 @@
+import { injectable } from 'inversify';
 import { IFactoryMethodNotifications, Notificator } from 'src/Domine/IPatterns';
 import { ModalType } from 'src/Domine/Types';
 import {
@@ -6,11 +7,11 @@ import {
   SweetAlertModal,
   SweetDrawAttention,
 } from 'src/Infraestructure/Utilities/Notifications';
-
+@injectable()
 export class FactoryNotifactors implements IFactoryMethodNotifications {
-  private static instance: FactoryNotifactors;
+  // private static instance: FactoryNotifactors;
   private notifications: Record<string, Notificator>;
-  private constructor() {
+  public constructor() {
     this.notifications = {
       SweetAlert: new SweetAlertModal(),
       NotifyQuasar: new Notification(),
@@ -18,12 +19,13 @@ export class FactoryNotifactors implements IFactoryMethodNotifications {
       DrawAttention: new SweetDrawAttention(),
     };
   }
-  public static getInstance(): FactoryNotifactors {
-    if (!FactoryNotifactors.instance) {
-      FactoryNotifactors.instance = new FactoryNotifactors();
-    }
-    return FactoryNotifactors.instance;
-  }
+  // public static getInstance(): FactoryNotifactors {
+  //   if (!FactoryNotifactors.instance) {
+  //     FactoryNotifactors.instance = new FactoryNotifactors();
+  //   }
+  //   return FactoryNotifactors.instance;
+  // }
+
   createNotificator(notificationType: ModalType): Notificator {
     if (notificationType.toString() in this.notifications) {
       return this.notifications[notificationType.toString()];

@@ -10,7 +10,7 @@ export class GenderService implements IToRead<GenderResponse> {
   public constructor() {
     const urlAPI = process.env.GENDER ? process.env.GENDER : '';
     this.urlBase = `${process.env.RCP}${urlAPI}`;
-    this.urlList = `${this.urlBase}all/`;
+    this.urlList = `${this.urlBase}list/`;
     this.httpClient = container.get<HTTPClient>('HTTPClient');
   }
 

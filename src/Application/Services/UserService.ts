@@ -36,7 +36,8 @@ export class UserService extends GenericService<IUser, UserResponse> {
     if (!response.ok) {
       return null;
     }
-    const responseUser = await this.httpClient.GET(this.urlBase, {
+    const url = `${this.urlBase}filter/`;
+    const responseUser = await this.httpClient.GET(url, {
       email: user.email,
     });
     if (!responseUser.ok) {

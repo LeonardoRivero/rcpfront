@@ -3,6 +3,7 @@ import { Messages } from 'src/Application/Utilities';
 import {
   Controller,
   IControllersMediator,
+  IFactoryMethodNotifications,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { IStoreSettings } from 'src/Domine/IStores';
@@ -18,17 +19,16 @@ import {
   SpecialityResponse,
 } from 'src/Domine/Responses';
 import { routerInstance } from 'src/boot/globalRouter';
-import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
-import { PatientService } from 'src/Application/Services';
-import { ModalType } from 'src/Domine/Types';
+import {
+  FindPatientByIdentificationUseCase,
+  PatientService,
+} from 'src/Application/Services';
 
 export class PatientMediator implements IControllersMediator {
   private controllers: Controller[] = [];
   public store: IStoreSettings;
   private static instance: PatientMediator;
   private service = new PatientService();
-  private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
 
   private constructor() {
     this.store = this.createStore();
@@ -88,21 +88,25 @@ export class PatientMediator implements IControllersMediator {
   public async searchByIdentificacion(
     identification: string
   ): Promise<PatientResponse | null> {
-    const response = await this.service.findByIdentification(identification);
+    const findPatientUseCase = FindPatientByIdentificationUseCase.getInstance();
+    const response = await findPatientUseCase.execute(identification);
     return response;
   }
 
   public async patientNotFound(): Promise<void> {
-    this.notifySweetAlert.setType('error');
-    const confirm = await this.notifySweetAlert.show(
-      'Error',
-      Messages.notFoundInfoPatient
+    throw new Error(
+      'Aca hay algo raro... utilizar otro objeto que ya se definio para eso'
     );
-    if (confirm == false) {
-      return;
-    }
+    // this.notifySweetAlert.setType('error');
+    // const confirm = await this.notifySweetAlert.show(
+    //   'Error',
+    //   Messages.notFoundInfoPatient
+    // );
+    // if (confirm == false) {
+    //   return;
+    // }
 
-    routerInstance.push('/patient');
-    return;
+    // routerInstance.push('/patient');
+    // return;
   }
 }

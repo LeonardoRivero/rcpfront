@@ -92,7 +92,7 @@
               emit-value
               label="Departamento"
               @update:model-value="(val) => departmentChanged(val)"
-              @clear="(val) => clearForm(val)"
+              @clear="(val) => clearForm()"
               :rules="[isNotNull]"
             >
             </q-select>
@@ -108,7 +108,7 @@
               map-options
               emit-value
               label="Ciudad"
-              @clear="(val) => clearForm(val)"
+              @clear="(val) => clearForm()"
               @update:model-value="(val) => cityChanged(val)"
               :rules="[isNotNull]"
             >
@@ -154,6 +154,7 @@ import { EditCommand, InsertCommand } from 'src/Application/Commands';
 import { IMedicalOffice } from 'src/Domine/ModelsDB';
 import { MedicalOfficeService } from 'src/Application/Services/MedicalOfficeService';
 import { required, isNotNull } from 'src/Application/Utilities/Helpers';
+import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
 
 export default defineComponent({
   name: 'InsuranceForm',
@@ -174,16 +175,16 @@ export default defineComponent({
       enableForEdit: false,
       visibleEdit: false,
     });
-
-    const controller = MedicalOfficeController.getInstance(state);
+    const factoryNotificator =
+      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+    const controller = MedicalOfficeController.getInstance(
+      state,
+      factoryNotificator
+    );
     const form = ref<QForm>();
 
     onMounted(async () => {
-      const countryService = container.get<CountryService>('CountryService');
-      const regionService = container.get<RegionService>('RegionService');
-
-      state.countries = await countryService.getAll();
-      state.regions = await regionService.getAll();
+      controller.loadInitialData();
     });
 
     return {
@@ -197,16 +198,13 @@ export default defineComponent({
         form.value?.reset();
       },
       async departmentChanged(url: string) {
-        const id = controller.getIdByUrl(url);
-        await controller.getCitiesByDepartment(id);
-        state.medicalOfficeResponse.city = {} as SubRegionResponseModel;
-        state.medicalOfficeEntity.department = id;
+        await controller.departmentChanged(url);
       },
-      async cityChanged(id: string) {
-        state.medicalOfficeEntity.city = parseInt(id);
+      cityChanged(id: string) {
+        controller.cityChanged(id);
       },
       async addressMedicalOfficeChanged(id: number) {
-        controller.showInfoMedicalOffice(id);
+        await controller.showInfoMedicalOffice(id);
       },
       edit() {
         controller.edit();
@@ -215,8 +213,7 @@ export default defineComponent({
         await controller.getAllMedicalOffice();
       },
       async add() {
-        state.visibleEdit = false;
-        controller.clear();
+        controller.add();
         form.value?.reset();
       },
       async confirmChanges() {

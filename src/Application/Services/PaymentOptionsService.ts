@@ -21,7 +21,7 @@ export class PaymentOptionsService extends GenericService<
       : '';
     this.urlBase = `${process.env.RCP}${urlAPI}`;
     this.urlCreate = `${this.urlBase}all/`;
-    this.urlList = `${this.urlBase}all/`;
+    this.urlList = `${this.urlBase}list/`;
     this.urlUpdate = this.urlBase;
     this.allPaymentOptions = [];
   }

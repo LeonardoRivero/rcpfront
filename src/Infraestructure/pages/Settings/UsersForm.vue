@@ -40,7 +40,6 @@
               </div>
               <div class="row q-col-gutter-x-md">
                 <div class="col-12 col-md">
-                  {{ state }}
                   <q-select
                     v-model="state.user.group"
                     dense
@@ -198,6 +197,7 @@ import { EditCommand, InsertCommand } from 'src/Application/Commands';
 import { UserService } from 'src/Application/Services/UserService';
 import container from 'src/inversify.config';
 import { MedicalOfficeService } from 'src/Application/Services/MedicalOfficeService';
+import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
 
 export default defineComponent({
   name: 'UsersForm',
@@ -225,7 +225,9 @@ export default defineComponent({
     const allGroups = ref<Array<Group>>([]);
     const allSpecialities = ref<Array<SpecialityResponse>>([]);
     const allMedicalOffices = ref<Array<MedicalOfficeResponse>>([]);
-    const controller = new UserController(state);
+    const creatorNotificator =
+      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+    const controller = new UserController(state, creatorNotificator);
     const serviceMedicalOffice = container.get<MedicalOfficeService>(
       'MedicalOfficeService'
     );

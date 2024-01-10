@@ -10,7 +10,7 @@ export class IDTypesService implements IToRead<IDTypeResponse> {
   public constructor() {
     const urlAPI = process.env.ID_TYPE ? process.env.ID_TYPE : '';
     this.urlBase = `${process.env.RCP}${urlAPI}`;
-    this.urlList = `${this.urlBase}all/`;
+    this.urlList = `${this.urlBase}list/`;
     this.httpClient = container.get<HTTPClient>('HTTPClient');
   }
 

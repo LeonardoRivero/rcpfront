@@ -13,16 +13,20 @@ import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 import { Messages } from 'src/Application/Utilities/Messages';
 import { Notification } from 'src/Infraestructure/Utilities/Notifications';
 import { EventScheduleResponse } from 'src/Domine/Responses';
-import { ScheduleAdapter } from 'src/Adapters';
+import { ScheduleController } from 'src/Adapters';
 import {
   Controller,
   IControllersMediator,
+  IFactoryMethodNotifications,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { routerInstance } from 'src/boot/globalRouter';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import { IStoreSchedule } from 'src/Domine/IStores';
-import { ScheduleService } from 'src/Application/Services/ScheduleService';
+import {
+  FindScheduleByIdentificationPatientUseCase,
+  ScheduleService,
+} from 'src/Application/Services/ScheduleService';
 import { ModalType } from 'src/Domine/Types';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import container from 'src/inversify.config';
@@ -138,11 +142,15 @@ export class ScheduleMediator implements IControllersMediator {
   public store: StoreGeneric;
   private service = new ScheduleService();
   private static instance: ScheduleMediator;
-  private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
+  private factoryNotificator =
+    container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+  private notifySweetAlert: Notificator;
 
   private constructor() {
     this.store = this.createStore();
+    this.notifySweetAlert = this.factoryNotificator.createNotificator(
+      ModalType.SweetAlert
+    );
   }
 
   public static getInstance(): ScheduleMediator {
@@ -172,7 +180,7 @@ export class ScheduleMediator implements IControllersMediator {
     //   }
     // }
 
-    if (sender instanceof ScheduleAdapter) {
+    if (sender instanceof ScheduleController) {
       this.reactToScheduleAdapter(data);
     }
   }
@@ -217,7 +225,7 @@ export class ScheduleMediator implements IControllersMediator {
               'timeGridDay,dayGridMonth,listMonth,timeGridWeek,listWeek,timeGridForYear',
           },
           events: {
-            url: `${process.env.RCP}${process.env.SCHEDULE}`,
+            url: `${process.env.RCP}${process.env.SCHEDULE}filter/`,
             method: 'GET',
             failure: async () => {
               const statusButton: HTMLInputElement | null =
@@ -310,7 +318,9 @@ export class ScheduleMediator implements IControllersMediator {
   public async findByIdentificationPatient(
     identification: string
   ): Promise<EventScheduleResponse | null> {
-    const register = await this.service.findByIdentificationPatient(
+    const scheduleByIdentificationPatientUseCase =
+      new FindScheduleByIdentificationPatientUseCase();
+    const register = await scheduleByIdentificationPatientUseCase.execute(
       identification
     );
     return register;

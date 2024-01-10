@@ -42,7 +42,7 @@
                 type="number"
                 outlined
                 v-model="state.identificationPatient"
-                @keydown.enter.prevent="patientHasAppointment()"
+                @keydown.enter.prevent="patientWasScheduled()"
                 label="N° Identificacion"
                 lazy-rules
                 :rules="[numberRequired]"
@@ -54,7 +54,7 @@
                     dense
                     icon="search"
                     class="q-mr-xs"
-                    @click="patientHasAppointment()"
+                    @click="patientWasScheduled()"
                   />
                   <q-tooltip transition-show="scale" transition-hide="scale">
                     Buscar Paciente
@@ -198,7 +198,7 @@
                 map-options
                 emit-value
                 stack-label
-                :rules="[(val) => (val && val != null) || FIELD_REQUIRED]"
+                :rules="[isNotNull]"
               ></q-select>
             </div>
           </div>
@@ -260,7 +260,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive, ref } from 'vue';
+import { defineComponent, onMounted, reactive, ref, inject } from 'vue';
 import {
   EventScheduleResponse,
   HealthInsuranceResponse,
@@ -271,7 +271,6 @@ import {
   OPTIONS_MINUTES,
   CURRENTYEAR_MONTH,
   FORMAT_DATETIME,
-  FIELD_REQUIRED,
 } from 'src/Application/Utilities';
 import { AppointmentAdapter } from 'src/Adapters';
 import {
@@ -280,14 +279,12 @@ import {
   isNotNull,
   numberRequired,
 } from 'src/Application/Utilities/Helpers';
-import {
-  AppointmentMediator,
-  PatientMediator,
-  ScheduleMediator,
-} from 'src/Infraestructure/Mediators';
+import { AppointmentMediator } from 'src/Infraestructure/Mediators';
 import { QForm } from 'quasar';
 import { AppointmentState } from 'src/Domine/IStates';
 import 'src/css/app.sass';
+import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
+import container from 'src/inversify.config';
 
 export default defineComponent({
   name: 'Appointment_Form',
@@ -312,15 +309,14 @@ export default defineComponent({
         start: '',
       } as EventScheduleResponse,
       disableCodeTransaction: false,
-      disableButtonSave: true,
+      disableButtonSave: false,
     });
-    const controller = AppointmentAdapter.getInstance(state);
+    const factoryNotificator =
+      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+    const controller = new AppointmentAdapter(state, factoryNotificator);
     const mediator = AppointmentMediator.getInstance();
-    const patientMediator = PatientMediator.getInstance();
-    const scheduleMediator = ScheduleMediator.getInstance();
     const listInsurancePatient = ref<Array<HealthInsuranceResponse>>([]);
     const store = mediator.getStore();
-
     onMounted(async () => {
       await mediator.getAllPaymentOptions();
       await mediator.getAllReasonConsult();
@@ -339,14 +335,12 @@ export default defineComponent({
       HOURS_ALLOWED,
       MINUTES_ALLOWED,
       FORMAT_DATETIME,
-      FIELD_REQUIRED,
       form,
       async confirmChanges() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;
         const response = await controller.saveOrUpdate();
         if (response != null) {
-          controller.clear();
           form.value?.reset();
         }
       },
@@ -358,22 +352,8 @@ export default defineComponent({
         controller.calculateAmountPaid();
       },
 
-      async patientHasAppointment() {
-        const patient = await patientMediator.searchByIdentificacion(
-          state.identificationPatient
-        );
-        if (patient === null) {
-          await patientMediator.patientNotFound();
-          return;
-        }
-        const schedule = await scheduleMediator.findByIdentificationPatient(
-          patient.identification.toString()
-        );
-        if (schedule === null) {
-          await scheduleMediator.scheduleNotFound();
-          return;
-        }
-        controller.setInfoSchedule(schedule);
+      async patientWasScheduled() {
+        await controller.patientWasScheduled();
       },
       listInsurancePatient,
       state,

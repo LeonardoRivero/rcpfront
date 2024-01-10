@@ -198,8 +198,6 @@
                           dense
                           v-model="state.currentPatient.email"
                           type="email"
-                          lazy-rules
-                          :rules="[emailRequired]"
                         />
                       </div>
                     </div>
@@ -225,7 +223,6 @@
                   v-if="state.disable"
                   color="secondary"
                   icon-right="mdi-pencil"
-                  label="Editar"
                   @click="enableEdition"
                   class="q-ml-sm"
                 />
@@ -264,6 +261,8 @@ import {
 } from 'src/Application/Utilities/Helpers';
 import { GenderService, InsuranceService } from 'src/Application/Services';
 import { IDTypesService } from 'src/Application/Services/IDTypeService';
+import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
+import container from 'src/inversify.config';
 
 export default defineComponent({
   setup() {
@@ -282,7 +281,9 @@ export default defineComponent({
     });
 
     const form = ref<QForm>();
-    const controller = PatientController.getInstance(state);
+    const creatorNotificator =
+      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+    const controller = PatientController.getInstance(state, creatorNotificator);
     const insuranceService = new InsuranceService();
     const idTypesService = new IDTypesService();
     const genderService = new GenderService();
@@ -314,20 +315,18 @@ export default defineComponent({
       },
       idTypeChanged(val: IIDType) {
         if (val.id === undefined) return;
-        state.currentPatient.IDType = val.id;
+        controller.IdType = val.id;
       },
       insuranceChanged(val: IHealthInsurance) {
         if (val.id === undefined) return;
-        state.currentPatient.insurance = val.id;
+        controller.Insurance = val.id;
       },
       genderChanged(val: IGender) {
         if (val.id === undefined) return;
-        state.currentPatient.gender = val.id;
+        controller.Gender = val.id;
       },
       async searchPatient() {
-        const response = await controller.searchByIdentificacion(
-          state.identificationPatient
-        );
+        const response = await controller.searchByIdentificacion();
         if (response === null) {
           form.value?.reset();
         }

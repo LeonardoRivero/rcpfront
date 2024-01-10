@@ -13,19 +13,33 @@ export class PatientService extends GenericService<IPatient, PatientResponse> {
   public constructor() {
     super();
     const urlAPI = process.env.PATIENT ? process.env.PATIENT : '';
-    this.urlBase = `${process.env.RCP}${urlAPI}all/`;
-    this.urlCreate = `${process.env.RCP}${urlAPI}all/`;
-    this.urlList = `${process.env.RCP}${this.urlBase}all/`;
-    this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
+    this.urlBase = `${process.env.RCP}${urlAPI}filter/`;
+    this.urlCreate = `${process.env.RCP}${urlAPI}create/`;
+    this.urlList = '';
+    this.urlUpdate = `${process.env.RCP}${urlAPI}`;
+  }
+
+  override async getAll(): Promise<PatientResponse[]> {
+    throw new Error('Method not implemented.');
   }
 }
 
 export class FindPatientByIdentificationUseCase
   implements UseCase<string, PatientResponse | null>
 {
-  GenericService: GenericService<unknown, unknown>;
-  constructor() {
+  private static instance: FindPatientByIdentificationUseCase;
+  GenericService: GenericService<IPatient, PatientResponse>;
+
+  private constructor() {
     this.GenericService = new PatientService();
+  }
+
+  public static getInstance(): FindPatientByIdentificationUseCase {
+    if (!FindPatientByIdentificationUseCase.instance) {
+      FindPatientByIdentificationUseCase.instance =
+        new FindPatientByIdentificationUseCase();
+    }
+    return FindPatientByIdentificationUseCase.instance;
   }
 
   async execute(
@@ -40,7 +54,6 @@ export class FindPatientByIdentificationUseCase
       return null;
     }
     const patient: PatientResponse = await response.json();
-    console.log({ patient });
     // const register = fgfg.pop();
     // if (register === undefined) {
     //   return null;

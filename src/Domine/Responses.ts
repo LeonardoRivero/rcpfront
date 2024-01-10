@@ -39,7 +39,6 @@ export interface ReasonConsultResponse {
   abbreviation: string;
 }
 export interface AppointmentResponse {
-  id: number;
   price: number;
   copayment: number;
   amountPaid: number;
@@ -53,6 +52,16 @@ export interface AppointmentResponse {
   paymentMethod: PaymentOptionsResponse;
   codeTransaction: string;
   isPrivate: boolean;
+}
+
+export interface PaginationAppointmentResponse {
+  count: number;
+  total: number;
+  page_size: number;
+  current: number;
+  previous?: number;
+  next?: number;
+  results: Array<AppointmentResponse>;
 }
 export interface EventScheduleResponse {
   id: number;
@@ -143,6 +152,7 @@ export interface PhysicalExamResultResponse {
 export interface DoctorSpecialityResponse {
   codigo: string;
   user: UserBase;
+  id: number;
 }
 
 export interface UserBase {

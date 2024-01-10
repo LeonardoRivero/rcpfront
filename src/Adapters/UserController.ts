@@ -6,6 +6,7 @@ import {
   Controller,
   ICommand,
   IControllersMediator,
+  IFactoryMethodNotifications,
   Notificator,
 } from 'src/Domine/IPatterns';
 import {
@@ -24,17 +25,24 @@ export class UserController extends Controller {
   private saveCommand: ICommand | undefined;
   private updateCommand: ICommand | undefined;
   private findByParametersCommand: ICommand | undefined;
-  private notifyQuasar: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
+  private creatorNotificator: IFactoryMethodNotifications;
+  private notifyQuasar: Notificator;
 
   private profilesUser: Record<string, StrategyUser> = {
     Secretaria: new SecretaryStrategy(),
     Doctor: new DoctorStrategy(),
   };
 
-  public constructor(state: UserState) {
+  public constructor(
+    state: UserState,
+    creatorNotificator: IFactoryMethodNotifications
+  ) {
     super();
     this.state = state;
+    this.creatorNotificator = creatorNotificator;
+    this.notifyQuasar = this.creatorNotificator.createNotificator(
+      ModalType.NotifyQuasar
+    );
     return;
   }
 

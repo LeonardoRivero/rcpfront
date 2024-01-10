@@ -3,51 +3,79 @@ import { Messages } from 'src/Application/Utilities/Messages';
 import {
   Controller,
   IControllersMediator,
+  IFactoryMethodNotifications,
   Notificator,
+  UseCase,
 } from 'src/Domine/IPatterns';
-import { FactoryNotifactors } from './Creators/Factories';
 import { AppointmentState } from 'src/Domine/IStates';
-import { AppointmentService } from 'src/Application/Services';
+import {
+  AppointmentService,
+  CalculateAmountPaidAppointmentUseCase,
+  FindPatientByIdentificationUseCase,
+} from 'src/Application/Services';
 import {
   AppointmentResponse,
   EventScheduleResponse,
 } from 'src/Domine/Responses';
-import { routerInstance } from 'src/boot/globalRouter';
 import { ModalType } from 'src/Domine/Types';
 import { PaymentOptionIsCashUseCase } from 'src/Application/Services/PaymentOptionsService';
+import { NotFoundElementNotify } from './Commands';
+import { FindScheduleByIdentificationPatientUseCase } from 'src/Application/Services/ScheduleService';
+import { InsertCommand } from 'src/Application/Commands';
 
 export class AppointmentAdapter extends Controller {
   public state: AppointmentState;
   private service = new AppointmentService();
+  private calculeAmountPaidUseCase =
+    new CalculateAmountPaidAppointmentUseCase();
   private paymentOptionIsCashUseCase = new PaymentOptionIsCashUseCase();
-  private static instance: AppointmentAdapter;
-  private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
+  // private static instance: AppointmentAdapter;
+  private notificator: IFactoryMethodNotifications;
+  private notifySweetAlert: Notificator;
 
-  private constructor(store: AppointmentState) {
+  public constructor(
+    store: AppointmentState,
+    factoryNotify: IFactoryMethodNotifications
+  ) {
     super();
     this.state = store;
+    this.notificator = factoryNotify;
+    this.notifySweetAlert = this.notificator.createNotificator(
+      ModalType.SweetAlert
+    );
   }
 
   receiveData(data: IControllersMediator): void {
     throw new Error('Method not implemented.');
   }
 
-  clear(): void {
+  public async clear(): Promise<void> {
     this.state.currentAppointment = {} as IAppointment;
     // this.state.currentPatient = {} as PatientResponse;
     // this.state.currentHealthInsurance = null;
     // this.state.speciality = {} as ISpeciality;
     this.state.identificationPatient = '';
-    this.state.schedule = {} as EventScheduleResponse;
+    this.state.schedule = {
+      patient: { insurance: {} },
+      speciality: {},
+      doctor: {},
+      end: '',
+      start: '',
+    } as EventScheduleResponse;
   }
 
-  public static getInstance(state: AppointmentState): AppointmentAdapter {
-    if (!AppointmentAdapter.instance) {
-      AppointmentAdapter.instance = new AppointmentAdapter(state);
-    }
-    return AppointmentAdapter.instance;
-  }
+  // public static getInstance(
+  //   state: AppointmentState,
+  //   factoryNotify: IFactoryMethodNotifications
+  // ): AppointmentAdapter {
+  //   if (!AppointmentAdapter.instance) {
+  //     AppointmentAdapter.instance = new AppointmentAdapter(
+  //       state,
+  //       factoryNotify
+  //     );
+  //   }
+  //   return AppointmentAdapter.instance;
+  // }
 
   public paymentIsCash(isCash: boolean) {
     if (isCash) {
@@ -62,40 +90,39 @@ export class AppointmentAdapter extends Controller {
     if (this.state.currentAppointment.copayment == undefined) {
       this.state.currentAppointment.copayment = 0;
     }
-    this.state.currentAppointment.amountPaid = this.service.calculateAmountPaid(
-      this.state.schedule.patient.insurance,
-      this.state.currentAppointment
-    );
+    this.calculeAmountPaidUseCase.insurance =
+      this.state.schedule.patient.insurance;
+    this.state.currentAppointment.amountPaid =
+      this.calculeAmountPaidUseCase.execute(this.state.currentAppointment);
   }
 
-  public async searchByPatientId(
-    patientId: number
-  ): Promise<AppointmentResponse | null> {
-    if (patientId == 0) {
-      this.notifySweetAlert.setType('error');
-      this.notifySweetAlert.show(undefined, Messages.searchIncorrect);
-      return null;
-    }
+  // public async searchByPatientId(
+  //   patientId: number
+  // ): Promise<AppointmentResponse | null> {
+  //   if (patientId == 0) {
+  //     this.notifySweetAlert.setType('error');
+  //     this.notifySweetAlert.show(undefined, Messages.searchIncorrect);
+  //     return null;
+  //   }
 
-    const queryParameters = { patientId: patientId };
-    const response = await this.service.findByParameters(queryParameters);
-    const appointment = response.pop();
-    if (appointment === undefined) return null;
-    return appointment;
-  }
+  //   const queryParameters = { patientId: patientId };
+  //   const response = await this.service.findByParameters(queryParameters);
+  //   const appointment = response.pop();
+  //   if (appointment === undefined) return null;
+  //   return appointment;
+  // }
 
-  public async getById(id: number): Promise<AppointmentResponse | null> {
-    const response = await this.service.getById(id);
-    return response;
-  }
+  // public async getById(id: number): Promise<AppointmentResponse | null> {
+  //   const response = await this.service.getById(id);
+  //   return response;
+  // }
 
   public async saveOrUpdate(): Promise<AppointmentResponse | null> {
-    if (!this.state.currentAppointment) return null;
-    const confirm = await this.showModalConfirmation();
-    if (confirm == false) return null;
-    let response = null;
-    let payload: IAppointment | null;
+    // if (!this.state.currentAppointment) return null;
+    let response: AppointmentResponse | null = null;
+    let payload: IAppointment;
     if (this.state.currentAppointment.id == undefined) {
+      delete this.state.currentAppointment['id'];
       payload = {
         price: this.state.currentAppointment.price,
         copayment: this.state.currentAppointment.copayment,
@@ -106,28 +133,29 @@ export class AppointmentAdapter extends Controller {
         reasonConsult: this.state.currentAppointment.reasonConsult,
         schedule: this.state.currentAppointment.schedule,
         patient: this.state.schedule.patient.id,
-        doctor: this.state.schedule.doctor.user.id,
+        doctor: this.state.schedule.doctor.id,
         paymentMethod: this.state.currentAppointment.paymentMethod,
         codeTransaction: this.state.currentAppointment.codeTransaction,
         isPrivate: this.state.currentAppointment.isPrivate,
       };
-      response = await this.service.create(payload);
-    }
 
-    if (response === null) {
-      this.notifySweetAlert.setType('error');
-      this.notifySweetAlert.show(undefined, Messages.errorMessage);
+      const insertCommand = new InsertCommand(payload, this.service);
+      response = <AppointmentResponse | null>await insertCommand.execute();
+      insertCommand.showNotification(response);
+    }
+    if (response != null) {
+      this.clear();
     }
     return response;
   }
 
-  private async showModalConfirmation(): Promise<boolean> {
-    const confirm = await this.notifySweetAlert.show(
-      'Atención',
-      Messages.newRegister
-    );
-    return confirm;
-  }
+  // private async showModalConfirmation(): Promise<boolean> {
+  //   const confirm = await this.notifySweetAlert.show(
+  //     'Atención',
+  //     Messages.newRegister
+  //   );
+  //   return confirm;
+  // }
 
   public async changedPaymentMethod(val: number) {
     const isCash = await this.paymentOptionIsCashUseCase.execute(val);
@@ -153,24 +181,64 @@ export class AppointmentAdapter extends Controller {
   }
 
   public async appointmentNotFound(): Promise<void> {
-    this.notifySweetAlert.setType('error');
-    const confirm = await this.notifySweetAlert.show(
-      'Error',
-      Messages.appointmentNotFound
-    );
-    if (confirm == false) {
-      return;
-    }
+    // this.notifySweetAlert.setType('error');
+    // const confirm = await this.notifySweetAlert.show(
+    //   'Error',
+    //   Messages.appointmentNotFound
+    // );
+    // if (confirm == false) {
+    //   return;
+    // }
 
-    routerInstance.push('/appointment');
-    return;
+    // routerInstance.push('/appointment');
+
+    const notFound = new NotFoundElementNotify(
+      Messages.appointmentNotFound,
+      this.notificator,
+      '/appointment'
+    );
+    await notFound.execute();
   }
 
-  public setInfoSchedule(schedule: EventScheduleResponse) {
+  private setInfoSchedule(schedule: EventScheduleResponse) {
     this.state.schedule = schedule;
     this.state.currentAppointment.schedule = schedule.id;
     this.state.schedule.start = new Date(schedule.start).toLocaleString();
     this.state.schedule.end = new Date(schedule.end).toLocaleString();
     this.state.disableButtonSave = false;
+  }
+
+  public async patientWasScheduled(): Promise<void> {
+    const findPatientUseCase = FindPatientByIdentificationUseCase.getInstance();
+    const response = await findPatientUseCase.execute(
+      this.state.identificationPatient
+    );
+
+    if (response === null) {
+      const notFound = new NotFoundElementNotify(
+        Messages.notFoundInfoPatient,
+        this.notificator,
+        '/patient'
+      );
+      await notFound.execute();
+
+      return;
+    }
+    const findScheduleByIdentificationPatient =
+      new FindScheduleByIdentificationPatientUseCase();
+    const schedule = await findScheduleByIdentificationPatient.execute(
+      this.state.identificationPatient
+    );
+
+    if (schedule === null) {
+      const notFound = new NotFoundElementNotify(
+        Messages.patientNotSchedule,
+        this.notificator,
+        '/schedule'
+      );
+      await notFound.execute();
+      return;
+    }
+    this.setInfoSchedule(schedule);
   }
 }

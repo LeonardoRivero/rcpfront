@@ -1,6 +1,8 @@
 import { Messages } from 'src/Application/Utilities/Messages';
 import {
+  CountryResponse,
   MedicalOfficeResponse,
+  RegionResponse,
   RegionResponseModel,
   SubRegionResponse,
   SubRegionResponseModel,
@@ -10,28 +12,37 @@ import {
   Controller,
   ICommand,
   IControllersMediator,
+  IFactoryMethodNotifications,
   Notificator,
 } from 'src/Domine/IPatterns';
-import { FactoryNotifactors } from './Creators/Factories';
 import container from 'src/inversify.config';
 import { ModalType } from 'src/Domine/Types';
-import { SubRegionService } from 'src/Application/Services/GeographicCollectionService';
 import { EditCommand, InsertCommand } from 'src/Application/Commands';
 import { MedicalOfficeService } from 'src/Application/Services/MedicalOfficeService';
+import { GenericService } from 'src/Application/Repositories';
 
 export class MedicalOfficeController extends Controller {
   public state: MedicalOfficeState;
   private saveCommand: ICommand | undefined;
   private updateCommand: ICommand | undefined;
-  private notifyQuasar: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
+  private notifyQuasar: Notificator;
   private subRegionService =
-    container.get<SubRegionService>('SubRegionService');
+    container.get<GenericService<any, SubRegionResponse>>('SubRegionService');
   private static instance: MedicalOfficeController;
+  private countryService =
+    container.get<GenericService<any, CountryResponse>>('CountryService');
+  private regionService =
+    container.get<GenericService<any, RegionResponse>>('RegionService');
 
-  private constructor(state: MedicalOfficeState) {
+  private constructor(
+    state: MedicalOfficeState,
+    factoryNotificator: IFactoryMethodNotifications
+  ) {
     super();
     this.state = state;
+    this.notifyQuasar = factoryNotificator.createNotificator(
+      ModalType.NotifyQuasar
+    );
     return;
   }
 
@@ -40,10 +51,14 @@ export class MedicalOfficeController extends Controller {
   }
 
   public static getInstance(
-    state: MedicalOfficeState
+    state: MedicalOfficeState,
+    factoryNotificator: IFactoryMethodNotifications
   ): MedicalOfficeController {
     if (!MedicalOfficeController.instance) {
-      MedicalOfficeController.instance = new MedicalOfficeController(state);
+      MedicalOfficeController.instance = new MedicalOfficeController(
+        state,
+        factoryNotificator
+      );
     }
     return MedicalOfficeController.instance;
   }
@@ -132,7 +147,6 @@ export class MedicalOfficeController extends Controller {
     );
     if (medicalOffice == undefined) return;
     this.state.medicalOfficeResponse = medicalOffice;
-    console.log(medicalOffice);
 
     await this.getCitiesByDepartment(
       this.state.medicalOfficeResponse.department.id
@@ -145,5 +159,26 @@ export class MedicalOfficeController extends Controller {
     );
     this.state.medicalOffices = await serviceMedicalOffice.getAll();
     this.state.disableSelectAddress = false;
+  }
+
+  public add() {
+    this.state.visibleEdit = false;
+    this.clear();
+  }
+
+  public cityChanged(id: string) {
+    this.state.medicalOfficeEntity.city = parseInt(id);
+  }
+
+  public async departmentChanged(url: string) {
+    const id = this.getIdByUrl(url);
+    await this.getCitiesByDepartment(id);
+    this.state.medicalOfficeResponse.city = {} as SubRegionResponseModel;
+    this.state.medicalOfficeEntity.department = id;
+  }
+
+  public async loadInitialData() {
+    this.state.countries = await this.countryService.getAll();
+    this.state.regions = await this.regionService.getAll();
   }
 }

@@ -7,6 +7,7 @@ import HttpStatusCode from 'src/Application/Utilities/HttpStatusCodes';
 import {
   Controller,
   IControllersMediator,
+  IFactoryMethodNotifications,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { LoginState } from 'src/Domine/IStates';
@@ -18,13 +19,18 @@ import { ModalType } from 'src/Domine/Types';
 export class LoginController extends Controller {
   state: LoginState;
   private service: GenericService<IUser, UserResponse>;
-  private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.DrawAttention);
+  private notifySweetAlert: Notificator;
 
-  constructor(state: LoginState) {
+  constructor(
+    state: LoginState,
+    factoryNotificator: IFactoryMethodNotifications
+  ) {
     super();
     this.state = state;
     this.service = new UserService();
+    this.notifySweetAlert = factoryNotificator.createNotificator(
+      ModalType.DrawAttention
+    );
   }
 
   receiveData(data: IControllersMediator): void {

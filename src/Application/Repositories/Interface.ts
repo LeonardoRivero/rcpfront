@@ -79,100 +79,100 @@ export abstract class LoginRepository {
 }
 
 // @injectable()
-export abstract class Repository<T1> extends LoginRepository {
-  abstract url: string;
-  abstract urlWithParameters: string;
-  public async getById(id: number): Promise<Response> {
-    try {
-      // const urlBase = EndPoints.buildFullUrl(this.url);
-      // const fullUrl = `${this.url}${id}/`;
-      if (Number.isNaN(id)) {
-        throw new URIError('id is Nan');
-      }
-      if (this.url == undefined) {
-        throw new URIError('url is undefined');
-      }
-      const fullUrl = this.url.replace('all', id.toString());
-      return await GET(fullUrl);
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
+// export abstract class Repository<T1> extends LoginRepository {
+//   abstract url: string;
+//   abstract urlWithParameters: string;
+//   public async getById(id: number): Promise<Response> {
+//     try {
+//       // const urlBase = EndPoints.buildFullUrl(this.url);
+//       // const fullUrl = `${this.url}${id}/`;
+//       if (Number.isNaN(id)) {
+//         throw new URIError('id is Nan');
+//       }
+//       if (this.url == undefined) {
+//         throw new URIError('url is undefined');
+//       }
+//       const fullUrl = this.url.replace('all', id.toString());
+//       return await GET(fullUrl);
+//     } catch (error) {
+//       throw Error(`Error in ${Object.name} : ${error}`);
+//     }
+//   }
 
-  public async getAll(): Promise<Response> {
-    try {
-      // const urlBase = EndPoints.buildFullUrl(this.url);
-      if (this.url == undefined) {
-        throw new URIError('url is undefined');
-      }
-      return await GET(this.url);
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
+//   public async getAll(): Promise<Response> {
+//     try {
+//       // const urlBase = EndPoints.buildFullUrl(this.url);
+//       if (this.url == undefined) {
+//         throw new URIError('url is undefined');
+//       }
+//       return await GET(this.url);
+//     } catch (error) {
+//       throw Error(`Error in ${Object.name} : ${error}`);
+//     }
+//   }
 
-  public async create(entity: T1): Promise<Response> {
-    try {
-      // const urlBase = EndPoints.buildFullUrl(this.url);
-      if (this.url == undefined) {
-        throw new URIError('url is undefined');
-      }
-      return await POST(this.url, entity);
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
+//   public async create(entity: T1): Promise<Response> {
+//     try {
+//       // const urlBase = EndPoints.buildFullUrl(this.url);
+//       if (this.url == undefined) {
+//         throw new URIError('url is undefined');
+//       }
+//       return await POST(this.url, entity);
+//     } catch (error) {
+//       throw Error(`Error in ${Object.name} : ${error}`);
+//     }
+//   }
 
-  public async update(entity: Partial<T1>, id: number): Promise<Response> {
-    try {
-      if (this.url == undefined) {
-        throw new URIError('url is undefined');
-      }
-      const urlFixed = this.url.replace('all', id.toString());
-      // const url = EndPoints.urlByUpdateOrDelete(urlFixed, id);
-      return await PUT(urlFixed, entity);
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
+//   public async update(entity: Partial<T1>, id: number): Promise<Response> {
+//     try {
+//       if (this.url == undefined) {
+//         throw new URIError('url is undefined');
+//       }
+//       const urlFixed = this.url.replace('all', id.toString());
+//       // const url = EndPoints.urlByUpdateOrDelete(urlFixed, id);
+//       return await PUT(urlFixed, entity);
+//     } catch (error) {
+//       throw Error(`Error in ${Object.name} : ${error}`);
+//     }
+//   }
 
-  public async delete(id: number): Promise<boolean> {
-    try {
-      if (this.url == undefined) {
-        throw new URIError('url is undefined');
-      }
-      const urlFixed = this.url.replace('all', id.toString());
-      // const url = EndPoints.urlByUpdateOrDelete(this.url, id);
-      const response = await DELETE(urlFixed);
-      if (response.status == HttpStatusCodes.NO_CONTENT) {
-        return true;
-      }
-      return false;
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
+//   public async delete(id: number): Promise<boolean> {
+//     try {
+//       if (this.url == undefined) {
+//         throw new URIError('url is undefined');
+//       }
+//       const urlFixed = this.url.replace('all', id.toString());
+//       // const url = EndPoints.urlByUpdateOrDelete(this.url, id);
+//       const response = await DELETE(urlFixed);
+//       if (response.status == HttpStatusCodes.NO_CONTENT) {
+//         return true;
+//       }
+//       return false;
+//     } catch (error) {
+//       throw Error(`Error in ${Object.name} : ${error}`);
+//     }
+//   }
 
-  public async findByParameters(parameters: object): Promise<Response> {
-    try {
-      // const urlBase = EndPoints.buildFullUrl(this.url);
-      // const url = EndPoints.urlQueryParameter(this.url, parameters);
-      const url = this.urlQueryParameter(this.url, parameters);
-      return await GET(url);
-    } catch (error) {
-      throw Error(`Error in ${Object.name} : ${error}`);
-    }
-  }
+//   public async findByParameters(parameters: object): Promise<Response> {
+//     try {
+//       // const urlBase = EndPoints.buildFullUrl(this.url);
+//       // const url = EndPoints.urlQueryParameter(this.url, parameters);
+//       const url = this.urlQueryParameter(this.url, parameters);
+//       return await GET(url);
+//     } catch (error) {
+//       throw Error(`Error in ${Object.name} : ${error}`);
+//     }
+//   }
 
-  public urlQueryParameter(urlBase: string, parameters: object): string {
-    urlBase = urlBase.concat('?');
-    for (const [key, value] of Object.entries(parameters)) {
-      urlBase = urlBase.concat(key, '=', value, '&');
-    }
-    const fullUrl = urlBase.slice(0, -1);
-    return fullUrl;
-  }
-}
+//   public urlQueryParameter(urlBase: string, parameters: object): string {
+//     urlBase = urlBase.concat('?');
+//     for (const [key, value] of Object.entries(parameters)) {
+//       urlBase = urlBase.concat(key, '=', value, '&');
+//     }
+//     const fullUrl = urlBase.slice(0, -1);
+//     return fullUrl;
+//   }
+// }
 
 // @injectable()
 

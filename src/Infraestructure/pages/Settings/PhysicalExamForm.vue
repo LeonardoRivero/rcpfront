@@ -111,7 +111,6 @@ import DataTable from 'src/Infraestructure/components/commons/DataTable.vue';
 import { useStorePhysicalExamParameter } from 'src/Infraestructure/Mediators/SettingsPage/PhysicalExamStore';
 import { PhysicalExamParameterController } from 'src/Adapters/PhysicalExamAdapter';
 import { IPhysicalExam } from 'src/Domine/ModelsDB';
-import { BuilderTables } from 'src/Adapters/DataTableAdapter';
 import { useStoreDataTable } from '../../Mediators/Common/DatatableStore';
 import { SettingsMediator } from '../../Mediators';
 import { PhysicalExamParameterState } from 'src/Domine/IStates';
@@ -119,6 +118,9 @@ import { PhysicalExamResponse } from 'src/Domine/Responses';
 import { QForm } from 'quasar';
 import { required, isNotNull } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
+import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
+import container from 'src/inversify.config';
+import { BuilderTables } from 'src/Infraestructure/Utilities/BuildersTables';
 
 export default defineComponent({
   name: 'PhysicalExamForm',
@@ -145,7 +147,12 @@ export default defineComponent({
 
     const storeDataTable = useStoreDataTable();
     const { tableOptions } = storeToRefs(storeDataTable);
-    const controller = PhysicalExamParameterController.getInstance(state);
+    const factoryNotificator =
+      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+    const controller = new PhysicalExamParameterController(
+      state,
+      factoryNotificator
+    );
     // const dataTableController = DataTableController.getInstance(storeDataTable);
 
     onMounted(async () => {
@@ -171,13 +178,8 @@ export default defineComponent({
       async confirmChanges() {
         const isValid = await form.value?.validate();
         if (isValid == false) return;
-        const response = await controller.saveOrUpdate(
-          state.currentPhysicalExamParameter
-        );
+        const response = await controller.saveOrUpdate();
         if (response != null) {
-          state.currentPhysicalExamParameter = {
-            active: true,
-          } as IPhysicalExam;
           form.value?.reset();
         }
       },

@@ -12,9 +12,10 @@ export class InsuranceService extends GenericService<
   urlUpdate: string;
   public constructor() {
     super();
-    this.urlBase = process.env.INSURANCE ? process.env.INSURANCE : '';
-    this.urlCreate = `${process.env.RCP}${this.urlBase}all/`;
-    this.urlList = `${process.env.RCP}${this.urlBase}all`;
-    this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
+    const urlAPI = process.env.INSURANCE ? process.env.INSURANCE : '';
+    this.urlBase = `${process.env.RCP}${urlAPI}filter/`;
+    this.urlCreate = `${process.env.RCP}${urlAPI}all/`;
+    this.urlList = `${process.env.RCP}${urlAPI}list`;
+    this.urlUpdate = `${process.env.RCP}${urlAPI}`;
   }
 }

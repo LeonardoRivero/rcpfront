@@ -204,7 +204,7 @@
                 v-model="state.currentSchedule.observations"
                 dense
                 stack-label
-                :error="error"
+                :error="state.error"
                 clearable
                 autogrow
                 :label="`${
@@ -244,25 +244,21 @@ import {
   PatientResponse,
 } from 'src/Domine/Responses';
 import { EventSchedule, IAppointment } from 'src/Domine/ModelsDB';
-import { ScheduleAdapter } from 'src/Adapters';
+import { ScheduleController } from 'src/Adapters';
 import {
   CURRENTYEAR_MONTH,
   FORMAT_DATETIME,
   OPTIONS_HOURS,
   OPTIONS_MINUTES,
-  FIELD_REQUIRED,
 } from 'src/Application/Utilities/Constants';
 import 'src/css/app.sass';
 import { Messages } from 'src/Application/Utilities';
 import { ScheduleState } from 'src/Domine/IStates';
-import {
-  PatientMediator,
-  ScheduleMediator,
-} from 'src/Infraestructure/Mediators';
+import { ScheduleMediator } from 'src/Infraestructure/Mediators';
 import { required, isNotNull } from 'src/Application/Utilities/Helpers';
-import { Notificator } from 'src/Domine/IPatterns';
+import { IFactoryMethodNotifications, IToRead } from 'src/Domine/IPatterns';
 import { ModalType } from 'src/Domine/Types';
-import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
+import container from 'src/inversify.config';
 
 export default defineComponent({
   components: {},
@@ -288,25 +284,26 @@ export default defineComponent({
       identificationPatient: '',
       allowToUpdate: true,
       allowToDelete: false,
-      // calendar: {} as InstanceType<typeof FullCalendar>,
+      error: false,
     });
 
-    const controller = new ScheduleAdapter(state);
-    const patientMediator = PatientMediator.getInstance();
     const form = ref<QForm>();
-    const error = ref<boolean>(false);
-    const notifyQuasar: Notificator =
-      FactoryNotifactors.getInstance().createNotificator(
-        ModalType.NotifyQuasar
-      );
+    const factoryNotificator =
+      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+    const controller = new ScheduleController(state, factoryNotificator);
+    controller.doctorSpecialityService = container.get<
+      IToRead<DoctorSpecialityResponse>
+    >('DoctorSpecialityService');
 
     onMounted(async () => {
       // const doctors = await doctorService.getAll();
-      state.allDoctors = [];
-      state.allSpecialities = await mediator.getAllSpecialities();
+      // state.allDoctors = [];
       mediator.add(controller);
+      state.allSpecialities = await mediator.getAllSpecialities();
       if (mediator.store.scheduleId != null) {
-        controller.eventClick(mediator.store.scheduleId);
+        controller.showInfoSchedule(mediator.store.scheduleId);
+      } else {
+        controller.setDateWhenScheduleIsNew();
       }
     });
 
@@ -323,62 +320,39 @@ export default defineComponent({
       required,
       isNotNull,
       state,
-      error,
       errorMessage: Messages.requiredForDelete,
       CURRENTYEAR_MONTH,
       OPTIONS_HOURS,
       OPTIONS_MINUTES,
       FORMAT_DATETIME,
-      FIELD_REQUIRED,
       form,
       dates,
       async confirmChanges() {
         try {
+          const y = new CustomEvent('search');
           const isValid = await form.value?.validate();
           if (isValid == false) return;
-          controller.executeValidations();
           await controller.saveOrUpdate();
         } catch (error: any) {
           const messageError = (error as Error).message;
+          const notifyQuasar = factoryNotificator.createNotificator(
+            ModalType.NotifyQuasar
+          );
           notifyQuasar.setType('error');
           notifyQuasar.show(undefined, messageError);
         }
       },
 
       async searchPatient() {
-        const response = await patientMediator.searchByIdentificacion(
-          state.identificationPatient
-        );
-        if (response !== null) {
-          state.currentPatient = response;
-          return;
-        }
-        const storeSchedule = mediator.getStore();
-        storeSchedule.card = false;
-        await patientMediator.patientNotFound();
+        await controller.searchPatient();
       },
 
       async confirmDeleteSchedule() {
-        if (
-          state.currentSchedule.observations.length === 0 ||
-          state.currentSchedule.id == undefined
-        ) {
-          error.value = true;
-          return;
-        }
-
-        await controller.confirmDeleteSchedule(state.currentSchedule.id);
+        await controller.confirmDeleteSchedule();
       },
 
       async specialityChanged(val: number) {
-        if (val == null) {
-          state.currentDoctor = null;
-          form.value?.resetValidation();
-          return;
-        }
         await controller.getDoctorsBelongSpeciality(val);
-
-        // form.value?.resetValidation();
       },
     };
   },

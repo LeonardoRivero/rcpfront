@@ -1,49 +1,55 @@
-import { ICommand, IToCreate, Notificator } from 'src/Domine/IPatterns';
-import { GenericService, Service } from './Repositories/Interface';
+import {
+  ICommand,
+  IFactoryMethodNotifications,
+  IToCreate,
+  Notificator,
+} from 'src/Domine/IPatterns';
+import { GenericService } from './Repositories/Interface';
 import { IUser } from 'src/Domine/ModelsDB';
 import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import { ModalType } from 'src/Domine/Types';
 import { Messages } from './Utilities';
 import { IUserService } from 'src/Domine/ICommons';
 import { RegisterResponse } from 'src/Domine/Responses';
+import container from 'src/inversify.config';
 
-export class CreateCommand implements ICommand {
-  public payload: unknown;
-  public service: Service<any, object>;
-  private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
+// export class CreateCommand implements ICommand {
+//   public payload: unknown;
+//   public service: Service<any, object>;
+//   private notifySweetAlert: Notificator =
+//     FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
 
-  constructor(payload: unknown, service: Service<any, object>) {
-    this.payload = payload;
-    this.service = service;
-  }
+//   constructor(payload: unknown, service: Service<any, object>) {
+//     this.payload = payload;
+//     this.service = service;
+//   }
 
-  async execute(): Promise<object | null> {
-    this.notifySweetAlert.setType('question');
-    const confirm = await this.notifySweetAlert.show(
-      'Atención',
-      Messages.newRegister
-    );
-    if (confirm === false) {
-      return null;
-    }
-    const response = await this.service.save(this.payload);
-    return response;
-  }
-}
+//   async execute(): Promise<object | null> {
+//     this.notifySweetAlert.setType('question');
+//     const confirm = await this.notifySweetAlert.show(
+//       'Atención',
+//       Messages.newRegister
+//     );
+//     if (confirm === false) {
+//       return null;
+//     }
+//     const response = await this.service.save(this.payload);
+//     return response;
+//   }
+// }
 
-export class UpdateCommand implements ICommand {
-  public payload: unknown;
-  public service: Service<any, object>;
-  constructor(payload: unknown, service: Service<any, object>) {
-    this.payload = payload;
-    this.service = service;
-  }
-  async execute(): Promise<object | null> {
-    const response = await this.service.update(this.payload);
-    return response;
-  }
-}
+// export class UpdateCommand implements ICommand {
+//   public payload: unknown;
+//   public service: Service<any, object>;
+//   constructor(payload: unknown, service: Service<any, object>) {
+//     this.payload = payload;
+//     this.service = service;
+//   }
+//   async execute(): Promise<object | null> {
+//     const response = await this.service.update(this.payload);
+//     return response;
+//   }
+// }
 
 export class FindByParametersCommand implements ICommand {
   public parameters: object;
@@ -61,11 +67,14 @@ export class FindByParametersCommand implements ICommand {
 export class RegisterUserCommand implements ICommand {
   public payload: IUser;
   public service: IUserService;
+  creatorNotificator =
+    container.get<IFactoryMethodNotifications>('FactoryNotifactors');
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
+    this.creatorNotificator.createNotificator(ModalType.SweetAlert);
 
-  private notifyQuasar: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
+  private notifyQuasar: Notificator = this.creatorNotificator.createNotificator(
+    ModalType.NotifyQuasar
+  );
 
   constructor(payload: IUser, service: IUserService) {
     this.payload = payload;
@@ -96,10 +105,13 @@ export class RegisterUserCommand implements ICommand {
 export class InsertCommand implements ICommand {
   public payload: object;
   public service: GenericService<any, any>;
+  creatorNotificator =
+    container.get<IFactoryMethodNotifications>('FactoryNotifactors');
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
-  private notifyQuasar: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
+    this.creatorNotificator.createNotificator(ModalType.SweetAlert);
+  private notifyQuasar: Notificator = this.creatorNotificator.createNotificator(
+    ModalType.NotifyQuasar
+  );
 
   constructor(payload: object, service: GenericService<any, any>) {
     this.payload = payload;
@@ -133,11 +145,14 @@ export class EditCommand implements ICommand {
   public payload: object;
   public service: GenericService<any, any>;
   public id: number;
+  creatorNotificator =
+    container.get<IFactoryMethodNotifications>('FactoryNotifactors');
   private notifySweetAlert: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
+    this.creatorNotificator.createNotificator(ModalType.SweetAlert);
 
-  private notifyQuasar: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
+  private notifyQuasar: Notificator = this.creatorNotificator.createNotificator(
+    ModalType.NotifyQuasar
+  );
 
   constructor(payload: object, id: number, service: GenericService<any, any>) {
     this.payload = payload;

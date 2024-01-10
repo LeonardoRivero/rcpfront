@@ -19,7 +19,7 @@ export class ReasonConsultService extends GenericService<
     const urlAPI = process.env.REASON_CONSULT ? process.env.REASON_CONSULT : '';
     this.urlBase = `${process.env.RCP}${urlAPI}all/`;
     this.urlCreate = `${process.env.RCP}${urlAPI}all/`;
-    this.urlList = `${process.env.RCP}${this.urlBase}all/`;
+    this.urlList = `${process.env.RCP}${urlAPI}list/`;
     this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
   }
 

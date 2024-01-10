@@ -107,7 +107,7 @@ export class PreliminaryDataController extends Controller {
     const items = physicalExamParameter.map((item) => ({
       id: item.id,
       patient: appointment.patient.id,
-      appointment: appointment.id,
+      appointment: appointment.schedule,
       result: '',
       description: item.description,
     }));

@@ -20,7 +20,7 @@ export class PhysicalExamService extends GenericService<
       ? process.env.PHYSICAL_EXAM_PARAMETER
       : '';
     this.urlBase = `${process.env.RCP}${urlAPI}all/`;
-    this.urlCreate = `${process.env.RCP}${urlAPI}all/`;
+    this.urlCreate = `${process.env.RCP}${urlAPI}create/`;
     this.urlList = `${process.env.RCP}${this.urlBase}all/`;
     this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
   }

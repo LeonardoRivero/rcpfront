@@ -75,14 +75,17 @@ import { Validators } from 'src/Application/Utilities';
 import { ClinicHistoryMediator, PatientMediator } from '../../Mediators';
 import { PatientResponse } from 'src/Domine/Responses';
 import { InfoPatientState } from 'src/Domine/IStates';
-import { ScheduleService } from 'src/Application/Services/ScheduleService';
+import {
+  FindScheduleByIdentificationPatientUseCase,
+  ScheduleService,
+} from 'src/Application/Services/ScheduleService';
 import { ScheduleMediator } from '../../Mediators/ScheduleMediator';
 
 export default defineComponent({
   name: 'InfoPatientPanel',
   setup() {
     const patientMediator = PatientMediator.getInstance();
-    const scheduleService = new ScheduleService();
+    const scheduleService = new FindScheduleByIdentificationPatientUseCase();
     const scheduleMediator = ScheduleMediator.getInstance();
 
     const state: InfoPatientState = reactive({
@@ -132,7 +135,7 @@ export default defineComponent({
           options
         );
         controller.getGender(patient);
-        const schedule = await scheduleService.findByIdentificationPatient(
+        const schedule = await scheduleService.execute(
           patient.identification.toString()
         );
         let store = clinicHistoryMediator.getStore();

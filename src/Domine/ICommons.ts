@@ -1,4 +1,4 @@
-import { Observer } from 'src/patterns/Observer/Observer';
+import { Observer } from './IPatterns';
 import { IKeyEmailRegistration, IUser } from './ModelsDB';
 import { RegisterResponse } from './Responses';
 export interface IColumnsDataTable {
@@ -13,7 +13,7 @@ export interface IColumnsDataTable {
   classes?: string;
   headerStyle?: string;
   headerClasses?: string;
-  actions: string;
+  actions?: string;
 }
 export interface ITableSelect {
   optionValue: string;
@@ -24,6 +24,12 @@ export interface ITableSelect {
 }
 export type SelectionRow = 'none' | 'single' | 'multiple' | undefined;
 
+export enum TableType {
+  simple = 'simple',
+  withActions = 'withActionButtons',
+  fetchServer = 'FilterFetchServer',
+}
+
 export class TableSelect implements ITableSelect {
   optionValue = 'none';
   optionLabel = 'none';
@@ -32,15 +38,22 @@ export class TableSelect implements ITableSelect {
   style = 'min-width: 30%';
 }
 
+export interface IPaginationDataTable {
+  sortBy: string;
+  descending: boolean;
+  page: number;
+  rowsPerPage: number;
+  rowsNumber: number;
+}
 export interface ITableOptions {
   showButtonActions: boolean;
   ///Similar to QTableProps
   rows: any[] | undefined;
+  rowKey: string;
   virtualScroll?: boolean | undefined;
   color?: string | undefined;
   dense?: boolean | undefined;
   columns: Array<IColumnsDataTable> | undefined;
-  loading?: boolean | undefined;
   title: string;
   enableSearch?: boolean;
   selectionRow: SelectionRow;
@@ -48,6 +61,8 @@ export interface ITableOptions {
   select: TableSelect;
   textCite: string;
   observer: Observer | null;
+  tableType: TableType;
+  pagination?: IPaginationDataTable;
 }
 
 // export class TableOptions implements ITableOptions {

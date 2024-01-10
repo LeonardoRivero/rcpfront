@@ -1,9 +1,9 @@
 import {
   Controller,
   IControllersMediator,
+  IFactoryMethodNotifications,
   Notificator,
 } from 'src/Domine/IPatterns';
-import { FactoryNotifactors } from './Creators/Factories';
 import { routerInstance } from 'src/boot/globalRouter';
 import { Validators, Messages } from 'src/Application/Utilities';
 import {
@@ -18,24 +18,37 @@ import { EditCommand, InsertCommand } from 'src/Application/Commands';
 
 export class PatientController extends Controller {
   public state: PatientState;
-  private notifyQuasar: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
-  private sweetAlertModal: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.SweetAlert);
+  private sweetAlertModal: Notificator;
+  private notifyQuasar: Notificator;
   private validator = Validators.getInstance();
   private static instance: PatientController;
   private service = new PatientService();
   private findPatientByIdentificationUseCase =
-    new FindPatientByIdentificationUseCase();
+    FindPatientByIdentificationUseCase.getInstance();
 
-  private constructor(state: PatientState) {
+  private constructor(
+    state: PatientState,
+    factoryNotificator: IFactoryMethodNotifications
+  ) {
     super();
     this.state = state;
+    this.notifyQuasar = factoryNotificator.createNotificator(
+      ModalType.NotifyQuasar
+    );
+    this.sweetAlertModal = factoryNotificator.createNotificator(
+      ModalType.SweetAlert
+    );
   }
 
-  public static getInstance(state: PatientState): PatientController {
+  public static getInstance(
+    state: PatientState,
+    factoryNotificator: IFactoryMethodNotifications
+  ): PatientController {
     if (!PatientController.instance) {
-      PatientController.instance = new PatientController(state);
+      PatientController.instance = new PatientController(
+        state,
+        factoryNotificator
+      );
     }
     return PatientController.instance;
   }
@@ -45,17 +58,15 @@ export class PatientController extends Controller {
   }
 
   public clear(): void {
-    this.state.currentPatient = {} as IPatient;
+    this.state.currentPatient = { email: null } as IPatient;
     this.state.gender = null;
     this.state.idType = null;
     this.state.insurance = null;
   }
 
-  public async searchByIdentificacion(
-    identification: string
-  ): Promise<PatientResponse | null> {
+  public async searchByIdentificacion(): Promise<PatientResponse | null> {
     const response = await this.findPatientByIdentificationUseCase.execute(
-      identification
+      this.state.identificationPatient
     );
     if (response === null) {
       this.clear();
@@ -120,6 +131,10 @@ export class PatientController extends Controller {
       response = <PatientResponse | null>await editCommand.execute();
       editCommand.showNotification(response);
     }
+
+    if (response != null) {
+      this.clear();
+    }
     return response;
   }
 
@@ -148,5 +163,15 @@ export class PatientController extends Controller {
 
     routerInstance.push('/patient');
     return;
+  }
+
+  set IdType(value: number) {
+    this.state.currentPatient.insurance = value;
+  }
+  set Insurance(value: number) {
+    this.state.currentPatient.insurance = value;
+  }
+  set Gender(value: number) {
+    this.state.currentPatient.gender = value;
   }
 }
