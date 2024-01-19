@@ -11,11 +11,7 @@
           </q-item-section>
 
           <q-item-section side top>
-            <q-input
-              dense
-              v-model="item.result"
-              :rules="[(val) => (val && val.length > 0) || FIELD_REQUIRED]"
-            />
+            <q-input dense v-model="item.result" :rules="[required]" />
           </q-item-section>
         </q-item>
       </div>
@@ -28,11 +24,7 @@
           </q-item-section>
 
           <q-item-section side top>
-            <q-input
-              dense
-              v-model="item.result"
-              :rules="[(val) => (val && val.length > 0) || FIELD_REQUIRED]"
-            />
+            <q-input dense v-model="item.result" :rules="[required]" />
           </q-item-section>
         </q-item>
       </div>
@@ -40,21 +32,20 @@
   </q-splitter>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { reactive } from 'vue';
 import { IconSVG } from 'src/Application/Utilities';
 import { MedicalProcedureState } from 'src/Domine/IStates';
-import { defineComponent, reactive } from 'vue';
+import { required } from 'src/Application/Utilities/Helpers';
+import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
+import container from 'src/inversify.config';
 
-export default defineComponent({
-  name: 'MedicalProcedure',
-  setup() {
-    let state: MedicalProcedureState = reactive({
-      items: [],
-    });
-    return {
-      icons: IconSVG,
-      state,
-    };
-  },
+const factoryNotificator =
+  container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+let state: MedicalProcedureState = reactive({
+  items: [],
 });
+
+const icons = IconSVG;
+const splitterModel = 50;
 </script>

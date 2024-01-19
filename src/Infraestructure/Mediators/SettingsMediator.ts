@@ -6,7 +6,7 @@ import {
 } from 'src/Application/Services';
 import { IDTypesService } from 'src/Application/Services/IDTypeService';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
-import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
+import { Bloc, Controller, IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreSettings } from 'src/Domine/IStores';
 
 import {
@@ -20,8 +20,13 @@ import {
 } from 'src/Domine/Responses';
 import container from 'src/inversify.config';
 
-export class SettingsMediator implements IControllersMediator {
-  private controllers: Controller[] = [];
+export interface ActionsSettingsMediator {
+  getAllSpecialities(): Promise<Array<SpecialityResponse>>;
+}
+export class SettingsMediator
+  implements IControllersMediator, ActionsSettingsMediator
+{
+  private controllers: Bloc<any>[] = [];
   public store: IStoreSettings;
   private static instance: SettingsMediator;
   private service = new PathologicalHistoryService();
@@ -62,7 +67,7 @@ export class SettingsMediator implements IControllersMediator {
     return SettingsMediator.instance;
   }
 
-  public add(controller: Controller): void {
+  public add(controller: Bloc<any>): void {
     const isExist = this.controllers.includes(controller);
     if (isExist) {
       return;
@@ -71,7 +76,7 @@ export class SettingsMediator implements IControllersMediator {
     this.controllers.push(controller);
   }
 
-  public notify(data: IStoreSettings, sender: Controller): void {
+  public notify(data: IStoreSettings, sender: Bloc<any>): void {
     for (const controller of this.controllers) {
       if (controller !== sender) {
         controller.receiveData(this);

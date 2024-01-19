@@ -11,17 +11,19 @@ import esLocale from '@fullcalendar/core/locales/es';
 import { DateSelectArg } from '@fullcalendar/vue3';
 import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 import { Messages } from 'src/Application/Utilities/Messages';
-import { Notification } from 'src/Infraestructure/Utilities/Notifications';
-import { EventScheduleResponse } from 'src/Domine/Responses';
-import { ScheduleController } from 'src/Adapters';
+
 import {
-  Controller,
+  EventScheduleResponse,
+  PathologicalHistoryResponse,
+  SpecialityResponse,
+} from 'src/Domine/Responses';
+import {
+  Bloc,
   IControllersMediator,
   IFactoryMethodNotifications,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { routerInstance } from 'src/boot/globalRouter';
-import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
 import { IStoreSchedule } from 'src/Domine/IStores';
 import {
   FindScheduleByIdentificationPatientUseCase,
@@ -31,6 +33,8 @@ import { ModalType } from 'src/Domine/Types';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import container from 'src/inversify.config';
 import { FORMAT_DATETIME } from 'src/Application/Utilities/Constants';
+import { PathologicalHistoryService } from 'src/Application/Services';
+import { ScheduleFormBloc } from 'src/Adapters';
 
 const START_TIME = '07:00';
 const END_TIME = '23:00';
@@ -137,8 +141,13 @@ const MINUTES_APPOINTMENT = parseInt(DURATION_APPOINTMENT.split(':')[1]);
 //   }),
 // });
 
-export class ScheduleMediator implements IControllersMediator {
-  private controllers: Controller[] = [];
+export interface ActionsScheduleMediator {
+  getAllSpecialities(): Promise<Array<SpecialityResponse>>;
+}
+export class ScheduleMediator
+  implements IControllersMediator, ActionsScheduleMediator
+{
+  private controllers: Bloc<unknown>[] = [];
   public store: StoreGeneric;
   private service = new ScheduleService();
   private static instance: ScheduleMediator;
@@ -160,7 +169,7 @@ export class ScheduleMediator implements IControllersMediator {
     return ScheduleMediator.instance;
   }
 
-  public add(controller: Controller): void {
+  public add(controller: Bloc<any>): void {
     const isExist = this.controllers.includes(controller);
     if (isExist) {
       return;
@@ -173,14 +182,14 @@ export class ScheduleMediator implements IControllersMediator {
     return this.store;
   }
 
-  public notify(data: object, sender: Controller): void {
+  public notify(data: object, sender: Bloc<any>): void {
     // for (const controller of this.controllers) {
     //   if (controller !== sender) {
     //     controller.receiveData(this);
     //   }
     // }
 
-    if (sender instanceof ScheduleController) {
+    if (sender instanceof ScheduleFormBloc) {
       this.reactToScheduleAdapter(data);
     }
   }
@@ -333,5 +342,17 @@ export class ScheduleMediator implements IControllersMediator {
       this.store.allSpecialities = await specialityService.getAll();
     }
     return this.store.allSpecialities;
+  }
+
+  public async getAllPathologies(): Promise<
+    Array<PathologicalHistoryResponse>
+  > {
+    if (this.store.allPathologies.length != 0) {
+      return this.store.allPathologies;
+    }
+    const service = new PathologicalHistoryService();
+    const response = await service.getAll();
+    this.store.allPathologies = response;
+    return response;
   }
 }

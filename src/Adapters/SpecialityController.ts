@@ -3,6 +3,7 @@ import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { SpecialityResponse } from 'src/Domine/Responses';
 import { SpecialityFormState } from 'src/Domine/IStates';
 import {
+  Bloc,
   Controller,
   ICommand,
   IControllersMediator,
@@ -10,17 +11,17 @@ import {
 import container from 'src/inversify.config';
 import { IStoreSettings } from 'src/Domine/IStores';
 import { EditCommand, InsertCommand } from 'src/Application/Commands';
+import { ActionsSettingsMediator } from 'src/Infraestructure/Mediators';
 
-export class SpecialityController extends Controller {
-  public state: SpecialityFormState;
-  private service = container.get<SpecialityService>('SpecialityService');
-  private static instance: SpecialityController;
-  private saveCommand: ICommand | undefined;
-  private updateCommand: ICommand | undefined;
-
-  private constructor(state: SpecialityFormState) {
-    super();
-    this.state = state;
+export class SpecialityFormBloc extends Bloc<SpecialityFormState> {
+  public constructor(private service: SpecialityService) {
+    const state: SpecialityFormState = {
+      currentSpeciality: {} as SpecialityResponse,
+      expanded: false,
+      speciality: null,
+      allSpecialities: <Array<SpecialityResponse>>[],
+    };
+    super(state);
     return;
   }
 
@@ -28,69 +29,74 @@ export class SpecialityController extends Controller {
     return;
   }
 
-  public static getInstance(state: SpecialityFormState): SpecialityController {
-    if (!SpecialityController.instance) {
-      SpecialityController.instance = new SpecialityController(state);
-    }
-    return SpecialityController.instance;
-  }
-
   public clear(): void {
     this.state.currentSpeciality = {} as ISpeciality;
   }
 
-  public resetAllCommand() {
-    this.saveCommand = undefined;
-    this.updateCommand = undefined;
-  }
-
-  public setOnSave(command: ICommand): void {
-    this.saveCommand = command;
-  }
-
-  public setOnUpdate(command: ICommand): void {
-    this.updateCommand = command;
-  }
-
   public async notifySpeciality(val: SpecialityResponse | null): Promise<void> {
     if (val === null) return;
-    this.state.currentSpeciality = val;
+    this.changeState({ ...this.state, currentSpeciality: val });
     const store = this.mediator.getStore() as IStoreSettings;
     store.currentSpeciality = val;
-    this.mediator.notify(store, this);
+    // this.mediator.notify(store, this);
   }
 
   public add(): void {
-    this.state.expanded = true;
-    this.state.currentSpeciality = {} as ISpeciality;
+    this.changeState({
+      ...this.state,
+      expanded: true,
+      currentSpeciality: {} as ISpeciality,
+    });
   }
 
   public edit(): void {
     if (this.state.expanded === false) {
-      this.state.expanded = !this.state.expanded;
+      this.changeState({ ...this.state, expanded: !this.state.expanded });
     }
-
-    this.state.currentSpeciality = this.state.speciality as ISpeciality;
+    this.changeState({
+      ...this.state,
+      currentSpeciality: this.state.speciality as ISpeciality,
+    });
   }
 
   public async saveOrUpdate(): Promise<SpecialityResponse | null> {
+    if (!this.state.currentSpeciality) return null;
     let response: SpecialityResponse | null = null;
-    if (
-      this.isCommand(this.saveCommand) &&
-      this.saveCommand instanceof InsertCommand
-    ) {
-      response = <SpecialityResponse | null>await this.saveCommand.execute();
+    const payload: ISpeciality = this.state.currentSpeciality;
+
+    if (this.state.currentSpeciality.id == undefined) {
+      delete this.state.currentSpeciality['id'];
+      const insertCommand = new InsertCommand(payload, this.service);
+      response = <SpecialityResponse | null>await insertCommand.execute();
+      insertCommand.showNotification(response);
     }
-    if (
-      this.isCommand(this.updateCommand) &&
-      this.updateCommand instanceof EditCommand
-    ) {
-      response = <SpecialityResponse | null>await this.updateCommand.execute();
+
+    if (this.state.currentSpeciality.id != undefined) {
+      const id = this.state.currentSpeciality.id;
+      payload.id = id;
+      const updateCommand = new EditCommand(payload, id, this.service);
+      response = <SpecialityResponse | null>await updateCommand.execute();
+      updateCommand.showNotification(response);
     }
+
     if (response == null) return response;
-    this.state.currentSpeciality = response;
-    this.state.allSpecialities = await this.service.getAll();
-    this.state.expanded = false;
+    const allSpecialities = await this.service.getAll();
+    this.changeState({
+      ...this.state,
+      currentSpeciality: response,
+      allSpecialities: allSpecialities,
+      expanded: false,
+    });
+    const store = <IStoreSettings>this.mediator.getStore();
+    store.allSpecialities = allSpecialities;
     return response;
+  }
+
+  async loadInitialData() {
+    const store = <IStoreSettings>this.mediator.getStore();
+    const mediator = <ActionsSettingsMediator>(<unknown>this.mediator);
+    const listSpecialities = await mediator.getAllSpecialities();
+    store.allSpecialities = listSpecialities;
+    this.changeState({ ...this.state, allSpecialities: listSpecialities });
   }
 }

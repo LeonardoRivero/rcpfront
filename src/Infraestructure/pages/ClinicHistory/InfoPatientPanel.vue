@@ -10,7 +10,7 @@
         input-class="text-right"
         class="q-ml-md"
         v-model="state.identificationPatient"
-        @keydown.enter.prevent="searchPatient()"
+        @keydown.enter.prevent="patientHasAppointment()"
         label="N° Identificacion"
         type="number"
       >
@@ -21,7 +21,7 @@
             dense
             icon="search"
             class="q-mr-xs"
-            @click="searchPatient()"
+            @click="patientHasAppointment()"
           />
           <q-tooltip transition-show="scale" transition-hide="scale">
             Verificar Paciente
@@ -53,7 +53,9 @@
           <b>Fecha Nacimiento:</b>
           <div>
             {{ state.currentPatient?.dateBirth }}
-            <cite v-if="state.age !== 0">({{ state.age }} {{ labelAge }})</cite>
+            <cite v-if="state.age !== 0"
+              >({{ state.age }} {{ state.labelAge }})</cite
+            >
           </div>
           <q-separator />
           <b>Entidad :</b>
@@ -68,95 +70,19 @@
   </q-card>
 </template>
 
-<script lang="ts">
-import { defineComponent, reactive, ref } from 'vue';
-import { InfoPatientPanelController } from 'src/Adapters';
-import { Validators } from 'src/Application/Utilities';
-import { ClinicHistoryMediator, PatientMediator } from '../../Mediators';
-import { PatientResponse } from 'src/Domine/Responses';
-import { InfoPatientState } from 'src/Domine/IStates';
-import {
-  FindScheduleByIdentificationPatientUseCase,
-  ScheduleService,
-} from 'src/Application/Services/ScheduleService';
-import { ScheduleMediator } from '../../Mediators/ScheduleMediator';
+<script setup lang="ts">
+import { inject } from 'vue';
+import { InforPatientPanelBloc } from 'src/Adapters';
+import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
+import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
+const controller = inject<InforPatientPanelBloc>(
+  'infoPatientPanelBloc'
+) as InforPatientPanelBloc;
 
-export default defineComponent({
-  name: 'InfoPatientPanel',
-  setup() {
-    const patientMediator = PatientMediator.getInstance();
-    const scheduleService = new FindScheduleByIdentificationPatientUseCase();
-    const scheduleMediator = ScheduleMediator.getInstance();
-
-    const state: InfoPatientState = reactive({
-      identificationPatient: '',
-      age: 0,
-      currentPatient: {} as PatientResponse,
-      iconAvatar: '',
-    });
-    const labelAge = ref<string>('');
-    const controller = InfoPatientPanelController.getInstance(state);
-    const validator = Validators.getInstance();
-    const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
-    clinicHistoryMediator.add(controller);
-
-    return {
-      async searchPatient() {
-        const patient = await patientMediator.searchByIdentificacion(
-          state.identificationPatient
-        );
-        if (patient === null) {
-          controller.clear();
-          await patientMediator.patientNotFound();
-          return;
-        }
-        clinicHistoryMediator.getHistoryPatient();
-        state.currentPatient = patient;
-        state.age = validator.calculateAge(
-          state.currentPatient.dateBirth.toString()
-        );
-        labelAge.value = 'Años';
-        if (state.age == 0) {
-          state.age = validator.calculateMonths(
-            state.currentPatient.dateBirth.toString()
-          );
-          labelAge.value = 'Meses';
-        }
-        const dateBirth = new Date(
-          state.currentPatient.dateBirth.toLocaleString()
-        );
-        const options = {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-        } as const;
-        state.currentPatient.dateBirth = dateBirth.toLocaleDateString(
-          'es-Es',
-          options
-        );
-        controller.getGender(patient);
-        const schedule = await scheduleService.execute(
-          patient.identification.toString()
-        );
-        let store = clinicHistoryMediator.getStore();
-        store.currentSchedule = schedule;
-        clinicHistoryMediator.notify(store, controller);
-        if (schedule === null) {
-          await scheduleMediator.scheduleNotFound();
-          return;
-        }
-
-        // !!falta arreglar esta parte
-        // const appointment = await appointmentAdapter.getById(schedule.id);
-        // if (appointment == null) {
-        //   await appointmentAdapter.appointmentNotFound();
-        //   return;
-        // }
-        controller.sendData(state);
-      },
-      state,
-      labelAge,
-    };
-  },
-});
+const state = usePlocState(controller);
+const mediator = new ClinicHistoryMediator();
+mediator.add(controller);
+async function patientHasAppointment() {
+  await controller.patientHasAppointment();
+}
 </script>

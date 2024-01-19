@@ -1,38 +1,43 @@
 import { ListAppointmentByPaginationUseCase } from 'src/Application/Services';
-import { IColumnsDataTable, IPaginationDataTable } from 'src/Domine/ICommons';
 import {
-  Controller,
+  IColumnsDataTable,
+  IPaginationDataTable,
+  ITableOptions,
+} from 'src/Domine/ICommons';
+import {
+  Bloc,
   IControllersMediator,
-  Observer,
   Subject,
   UseCase,
 } from 'src/Domine/IPatterns';
 import { AppointmentListState } from 'src/Domine/IStates';
-import {
-  AppointmentResponse,
-  PaginationAppointmentResponse,
-} from 'src/Domine/Responses';
+import { PaginationAppointmentResponse } from 'src/Domine/Responses';
 import { DataTableController } from './DataTableController';
+import { BuilderTablesWithFetchToServer } from 'src/Infraestructure/Utilities/BuildersTables';
 
-export class AppointmentListController extends Controller implements Observer {
-  public state: object;
+export class AppointmentListBloc extends Bloc<AppointmentListState> {
   private columns: Array<IColumnsDataTable>;
   private listAppointmentUseCase: UseCase<void, PaginationAppointmentResponse>;
   public pagination: IPaginationDataTable;
   public constructor() {
-    super();
-    this.state = {};
-    this.pagination = {
-      sortBy: 'desc',
-      descending: false,
-      page: 1,
-      rowsPerPage: 3,
-      rowsNumber: 8,
+    const state: AppointmentListState = {
+      pagination: {
+        sortBy: 'date',
+        descending: false,
+        page: 1,
+        rowsPerPage: 3,
+        rowsNumber: 0,
+      },
+      loading: false,
+      filter: '',
+      tableOptions: {} as ITableOptions,
     };
 
+    super(state);
+    this.pagination = state.pagination;
     this.columns = this.buildObjectColumns();
     this.listAppointmentUseCase = new ListAppointmentByPaginationUseCase(
-      this.pagination
+      state.pagination
     );
   }
   handleNotification(subject: Subject, data: object): void {
@@ -60,8 +65,7 @@ export class AppointmentListController extends Controller implements Observer {
   }
   async getRowsData(): Promise<any> {
     const response = await this.listAppointmentUseCase.execute();
-    console.log(response);
-    this.pagination.rowsNumber = response.total;
+    this.pagination.rowsNumber = response.count;
     const rows = response.results.map((row) => ({
       patientName: `${row.patient.name} ${row.patient.lastName}`,
       identification: row.patient.identification,
@@ -70,6 +74,14 @@ export class AppointmentListController extends Controller implements Observer {
       reasonConsult: row.reasonConsult.abbreviation,
       date: new Date(row.date).toLocaleString('es-CO'),
     }));
+    this.changeState({ ...this.state, pagination: this.pagination });
+
+    const builder = new BuilderTablesWithFetchToServer(this.state.pagination);
+    builder.setData(this.columns, rows, 'Resumen Citas');
+    builder.hasSearchField();
+    builder.showButtonActions();
+    this.state.tableOptions = builder.getResult();
+    this.changeState({ ...this.state, tableOptions: this.state.tableOptions });
     return rows;
   }
   get columnsData() {
@@ -122,5 +134,32 @@ export class AppointmentListController extends Controller implements Observer {
         sortable: false,
       },
     ];
+  }
+
+  async requestServer(pagination: IPaginationDataTable): Promise<void> {
+    this.changeState({ ...this.state, loading: true });
+    const usecase = new ListAppointmentByPaginationUseCase(pagination);
+    const response = await usecase.execute();
+    this.state.tableOptions.rows = response.results.map((row) => ({
+      patientName: `${row.patient.name} ${row.patient.lastName}`,
+      identification: row.patient.identification,
+      phoneNumber: row.patient.phoneNumber,
+      authorizationNumber: row.authorizationNumber,
+      reasonConsult: row.reasonConsult.abbreviation,
+      date: new Date(row.date).toLocaleString('es-CO'),
+    }));
+
+    this.changeState({
+      ...this.state,
+      tableOptions: this.state.tableOptions,
+      loading: false,
+      pagination: {
+        descending: pagination.descending,
+        page: pagination.page,
+        rowsNumber: response.count,
+        rowsPerPage: pagination.rowsPerPage,
+        sortBy: pagination.sortBy,
+      },
+    });
   }
 }

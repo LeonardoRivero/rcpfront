@@ -2,10 +2,12 @@ import { date } from 'quasar';
 import { Messages, Validators } from 'src/Application/Utilities';
 import * as Constants from 'src/Application/Utilities/Constants';
 import { routerInstance } from 'src/boot/globalRouter';
-import { EventSchedule } from 'src/Domine/ModelsDB';
+import { EventSchedule, IAppointment } from 'src/Domine/ModelsDB';
 import {
   DoctorSpecialityResponse,
   EventScheduleResponse,
+  HealthInsuranceResponse,
+  PatientResponse,
 } from 'src/Domine/Responses';
 import {
   DeleteScheduleUseCase,
@@ -13,7 +15,7 @@ import {
   ScheduleService,
 } from 'src/Application/Services/ScheduleService';
 import {
-  Controller,
+  Bloc,
   IControllersMediator,
   IFactoryMethodNotifications,
   IToRead,
@@ -27,14 +29,15 @@ import {
   FindPatientByIdentificationUseCase,
 } from 'src/Application/Services';
 import { IStoreSchedule } from 'src/Domine/IStores';
-import { ScheduleMediator } from 'src/Infraestructure/Mediators/ScheduleMediator';
+import {
+  ActionsScheduleMediator,
+  ScheduleMediator,
+} from 'src/Infraestructure/Mediators/ScheduleMediator';
 import { DeleteElementNotify, NotFoundElementNotify } from './Commands';
 import { EditCommand } from 'src/Application/Commands';
 
 const validator = Validators.getInstance();
-export class ScheduleController extends Controller {
-  public state: ScheduleState;
-  private notificator: IFactoryMethodNotifications;
+export class ScheduleFormBloc extends Bloc<ScheduleState> {
   private notifySweetAlert: Notificator;
   private notifyQuasar: Notificator;
   private appointmentService = new AppointmentService();
@@ -42,19 +45,35 @@ export class ScheduleController extends Controller {
   private scheduleByIdentificationPatientUseCase =
     new FindScheduleByIdentificationPatientUseCase();
   private deleteScheduleUseCase = new DeleteScheduleUseCase();
-  public doctorSpecialityService: IToRead<DoctorSpecialityResponse> | undefined;
 
   public constructor(
-    state: ScheduleState,
-    factoryNotify: IFactoryMethodNotifications
+    private factoryNotify: IFactoryMethodNotifications,
+    private doctorSpecialityService: IToRead<DoctorSpecialityResponse>
   ) {
-    super();
-    this.state = state;
-    this.notificator = factoryNotify;
-    this.notifyQuasar = this.notificator.createNotificator(
-      ModalType.NotifyQuasar
-    );
-    this.notifySweetAlert = this.notificator.createNotificator(
+    const state: ScheduleState = {
+      lastConsult: {} as IAppointment,
+      isReadonly: false,
+      currentAppointment: {} as IAppointment,
+      currentPatient: {
+        insurance: {} as HealthInsuranceResponse,
+      } as PatientResponse,
+      currentSchedule: {
+        id: undefined,
+        start: '',
+        observations: '',
+      } as EventSchedule,
+      currentDoctor: null,
+      allDoctors: [] as Array<DoctorSpecialityResponse>,
+      speciality: null,
+      allSpecialities: [],
+      identificationPatient: '',
+      allowToUpdate: true,
+      allowToDelete: false,
+      error: false,
+    };
+    super(state);
+    this.notifyQuasar = factoryNotify.createNotificator(ModalType.NotifyQuasar);
+    this.notifySweetAlert = factoryNotify.createNotificator(
       ModalType.SweetAlert
     );
   }
@@ -67,8 +86,17 @@ export class ScheduleController extends Controller {
     }
   }
 
-  clear(): void {
-    throw new Error('Method not implemented.');
+  async clear(): Promise<void> {
+    this.changeState({
+      ...this.state,
+      speciality: null,
+      currentDoctor: null,
+      currentAppointment: {} as IAppointment,
+      currentPatient: {
+        insurance: {} as HealthInsuranceResponse,
+      } as PatientResponse,
+      identificationPatient: '',
+    });
   }
 
   // public static getInstance(store: ScheduleState): ScheduleAdapter {
@@ -90,7 +118,7 @@ export class ScheduleController extends Controller {
     this.showThisForm(false);
     const deleteCommand = new DeleteElementNotify(
       Messages.deleteRegister,
-      this.notificator
+      this.factoryNotify
     );
     const confirm = await deleteCommand.execute();
     if (confirm == false) {
@@ -124,17 +152,18 @@ export class ScheduleController extends Controller {
   }
 
   public async searchPatient(): Promise<void> {
-    const useCase = FindPatientByIdentificationUseCase.getInstance();
+    const useCase = new FindPatientByIdentificationUseCase();
     const response = await useCase.execute(this.state.identificationPatient);
     if (response !== null) {
-      this.state.currentPatient = response;
+      console.log(response);
+      this.changeState({ ...this.state, currentPatient: response });
       return;
     }
     const storeSchedule = <IStoreSchedule>this.mediator.getStore();
     storeSchedule.card = false;
     const notFoundPatient = new NotFoundElementNotify(
       Messages.notFoundInfoPatient,
-      this.notificator,
+      this.factoryNotify,
       '/patient'
     );
     await notFoundPatient.execute();
@@ -143,76 +172,86 @@ export class ScheduleController extends Controller {
   public async saveOrUpdate(): Promise<void> {
     if (!this.state.currentDoctor?.user.id || this.state.speciality === null)
       return;
-    this.executeValidations();
-    let response: EventScheduleResponse | null = null;
-    const endAppointment = date.addToDate(this.state.currentSchedule.start, {
-      minutes: Constants.MINUTES_APPOINTMENT,
-    });
 
-    this.state.currentSchedule.end = date.formatDate(
-      endAppointment,
-      Constants.FORMAT_DATETIME
-    );
+    try {
+      this.executeValidations();
+      let response: EventScheduleResponse | null = null;
+      const endAppointment = date.addToDate(this.state.currentSchedule.start, {
+        minutes: Constants.MINUTES_APPOINTMENT,
+      });
 
-    const name = this.state.currentPatient.name;
-    const lastName = this.state.currentPatient.lastName;
-    const payload: EventSchedule = {
-      title: `${name} ${lastName}`,
-      start: this.state.currentSchedule.start,
-      end: this.state.currentSchedule.end,
-      patient: this.state.currentPatient.id,
-      speciality: this.state.speciality,
-      doctor: this.state.currentDoctor.id,
-      observations: this.state.currentSchedule.observations,
-    };
-
-    if (this.state.currentSchedule.id == undefined) {
-      delete payload['id'];
-      response = await this.service.create(payload);
-      if (response === null) {
-        this.notifyQuasar.setType('error');
-        this.notifyQuasar.show(undefined, Messages.scheduleExisting);
-        return;
-      }
-    }
-
-    if (this.state.currentSchedule.id != undefined) {
-      // payload = {
-      //   id: this.state.currentSchedule.id,
-      //   title: `${name} ${lastName}`,
-      //   start: this.state.currentSchedule.start,
-      //   end: this.state.currentSchedule.end,
-      //   patient: this.state.currentPatient.id,
-      //   speciality: this.state.speciality,
-      //   doctor: this.state.currentDoctor.user.id,
-      //   observations: this.state.currentSchedule.observations,
-      // };
-      // response = await this.update(payload);
-      const editCommand = new EditCommand(
-        payload,
-        this.state.currentSchedule.id,
-        this.service
+      this.state.currentSchedule.end = date.formatDate(
+        endAppointment,
+        Constants.FORMAT_DATETIME
       );
-      response = <EventScheduleResponse | null>await editCommand.execute();
-      editCommand.showNotification(response);
-    }
 
-    if (response !== null) {
-      this.showThisForm(false);
-      this.notifyQuasar.setType('success');
-      this.notifyQuasar.show(undefined, Messages.successMessage);
-      // notification.setMessage(Messages.scheduleExisting);
-      // notification.showError();
-      // this.notifyQuasar.setType('error');
-      // this.notifyQuasar.show(undefined, Messages.errorMessage);
-      // return;
-    }
+      const name = this.state.currentPatient.name;
+      const lastName = this.state.currentPatient.lastName;
+      const payload: EventSchedule = {
+        title: `${name} ${lastName}`,
+        start: this.state.currentSchedule.start,
+        end: this.state.currentSchedule.end,
+        patient: this.state.currentPatient.id,
+        speciality: this.state.speciality,
+        doctor: this.state.currentDoctor.id,
+        observations: this.state.currentSchedule.observations,
+      };
 
-    // this.notifyQuasar.setType('success');
-    // this.notifyQuasar.show(undefined, Messages.successMessage);
-    // const apiCalendar = this.state.calendar.getApi();
-    // apiCalendar.refetchEvents();
-    this.mediator.notify({}, this);
+      if (this.state.currentSchedule.id == undefined) {
+        delete payload['id'];
+        response = await this.service.create(payload);
+        if (response === null) {
+          this.notifyQuasar.setType('error');
+          this.notifyQuasar.show(undefined, Messages.scheduleExisting);
+          return;
+        }
+      }
+
+      if (this.state.currentSchedule.id != undefined) {
+        // payload = {
+        //   id: this.state.currentSchedule.id,
+        //   title: `${name} ${lastName}`,
+        //   start: this.state.currentSchedule.start,
+        //   end: this.state.currentSchedule.end,
+        //   patient: this.state.currentPatient.id,
+        //   speciality: this.state.speciality,
+        //   doctor: this.state.currentDoctor.user.id,
+        //   observations: this.state.currentSchedule.observations,
+        // };
+        // response = await this.update(payload);
+        const editCommand = new EditCommand(
+          payload,
+          this.state.currentSchedule.id,
+          this.service
+        );
+        response = <EventScheduleResponse | null>await editCommand.execute();
+        editCommand.showNotification(response);
+      }
+
+      if (response !== null) {
+        this.showThisForm(false);
+        this.notifyQuasar.setType('success');
+        this.notifyQuasar.show(undefined, Messages.successMessage);
+        // notification.setMessage(Messages.scheduleExisting);
+        // notification.showError();
+        // this.notifyQuasar.setType('error');
+        // this.notifyQuasar.show(undefined, Messages.errorMessage);
+        // return;
+      }
+
+      // this.notifyQuasar.setType('success');
+      // this.notifyQuasar.show(undefined, Messages.successMessage);
+      // const apiCalendar = this.state.calendar.getApi();
+      // apiCalendar.refetchEvents();
+      this.mediator.notify({}, this);
+    } catch (error: any) {
+      const messageError = (error as Error).message;
+      const notifyQuasar = this.factoryNotify.createNotificator(
+        ModalType.NotifyQuasar
+      );
+      notifyQuasar.setType('error');
+      notifyQuasar.show(undefined, messageError);
+    }
   }
 
   // private async save(
@@ -267,22 +306,35 @@ export class ScheduleController extends Controller {
       Constants.FORMAT_DATETIME
     );
     this.state.currentSchedule.observations = schedule.observations;
+    this.changeState({
+      ...this.state,
+      currentSchedule: this.state.currentSchedule,
+      currentPatient: this.state.currentPatient,
+      identificationPatient: this.state.identificationPatient,
+    });
+
     if (schedule.speciality == null || schedule.id == undefined) return;
     this.state.speciality = schedule.speciality.id;
     this.state.currentDoctor = schedule.doctor;
     const dateIsValid = validator.dateAndHour(schedule.start);
     this.state.allowToUpdate = true;
     if (dateIsValid == false) {
-      this.state.allowToUpdate = false;
-      this.state.allowToDelete = false;
+      this.changeState({
+        ...this.state,
+        allowToUpdate: false,
+        allowToDelete: false,
+      });
       // this.showThisForm(true);
       return;
     }
     const response = await this.appointmentService.getById(schedule.id);
     // this.state.allowToDelete = false;
     if (response === null) {
-      this.state.allowToDelete = true;
-      this.state.isReadonly = true;
+      this.changeState({
+        ...this.state,
+        allowToDelete: true,
+        isReadonly: true,
+      });
       // this.showThisForm(true);
       return;
     }
@@ -302,8 +354,11 @@ export class ScheduleController extends Controller {
     const response = await this.doctorSpecialityService.findByParameters({
       speciality: specialityId,
     });
-    this.state.currentDoctor = null;
-    this.state.allDoctors = response;
+    this.changeState({
+      ...this.state,
+      allDoctors: response,
+      currentDoctor: null,
+    });
   }
 
   public showThisForm(visibility: boolean) {
@@ -322,5 +377,28 @@ export class ScheduleController extends Controller {
   public setDateWhenScheduleIsNew() {
     const store = <IStoreSchedule>this.mediator.getStore();
     this.state.currentSchedule.start = store.dateSchedule;
+    this.changeState({
+      ...this.state,
+      currentSchedule: this.state.currentSchedule,
+      allowToUpdate: true,
+    });
+  }
+
+  async loadInitialData(): Promise<void> {
+    const actionsScheduleMediator = <ActionsScheduleMediator>(
+      (<unknown>this.mediator)
+    );
+    const response = await actionsScheduleMediator.getAllSpecialities();
+    this.changeState({
+      ...this.state,
+      allSpecialities: response,
+      allowToUpdate: false,
+    });
+    const store = <IStoreSchedule>this.mediator.getStore();
+    if (store.scheduleId != null) {
+      this.showInfoSchedule(store.scheduleId);
+    } else {
+      this.setDateWhenScheduleIsNew();
+    }
   }
 }

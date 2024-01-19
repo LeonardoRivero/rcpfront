@@ -1,23 +1,64 @@
 import { GenericService } from 'src/Application/Repositories/Interface';
 import { IColumnsDataTable, ITableOptions } from './ICommons';
 import { NotificationType, ModalType, ServicesType } from './Types';
+import { injectable } from 'inversify';
 
+type Subscription<S> = (state: S) => void;
+
+@injectable()
+export abstract class Bloc<S> {
+  abstract receiveData(data: IControllersMediator): void;
+  abstract clear(): void;
+  protected mediator: IControllersMediator;
+  private internalState: S;
+  private listeners: Subscription<S>[] = [];
+
+  constructor(initalState: S, mediator?: IControllersMediator) {
+    this.internalState = initalState;
+    this.mediator = mediator!;
+  }
+
+  public get state(): S {
+    return this.internalState;
+  }
+
+  public changeState(state: S) {
+    this.internalState = state;
+
+    if (this.listeners.length > 0) {
+      this.listeners.forEach((listener) => listener(this.state));
+    }
+  }
+
+  public subscribe(listener: Subscription<S>) {
+    this.listeners.push(listener);
+  }
+
+  public unsubscribe(listener: Subscription<S>) {
+    const index = this.listeners.indexOf(listener);
+    if (index > -1) {
+      this.listeners.splice(index, 1);
+    }
+  }
+
+  public setMediator(mediator: IControllersMediator): void {
+    this.mediator = mediator;
+  }
+
+  public isCommand(object: unknown): object is ICommand {
+    return object !== undefined;
+  }
+}
+
+@injectable()
 export abstract class Controller {
   abstract receiveData(data: IControllersMediator): void;
   abstract clear(): void;
   abstract state: object;
-  protected factoryService: IFactoryService | undefined;
   protected mediator: IControllersMediator;
-  protected factoryNotifications: IFactoryMethodNotifications | undefined;
 
-  constructor(
-    mediator?: IControllersMediator,
-    factoryNotify?: IFactoryMethodNotifications,
-    factoryService?: IFactoryService
-  ) {
+  constructor(mediator?: IControllersMediator) {
     this.mediator = mediator!;
-    this.factoryService = factoryService;
-    this.factoryNotifications = factoryNotify;
   }
 
   public setMediator(mediator: IControllersMediator): void {
@@ -30,8 +71,8 @@ export abstract class Controller {
 }
 
 export interface IControllersMediator {
-  add(subscriber: Controller): void;
-  notify(data: object, sender: Controller): void;
+  add(subscriber: Bloc<any>): void;
+  notify(data: object, sender: Bloc<any>): void;
   createStore(): object;
   getStore(): object;
 }

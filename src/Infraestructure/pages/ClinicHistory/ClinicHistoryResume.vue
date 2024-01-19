@@ -80,31 +80,29 @@
     </div>
   </q-list>
 </template>
-<script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+<script setup lang="ts">
+import { inject, onMounted, ref } from 'vue';
 import { IconSVG } from 'src/Application/Utilities';
 import { ClinicHistoryResumeController } from 'src/Adapters/ClinicHistoryController';
 import { PhysicalExamResume } from 'src/Domine/Types';
+import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
+import { Container } from 'inversify';
 
-export default defineComponent({
-  name: 'ClinicHistoryResume',
-  setup() {
-    // const items = ref<Array<PhysicalExamResultResponse>>([]);
-    const items = ref<Array<PhysicalExamResume>>([]);
-    const message = ref<string>('');
-    const visible = ref<boolean>(false);
-    onMounted(async () => {
-      const controller = new ClinicHistoryResumeController();
-      const response = await controller.getAll();
-      items.value = controller.adaptObject(response);
-      visible.value = response.length != 0;
-      console.log(items.value);
-    });
-    return {
-      items,
-      icons: IconSVG,
-      visible,
-    };
-  },
+const items = ref<Array<PhysicalExamResume>>([]);
+const message = ref<string>('');
+const visible = ref<boolean>(false);
+const containerDependency = inject<Container>('containerInversify');
+if (containerDependency === undefined) {
+  throw new Error('Container Injection undefine');
+}
+const factoryNotificator =
+  containerDependency.get<IFactoryMethodNotifications>('FactoryNotifactors');
+const controller = new ClinicHistoryResumeController(factoryNotificator);
+onMounted(async () => {
+  const response = await controller.getAll();
+  items.value = controller.adaptObject(response);
+  visible.value = response.length != 0;
 });
+
+const icons = IconSVG;
 </script>

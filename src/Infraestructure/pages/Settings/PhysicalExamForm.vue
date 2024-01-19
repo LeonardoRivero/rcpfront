@@ -159,8 +159,8 @@ export default defineComponent({
       state.allSpecialities = await mediator.getAllSpecialities();
       const builder = new BuilderTables();
       builder.setData(columnsr.value, rows.value, titleTable.value);
-      builder.hasSearchField(true);
-      builder.setSelectionRow('single');
+      builder.hasSearchField();
+      builder.setSelectionRow();
       tableOptions.value = builder.getResult();
       tableOptions.value.observer = controller;
       // dataTableController.attach(adapter);

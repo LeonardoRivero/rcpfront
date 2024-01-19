@@ -3,6 +3,7 @@ import { GenericService } from '../Repositories/Interface';
 import { PatientResponse } from 'src/Domine/Responses';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
 import { UseCase } from 'src/Domine/IPatterns';
+import { injectable } from 'inversify';
 
 export class PatientService extends GenericService<IPatient, PatientResponse> {
   urlCreate: string;
@@ -24,22 +25,14 @@ export class PatientService extends GenericService<IPatient, PatientResponse> {
   }
 }
 
+@injectable()
 export class FindPatientByIdentificationUseCase
   implements UseCase<string, PatientResponse | null>
 {
-  private static instance: FindPatientByIdentificationUseCase;
   GenericService: GenericService<IPatient, PatientResponse>;
 
-  private constructor() {
+  public constructor() {
     this.GenericService = new PatientService();
-  }
-
-  public static getInstance(): FindPatientByIdentificationUseCase {
-    if (!FindPatientByIdentificationUseCase.instance) {
-      FindPatientByIdentificationUseCase.instance =
-        new FindPatientByIdentificationUseCase();
-    }
-    return FindPatientByIdentificationUseCase.instance;
   }
 
   async execute(

@@ -27,6 +27,7 @@ export interface IStoreClinicHistory {
   currentAppointment: AppointmentResponse;
   currentPatient: PatientResponse;
   currentSchedule: EventScheduleResponse | null;
+  allPathologies: Array<PathologicalHistoryResponse>;
 }
 
 export interface IStorePathologicalHistory {

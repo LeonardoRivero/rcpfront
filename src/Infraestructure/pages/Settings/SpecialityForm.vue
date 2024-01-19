@@ -101,89 +101,49 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, reactive, ref } from 'vue';
+<script setup lang="ts">
+import { inject, onMounted, ref } from 'vue';
 import { QForm } from 'quasar';
-import { ISpeciality } from 'src/Domine/ModelsDB';
-import { SpecialityController } from 'src/Adapters';
 import { IconSVG } from 'src/Application/Utilities';
 import { SpecialityResponse } from 'src/Domine/Responses';
-import { SpecialityFormState } from 'src/Domine/IStates';
 import { SettingsMediator } from '../../Mediators';
 import { ContextUser } from 'src/Domine/StrategyUser';
 import { required } from 'src/Application/Utilities/Helpers';
+import { SpecialityFormBloc } from 'src/Adapters/SpecialityController';
+import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
 import 'src/css/app.sass';
-import { EditCommand, InsertCommand } from 'src/Application/Commands';
-import container from 'src/inversify.config';
-import { SpecialityService } from 'src/Application/Services/SpecialityService';
 
-export default defineComponent({
-  name: 'SpecialityForm',
-  setup() {
-    const state: SpecialityFormState = reactive({
-      currentSpeciality: {} as SpecialityResponse,
-      expanded: false,
-      speciality: null,
-      allSpecialities: <Array<SpecialityResponse>>[],
-    });
-    const contextUser = ContextUser.getInstance();
-    const storePermissions = contextUser.getStore();
+const contextUser = ContextUser.getInstance();
+const storePermissions = contextUser.getStore();
+const form = ref<QForm>();
+const controller = inject<SpecialityFormBloc>(
+  'specialityFormBloc'
+) as SpecialityFormBloc;
+const mediator = SettingsMediator.getInstance();
+const state = usePlocState(controller);
+mediator.add(controller);
+const icons = IconSVG;
 
-    const form = ref<QForm>();
-    const controller = SpecialityController.getInstance(state);
-    const mediator = SettingsMediator.getInstance();
-
-    mediator.add(controller);
-    const store = mediator.getStore();
-
-    onMounted(async () => {
-      state.allSpecialities = await mediator.getAllSpecialities();
-    });
-
-    return {
-      storePermissions,
-      state,
-      icons: IconSVG,
-      form,
-      required,
-      add() {
-        controller.add();
-        form.value?.reset();
-      },
-
-      edit() {
-        controller.edit();
-      },
-
-      async confirmChanges() {
-        controller.resetAllCommand();
-        const isValid = await form.value?.validate();
-        if (isValid == false || !state.currentSpeciality) return;
-        const service = container.get<SpecialityService>('SpecialityService');
-        let payload: ISpeciality = state.currentSpeciality;
-
-        if (state.currentSpeciality?.id == undefined) {
-          const createCommand = new InsertCommand(payload, service);
-          controller.setOnSave(createCommand);
-        } else {
-          const id = state.currentSpeciality.id;
-          payload.id = id;
-          const upateCommand = new EditCommand(payload, id, service);
-          controller.setOnUpdate(upateCommand);
-        }
-
-        await controller.saveOrUpdate();
-        store.allSpecialities = state.allSpecialities;
-      },
-
-      async specialityChanged(val: SpecialityResponse) {
-        await controller.notifySpeciality(val);
-      },
-
-      clearSpeciality(val: any) {
-        controller.clear();
-      },
-    };
-  },
+onMounted(async () => {
+  await controller.loadInitialData();
 });
+
+function add() {
+  controller.add();
+  form.value?.reset();
+}
+function edit() {
+  controller.edit();
+}
+async function confirmChanges() {
+  const isValid = await form.value?.validate();
+  if (isValid == false) return;
+  await controller.saveOrUpdate();
+}
+async function specialityChanged(val: SpecialityResponse) {
+  await controller.notifySpeciality(val);
+}
+function clearSpeciality(val: any) {
+  controller.clear();
+}
 </script>

@@ -64,6 +64,9 @@ import MedicalProcedure from './MedicalProcedure.vue';
 import ClinicHistoryResume from './ClinicHistoryResume.vue';
 import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
 import 'src/css/app.sass';
+import container from 'src/inversify.config';
+import { IControllersMediator } from 'src/Domine/IPatterns';
+import { IStoreClinicHistory } from 'src/Domine/IStores';
 export default defineComponent({
   components: {
     InfoPatientPanel,
@@ -76,8 +79,10 @@ export default defineComponent({
     const stepper = ref<QStepper>();
     const step = ref<number>(2);
 
-    const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
-    const store = clinicHistoryMediator.getStore();
+    const clinicHistoryMediator = container.get<IControllersMediator>(
+      'ClinicHistoryMediator'
+    );
+    const store = <IStoreClinicHistory>clinicHistoryMediator.getStore();
     return {
       formStep1,
       stepper,

@@ -3,13 +3,13 @@
     flat
     bordered
     ref="tableRef"
-    :title="result.title"
-    :rows="result.rows"
-    :columns="result.columns"
-    :row-key="result.rowKey"
-    v-model:pagination="pagination"
-    :loading="loading"
-    :filter="filter"
+    :title="state.tableOptions.title"
+    :rows="state.tableOptions.rows"
+    :columns="state.tableOptions.columns"
+    row-key="id"
+    v-model:pagination="state.pagination"
+    :loading="state.loading"
+    :filter="state.filter"
     binary-state-sort
     @request="onRequest"
     class="table-responsive link-cursor"
@@ -19,7 +19,7 @@
         borderless
         dense
         debounce="300"
-        v-model="filter"
+        v-model="state.filter"
         placeholder="Search"
       >
         <template v-slot:append>
@@ -31,38 +31,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { IPaginationDataTable, ITableOptions } from 'src/Domine/ICommons';
-import { BuilderTablesWithFetchToServer } from 'src/Infraestructure/Utilities/BuildersTables';
-import { AppointmentListController } from 'src/Adapters/AppointmentListController';
-import { Observer } from 'src/Domine/IPatterns';
+import { ref, onMounted, inject } from 'vue';
+import { AppointmentListBloc } from 'src/Adapters/AppointmentListController';
+import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
 
-let result = ref<ITableOptions>({} as ITableOptions);
-const controller = new AppointmentListController();
-const pagination: IPaginationDataTable = {
-  sortBy: 'desc',
-  descending: false,
-  page: 1,
-  rowsPerPage: 5,
-  rowsNumber: 10,
-};
-const loading = ref(false);
-const filter = ref('');
+const dependenciesLocator = inject<any>('dependenciesLocator');
+const controller = <AppointmentListBloc>(
+  dependenciesLocator.provideAppointmentListBloc()
+);
+const state = usePlocState(controller);
+const tableRef = ref();
 
 onMounted(async () => {
-  const rows = await controller.getRowsData();
-  const columns = controller.columnsData;
-
-  const builder = new BuilderTablesWithFetchToServer(controller.pagination);
-  builder.setData(columns, rows, 'Resumen Citas');
-  builder.hasSearchField();
-  builder.showButtonActions();
-  result.value = builder.getResult();
-  result.value.observer = <Observer>controller;
-  console.log(result);
+  await controller.getRowsData();
 });
 
-function onRequest(props: any) {
-  console.log(props);
+async function onRequest(props: any) {
+  await controller.requestServer(props.pagination);
 }
 </script>

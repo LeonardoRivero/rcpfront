@@ -9,8 +9,11 @@ import { MedicalOfficeService } from './Application/Services/MedicalOfficeServic
 import { ClientAPI } from './Infraestructure/Utilities/HttpClientAPI';
 import {
   HTTPClient,
+  IControllersMediator,
   IFactoryMethodNotifications,
   IToRead,
+  Bloc,
+  UseCase,
 } from './Domine/IPatterns';
 import { PaymentOptionsService } from './Application/Services/PaymentOptionsService';
 import { IPaymentOptionsService } from './Domine/IServices';
@@ -18,6 +21,8 @@ import { GenericService } from './Application/Repositories';
 import {
   CountryResponse,
   DoctorSpecialityResponse,
+  EventScheduleResponse,
+  PatientResponse,
   RegionResponse,
   SpecialityResponse,
   SubRegionResponse,
@@ -25,6 +30,11 @@ import {
 import { ISpeciality } from './Domine/ModelsDB';
 import { FactoryNotifactors } from './Adapters/Creators/Factories';
 import { DoctorSpecialityService } from './Application/Services/DoctorService';
+import { ClinicHistoryMediator } from './Infraestructure/Mediators';
+import { InfoPatientState } from './Domine/IStates';
+import { FindPatientByIdentificationUseCase } from './Application/Services';
+import { FindScheduleByIdentificationPatientUseCase } from './Application/Services/ScheduleService';
+import { InforPatientPanelBloc } from './Adapters/ClinicHistoryController';
 
 const container = new Container();
 container.bind<HTTPClient>('HTTPClient').to(ClientAPI);
@@ -56,4 +66,23 @@ container
   .bind<IToRead<DoctorSpecialityResponse>>('DoctorSpecialityService')
   .to(DoctorSpecialityService)
   .inSingletonScope();
+
+container
+  .bind<IControllersMediator>('ClinicHistoryMediator')
+  .to(ClinicHistoryMediator)
+  .inSingletonScope();
+
+container
+  .bind<UseCase<string, EventScheduleResponse | null>>(
+    'FindScheduleByIdentificationPatientUseCase'
+  )
+  .to(FindScheduleByIdentificationPatientUseCase);
+
+container
+  .bind<UseCase<string, PatientResponse | null>>(
+    'FindPatientByIdentificationUseCase'
+  )
+  .to(FindPatientByIdentificationUseCase)
+  .inSingletonScope();
+
 export default container;

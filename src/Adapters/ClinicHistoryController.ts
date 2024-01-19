@@ -1,12 +1,18 @@
 import {
   AppointmentResponse,
+  EventScheduleResponse,
+  PathologicalHistoryResponse,
   PatientResponse,
   PhysicalExamResponse,
   PhysicalExamResultResponse,
 } from 'src/Domine/Responses';
-import { IconSVG, Gender } from 'src/Application/Utilities';
+import {
+  IconSVG,
+  Gender,
+  Messages,
+  Validators,
+} from 'src/Application/Utilities';
 import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators/ClinicHistoryMediator';
-import { PhysicalExamService } from 'src/Application/Services';
 import {
   InfoPatientState,
   MedicalProcedureState,
@@ -15,85 +21,139 @@ import {
 import {
   Controller,
   IControllersMediator,
+  IFactoryMethodNotifications,
   Notificator,
+  Bloc,
+  UseCase,
 } from 'src/Domine/IPatterns';
 import { GenericService } from 'src/Application/Repositories';
 import { PhysicalExamResultService } from 'src/Application/Services/PhysicalExamResultService';
 import { ModalType, PhysicalExamResume } from 'src/Domine/Types';
-import { FactoryNotifactors } from './Creators/Factories';
-import { IExam } from 'src/Domine/ModelsDB';
+import { IExam, IPhysicalExam } from 'src/Domine/ModelsDB';
+import { NotFoundElementNotify } from './Commands';
+import { IStoreClinicHistory } from 'src/Domine/IStores';
+import { ActionsScheduleMediator } from 'src/Infraestructure/Mediators';
 
-export class InfoPatientPanelController extends Controller {
+export class InforPatientPanelBloc extends Bloc<InfoPatientState> {
   private iconSVG = IconSVG;
-  private static instance: InfoPatientPanelController;
-  public state: InfoPatientState;
-
-  public constructor(state: InfoPatientState) {
-    super();
-    this.state = state;
+  constructor(
+    private searchPatientByIdentificationUseCase: UseCase<
+      string,
+      PatientResponse | null
+    >,
+    private findScheduleByIdentificationPatientUseCase: UseCase<
+      string,
+      EventScheduleResponse | null
+    >,
+    private notificator: IFactoryMethodNotifications
+  ) {
+    const state: InfoPatientState = {
+      identificationPatient: '',
+      age: 0,
+      currentPatient: {} as PatientResponse,
+      iconAvatar: '',
+      labelAge: 'Años',
+    };
+    super(state);
   }
-
-  public static getInstance(
-    state: InfoPatientState
-  ): InfoPatientPanelController {
-    if (!InfoPatientPanelController.instance) {
-      InfoPatientPanelController.instance = new InfoPatientPanelController(
-        state
-      );
-    }
-    return InfoPatientPanelController.instance;
+  public receiveData(data: IControllersMediator): void {
+    throw new Error('Method not implemented.');
   }
 
   public getGender(patient: PatientResponse) {
     if (this.state.currentPatient == null) return;
-    this.state.iconAvatar =
+    const iconAvatar =
       patient.gender.id == Gender.FEMALE
         ? this.iconSVG.female_avatar
         : this.iconSVG.male_avatar;
-  }
 
-  public clear() {
-    this.state.currentPatient = {} as PatientResponse;
-    this.state.age = 0;
-    this.state.iconAvatar = '';
-  }
-
-  public update(data: ClinicHistoryMediator): void {
-    console.log({ data });
-  }
-
-  public receiveData(data: IControllersMediator): void {
-    console.log('Desde InfoPatient', { data });
-
-    const j = data;
-    console.log({ j });
+    this.changeState({ ...this.state, iconAvatar: iconAvatar });
   }
 
   public sendData(state: InfoPatientState): void {
     if (this.mediator === null || this.mediator === undefined) {
       throw new Error('Aun no se definido un mediador para esta operacion');
     }
-    this.mediator.notify(state, this);
+    // this.mediator.notify(state, this);
+  }
+
+  public clear() {
+    this.changeState({
+      ...this.state,
+      currentPatient: {} as PatientResponse,
+      age: 0,
+      iconAvatar: '',
+    });
+  }
+
+  async patientHasAppointment() {
+    const patient = await this.searchPatientByIdentificationUseCase.execute(
+      this.state.identificationPatient
+    );
+
+    if (patient === null) {
+      this.clear();
+      const notFound = new NotFoundElementNotify(
+        Messages.notFoundInfoPatient,
+        this.notificator,
+        '/patient'
+      );
+      await notFound.execute();
+      return;
+    }
+    const validator = Validators.getInstance();
+    let age = validator.calculateAge(patient.dateBirth.toString());
+
+    if (age == 0) {
+      age = validator.calculateMonths(patient.dateBirth.toString());
+    }
+    const dateBirth = new Date(patient.dateBirth.toLocaleString());
+    const options = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    } as const;
+    patient.dateBirth = dateBirth.toLocaleDateString('es-Es', options);
+    this.getGender(patient);
+    this.changeState({
+      ...this.state,
+      currentPatient: patient,
+      age: age < 0 ? 0 : age,
+      labelAge: age < 0 ? 'Meses' : 'Años',
+    });
+    const schedule =
+      await this.findScheduleByIdentificationPatientUseCase.execute(
+        patient.identification.toString()
+      );
+    const store = <IStoreClinicHistory>this.mediator.getStore();
+    store.currentSchedule = schedule;
+    // this.mediator.notify(store, this);
+
+    if (schedule === null) {
+      const notFound = new NotFoundElementNotify(
+        Messages.patientNotSchedule,
+        this.notificator,
+        '/schedule'
+      );
+      await notFound.execute();
+      return;
+    }
+    this.sendData(this.state);
   }
 }
-
-export class PreliminaryDataController extends Controller {
-  private static instance: PreliminaryDataController;
-  private service = PhysicalExamService.getInstance();
-  public state: PreliminaryDataState;
-
-  public constructor(state: PreliminaryDataState) {
-    super();
-    this.state = state;
-  }
-
-  public static getInstance(
-    state: PreliminaryDataState
-  ): PreliminaryDataController {
-    if (!PreliminaryDataController.instance) {
-      PreliminaryDataController.instance = new PreliminaryDataController(state);
-    }
-    return PreliminaryDataController.instance;
+export class PreliminaryDataBloc extends Bloc<PreliminaryDataState> {
+  public constructor(
+    private service: GenericService<IPhysicalExam, PhysicalExamResponse>
+  ) {
+    const state: PreliminaryDataState = {
+      allPathologies: [],
+      pathology: null,
+      items: [],
+      reasonConsultation: '',
+      descriptionConsultation: '',
+      pathologiesForFilter: [] as Array<PathologicalHistoryResponse>,
+    };
+    super(state);
   }
 
   clear(): void {
@@ -125,6 +185,11 @@ export class PreliminaryDataController extends Controller {
       speciality: speciality.id,
     });
     this.adaptPhysicalExam(response, appointment);
+  }
+  async loadInitialData() {
+    const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
+    this.state.allPathologies = await mediator.getAllPathologies();
+    this.state.pathologiesForFilter = this.state.allPathologies;
   }
 }
 
@@ -158,12 +223,13 @@ export class MedicalProcedureController extends Controller {
 export class ClinicHistoryResumeController extends Controller {
   public state: object;
   private service: GenericService<IExam, PhysicalExamResultResponse>;
-  private notifyQuasar: Notificator =
-    FactoryNotifactors.getInstance().createNotificator(ModalType.NotifyQuasar);
-  public constructor() {
+  private notifyQuasar: Notificator;
+
+  public constructor(factoryNotify: IFactoryMethodNotifications) {
     super();
     this.service = new PhysicalExamResultService();
     this.state = {};
+    this.notifyQuasar = factoryNotify.createNotificator(ModalType.NotifyQuasar);
   }
 
   receiveData(data: IControllersMediator): void {

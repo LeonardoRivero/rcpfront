@@ -3,7 +3,7 @@
     v-model="state.reasonConsultation"
     outlined
     label="Motivo de Consulta"
-    :rules="[(val) => (val && val.length > 0) || FIELD_REQUIRED]"
+    :rules="[required]"
   >
     <template v-slot:prepend>
       <q-icon :name="icons.hurt" size="40px" />
@@ -14,7 +14,7 @@
     filled
     autogrow
     label="Descripcion Consulta"
-    :rules="[(val) => (val && val.length > 0) || FIELD_REQUIRED]"
+    :rules="[required]"
   >
   </q-input>
   <br />
@@ -48,56 +48,36 @@
   <br />
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, reactive } from 'vue';
-import { IconSVG, FIELD_REQUIRED } from 'src/Application/Utilities';
-import { PathologicalHistoryResponse } from 'src/Domine/Responses';
-import { PreliminaryDataState } from 'src/Domine/IStates';
-import { PreliminaryDataController } from 'src/Adapters';
-import { ClinicHistoryMediator, SettingsMediator } from '../../Mediators';
-import { ScheduleMediator } from '../../Mediators/ScheduleMediator';
-import { PhysicalExamResultService } from 'src/Application/Services/PhysicalExamResultService';
+<script setup lang="ts">
+import { inject, onMounted } from 'vue';
+import { IconSVG } from 'src/Application/Utilities';
+import { PreliminaryDataBloc } from 'src/Adapters';
+import { required } from 'src/Application/Utilities/Helpers';
+import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
+import container from 'src/inversify.config';
+import { IControllersMediator } from 'src/Domine/IPatterns';
 import 'src/css/app.sass';
 
-export default defineComponent({
-  name: 'PreliminaryData',
+const controller = inject<PreliminaryDataBloc>(
+  'preliminaryDataBloc'
+) as PreliminaryDataBloc;
+const state = usePlocState(controller);
 
-  setup() {
-    let state: PreliminaryDataState = reactive({
-      allPathologies: [],
-      pathology: null,
-      items: [],
-      reasonConsultation: '',
-      descriptionConsultation: '',
-    });
-
-    const controller = PreliminaryDataController.getInstance(state);
-    const settingsMediator = SettingsMediator.getInstance();
-    const scheduleMediator = ScheduleMediator.getInstance();
-    const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
-    clinicHistoryMediator.add(controller);
-    scheduleMediator.add(controller);
-    let pathologies = [] as Array<PathologicalHistoryResponse>;
-
-    onMounted(async () => {
-      state.allPathologies = await settingsMediator.getAllPathologies();
-      pathologies = state.allPathologies;
-    });
-
-    return {
-      FIELD_REQUIRED,
-      icons: IconSVG,
-      state,
-      splitterModel: 50,
-      filterFn(val: string, update: any) {
-        update(() => {
-          const needle = val.toLowerCase();
-          state.allPathologies = pathologies.filter(
-            (v) => v.description.toLowerCase().indexOf(needle) > -1
-          );
-        });
-      },
-    };
-  },
+onMounted(async () => {
+  await controller.loadInitialData();
 });
+
+const clinicHistoryMediator = container.get<IControllersMediator>(
+  'ClinicHistoryMediator'
+);
+clinicHistoryMediator.add(controller);
+const icons = IconSVG;
+function filterFn(val: string, update: any) {
+  update(() => {
+    const needle = val.toLowerCase();
+    state.value.allPathologies = state.value.pathologiesForFilter.filter(
+      (v) => v.description.toLowerCase().indexOf(needle) > -1
+    );
+  });
+}
 </script>

@@ -24,7 +24,7 @@ export class PatientController extends Controller {
   private static instance: PatientController;
   private service = new PatientService();
   private findPatientByIdentificationUseCase =
-    FindPatientByIdentificationUseCase.getInstance();
+    new FindPatientByIdentificationUseCase();
 
   private constructor(
     state: PatientState,

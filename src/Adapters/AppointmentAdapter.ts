@@ -209,7 +209,7 @@ export class AppointmentAdapter extends Controller {
   }
 
   public async patientWasScheduled(): Promise<void> {
-    const findPatientUseCase = FindPatientByIdentificationUseCase.getInstance();
+    const findPatientUseCase = new FindPatientByIdentificationUseCase();
     const response = await findPatientUseCase.execute(
       this.state.identificationPatient
     );

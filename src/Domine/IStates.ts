@@ -46,6 +46,7 @@ export interface InfoPatientState {
   age: number;
   currentPatient: PatientResponse | null;
   iconAvatar: string;
+  labelAge: string;
 }
 export interface PreliminaryDataState {
   allPathologies: Array<PathologicalHistoryResponse>;
@@ -53,6 +54,7 @@ export interface PreliminaryDataState {
   reasonConsultation: string;
   descriptionConsultation: string;
   pathology: PathologicalHistoryResponse | null;
+  pathologiesForFilter: Array<PathologicalHistoryResponse>;
 }
 
 export interface PathologicalHistoryState {
@@ -208,4 +210,7 @@ export interface LoginState {
 
 export interface AppointmentListState {
   tableOptions: ITableOptions;
+  pagination: IPaginationDataTable;
+  loading: boolean;
+  filter: string;
 }

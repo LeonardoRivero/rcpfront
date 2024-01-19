@@ -1,19 +1,27 @@
 import { defineStore } from 'pinia';
-import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
+import { PathologicalHistoryService } from 'src/Application/Services';
+import { Bloc, Controller, IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreClinicHistory } from 'src/Domine/IStores';
 import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
   AppointmentResponse,
   DoctorResponse,
+  PathologicalHistoryResponse,
   PatientResponse,
 } from 'src/Domine/Responses';
+import { injectable } from 'inversify';
 
-export class ClinicHistoryMediator implements IControllersMediator {
-  private controllers: Controller[] = [];
+export interface ActionsScheduleMediator {
+  getAllPathologies(): Promise<Array<PathologicalHistoryResponse>>;
+}
+@injectable()
+export class ClinicHistoryMediator
+  implements IControllersMediator, ActionsScheduleMediator
+{
+  private controllers: Bloc<any>[] = [];
   public stores: IStoreClinicHistory;
-  private static instance: ClinicHistoryMediator;
 
-  private constructor() {
+  public constructor() {
     this.stores = this.createStore();
   }
   public createStore(): IStoreClinicHistory {
@@ -23,6 +31,7 @@ export class ClinicHistoryMediator implements IControllersMediator {
         speciality: {} as ISpeciality,
         currentDoctor: {} as DoctorResponse,
         currentAppointment: {} as AppointmentResponse,
+        allPathologies: <Array<PathologicalHistoryResponse>>[],
         currentPatient: {} as PatientResponse,
         currentSchedule: null,
       }),
@@ -30,14 +39,7 @@ export class ClinicHistoryMediator implements IControllersMediator {
     return store();
   }
 
-  public static getInstance(): ClinicHistoryMediator {
-    if (!ClinicHistoryMediator.instance) {
-      ClinicHistoryMediator.instance = new ClinicHistoryMediator();
-    }
-    return ClinicHistoryMediator.instance;
-  }
-
-  public add(controller: Controller): void {
+  public add(controller: Bloc<any>): void {
     const isExist = this.controllers.includes(controller);
     if (isExist) {
       return;
@@ -46,7 +48,7 @@ export class ClinicHistoryMediator implements IControllersMediator {
     this.controllers.push(controller);
   }
 
-  public notify(store: IStoreClinicHistory, sender: Controller): void {
+  public notify(store: IStoreClinicHistory, sender: Bloc<any>): void {
     for (const controller of this.controllers) {
       controller.receiveData(this);
     }
@@ -57,5 +59,17 @@ export class ClinicHistoryMediator implements IControllersMediator {
   }
   public getStore(): IStoreClinicHistory {
     return this.stores;
+  }
+
+  public async getAllPathologies(): Promise<
+    Array<PathologicalHistoryResponse>
+  > {
+    if (this.stores.allPathologies.length != 0) {
+      return this.stores.allPathologies;
+    }
+    const service = new PathologicalHistoryService();
+    const response = await service.getAll();
+    this.stores.allPathologies = response;
+    return response;
   }
 }

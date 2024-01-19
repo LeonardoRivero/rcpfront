@@ -4,6 +4,7 @@ import { EventScheduleResponse } from 'src/Domine/Responses';
 import { UseCase } from 'src/Domine/IPatterns';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
+import { injectable } from 'inversify';
 
 export class ScheduleService extends GenericService<
   EventSchedule,
@@ -26,6 +27,7 @@ export class ScheduleService extends GenericService<
   }
 }
 
+@injectable()
 export class FindScheduleByIdentificationPatientUseCase
   implements UseCase<string, EventScheduleResponse | null>
 {

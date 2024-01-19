@@ -212,7 +212,7 @@
                     ? 'Observaciones'
                     : 'Motivo de Cancelaciòn'
                 }`"
-                :error-message="errorMessage"
+                :error-message="Messages.requiredForDelete"
               />
             </div>
           </div>
@@ -235,16 +235,10 @@
     </q-card-actions>
   </q-form>
 </template>
-<script lang="ts">
-import { defineComponent, onMounted, onUnmounted, ref, reactive } from 'vue';
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref, inject } from 'vue';
 import { date, QForm } from 'quasar';
-import {
-  DoctorSpecialityResponse,
-  HealthInsuranceResponse,
-  PatientResponse,
-} from 'src/Domine/Responses';
-import { EventSchedule, IAppointment } from 'src/Domine/ModelsDB';
-import { ScheduleController } from 'src/Adapters';
+import { ScheduleFormBloc } from 'src/Adapters';
 import {
   CURRENTYEAR_MONTH,
   FORMAT_DATETIME,
@@ -253,108 +247,51 @@ import {
 } from 'src/Application/Utilities/Constants';
 import 'src/css/app.sass';
 import { Messages } from 'src/Application/Utilities';
-import { ScheduleState } from 'src/Domine/IStates';
 import { ScheduleMediator } from 'src/Infraestructure/Mediators';
 import { required, isNotNull } from 'src/Application/Utilities/Helpers';
-import { IFactoryMethodNotifications, IToRead } from 'src/Domine/IPatterns';
-import { ModalType } from 'src/Domine/Types';
-import container from 'src/inversify.config';
+import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
 
-export default defineComponent({
-  components: {},
-  setup() {
-    const dates = date;
-    const mediator = ScheduleMediator.getInstance();
-    const state: ScheduleState = reactive({
-      lastConsult: {} as IAppointment,
-      isReadonly: false,
-      currentAppointment: {} as IAppointment,
-      currentPatient: {
-        insurance: {} as HealthInsuranceResponse,
-      } as PatientResponse,
-      currentSchedule: {
-        id: undefined,
-        start: '',
-        observations: '',
-      } as EventSchedule,
-      currentDoctor: null,
-      allDoctors: [] as Array<DoctorSpecialityResponse>,
-      speciality: null,
-      allSpecialities: [],
-      identificationPatient: '',
-      allowToUpdate: true,
-      allowToDelete: false,
-      error: false,
-    });
+const dates = date;
+const mediator = ScheduleMediator.getInstance();
+const controller = inject<ScheduleFormBloc>(
+  'scheduleFormBloc'
+) as ScheduleFormBloc;
+const state = usePlocState(controller);
+const form = ref<QForm>();
+mediator.add(controller);
 
-    const form = ref<QForm>();
-    const factoryNotificator =
-      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
-    const controller = new ScheduleController(state, factoryNotificator);
-    controller.doctorSpecialityService = container.get<
-      IToRead<DoctorSpecialityResponse>
-    >('DoctorSpecialityService');
-
-    onMounted(async () => {
-      // const doctors = await doctorService.getAll();
-      // state.allDoctors = [];
-      mediator.add(controller);
-      state.allSpecialities = await mediator.getAllSpecialities();
-      if (mediator.store.scheduleId != null) {
-        controller.showInfoSchedule(mediator.store.scheduleId);
-      } else {
-        controller.setDateWhenScheduleIsNew();
-      }
-    });
-
-    onUnmounted(async () => {
-      state.speciality = null;
-      state.currentDoctor = null;
-      state.currentAppointment = {} as IAppointment;
-      state.currentPatient = {
-        insurance: {} as HealthInsuranceResponse,
-      } as PatientResponse;
-      state.identificationPatient = '';
-    });
-    return {
-      required,
-      isNotNull,
-      state,
-      errorMessage: Messages.requiredForDelete,
-      CURRENTYEAR_MONTH,
-      OPTIONS_HOURS,
-      OPTIONS_MINUTES,
-      FORMAT_DATETIME,
-      form,
-      dates,
-      async confirmChanges() {
-        try {
-          const y = new CustomEvent('search');
-          const isValid = await form.value?.validate();
-          if (isValid == false) return;
-          await controller.saveOrUpdate();
-        } catch (error: any) {
-          const messageError = (error as Error).message;
-          const notifyQuasar = factoryNotificator.createNotificator(
-            ModalType.NotifyQuasar
-          );
-          notifyQuasar.setType('error');
-          notifyQuasar.show(undefined, messageError);
-        }
-      },
-
-      async searchPatient() {
-        await controller.searchPatient();
-      },
-
-      async confirmDeleteSchedule() {
-        await controller.confirmDeleteSchedule();
-      },
-
-      async specialityChanged(val: number) {
-        await controller.getDoctorsBelongSpeciality(val);
-      },
-    };
-  },
+onMounted(async () => {
+  await controller.loadInitialData();
 });
+
+onUnmounted(async () => {
+  await controller.clear();
+});
+
+async function confirmChanges() {
+  // try {
+  const isValid = await form.value?.validate();
+  if (isValid == false) return;
+  await controller.saveOrUpdate();
+  // } catch (error: any) {
+  //   const messageError = (error as Error).message;
+  //   const notifyQuasar = factoryNotificator.createNotificator(
+  //     ModalType.NotifyQuasar
+  //   );
+  //   notifyQuasar.setType('error');
+  //   notifyQuasar.show(undefined, messageError);
+  // }
+}
+
+async function searchPatient() {
+  await controller.searchPatient();
+}
+
+async function confirmDeleteSchedule() {
+  await controller.confirmDeleteSchedule();
+}
+
+async function specialityChanged(val: number) {
+  await controller.getDoctorsBelongSpeciality(val);
+}
 </script>
