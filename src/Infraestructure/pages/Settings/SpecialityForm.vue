@@ -116,9 +116,10 @@ import 'src/css/app.sass';
 const contextUser = ContextUser.getInstance();
 const storePermissions = contextUser.getStore();
 const form = ref<QForm>();
-const controller = inject<SpecialityFormBloc>(
-  'specialityFormBloc'
-) as SpecialityFormBloc;
+const dependenciesLocator = inject<any>('dependenciesLocator');
+const controller = <SpecialityFormBloc>(
+  dependenciesLocator.provideSpecialityBloc()
+);
 const mediator = SettingsMediator.getInstance();
 const state = usePlocState(controller);
 mediator.add(controller);

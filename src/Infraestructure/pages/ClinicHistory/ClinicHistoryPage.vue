@@ -41,7 +41,7 @@
                 v-if="step > 1"
                 flat
                 color="primary"
-                @click="$refs.stepper.previous()"
+                @click="previous()"
                 label="Regresar"
                 class="q-ml-sm"
               />
@@ -55,49 +55,35 @@
     </div>
   </q-page>
 </template>
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 import { QForm, QStepper } from 'quasar';
 import InfoPatientPanel from './InfoPatientPanel.vue';
 import PreliminaryData from './PreliminaryData.vue';
 import MedicalProcedure from './MedicalProcedure.vue';
 import ClinicHistoryResume from './ClinicHistoryResume.vue';
-import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
-import 'src/css/app.sass';
-import container from 'src/inversify.config';
-import { IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreClinicHistory } from 'src/Domine/IStores';
-export default defineComponent({
-  components: {
-    InfoPatientPanel,
-    PreliminaryData,
-    MedicalProcedure,
-    ClinicHistoryResume,
-  },
-  setup() {
-    const formStep1 = ref<QForm>();
-    const stepper = ref<QStepper>();
-    const step = ref<number>(2);
+import 'src/css/app.sass';
+import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
 
-    const clinicHistoryMediator = container.get<IControllersMediator>(
-      'ClinicHistoryMediator'
-    );
-    const store = <IStoreClinicHistory>clinicHistoryMediator.getStore();
-    return {
-      formStep1,
-      stepper,
-      step,
-      disableContinue: store.currentSchedule == null ? false : false,
-      async onContinueStep() {
-        const step1 = await formStep1.value?.validate();
-        if (step1 === true && step.value == 1) {
-          stepper.value?.next();
-        }
-        // else if (formIsValid === true && step.value == 2) {
-        //   stepper.value?.next();
-        // }
-      },
-    };
-  },
-});
+const formStep1 = ref<QForm>();
+const stepper = ref<QStepper>();
+const step = ref<number>(1);
+
+const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
+const store = <IStoreClinicHistory>clinicHistoryMediator.getStore();
+
+const disableContinue = store.currentSchedule == null ? false : false;
+async function onContinueStep() {
+  const step1 = await formStep1.value?.validate();
+  if (step1 === true && step.value == 1) {
+    stepper.value?.next();
+  }
+  // else if (formIsValid === true && step.value == 2) {
+  //   stepper.value?.next();
+  // }
+}
+function previous() {
+  stepper.value?.previous();
+}
 </script>

@@ -63,7 +63,7 @@ export class AppointmentListBloc extends Bloc<AppointmentListState> {
   clear(): void {
     throw new Error('Method not implemented.');
   }
-  async getRowsData(): Promise<any> {
+  async getInitialData(): Promise<any> {
     const response = await this.listAppointmentUseCase.execute();
     this.pagination.rowsNumber = response.count;
     const rows = response.results.map((row) => ({
@@ -83,9 +83,6 @@ export class AppointmentListBloc extends Bloc<AppointmentListState> {
     this.state.tableOptions = builder.getResult();
     this.changeState({ ...this.state, tableOptions: this.state.tableOptions });
     return rows;
-  }
-  get columnsData() {
-    return this.columns;
   }
 
   private buildObjectColumns(): Array<IColumnsDataTable> {

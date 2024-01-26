@@ -43,7 +43,7 @@ const state = usePlocState(controller);
 const tableRef = ref();
 
 onMounted(async () => {
-  await controller.getRowsData();
+  await controller.getInitialData();
 });
 
 async function onRequest(props: any) {

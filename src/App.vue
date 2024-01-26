@@ -26,7 +26,6 @@ export default defineComponent({
     containerInversify: container,
     infoPatientPanelBloc: dependenciesLocator.provideInfoPatientPanelPloc(),
     preliminaryDataBloc: dependenciesLocator.providePreliminaryDataBloc(),
-    specialityFormBloc: dependenciesLocator.provideSpecialityBloc(),
     scheduleFormBloc: dependenciesLocator.provideScheduleBloc(),
     dependenciesLocator: dependenciesLocator,
   },

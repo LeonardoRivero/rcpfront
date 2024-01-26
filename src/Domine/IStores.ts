@@ -1,6 +1,6 @@
 import { CalendarOptions } from '@fullcalendar/vue3';
 import { IPermission } from './ICommons';
-import { ISpeciality, IUser } from './ModelsDB';
+import { IExam, IUser } from './ModelsDB';
 import {
   AppointmentResponse,
   DXMainCodeResponse,
@@ -8,7 +8,6 @@ import {
   EventScheduleResponse,
   Group,
   PathologicalHistoryResponse,
-  PatientResponse,
   RelationCodeResponse,
   SpecialityResponse,
   AuthResponse,
@@ -22,12 +21,13 @@ import {
 import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 
 export interface IStoreClinicHistory {
-  speciality: ISpeciality;
   currentDoctor: DoctorResponse;
   currentAppointment: AppointmentResponse;
-  currentPatient: PatientResponse;
   currentSchedule: EventScheduleResponse | null;
   allPathologies: Array<PathologicalHistoryResponse>;
+  allDxMainCodes: Array<DXMainCodeResponse>;
+  allRelationCodes: Array<RelationCodeResponse>;
+  examParameterResult: Array<IExam>;
 }
 
 export interface IStorePathologicalHistory {

@@ -75,12 +75,14 @@ import { inject } from 'vue';
 import { InforPatientPanelBloc } from 'src/Adapters';
 import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
 import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
-const controller = inject<InforPatientPanelBloc>(
-  'infoPatientPanelBloc'
-) as InforPatientPanelBloc;
+
+const dependenciesLocator = inject<any>('dependenciesLocator');
+const controller = <InforPatientPanelBloc>(
+  dependenciesLocator.provideInfoPatientPanelPloc()
+);
 
 const state = usePlocState(controller);
-const mediator = new ClinicHistoryMediator();
+const mediator = ClinicHistoryMediator.getInstance();
 mediator.add(controller);
 async function patientHasAppointment() {
   await controller.patientHasAppointment();

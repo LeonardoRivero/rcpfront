@@ -153,3 +153,16 @@ export interface IMedicalOffice {
   department: number;
   address: string;
 }
+
+export interface IMedicalHistory {
+  current_disease: string;
+  reason_consultation: string;
+  appointment: number;
+  speciality: number;
+  patient: number;
+  doctor: number;
+  dx_main_code: number;
+  relation_code: number;
+  pathologies: Array<number>;
+  physical_exam_result: Array<IExam>;
+}

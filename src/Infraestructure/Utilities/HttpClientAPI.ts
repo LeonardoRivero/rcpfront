@@ -8,15 +8,12 @@ export class ClientAPI implements HTTPClient {
   private async http(request: RequestInfo): Promise<Response> {
     try {
       Loading.show();
-      console.log(request);
-
       const controller = new AbortController();
       const id = setTimeout(() => controller.abort(), 25000);
       const response: Response = await fetch(request, {
         signal: controller.signal,
       });
       clearTimeout(id);
-      console.log(response);
       Loading.hide();
       return response;
     } catch (err: any) {

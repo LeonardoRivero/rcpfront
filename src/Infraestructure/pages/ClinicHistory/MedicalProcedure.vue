@@ -2,50 +2,59 @@
   <div class="text-h5 q-mt-sm q-mb-xs">
     <q-icon :name="icons.physicalTherapy" size="32px" /> Examen Fisico
   </div>
-  <q-splitter v-model="splitterModel">
-    <template v-slot:before>
+  <div class="fit row wrap items-start">
+    <q-list dense class="col-grow" style="overflow: auto">
       <div v-for="(item, index) in state.items" :key="item.id">
-        <q-item v-if="index % 2 == 0">
-          <q-item-section>
-            <q-item-label>{{ item.description }}</q-item-label>
-          </q-item-section>
-
+        <q-item clickable v-ripple :key="item.id" v-if="index % 2 == 0">
           <q-item-section side top>
-            <q-input dense v-model="item.result" :rules="[required]" />
+            <q-input
+              dense
+              v-model="item.result"
+              :rules="[required]"
+              @blur="(evt) => updateValue(evt)"
+              :label="item.description"
+            />
           </q-item-section>
         </q-item>
       </div>
-    </template>
-    <template v-slot:after>
+    </q-list>
+    <q-list dense class="col-grow" style="overflow: auto">
       <div v-for="(item, index) in state.items" :key="item.id">
-        <q-item v-if="index % 2 != 0">
-          <q-item-section>
-            <q-item-label>{{ item.description }}</q-item-label>
-          </q-item-section>
-
+        <q-item clickable v-ripple :key="item.id" v-if="index % 2 != 0">
           <q-item-section side top>
-            <q-input dense v-model="item.result" :rules="[required]" />
+            <q-input
+              dense
+              v-model="item.result"
+              :rules="[required]"
+              @blur="(evt) => updateValue(evt)"
+              :label="item.description"
+            />
           </q-item-section>
-        </q-item>
-      </div>
-    </template>
-  </q-splitter>
+        </q-item></div
+    ></q-list>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { inject, onMounted } from 'vue';
+import { MedicalProcedureBloc } from 'src/Adapters/ClinicHistoryController';
 import { IconSVG } from 'src/Application/Utilities';
-import { MedicalProcedureState } from 'src/Domine/IStates';
 import { required } from 'src/Application/Utilities/Helpers';
-import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
-import container from 'src/inversify.config';
-
-const factoryNotificator =
-  container.get<IFactoryMethodNotifications>('FactoryNotifactors');
-let state: MedicalProcedureState = reactive({
-  items: [],
-});
+import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
+import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
 
 const icons = IconSVG;
-const splitterModel = 50;
+const dependenciesLocator = inject<any>('dependenciesLocator');
+const mediator = ClinicHistoryMediator.getInstance();
+const controller = <MedicalProcedureBloc>(
+  dependenciesLocator.provideMedicalProcedureBloc()
+);
+const state = usePlocState(controller);
+mediator.add(controller);
+onMounted(async () => {
+  await controller.loadInitialData();
+});
+function updateValue(event: any) {
+  controller.updateValue(event.target.value);
+}
 </script>

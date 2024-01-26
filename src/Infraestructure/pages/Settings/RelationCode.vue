@@ -103,63 +103,44 @@
     </q-card>
   </div>
 </template>
-<script lang="ts">
-import { defineComponent, reactive, ref } from 'vue';
+<script setup lang="ts">
+import { inject, ref } from 'vue';
 import { QForm } from 'quasar';
 import { IRelationCode } from 'src/Domine/ModelsDB';
-import { RelationCodeController } from 'src/Adapters';
+import { RelationCodeBloc } from 'src/Adapters';
 import { IconSVG } from 'src/Application/Utilities';
-import { RelationCodeState } from 'src/Domine/IStates';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
 import { IStoreSettings } from 'src/Domine/IStores';
 import { isNotNull, required } from 'src/Application/Utilities/Helpers';
+import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
 import 'src/css/app.sass';
 
-export default defineComponent({
-  name: 'RelationCodeForm',
-  setup() {
-    const state: RelationCodeState = reactive({
-      allRelationCodes: [],
-      currentRelationCode: {
-        id: undefined,
-        description: '',
-        code: '',
-        dxmaincode: 0,
-      },
-      expanded: false,
-      relationCode: null,
-    });
-    const controller = RelationCodeController.getInstance(state);
-    const mediator = SettingsMediator.getInstance();
-    mediator.add(controller);
-    const store: IStoreSettings = mediator.getStore();
-    const form = ref<QForm>();
+const dependenciesLocator = inject<any>('dependenciesLocator');
+const controller = <RelationCodeBloc>(
+  dependenciesLocator.provideRelationCodeBloc()
+);
+const state = usePlocState(controller);
+const mediator = SettingsMediator.getInstance();
+mediator.add(controller);
+const store: IStoreSettings = mediator.getStore();
+const form = ref<QForm>();
 
-    return {
-      state,
-      store,
-      icons: IconSVG,
-      form,
-      required,
-      isNotNull,
-      edit() {
-        controller.edit();
-      },
-      add() {
-        controller.add();
-      },
-      async confirmChanges() {
-        const isValid = await form.value?.validate();
-        if (isValid == false) return;
-        await controller.saveOrUpdate();
-      },
-      async clearRelationCode() {
-        await controller.clear();
-      },
-      async relationCodeChanged(val: IRelationCode) {
-        await controller.relationCodeChanged(val);
-      },
-    };
-  },
-});
+const icons = IconSVG;
+function edit() {
+  controller.edit();
+}
+function add() {
+  controller.add();
+}
+async function confirmChanges() {
+  const isValid = await form.value?.validate();
+  if (isValid == false) return;
+  await controller.saveOrUpdate();
+}
+async function clearRelationCode() {
+  await controller.clear();
+}
+async function relationCodeChanged(val: IRelationCode) {
+  await controller.relationCodeChanged(val);
+}
 </script>

@@ -1,7 +1,8 @@
 import {
-  Controller,
+  Bloc,
   IControllersMediator,
   IFactoryMethodNotifications,
+  IToRead,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { routerInstance } from 'src/boot/globalRouter';
@@ -10,61 +11,72 @@ import {
   FindPatientByIdentificationUseCase,
   PatientService,
 } from 'src/Application/Services/PatientService';
-import { IPatient } from 'src/Domine/ModelsDB';
-import { PatientResponse } from 'src/Domine/Responses';
+import { IHealthInsurance, IPatient } from 'src/Domine/ModelsDB';
+import {
+  GenderResponse,
+  HealthInsuranceResponse,
+  IDTypeResponse,
+  PatientResponse,
+} from 'src/Domine/Responses';
 import { PatientState } from 'src/Domine/IStates';
 import { ModalType } from 'src/Domine/Types';
 import { EditCommand, InsertCommand } from 'src/Application/Commands';
+import { GenericService } from 'src/Application/Repositories';
 
-export class PatientController extends Controller {
-  public state: PatientState;
+export class PatientFormBloc extends Bloc<PatientState> {
   private sweetAlertModal: Notificator;
   private notifyQuasar: Notificator;
   private validator = Validators.getInstance();
-  private static instance: PatientController;
   private service = new PatientService();
   private findPatientByIdentificationUseCase =
     new FindPatientByIdentificationUseCase();
 
-  private constructor(
-    state: PatientState,
-    factoryNotificator: IFactoryMethodNotifications
+  constructor(
+    private factoryNotificator: IFactoryMethodNotifications,
+    private insuranceService: GenericService<
+      IHealthInsurance,
+      HealthInsuranceResponse
+    >,
+    private idTypeService: IToRead<IDTypeResponse>,
+    private genderService: IToRead<GenderResponse>
   ) {
-    super();
-    this.state = state;
-    this.notifyQuasar = factoryNotificator.createNotificator(
+    const state: PatientState = {
+      currentPatient: { email: null } as IPatient,
+      allIDTypes: [] as Array<IDTypeResponse>,
+      allGenders: [] as Array<GenderResponse>,
+      allInsurance: [] as Array<HealthInsuranceResponse>,
+      identificationPatient: '',
+      idType: null,
+      gender: null,
+      insurance: null,
+      disable: false,
+      error: false,
+      currentInsurance: {} as IHealthInsurance,
+    };
+    super(state);
+    this.notifyQuasar = this.factoryNotificator.createNotificator(
       ModalType.NotifyQuasar
     );
-    this.sweetAlertModal = factoryNotificator.createNotificator(
+    this.sweetAlertModal = this.factoryNotificator.createNotificator(
       ModalType.SweetAlert
     );
   }
 
-  public static getInstance(
-    state: PatientState,
-    factoryNotificator: IFactoryMethodNotifications
-  ): PatientController {
-    if (!PatientController.instance) {
-      PatientController.instance = new PatientController(
-        state,
-        factoryNotificator
-      );
-    }
-    return PatientController.instance;
-  }
-
-  public receiveData(data: IControllersMediator): void {
+  receiveData(data: IControllersMediator): void {
     throw new Error('Method not implemented.');
   }
 
-  public clear(): void {
-    this.state.currentPatient = { email: null } as IPatient;
-    this.state.gender = null;
-    this.state.idType = null;
-    this.state.insurance = null;
+  clear(): void {
+    this.changeState({
+      ...this.state,
+      currentPatient: { email: null } as IPatient,
+      gender: null,
+      idType: null,
+      insurance: null,
+    });
   }
 
-  public async searchByIdentificacion(): Promise<PatientResponse | null> {
+  async searchByIdentificacion(): Promise<PatientResponse | null> {
     const response = await this.findPatientByIdentificationUseCase.execute(
       this.state.identificationPatient
     );
@@ -72,23 +84,26 @@ export class PatientController extends Controller {
       this.clear();
       this.notifyQuasar.setType('warning');
       this.notifyQuasar.show(undefined, Messages.notInfoFound);
-      this.state.disable = false;
+      this.changeState({ ...this.state, disable: false });
       return null;
     }
     this.setData(response);
     return response;
   }
 
-  public setData(response: PatientResponse) {
-    this.state.idType = response.IDType;
-    this.state.insurance = response.insurance;
-    this.state.gender = response.gender;
-    this.state.currentPatient = this.responseToEntity(response);
-    this.state.disable = true;
+  setData(response: PatientResponse) {
+    this.changeState({
+      ...this.state,
+      idType: response.IDType,
+      insurance: response.insurance,
+      gender: response.gender,
+      currentPatient: this.responseToEntity(response),
+      disable: true,
+    });
   }
 
-  public enableEdition(): void {
-    this.state.disable = false;
+  enableEdition(): void {
+    this.changeState({ ...this.state, disable: false });
   }
 
   private responseToEntity(response: PatientResponse): IPatient {
@@ -106,7 +121,7 @@ export class PatientController extends Controller {
     };
   }
 
-  public async saveOrUpdate(): Promise<PatientResponse | null> {
+  async saveOrUpdate(): Promise<PatientResponse | null> {
     if (!this.state.currentPatient) return null;
     let payload: IPatient;
     let response: PatientResponse | null = null;
@@ -138,20 +153,24 @@ export class PatientController extends Controller {
     return response;
   }
 
-  public isValidEmail(val: string): void {
+  isValidEmail(val: string): void {
     const validEmail = this.validator.email(val);
     if (validEmail == false) {
-      this.state.error = true;
+      this.changeState({ ...this.state, error: true });
       this.notifyQuasar.setType('error');
       this.notifyQuasar.show(undefined, 'Email invalido');
       return;
     }
 
     this.state.currentPatient.email = val;
-    this.state.error = false;
+    this.changeState({
+      ...this.state,
+      currentPatient: this.state.currentPatient,
+      error: false,
+    });
   }
 
-  public async patientNotFound(): Promise<void> {
+  async patientNotFound(): Promise<void> {
     this.sweetAlertModal.setType('error');
     const confirm = await this.sweetAlertModal.show(
       'Error',
@@ -165,13 +184,36 @@ export class PatientController extends Controller {
     return;
   }
 
+  async loadInitialData(): Promise<void> {
+    const allIDTypes = await this.idTypeService.getAll();
+    const allGenders = await this.genderService.getAll();
+    const allInsurance = await this.insuranceService.getAll();
+    this.changeState({
+      ...this.state,
+      allIDTypes: allIDTypes,
+      allGenders: allGenders,
+      allInsurance: allInsurance,
+    });
+  }
   set IdType(value: number) {
-    this.state.currentPatient.insurance = value;
+    this.state.currentPatient.IDType = value;
+    this.changeState({
+      ...this.state,
+      currentPatient: this.state.currentPatient,
+    });
   }
   set Insurance(value: number) {
     this.state.currentPatient.insurance = value;
+    this.changeState({
+      ...this.state,
+      currentPatient: this.state.currentPatient,
+    });
   }
   set Gender(value: number) {
     this.state.currentPatient.gender = value;
+    this.changeState({
+      ...this.state,
+      currentPatient: this.state.currentPatient,
+    });
   }
 }

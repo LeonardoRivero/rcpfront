@@ -1,6 +1,7 @@
 import { IPhysicalExam } from 'src/Domine/ModelsDB';
 import { GenericService } from '../Repositories/Interface';
 import { PhysicalExamResponse } from 'src/Domine/Responses';
+import { IToCreate, IToRead, IToUpdate, UseCase } from 'src/Domine/IPatterns';
 
 export class PhysicalExamService extends GenericService<
   IPhysicalExam,
@@ -19,9 +20,9 @@ export class PhysicalExamService extends GenericService<
     const urlAPI = process.env.PHYSICAL_EXAM_PARAMETER
       ? process.env.PHYSICAL_EXAM_PARAMETER
       : '';
-    this.urlBase = `${process.env.RCP}${urlAPI}all/`;
+    this.urlBase = `${process.env.RCP}${urlAPI}filter/`;
     this.urlCreate = `${process.env.RCP}${urlAPI}create/`;
-    this.urlList = `${process.env.RCP}${this.urlBase}all/`;
+    this.urlList = `${process.env.RCP}${urlAPI}`;
     this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
   }
 
@@ -42,5 +43,20 @@ export class PhysicalExamService extends GenericService<
 
   public override getById(id: number): Promise<PhysicalExamResponse> {
     throw new Error('Method not implemented.' + { id });
+  }
+}
+
+export class GetPhysicalExamBySpecialityUseCase
+  implements UseCase<number, Array<PhysicalExamResponse>>
+{
+  GenericService: GenericService<IPhysicalExam, PhysicalExamResponse>;
+  public constructor() {
+    this.GenericService = PhysicalExamService.getInstance();
+  }
+  async execute(idSpeciality: number): Promise<Array<PhysicalExamResponse>> {
+    const response = await this.GenericService.findByParameters({
+      speciality: idSpeciality,
+    });
+    return response;
   }
 }

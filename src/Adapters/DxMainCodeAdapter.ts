@@ -2,6 +2,7 @@ import { IDXMainCode } from 'src/Domine/ModelsDB';
 import { DxMainCodeService } from 'src/Application/Services/DxMainCodeService';
 import { DXMainCodeResponse } from 'src/Domine/Responses';
 import {
+  Bloc,
   Controller,
   ICommand,
   IControllersMediator,
@@ -15,17 +16,27 @@ import {
   InsertCommand,
 } from 'src/Application/Commands';
 
-export class DxMainCodeController extends Controller {
-  public state: DxMainCodeState;
+export class DxMainCodeBloc extends Bloc<DxMainCodeState> {
   private store: IStoreSettings;
   private service = new DxMainCodeService();
-  private static instance: DxMainCodeController;
-  private saveCommand: ICommand | undefined;
-  private updateCommand: ICommand | undefined;
+  // private static instance: DxMainCodeController;
+  // private saveCommand: ICommand | undefined;
+  // private updateCommand: ICommand | undefined;
 
-  private constructor(state: DxMainCodeState) {
-    super();
-    this.state = state;
+  public constructor() {
+    const state: DxMainCodeState = {
+      allDxMainCodes: <Array<DXMainCodeResponse>>[],
+      currentDxMainCode: {
+        id: undefined,
+        CUP: '',
+        description: '',
+        speciality: 0,
+      },
+      expanded: false,
+      dxMainCode: null,
+      error: false,
+    };
+    super(state);
     this.store = {} as IStoreSettings;
     return;
   }
@@ -36,44 +47,43 @@ export class DxMainCodeController extends Controller {
       const val = mediator.store.currentSpeciality;
       this.clear();
       this.store.currentDxMainCode = {} as DXMainCodeResponse;
-      this.listDxMainCodes = await this.findByParameters({
+      const response = await this.findByParameters({
         speciality: val.id,
       });
+      this.changeState({ ...this.state, allDxMainCodes: response });
     }
   }
 
-  public static getInstance(state: DxMainCodeState): DxMainCodeController {
-    if (!DxMainCodeController.instance) {
-      DxMainCodeController.instance = new DxMainCodeController(state);
-    }
-    return DxMainCodeController.instance;
-  }
+  // public static getInstance(state: DxMainCodeState): DxMainCodeController {
+  //   if (!DxMainCodeController.instance) {
+  //     DxMainCodeController.instance = new DxMainCodeController(state);
+  //   }
+  //   return DxMainCodeController.instance;
+  // }
 
-  public async clear(): Promise<void> {
-    this.state.dxMainCode = null;
-    this.state.currentDxMainCode = {} as IDXMainCode;
-    this.state.error = false;
-  }
-
-  public setOnSave(command: ICommand): void {
-    this.saveCommand = command;
-  }
-
-  public setOnUpdate(command: ICommand): void {
-    this.updateCommand = command;
+  public clear(): void {
+    this.changeState({
+      ...this.state,
+      dxMainCode: null,
+      currentDxMainCode: {} as IDXMainCode,
+      error: false,
+    });
   }
 
   public async dxMainCodeChanged(val: DXMainCodeResponse): Promise<void> {
-    // if (val === null) {
-    //   this.state.currentDxMainCode = null;
-    //   return;
-    // }
-    this.state.currentDxMainCode = {
-      id: val.id,
-      description: val.description,
-      CUP: val.CUP,
-      speciality: val.speciality.id,
-    };
+    if (val === null) {
+      this.state.currentDxMainCode = {} as IDXMainCode;
+      return;
+    }
+    this.changeState({
+      ...this.state,
+      currentDxMainCode: {
+        id: val.id,
+        description: val.description,
+        CUP: val.CUP,
+        speciality: val.speciality.id,
+      },
+    });
     if (this.mediator instanceof SettingsMediator) {
       const store: IStoreSettings = this.mediator.getStore();
       store.currentDxMainCode = val;
@@ -82,14 +92,17 @@ export class DxMainCodeController extends Controller {
   }
 
   public add(): void {
-    this.state.expanded = true;
-    this.state.currentDxMainCode = {} as IDXMainCode;
-    this.state.dxMainCode = null;
+    this.changeState({
+      ...this.state,
+      expanded: true,
+      currentDxMainCode: {} as IDXMainCode,
+      dxMainCode: null,
+    });
   }
 
   public edit(): void {
     if (this.state.expanded === false) {
-      this.state.expanded = !this.state.expanded;
+      this.changeState({ ...this.state, expanded: true });
     }
   }
 
@@ -106,8 +119,8 @@ export class DxMainCodeController extends Controller {
       };
 
       delete this.state.currentDxMainCode['id'];
-      this.saveCommand = new InsertCommand(payload, this.service);
-      response = <DXMainCodeResponse>await this.saveCommand.execute();
+      const saveCommand = new InsertCommand(payload, this.service);
+      response = <DXMainCodeResponse>await saveCommand.execute();
     }
 
     if (this.state.currentDxMainCode.id != undefined) {
@@ -117,26 +130,30 @@ export class DxMainCodeController extends Controller {
         description: this.state.currentDxMainCode.description,
         speciality: this.store.currentSpeciality.id,
       };
-      this.updateCommand = new EditCommand(
+      const updateCommand = new EditCommand(
         payload,
         this.state.currentDxMainCode.id,
         this.service
       );
-      response = <DXMainCodeResponse>await this.updateCommand.execute();
+      response = <DXMainCodeResponse>await updateCommand.execute();
     }
 
     if (response === null) return null;
-    this.state.currentDxMainCode = {
-      id: response.id,
-      CUP: response.CUP,
-      description: response.description,
-      speciality: response.speciality.id,
-    };
-
-    this.state.allDxMainCodes = await this.findByParameters({
+    const allDxMainCode = await this.findByParameters({
       speciality: this.store.currentSpeciality.id,
     });
-    this.state.expanded = false;
+    this.changeState({
+      ...this.state,
+      currentDxMainCode: {
+        id: response.id,
+        CUP: response.CUP,
+        description: response.description,
+        speciality: response.speciality.id,
+      },
+      allDxMainCodes: allDxMainCode,
+      expanded: false,
+      dxMainCode: response,
+    });
     return response;
   }
 
@@ -150,11 +167,11 @@ export class DxMainCodeController extends Controller {
     return <Array<DXMainCodeResponse>>await findByParametersCommand.execute();
   }
 
-  public get listDxMainCodes(): Array<DXMainCodeResponse> {
-    return this.state.allDxMainCodes;
-  }
+  // public get listDxMainCodes(): Array<DXMainCodeResponse> {
+  //   return this.state.allDxMainCodes;
+  // }
 
-  public set listDxMainCodes(value: Array<DXMainCodeResponse>) {
-    this.state.allDxMainCodes = value;
-  }
+  // public set listDxMainCodes(value: Array<DXMainCodeResponse>) {
+  //   this.state.allDxMainCodes = value;
+  // }
 }

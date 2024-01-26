@@ -14,9 +14,9 @@ export class DxMainCodeService extends GenericService<
     super();
 
     const urlAPI = process.env.DX_MAIN_CODE ? process.env.DX_MAIN_CODE : '';
-    this.urlBase = `${process.env.RCP}${urlAPI}all/`;
+    this.urlBase = `${process.env.RCP}${urlAPI}filter/`;
     this.urlCreate = `${process.env.RCP}${urlAPI}create/`;
-    this.urlList = `${this.urlBase}`;
-    this.urlUpdate = `${this.urlBase}`;
+    this.urlList = `${process.env.RCP}${urlAPI}list/`;
+    this.urlUpdate = `${process.env.RCP}${urlAPI}`;
   }
 }

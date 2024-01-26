@@ -8,6 +8,7 @@ import {
   IAppointment,
   IDXMainCode,
   IDoctor,
+  IExam,
   IHealthInsurance,
   IMedicalOffice,
   IPathologycalHistory,
@@ -55,6 +56,10 @@ export interface PreliminaryDataState {
   descriptionConsultation: string;
   pathology: PathologicalHistoryResponse | null;
   pathologiesForFilter: Array<PathologicalHistoryResponse>;
+  allDxMainCodes: Array<DXMainCodeResponse>;
+  allRelationCodes: Array<RelationCodeResponse>;
+  dxMainCode: DXMainCodeResponse | null;
+  relationCode: RelationCodeResponse | null;
 }
 
 export interface PathologicalHistoryState {
@@ -72,7 +77,7 @@ export interface SpecialityFormState {
 }
 
 export interface MedicalProcedureState {
-  items: Array<unknown>;
+  items: Array<IExam>;
 }
 
 export interface DxMainCodeState {

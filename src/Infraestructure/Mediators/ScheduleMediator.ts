@@ -297,6 +297,9 @@ export class ScheduleMediator
             //   }
             // });
           },
+          // eventMouseEnter(arg: EventHoveringArg) {
+          //   console.log(arg.event);
+          // },
           views: {
             listMonth: { buttonText: 'Full Mes' },
             timeGridForYear: {
@@ -337,8 +340,7 @@ export class ScheduleMediator
 
   public async getAllSpecialities() {
     if (this.store.allSpecialities.length == 0) {
-      const specialityService =
-        container.get<SpecialityService>('SpecialityService');
+      const specialityService = new SpecialityService();
       this.store.allSpecialities = await specialityService.getAll();
     }
     return this.store.allSpecialities;

@@ -1,4 +1,37 @@
 <template>
+  <div class="fit row wrap justify-start items-start content-start">
+    <q-select
+      dense
+      outlined
+      v-model="state.dxMainCode"
+      :options="state.allDxMainCodes"
+      :option-value="(item) => (item === null ? null : item.id)"
+      option-label="description"
+      map-options
+      emit-value
+      label="Codigo Principal"
+      @update:model-value="(val) => dxMainCodeChanged(val)"
+      style="overflow: auto; max-width: 45%"
+      class="col-grow"
+    >
+    </q-select>
+    <q-space style="max-width: 10%" />
+    <q-select
+      dense
+      outlined
+      v-model="state.relationCode"
+      :options="state.allRelationCodes"
+      :option-value="(item) => (item === null ? null : item.id)"
+      option-label="description"
+      map-options
+      emit-value
+      label="Codigo Relacionado"
+      style="overflow: auto; max-width: 45%"
+      class="col-grow"
+    >
+    </q-select>
+  </div>
+  <br />
   <q-input
     v-model="state.reasonConsultation"
     outlined
@@ -54,22 +87,20 @@ import { IconSVG } from 'src/Application/Utilities';
 import { PreliminaryDataBloc } from 'src/Adapters';
 import { required } from 'src/Application/Utilities/Helpers';
 import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
-import container from 'src/inversify.config';
-import { IControllersMediator } from 'src/Domine/IPatterns';
+import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
 import 'src/css/app.sass';
 
-const controller = inject<PreliminaryDataBloc>(
-  'preliminaryDataBloc'
-) as PreliminaryDataBloc;
+const dependenciesLocator = inject<any>('dependenciesLocator');
+const controller = <PreliminaryDataBloc>(
+  dependenciesLocator.providePreliminaryDataBloc()
+);
 const state = usePlocState(controller);
 
 onMounted(async () => {
   await controller.loadInitialData();
 });
 
-const clinicHistoryMediator = container.get<IControllersMediator>(
-  'ClinicHistoryMediator'
-);
+const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
 clinicHistoryMediator.add(controller);
 const icons = IconSVG;
 function filterFn(val: string, update: any) {
@@ -79,5 +110,9 @@ function filterFn(val: string, update: any) {
       (v) => v.description.toLowerCase().indexOf(needle) > -1
     );
   });
+}
+
+function dxMainCodeChanged(val: number) {
+  controller.dxMainCodeChanged(val);
 }
 </script>

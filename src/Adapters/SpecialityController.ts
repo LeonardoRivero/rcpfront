@@ -2,19 +2,13 @@ import { ISpeciality } from 'src/Domine/ModelsDB';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { SpecialityResponse } from 'src/Domine/Responses';
 import { SpecialityFormState } from 'src/Domine/IStates';
-import {
-  Bloc,
-  Controller,
-  ICommand,
-  IControllersMediator,
-} from 'src/Domine/IPatterns';
-import container from 'src/inversify.config';
+import { Bloc, IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreSettings } from 'src/Domine/IStores';
 import { EditCommand, InsertCommand } from 'src/Application/Commands';
 import { ActionsSettingsMediator } from 'src/Infraestructure/Mediators';
 
 export class SpecialityFormBloc extends Bloc<SpecialityFormState> {
-  public constructor(private service: SpecialityService) {
+  constructor(private service: SpecialityService) {
     const state: SpecialityFormState = {
       currentSpeciality: {} as SpecialityResponse,
       expanded: false,
@@ -22,26 +16,25 @@ export class SpecialityFormBloc extends Bloc<SpecialityFormState> {
       allSpecialities: <Array<SpecialityResponse>>[],
     };
     super(state);
+  }
+
+  receiveData(_mediator: IControllersMediator): void {
     return;
   }
 
-  receiveData(mediator: IControllersMediator): void {
-    return;
-  }
-
-  public clear(): void {
+  clear(): void {
     this.state.currentSpeciality = {} as ISpeciality;
   }
 
-  public async notifySpeciality(val: SpecialityResponse | null): Promise<void> {
+  async notifySpeciality(val: SpecialityResponse | null): Promise<void> {
     if (val === null) return;
     this.changeState({ ...this.state, currentSpeciality: val });
     const store = this.mediator.getStore() as IStoreSettings;
     store.currentSpeciality = val;
-    // this.mediator.notify(store, this);
+    this.mediator.notify(store, this);
   }
 
-  public add(): void {
+  add(): void {
     this.changeState({
       ...this.state,
       expanded: true,
@@ -49,7 +42,7 @@ export class SpecialityFormBloc extends Bloc<SpecialityFormState> {
     });
   }
 
-  public edit(): void {
+  edit(): void {
     if (this.state.expanded === false) {
       this.changeState({ ...this.state, expanded: !this.state.expanded });
     }
@@ -59,7 +52,7 @@ export class SpecialityFormBloc extends Bloc<SpecialityFormState> {
     });
   }
 
-  public async saveOrUpdate(): Promise<SpecialityResponse | null> {
+  async saveOrUpdate(): Promise<SpecialityResponse | null> {
     if (!this.state.currentSpeciality) return null;
     let response: SpecialityResponse | null = null;
     const payload: ISpeciality = this.state.currentSpeciality;

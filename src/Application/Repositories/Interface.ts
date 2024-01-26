@@ -1,5 +1,4 @@
 import { IKeyEmailRegistration, ILogin } from 'src/Domine/ModelsDB';
-import { DELETE, GET, POST, PUT } from 'src/Infraestructure/Utilities/Request';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
 import 'reflect-metadata';
 import { inject, injectable } from 'inversify';

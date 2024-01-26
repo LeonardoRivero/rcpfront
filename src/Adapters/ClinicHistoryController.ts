@@ -1,5 +1,6 @@
 import {
   AppointmentResponse,
+  DXMainCodeResponse,
   EventScheduleResponse,
   PathologicalHistoryResponse,
   PatientResponse,
@@ -57,7 +58,7 @@ export class InforPatientPanelBloc extends Bloc<InfoPatientState> {
     super(state);
   }
   public receiveData(data: IControllersMediator): void {
-    throw new Error('Method not implemented.');
+    return;
   }
 
   public getGender(patient: PatientResponse) {
@@ -74,7 +75,7 @@ export class InforPatientPanelBloc extends Bloc<InfoPatientState> {
     if (this.mediator === null || this.mediator === undefined) {
       throw new Error('Aun no se definido un mediador para esta operacion');
     }
-    // this.mediator.notify(state, this);
+    this.mediator.notify(state, this);
   }
 
   public clear() {
@@ -151,7 +152,11 @@ export class PreliminaryDataBloc extends Bloc<PreliminaryDataState> {
       items: [],
       reasonConsultation: '',
       descriptionConsultation: '',
-      pathologiesForFilter: [] as Array<PathologicalHistoryResponse>,
+      pathologiesForFilter: [],
+      allDxMainCodes: [],
+      allRelationCodes: [],
+      dxMainCode: null,
+      relationCode: null,
     };
     super(state);
   }
@@ -160,63 +165,90 @@ export class PreliminaryDataBloc extends Bloc<PreliminaryDataState> {
     throw new Error('Method not implemented.');
   }
 
-  public adaptPhysicalExam(
-    physicalExamParameter: Array<PhysicalExamResponse>,
-    appointment: AppointmentResponse
-  ) {
-    const items = physicalExamParameter.map((item) => ({
-      id: item.id,
-      patient: appointment.patient.id,
-      appointment: appointment.schedule,
-      result: '',
-      description: item.description,
-    }));
-    this.state.items = items;
-    return items;
-  }
-
-  public async receiveData(data: ClinicHistoryMediator): Promise<void> {
+  async receiveData(data: ClinicHistoryMediator): Promise<void> {
     if (!(data instanceof ClinicHistoryMediator)) {
       return;
     }
-    const speciality = data.stores.speciality;
-    const appointment = data.stores.currentAppointment;
-    const response = await this.service.findByParameters({
-      speciality: speciality.id,
-    });
-    this.adaptPhysicalExam(response, appointment);
+    const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
+    const speciality = data.store.currentSchedule?.speciality;
+    const listAllDxMainCodes = await mediator.getAllDxMainCodes();
+    const dxMainCodeFiltered = listAllDxMainCodes.filter(
+      (dxMainCode) => dxMainCode.speciality.id === speciality?.id
+    );
+    this.changeState({ ...this.state, allDxMainCodes: dxMainCodeFiltered });
+    // console.log(response);
+    // this.adaptPhysicalExam(response, appointment);
   }
+
   async loadInitialData() {
     const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
-    this.state.allPathologies = await mediator.getAllPathologies();
-    this.state.pathologiesForFilter = this.state.allPathologies;
+    const listPathologies = await mediator.getAllPathologies();
+
+    this.changeState({
+      ...this.state,
+      allPathologies: listPathologies,
+      pathologiesForFilter: listPathologies,
+    });
+  }
+
+  async dxMainCodeChanged(val: number) {
+    const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
+    const listRelationCode = await mediator.getAllRelationCode();
+    const relationCodeFiltered = listRelationCode.filter(
+      (relationCode) => relationCode.dxmaincode.id === val
+    );
+    this.changeState({
+      ...this.state,
+      allRelationCodes: relationCodeFiltered,
+      relationCode: null,
+    });
   }
 }
 
-export class MedicalProcedureController extends Controller {
-  private static instance: MedicalProcedureController;
-  public state: MedicalProcedureState;
-  public constructor(state: MedicalProcedureState) {
-    super();
-    this.state = state;
+export class MedicalProcedureBloc extends Bloc<MedicalProcedureState> {
+  public constructor(
+    private getPhysicalExamBySpecilityUseCase: UseCase<
+      number,
+      Array<PhysicalExamResponse>
+    >
+  ) {
+    const state: MedicalProcedureState = {
+      items: [],
+    };
+    super(state);
   }
 
-  public static getInstance(
-    state: MedicalProcedureState
-  ): MedicalProcedureController {
-    if (!MedicalProcedureController.instance) {
-      MedicalProcedureController.instance = new MedicalProcedureController(
-        state
-      );
-    }
-    return MedicalProcedureController.instance;
-  }
-
-  receiveData(data: IControllersMediator): void {
-    throw new Error('Method not implemented.');
+  async receiveData(_data: IControllersMediator): Promise<void> {
+    // if (this.mediator instanceof ClinicHistoryMediator) {
+    //   const store = <IStoreClinicHistory>this.mediator.getStore();
+    //   const val = store.currentSchedule?.speciality;
+    //   const response = await this.getPhysicalExamBySpecilityUseCase.execute(
+    //     val?.id
+    //   );
+    //   this.changeState({ ...this.state, items: response });
+    // }
   }
   clear(): void {
     throw new Error('Method not implemented.');
+  }
+  async loadInitialData() {
+    if (this.mediator instanceof ClinicHistoryMediator) {
+      const store = <IStoreClinicHistory>this.mediator.getStore();
+      const val = store.currentSchedule?.speciality;
+      const response = await this.getPhysicalExamBySpecilityUseCase.execute(
+        val?.id
+      );
+      const adapted: Array<IExam> = response.map((item) => ({
+        description: item.description,
+        result: '',
+        id: item.id,
+      }));
+      this.changeState({ ...this.state, items: adapted });
+    }
+  }
+  updateValue(_value: string) {
+    const store = <IStoreClinicHistory>this.mediator.getStore();
+    store.examParameterResult = this.state.items;
   }
 }
 

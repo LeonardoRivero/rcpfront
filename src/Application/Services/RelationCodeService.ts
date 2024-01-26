@@ -14,9 +14,9 @@ export class RelationCodeService extends GenericService<
   public constructor() {
     super();
     const urlAPI = process.env.RELATION_CODE ? process.env.RELATION_CODE : '';
-    this.urlBase = `${process.env.RCP}${urlAPI}all/`;
-    this.urlCreate = `${process.env.RCP}${urlAPI}all/`;
-    this.urlList = `${process.env.RCP}${this.urlBase}all/`;
-    this.urlUpdate = `${process.env.RCP}${this.urlBase}`;
+    this.urlBase = `${process.env.RCP}${urlAPI}filter/`;
+    this.urlCreate = `${process.env.RCP}${urlAPI}create/`;
+    this.urlList = `${process.env.RCP}${urlAPI}list/`;
+    this.urlUpdate = `${process.env.RCP}${urlAPI}`;
   }
 }

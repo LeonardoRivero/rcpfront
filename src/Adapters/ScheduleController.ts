@@ -96,6 +96,7 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
         insurance: {} as HealthInsuranceResponse,
       } as PatientResponse,
       identificationPatient: '',
+      currentSchedule: { observations: '' } as EventSchedule,
     });
   }
 
@@ -136,19 +137,6 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
 
     // const apiCalendar = this.state.calendar.getApi();
     // apiCalendar.refetchEvents();
-  }
-
-  public async scheduleNotFound(): Promise<void> {
-    const confirm = await this.notifySweetAlert.show(
-      'Atención',
-      Messages.patientNotSchedule
-    );
-    if (confirm == false) {
-      return;
-    }
-
-    routerInstance.push('/schedule');
-    return;
   }
 
   public async searchPatient(): Promise<void> {

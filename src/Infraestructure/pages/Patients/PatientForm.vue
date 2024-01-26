@@ -235,108 +235,66 @@
   </q-page>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, reactive, ref } from 'vue';
-import {
-  IGender,
-  IHealthInsurance,
-  IIDType,
-  IPatient,
-} from 'src/Domine/ModelsDB';
+<script setup lang="ts">
+import { inject, onMounted, ref } from 'vue';
+import { IGender, IHealthInsurance, IIDType } from 'src/Domine/ModelsDB';
 import { IconSVG } from 'src/Application/Utilities/Constants';
-import 'src/css/app.sass';
-import { PatientState } from 'src/Domine/IStates';
-import {
-  GenderResponse,
-  HealthInsuranceResponse,
-  IDTypeResponse,
-} from 'src/Domine/Responses';
 import { QForm } from 'quasar';
-import { PatientController } from 'src/Adapters';
+import { PatientFormBloc } from 'src/Adapters';
 import {
   required,
-  emailRequired,
   isNotNull,
   numberRequired,
 } from 'src/Application/Utilities/Helpers';
-import { GenderService, InsuranceService } from 'src/Application/Services';
-import { IDTypesService } from 'src/Application/Services/IDTypeService';
-import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
-import container from 'src/inversify.config';
+import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
+import 'src/css/app.sass';
 
-export default defineComponent({
-  setup() {
-    const state: PatientState = reactive({
-      currentPatient: { email: null } as IPatient,
-      allIDTypes: [] as Array<IDTypeResponse>,
-      allGenders: [] as Array<GenderResponse>,
-      allInsurance: [] as Array<HealthInsuranceResponse>,
-      identificationPatient: '',
-      idType: null,
-      gender: null,
-      insurance: null,
-      disable: false,
-      error: false,
-      currentInsurance: {} as IHealthInsurance,
-    });
+const form = ref<QForm>();
+const dependenciesLocator = inject<any>('dependenciesLocator');
+const controller = <PatientFormBloc>(
+  dependenciesLocator.providePatientFormBloc()
+);
+const state = usePlocState(controller);
 
-    const form = ref<QForm>();
-    const creatorNotificator =
-      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
-    const controller = PatientController.getInstance(state, creatorNotificator);
-    const insuranceService = new InsuranceService();
-    const idTypesService = new IDTypesService();
-    const genderService = new GenderService();
-
-    onMounted(async () => {
-      state.allIDTypes = await idTypesService.getAll();
-      state.allGenders = await genderService.getAll();
-      state.allInsurance = await insuranceService.getAll();
-    });
-
-    return {
-      state,
-      form,
-      required,
-      emailRequired,
-      numberRequired,
-      isNotNull,
-      icons: IconSVG,
-      async confirmChanges() {
-        const isValid = await form.value?.validate();
-        if (isValid == false) return;
-        const response = await controller.saveOrUpdate();
-        if (response != null) {
-          form.value?.reset();
-        }
-      },
-      isValidEmail(val: string) {
-        controller.isValidEmail(val);
-      },
-      idTypeChanged(val: IIDType) {
-        if (val.id === undefined) return;
-        controller.IdType = val.id;
-      },
-      insuranceChanged(val: IHealthInsurance) {
-        if (val.id === undefined) return;
-        controller.Insurance = val.id;
-      },
-      genderChanged(val: IGender) {
-        if (val.id === undefined) return;
-        controller.Gender = val.id;
-      },
-      async searchPatient() {
-        const response = await controller.searchByIdentificacion();
-        if (response === null) {
-          form.value?.reset();
-        }
-      },
-      enableEdition() {
-        controller.enableEdition();
-      },
-    };
-  },
+onMounted(async () => {
+  await controller.loadInitialData();
 });
+
+const icons = IconSVG;
+async function confirmChanges() {
+  const isValid = await form.value?.validate();
+  if (isValid == false) return;
+  const response = await controller.saveOrUpdate();
+  if (response != null) {
+    form.value?.reset();
+  }
+}
+
+function idTypeChanged(val: IIDType) {
+  if (val.id === undefined) return;
+  controller.IdType = val.id;
+}
+
+function insuranceChanged(val: IHealthInsurance) {
+  if (val.id === undefined) return;
+  controller.Insurance = val.id;
+}
+
+function genderChanged(val: IGender) {
+  if (val.id === undefined) return;
+  controller.Gender = val.id;
+}
+
+async function searchPatient() {
+  const response = await controller.searchByIdentificacion();
+  if (response === null) {
+    form.value?.reset();
+  }
+}
+
+function enableEdition() {
+  controller.enableEdition();
+}
 </script>
 <!-- <style lang="sass" scoped>
 .my-custom-toggle

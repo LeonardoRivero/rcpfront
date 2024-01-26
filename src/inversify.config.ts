@@ -9,14 +9,10 @@ import { MedicalOfficeService } from './Application/Services/MedicalOfficeServic
 import { ClientAPI } from './Infraestructure/Utilities/HttpClientAPI';
 import {
   HTTPClient,
-  IControllersMediator,
   IFactoryMethodNotifications,
   IToRead,
-  Bloc,
   UseCase,
 } from './Domine/IPatterns';
-import { PaymentOptionsService } from './Application/Services/PaymentOptionsService';
-import { IPaymentOptionsService } from './Domine/IServices';
 import { GenericService } from './Application/Repositories';
 import {
   CountryResponse,
@@ -30,18 +26,11 @@ import {
 import { ISpeciality } from './Domine/ModelsDB';
 import { FactoryNotifactors } from './Adapters/Creators/Factories';
 import { DoctorSpecialityService } from './Application/Services/DoctorService';
-import { ClinicHistoryMediator } from './Infraestructure/Mediators';
-import { InfoPatientState } from './Domine/IStates';
 import { FindPatientByIdentificationUseCase } from './Application/Services';
 import { FindScheduleByIdentificationPatientUseCase } from './Application/Services/ScheduleService';
-import { InforPatientPanelBloc } from './Adapters/ClinicHistoryController';
 
 const container = new Container();
 container.bind<HTTPClient>('HTTPClient').to(ClientAPI);
-container
-  .bind<GenericService<ISpeciality, SpecialityResponse>>('SpecialityService')
-  .to(SpecialityService)
-  .inSingletonScope();
 container
   .bind<GenericService<any, CountryResponse>>('CountryService')
   .to(CountryService)
@@ -67,10 +56,10 @@ container
   .to(DoctorSpecialityService)
   .inSingletonScope();
 
-container
-  .bind<IControllersMediator>('ClinicHistoryMediator')
-  .to(ClinicHistoryMediator)
-  .inSingletonScope();
+// container
+//   .bind<IControllersMediator>('ClinicHistoryMediator')
+//   .to(ClinicHistoryMediator)
+//   .inSingletonScope();
 
 container
   .bind<UseCase<string, EventScheduleResponse | null>>(

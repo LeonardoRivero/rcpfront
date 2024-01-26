@@ -1,8 +1,6 @@
 import { IPaymentOptions } from 'src/Domine/ModelsDB';
 import { GenericService } from '../Repositories/Interface';
 import { PaymentOptionsResponse } from 'src/Domine/Responses';
-import 'reflect-metadata';
-import { injectable } from 'inversify';
 import { UseCase } from 'src/Domine/IPatterns';
 export class PaymentOptionsService extends GenericService<
   IPaymentOptions,

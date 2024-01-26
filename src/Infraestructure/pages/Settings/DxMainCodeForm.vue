@@ -25,7 +25,7 @@
               : ''
           }`"
           @update:model-value="(val) => dxMainCodeChanged(val)"
-          @clear="(val) => clearDxMainCode()"
+          @clear="(val) => clearDxMainCode(val)"
         >
         </q-select>
       </q-card-section>
@@ -61,7 +61,6 @@
         <div v-show="state.expanded">
           <q-separator />
           <q-card-section class="text-subitle2">
-            {{ store.currentSpeciality.description }}
             <q-form @submit="confirmChanges" ref="form">
               <q-input
                 dense
@@ -99,65 +98,42 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, reactive, ref } from 'vue';
+<script setup lang="ts">
+import { inject, ref } from 'vue';
 import { QForm } from 'quasar';
-import { DxMainCodeController } from 'src/Adapters/DxMainCodeAdapter';
+import { DxMainCodeBloc } from 'src/Adapters/DxMainCodeAdapter';
 import { DXMainCodeResponse } from 'src/Domine/Responses';
 import { IconSVG } from 'src/Application/Utilities';
 import { SettingsMediator } from 'src/Infraestructure/Mediators';
-import { DxMainCodeState } from 'src/Domine/IStates';
 import { IStoreSettings } from 'src/Domine/IStores';
 import { required, isNotUndefined } from 'src/Application/Utilities/Helpers';
+import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
 import 'src/css/app.sass';
 
-export default defineComponent({
-  name: 'DxMainCodeForm',
-  setup() {
-    const state: DxMainCodeState = reactive({
-      allDxMainCodes: <Array<DXMainCodeResponse>>[],
-      currentDxMainCode: {
-        id: undefined,
-        CUP: '',
-        description: '',
-        speciality: 0,
-      },
-      expanded: false,
-      dxMainCode: null,
-      error: false,
-    });
+const dependenciesLocator = inject<any>('dependenciesLocator');
+const controller = <DxMainCodeBloc>dependenciesLocator.provideDxMainCodeBloc();
+const state = usePlocState(controller);
+const mediator = SettingsMediator.getInstance();
+mediator.add(controller);
+const store: IStoreSettings = mediator.getStore();
+const form = ref<QForm>();
+const icons = IconSVG;
 
-    const controller = DxMainCodeController.getInstance(state);
-    const mediator = SettingsMediator.getInstance();
-    mediator.add(controller);
-    const store: IStoreSettings = mediator.getStore();
-    const form = ref<QForm>();
-
-    return {
-      state,
-      icons: IconSVG,
-      store,
-      form,
-      required,
-      isNotUndefined,
-      async clearDxMainCode() {
-        await controller.clear();
-      },
-      async dxMainCodeChanged(val: DXMainCodeResponse) {
-        await controller.dxMainCodeChanged(val);
-      },
-      edit() {
-        controller.edit();
-      },
-      add() {
-        controller.add();
-      },
-      async confirmChanges() {
-        const isValid = await form.value?.validate();
-        if (isValid == false) return;
-        await controller.saveOrUpdate();
-      },
-    };
-  },
-});
+function clearDxMainCode(_val: any) {
+  controller.clear();
+}
+async function dxMainCodeChanged(val: DXMainCodeResponse) {
+  await controller.dxMainCodeChanged(val);
+}
+function edit() {
+  controller.edit();
+}
+function add() {
+  controller.add();
+}
+async function confirmChanges() {
+  const isValid = await form.value?.validate();
+  if (isValid == false) return;
+  await controller.saveOrUpdate();
+}
 </script>
