@@ -1,10 +1,10 @@
 import { GenericService } from '../Repositories/Interface';
-import { IDoctor } from 'src/Domine/ModelsDB';
+import { IDoctor } from 'src/Domine/Request';
 import { DoctorResponse, DoctorSpecialityResponse } from 'src/Domine/Responses';
 import { HTTPClient, IToRead } from 'src/Domine/IPatterns';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
-import 'reflect-metadata';
-import { inject, injectable } from 'inversify';
+// import 'reflect-metadata';
+// import { inject, injectable } from 'inversify';
 
 export class DoctorService extends GenericService<IDoctor, DoctorResponse> {
   public urlCreate: string;
@@ -22,15 +22,14 @@ export class DoctorService extends GenericService<IDoctor, DoctorResponse> {
   }
 }
 
-@injectable()
+// @injectable()
 export class DoctorSpecialityService
-  implements IToRead<DoctorSpecialityResponse>
-{
+  implements IToRead<DoctorSpecialityResponse> {
   public httpClient: HTTPClient;
   urlList: string;
   urlBase: string;
 
-  public constructor(@inject('HTTPClient') httpClient: HTTPClient) {
+  public constructor(httpClient: HTTPClient) {
     const urlAPI = process.env.DOCTOR_SPECIALITY
       ? process.env.DOCTOR_SPECIALITY
       : '';

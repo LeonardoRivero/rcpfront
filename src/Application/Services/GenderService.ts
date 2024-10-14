@@ -1,6 +1,6 @@
 import { GenderResponse } from 'src/Domine/Responses';
-import { HTTPClient, IToRead } from 'src/Domine/IPatterns';
-import container from 'src/inversify.config';
+import { HTTPClient, IToRead, IUseCase } from 'src/Domine/IPatterns';
+// import container from 'src/inversify.config';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
 
 export class GenderService implements IToRead<GenderResponse> {
@@ -11,7 +11,8 @@ export class GenderService implements IToRead<GenderResponse> {
     const urlAPI = process.env.GENDER ? process.env.GENDER : '';
     this.urlBase = `${process.env.RCP}${urlAPI}`;
     this.urlList = `${this.urlBase}list/`;
-    this.httpClient = container.get<HTTPClient>('HTTPClient');
+    // this.httpClient = container.get<HTTPClient>('HTTPClient');
+    this.httpClient = {} as HTTPClient;
   }
 
   public async findByParameters(
@@ -31,4 +32,20 @@ export class GenderService implements IToRead<GenderResponse> {
   public async getById(id: number): Promise<GenderResponse | null> {
     throw new Error('Method not implemented.' + { id });
   }
+}
+
+
+export class GetAllGenderUseCase implements IUseCase<void, GenderResponse[]> {
+  url: string
+  constructor(private httpClient: HTTPClient) {
+    this.url = `${process.env.RCP}${process.env.GENDER}`;
+  }
+  async execute(): Promise<GenderResponse[]> {
+    const response = await this.httpClient.GET(this.url)
+    if (!response.ok) {
+      return []
+    }
+    return await response.json()
+  }
+
 }

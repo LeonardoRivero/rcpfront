@@ -1,13 +1,9 @@
 import { defineStore } from 'pinia';
-import { Messages } from 'src/Application/Utilities';
 import {
   Controller,
   IControllersMediator,
-  IFactoryMethodNotifications,
-  Notificator,
 } from 'src/Domine/IPatterns';
 import { IStoreSettings } from 'src/Domine/IStores';
-import { ISpeciality } from 'src/Domine/ModelsDB';
 import {
   DXMainCodeResponse,
   Group,
@@ -18,7 +14,6 @@ import {
   RelationCodeResponse,
   SpecialityResponse,
 } from 'src/Domine/Responses';
-import { routerInstance } from 'src/boot/globalRouter';
 import {
   FindPatientByIdentificationUseCase,
   PatientService,
@@ -93,20 +88,20 @@ export class PatientMediator implements IControllersMediator {
     return response;
   }
 
-  public async patientNotFound(): Promise<void> {
-    throw new Error(
-      'Aca hay algo raro... utilizar otro objeto que ya se definio para eso'
-    );
-    // this.notifySweetAlert.setType('error');
-    // const confirm = await this.notifySweetAlert.show(
-    //   'Error',
-    //   Messages.notFoundInfoPatient
-    // );
-    // if (confirm == false) {
-    //   return;
-    // }
+  // public async patientNotFound(): Promise<void> {
+  //   throw new Error(
+  //     'Aca hay algo raro... utilizar otro objeto que ya se definio para eso'
+  //   );
+  //   // this.notifySweetAlert.setType('error');
+  //   // const confirm = await this.notifySweetAlert.show(
+  //   //   'Error',
+  //   //   Messages.notFoundInfoPatient
+  //   // );
+  //   // if (confirm == false) {
+  //   //   return;
+  //   // }
 
-    // routerInstance.push('/patient');
-    // return;
-  }
+  //   // routerInstance.push('/patient');
+  //   // return;
+  // }
 }

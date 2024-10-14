@@ -110,7 +110,7 @@ import { storeToRefs } from 'pinia';
 import DataTable from 'src/Infraestructure/components/commons/DataTable.vue';
 import { useStorePhysicalExamParameter } from 'src/Infraestructure/Mediators/SettingsPage/PhysicalExamStore';
 import { PhysicalExamParameterController } from 'src/Adapters/PhysicalExamAdapter';
-import { IPhysicalExam } from 'src/Domine/ModelsDB';
+import { IPhysicalExam } from 'src/Domine/Request';
 import { useStoreDataTable } from '../../Mediators/Common/DatatableStore';
 import { SettingsMediator } from '../../Mediators';
 import { PhysicalExamParameterState } from 'src/Domine/IStates';
@@ -119,7 +119,7 @@ import { QForm } from 'quasar';
 import { required, isNotNull } from 'src/Application/Utilities/Helpers';
 import 'src/css/app.sass';
 import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
-import container from 'src/inversify.config';
+// import container from 'src/inversify.config';
 import { BuilderTables } from 'src/Infraestructure/Utilities/BuildersTables';
 
 export default defineComponent({
@@ -147,8 +147,7 @@ export default defineComponent({
 
     const storeDataTable = useStoreDataTable();
     const { tableOptions } = storeToRefs(storeDataTable);
-    const factoryNotificator =
-      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+    const factoryNotificator = {} as IFactoryMethodNotifications;
     const controller = new PhysicalExamParameterController(
       state,
       factoryNotificator

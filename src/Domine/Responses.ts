@@ -1,4 +1,5 @@
-import { IExam, Permission } from './ModelsDB';
+import { IExam, Permission } from './Request';
+
 export interface SpecialityResponse {
   id: number;
   description: string;
@@ -75,27 +76,28 @@ export interface EventScheduleResponse {
 }
 export interface GenderResponse {
   id: number;
-  nameGender: string;
+  code: string;
+  description: string;
 }
 export interface HealthInsuranceResponse {
   id: number;
-  nameInsurance: string;
-  entityCode: string;
+  name: string;
+  code: string;
   takeCopayment: boolean;
 }
 export interface IDTypeResponse {
   id: number;
   description: string;
-  abbreviation: string;
+  code: string;
 }
 export interface PatientResponse {
   id: number;
   name: string;
   lastName: string;
   IDType: IDTypeResponse;
-  identification: number;
+  identification: string;
   dateBirth: string;
-  phoneNumber: number;
+  phoneNumber: string;
   insurance: HealthInsuranceResponse;
   gender: GenderResponse;
   email: string;
@@ -174,8 +176,20 @@ interface Country {
   phone: string;
 }
 
-export interface CountryResponse extends Country {
-  url: string;
+export interface CountryResponse {
+  id: number;
+  alpha2: string;
+  alpha3: string;
+  name: string;
+  numeric: string;
+}
+
+export interface CityResponse {
+  id: number;
+  state: string
+  codeState: string
+  codeTown: string
+  town: string
 }
 
 interface CountryResponseModel extends Country {
@@ -226,4 +240,44 @@ export interface MedicalOfficeResponse {
   country: CountryResponseModel;
   department: RegionResponseModel;
   city: SubRegionResponseModel;
+}
+
+export interface OcupationResponse {
+  id: number;
+  group: string;
+  code: number;
+  name: string;
+}
+
+export interface EthicityResponse {
+  id: number;
+  description: string;
+  code: string;
+}
+
+export interface KindDisabilityResponse {
+  id: number;
+  description: string;
+  code: string;
+}
+
+export interface PhoneCodeResponse {
+  id: number,
+  country: string,
+  isoCode: string,
+  numericIso: string,
+  callingCode: string,
+  format: string
+}
+
+export interface BiologicalSexResponse {
+  id: number,
+  code: string,
+  description: string
+}
+
+export interface ZoneStayResponse {
+  id: number,
+  code: string,
+  description: string
 }

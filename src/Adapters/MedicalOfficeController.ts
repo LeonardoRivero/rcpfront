@@ -15,7 +15,7 @@ import {
   IFactoryMethodNotifications,
   Notificator,
 } from 'src/Domine/IPatterns';
-import container from 'src/inversify.config';
+// import container from 'src/inversify.config';
 import { ModalType } from 'src/Domine/Types';
 import { EditCommand, InsertCommand } from 'src/Application/Commands';
 import { MedicalOfficeService } from 'src/Application/Services/MedicalOfficeService';
@@ -26,13 +26,13 @@ export class MedicalOfficeController extends Controller {
   private saveCommand: ICommand | undefined;
   private updateCommand: ICommand | undefined;
   private notifyQuasar: Notificator;
-  private subRegionService =
-    container.get<GenericService<any, SubRegionResponse>>('SubRegionService');
+  // private subRegionService =
+  //   container.get<GenericService<any, SubRegionResponse>>('SubRegionService');
   private static instance: MedicalOfficeController;
-  private countryService =
-    container.get<GenericService<any, CountryResponse>>('CountryService');
-  private regionService =
-    container.get<GenericService<any, RegionResponse>>('RegionService');
+  // private countryService =
+  //   container.get<GenericService<any, CountryResponse>>('CountryService');
+  // private regionService =
+  //   container.get<GenericService<any, RegionResponse>>('RegionService');
 
   private constructor(
     state: MedicalOfficeState,
@@ -124,11 +124,12 @@ export class MedicalOfficeController extends Controller {
   public async getCitiesByDepartment(
     id: number
   ): Promise<Array<SubRegionResponse>> {
-    const response = await this.subRegionService.findByParameters({
-      region_id: id,
-    });
-    this.state.subRegions = response;
-    return response;
+    // const response = await this.subRegionService.findByParameters({
+    //   region_id: id,
+    // });
+    // this.state.subRegions = response;
+    // return response;
+    return [];
   }
 
   public getIdByUrl(url: string): number {
@@ -154,11 +155,11 @@ export class MedicalOfficeController extends Controller {
   }
 
   public async getAllMedicalOffice() {
-    const serviceMedicalOffice = container.get<MedicalOfficeService>(
-      'MedicalOfficeService'
-    );
-    this.state.medicalOffices = await serviceMedicalOffice.getAll();
-    this.state.disableSelectAddress = false;
+    // const serviceMedicalOffice = container.get<MedicalOfficeService>(
+    //   'MedicalOfficeService'
+    // );
+    // this.state.medicalOffices = await serviceMedicalOffice.getAll();
+    // this.state.disableSelectAddress = false;
   }
 
   public add() {
@@ -178,7 +179,7 @@ export class MedicalOfficeController extends Controller {
   }
 
   public async loadInitialData() {
-    this.state.countries = await this.countryService.getAll();
-    this.state.regions = await this.regionService.getAll();
+    // this.state.countries = await this.countryService.getAll();
+    // this.state.regions = await this.regionService.getAll();
   }
 }

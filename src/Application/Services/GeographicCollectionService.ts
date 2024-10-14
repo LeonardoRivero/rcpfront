@@ -4,10 +4,10 @@ import {
   SubRegionResponse,
 } from 'src/Domine/Responses';
 import { GenericService } from '../Repositories/Interface';
-import 'reflect-metadata';
-import { injectable } from 'inversify';
+// import 'reflect-metadata';
+// import { injectable } from 'inversify';
 
-@injectable()
+// @injectable()
 export class CountryService extends GenericService<any, CountryResponse> {
   urlCreate: string;
   urlList: string;
@@ -22,7 +22,7 @@ export class CountryService extends GenericService<any, CountryResponse> {
   }
 }
 
-@injectable()
+// @injectable()
 export class SubRegionService extends GenericService<any, SubRegionResponse> {
   urlCreate: string;
   urlList: string;
@@ -39,7 +39,7 @@ export class SubRegionService extends GenericService<any, SubRegionResponse> {
   }
 }
 
-@injectable()
+// @injectable()
 export class RegionService extends GenericService<any, RegionResponse> {
   urlCreate: string;
   urlList: string;

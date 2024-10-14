@@ -1,19 +1,13 @@
-import { IAppointment } from 'src/Domine/ModelsDB';
+import { IAppointment } from 'src/Domine/Request';
 import {
   AppointmentResponse,
   HealthInsuranceResponse,
   PaginationAppointmentResponse,
 } from 'src/Domine/Responses';
 import { GenericService } from '../Repositories';
-import {
-  HTTPClient,
-  IToCreate,
-  IToRead,
-  IToUpdate,
-  UseCase,
-} from 'src/Domine/IPatterns';
-import 'reflect-metadata';
-import { inject, injectable } from 'inversify';
+import { HTTPClient, IToRead, UseCase } from 'src/Domine/IPatterns';
+// import 'reflect-metadata';
+// import { inject, injectable } from 'inversify';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
 import { IPaginationDataTable } from 'src/Domine/ICommons';
 export class AppointmentService extends GenericService<
@@ -35,8 +29,7 @@ export class AppointmentService extends GenericService<
 }
 
 export class CalculateAmountPaidAppointmentUseCase
-  implements UseCase<IAppointment, number>
-{
+  implements UseCase<IAppointment, number> {
   public GenericService: GenericService<IAppointment, AppointmentResponse>;
   public insurance: HealthInsuranceResponse | undefined;
   constructor() {
@@ -53,15 +46,14 @@ export class CalculateAmountPaidAppointmentUseCase
     return appointment.price;
   }
 }
-@injectable()
+// @injectable()
 export class PaginationAppointmentService
-  implements IToRead<PaginationAppointmentResponse>
-{
+  implements IToRead<PaginationAppointmentResponse> {
   urlList: string;
   urlBase: string;
   httpClient: HTTPClient;
 
-  public constructor(@inject('HTTPClient') httpClient: HTTPClient) {
+  public constructor(httpClient: HTTPClient) {
     const urlAPI = process.env.CONSULT ? process.env.CONSULT : '';
     this.urlBase = `${process.env.RCP}${urlAPI}`;
     this.urlList = `${this.urlBase}list/`;
@@ -84,8 +76,7 @@ export class PaginationAppointmentService
   }
 }
 export class ListAppointmentByPaginationUseCase
-  implements UseCase<void, PaginationAppointmentResponse>
-{
+  implements UseCase<void, PaginationAppointmentResponse> {
   private pagination: IPaginationDataTable;
   GenericService: GenericService<IAppointment, AppointmentResponse>;
   constructor(pagination: IPaginationDataTable) {

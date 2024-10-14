@@ -166,6 +166,6 @@ export default defineComponent({
 </script>
 <style>
 body {
-  background: #f1f1f1 !important;
+  background: #ffffff !important;
 }
 </style>

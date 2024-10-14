@@ -1,5 +1,5 @@
 import { PhysicalExamResultResponse } from './Responses';
-
+export type UpdateFunction = (callback: () => void) => void;
 export type PhysicalExamResume = {
   year: string;
   results: Array<PhysicalExamResultResponse>;

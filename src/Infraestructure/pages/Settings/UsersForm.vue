@@ -195,7 +195,7 @@ import { UserController } from 'src/Adapters/UserController';
 import { QForm } from 'quasar';
 import { EditCommand, InsertCommand } from 'src/Application/Commands';
 import { UserService } from 'src/Application/Services/UserService';
-import container from 'src/inversify.config';
+// import container from 'src/inversify.config';
 import { MedicalOfficeService } from 'src/Application/Services/MedicalOfficeService';
 import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
 
@@ -225,8 +225,7 @@ export default defineComponent({
     const allGroups = ref<Array<Group>>([]);
     const allSpecialities = ref<Array<SpecialityResponse>>([]);
     const allMedicalOffices = ref<Array<MedicalOfficeResponse>>([]);
-    const creatorNotificator =
-      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+    const creatorNotificator = {} as IFactoryMethodNotifications;
     const controller = new UserController(state, creatorNotificator);
     const serviceMedicalOffice = container.get<MedicalOfficeService>(
       'MedicalOfficeService'

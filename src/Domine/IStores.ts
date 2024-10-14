@@ -1,6 +1,6 @@
 import { CalendarOptions } from '@fullcalendar/vue3';
 import { IPermission } from './ICommons';
-import { IExam, IUser } from './ModelsDB';
+import { IExam, IUser } from './Request';
 import {
   AppointmentResponse,
   DXMainCodeResponse,
@@ -17,8 +17,17 @@ import {
   PaymentOptionsResponse,
   ReasonConsultResponse,
   PatientStatusResponse,
+  CountryResponse,
+  OcupationResponse,
+  CityResponse,
+  EthicityResponse,
+  KindDisabilityResponse,
+  PhoneCodeResponse,
+  BiologicalSexResponse,
+  ZoneStayResponse,
 } from './Responses';
 import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
+import { DIVIPOLADTO } from './DTOs';
 
 export interface IStoreClinicHistory {
   currentDoctor: DoctorResponse;
@@ -77,4 +86,17 @@ export interface IStoreAppointment {
   allPaymentOptions: Array<PaymentOptionsResponse>;
   allReasonConsult: Array<ReasonConsultResponse>;
   allPatientStatus: Array<PatientStatusResponse>;
+}
+
+export interface IGlobalState {
+  allCountries: Array<CountryResponse>;
+  allOcupations: OcupationResponse[]
+  allCities: CityResponse[]
+  allHealhEntity: HealthInsuranceResponse[]
+  DIVIPOLA: DIVIPOLADTO
+  allEthnicity: EthicityResponse[]
+  allKindDisability: KindDisabilityResponse[]
+  allPhoneCode: PhoneCodeResponse[]
+  allBiologicalSex: BiologicalSexResponse[]
+  allZoneStay: ZoneStayResponse[]
 }

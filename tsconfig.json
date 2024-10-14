@@ -6,7 +6,7 @@
     "module": "commonjs",
     "sourceMap": true,
     "lib": ["es6", "dom"],
-    "types": ["reflect-metadata"],
+    // "types": ["reflect-metadata"],
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true

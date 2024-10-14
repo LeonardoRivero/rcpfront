@@ -79,11 +79,11 @@ import {
   short,
   noSpaces,
 } from 'src/Application/Utilities/Helpers';
-import { IKeyEmailRegistration } from 'src/Domine/ModelsDB';
+import { IKeyEmailRegistration } from 'src/Domine/Request';
 import { LoginState } from 'src/Domine/IStates';
 import { LoginController } from 'src/Adapters/LoginController';
 import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
-import container from 'src/inversify.config';
+// import container from 'src/inversify.config';
 
 export default defineComponent({
   name: 'LoginUser',
@@ -94,8 +94,7 @@ export default defineComponent({
       password: '',
       labelMessage: '',
     });
-    const factoryNotificator =
-      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+    const factoryNotificator = {} as IFactoryMethodNotifications;
     const controller = new LoginController(state, factoryNotificator);
     controller.setMediator(UserMediator.getInstance());
 

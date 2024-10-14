@@ -265,7 +265,7 @@ import {
   EventScheduleResponse,
   HealthInsuranceResponse,
 } from 'src/Domine/Responses';
-import { IAppointment } from 'src/Domine/ModelsDB';
+import { IAppointment } from 'src/Domine/Request';
 import {
   OPTIONS_HOURS,
   OPTIONS_MINUTES,
@@ -284,7 +284,7 @@ import { QForm } from 'quasar';
 import { AppointmentState } from 'src/Domine/IStates';
 import 'src/css/app.sass';
 import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
-import container from 'src/inversify.config';
+// import container from 'src/inversify.config';
 
 export default defineComponent({
   name: 'Appointment_Form',

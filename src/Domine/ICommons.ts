@@ -1,5 +1,5 @@
 import { Observer } from './IPatterns';
-import { IKeyEmailRegistration, IUser } from './ModelsDB';
+import { IKeyEmailRegistration, IUser } from './Request';
 import { RegisterResponse } from './Responses';
 export interface IColumnsDataTable {
   name: string;

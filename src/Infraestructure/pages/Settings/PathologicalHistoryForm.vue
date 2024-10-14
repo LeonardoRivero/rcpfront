@@ -85,7 +85,7 @@ import { PathologicalHistoryController } from 'src/Adapters/PathologicalHistoryA
 import { PathologicalHistoryResponse } from 'src/Domine/Responses';
 import { PathologicalHistoryState } from 'src/Domine/IStates';
 import { required, isNotNull } from 'src/Application/Utilities/Helpers';
-import { IPathologycalHistory } from 'src/Domine/ModelsDB';
+import { IPathologycalHistory } from 'src/Domine/Request';
 import 'src/css/app.sass';
 
 export default defineComponent({

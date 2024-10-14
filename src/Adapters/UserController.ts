@@ -15,7 +15,7 @@ import {
   StrategyUser,
 } from 'src/Domine/StrategyUser';
 import { EditCommand, InsertCommand } from 'src/Application/Commands';
-import { FactoryNotifactors } from './Creators/Factories';
+import { FactoryNotifactors } from '../Infraestructure/Utilities/Factories';
 import { ModalType } from 'src/Domine/Types';
 import { GroupUser } from 'src/Application/Utilities';
 import { DoctorService } from 'src/Application/Services';

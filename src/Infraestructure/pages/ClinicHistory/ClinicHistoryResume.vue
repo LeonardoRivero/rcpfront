@@ -86,17 +86,16 @@ import { IconSVG } from 'src/Application/Utilities';
 import { ClinicHistoryResumeController } from 'src/Adapters/ClinicHistoryController';
 import { PhysicalExamResume } from 'src/Domine/Types';
 import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
-import { Container } from 'inversify';
+// import { Container } from 'inversify';
 
 const items = ref<Array<PhysicalExamResume>>([]);
 const message = ref<string>('');
 const visible = ref<boolean>(false);
-const containerDependency = inject<Container>('containerInversify');
-if (containerDependency === undefined) {
-  throw new Error('Container Injection undefine');
-}
-const factoryNotificator =
-  containerDependency.get<IFactoryMethodNotifications>('FactoryNotifactors');
+// const containerDependency = inject<Container>('containerInversify');
+// if (containerDependency === undefined) {
+//   throw new Error('Container Injection undefine');
+// }
+const factoryNotificator = {} as IFactoryMethodNotifications;
 const controller = new ClinicHistoryResumeController(factoryNotificator);
 onMounted(async () => {
   const response = await controller.getAll();

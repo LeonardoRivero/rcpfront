@@ -1,10 +1,10 @@
 import { IMedicalOffice } from 'src/Domine/ModelsDB';
 import { MedicalOfficeResponse } from 'src/Domine/Responses';
 import 'reflect-metadata';
-import { injectable } from 'inversify';
+// import { injectable } from 'inversify';
 import { GenericService } from '../Repositories/Interface';
 
-@injectable()
+// @injectable()
 export class MedicalOfficeService extends GenericService<
   IMedicalOffice,
   MedicalOfficeResponse

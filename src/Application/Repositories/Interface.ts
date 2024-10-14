@@ -1,7 +1,7 @@
-import { IKeyEmailRegistration, ILogin } from 'src/Domine/ModelsDB';
+import { IKeyEmailRegistration, ILogin } from 'src/Domine/Request';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
-import 'reflect-metadata';
-import { inject, injectable } from 'inversify';
+// import 'reflect-metadata';
+// import { inject, injectable } from 'inversify';
 import { routerInstance } from 'src/boot/globalRouter';
 
 import {
@@ -10,14 +10,13 @@ import {
   IToRead,
   IToUpdate,
 } from 'src/Domine/IPatterns';
-import { ClientAPI } from 'src/Infraestructure/Utilities/HttpClientAPI';
 import { AuthResponse } from 'src/Domine/Responses';
 
-@injectable()
+// @injectable()
 export abstract class LoginRepository {
   public httpClient: HTTPClient;
-  public constructor() {
-    this.httpClient = new ClientAPI();
+  public constructor(httpClient: HTTPClient) {
+    this.httpClient = httpClient;
   }
   async login(data: ILogin): Promise<AuthResponse> {
     const url = `${process.env.RCP}${process.env.LOGIN}`;
@@ -175,18 +174,17 @@ export abstract class LoginRepository {
 
 // @injectable()
 
-@injectable()
+// @injectable()
 export abstract class GenericService<T, T2>
   extends LoginRepository
-  implements IToCreate<T, T2>, IToRead<T2>, IToUpdate<T, T2>
-{
+  implements IToCreate<T, T2>, IToRead<T2>, IToUpdate<T, T2> {
   abstract urlCreate: string;
   abstract urlList: string;
   abstract urlBase: string;
   abstract urlUpdate: string;
 
-  public constructor() {
-    super();
+  public constructor(httpClient: HTTPClient) {
+    super(httpClient);
   }
 
   public async create(entity: T): Promise<T2 | null> {

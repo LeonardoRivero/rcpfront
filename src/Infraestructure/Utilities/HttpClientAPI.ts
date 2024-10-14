@@ -1,9 +1,7 @@
 import { Loading } from 'quasar';
-import 'reflect-metadata';
-import { injectable } from 'inversify';
+// import 'reflect-metadata';
 import { HTTPClient } from 'src/Domine/IPatterns';
 
-@injectable()
 export class ClientAPI implements HTTPClient {
   private async http(request: RequestInfo): Promise<Response> {
     try {
@@ -51,9 +49,8 @@ export class ClientAPI implements HTTPClient {
     const args: RequestInit = {
       method: 'GET',
       credentials: 'include',
-      mode: 'cors',
       headers: {
-        Accept: 'application/json',
+        'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
     };

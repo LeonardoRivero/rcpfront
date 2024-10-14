@@ -1,3 +1,4 @@
+import { DIVIPOLADTO, StateDTO, TownDTO } from './DTOs';
 import {
   IColumnsDataTable,
   IPaginationDataTable,
@@ -19,27 +20,34 @@ import {
   IRelationCode,
   ISpeciality,
   IUser,
-} from './ModelsDB';
+} from './Request';
 import {
+  BiologicalSexResponse,
+  CityResponse,
   CountryResponse,
   DXMainCodeResponse,
   DoctorResponse,
   DoctorSpecialityResponse,
+  EthicityResponse,
   EventScheduleResponse,
   GenderResponse,
   HealthInsuranceResponse,
   IDTypeResponse,
+  KindDisabilityResponse,
   MedicalOfficeResponse,
+  OcupationResponse,
   PathologicalHistoryResponse,
   PatientResponse,
   PatientStatusResponse,
   PaymentOptionsResponse,
+  PhoneCodeResponse,
   PhysicalExamResponse,
   ReasonConsultResponse,
   RegionResponse,
   RelationCodeResponse,
   SpecialityResponse,
   SubRegionResponse,
+  ZoneStayResponse,
 } from './Responses';
 
 export interface InfoPatientState {
@@ -127,6 +135,18 @@ export interface PatientState {
   allIDTypes: Array<IDTypeResponse>;
   allGenders: Array<GenderResponse>;
   allInsurance: Array<HealthInsuranceResponse>;
+  allCountries: CountryResponse[];
+  allOcupations: OcupationResponse[];
+  allCities: DIVIPOLADTO;
+  allTown: TownDTO[]
+  allEthnicity: EthicityResponse[]
+  allKindDisability: KindDisabilityResponse[]
+  allPhoneFormat: PhoneCodeResponse[],
+  allBiologicalSex: BiologicalSexResponse[],
+  allZoneStay: ZoneStayResponse[],
+  biologicalSex: BiologicalSexResponse | null,
+  countryOrigin: CountryResponse | null;
+  countryStay: CountryResponse | null;
   identificationPatient: string;
   idType: IDTypeResponse | null;
   gender: GenderResponse | null;
@@ -134,6 +154,15 @@ export interface PatientState {
   disable: boolean;
   error: boolean;
   currentInsurance: IHealthInsurance;
+  ocupation: OcupationResponse | null
+  state: StateDTO | null
+  town: TownDTO | null
+  ethnicity: EthicityResponse | null
+  kindDisability: KindDisabilityResponse | null
+  zoneStay: ZoneStayResponse | null
+  phoneFormat: PhoneCodeResponse | null
+  foreignPatient: boolean
+  lookUpDocumentNumber: string
 }
 
 export interface UserState {

@@ -1,21 +1,20 @@
 import { GenericService } from 'src/Application/Repositories/Interface';
-import { IColumnsDataTable, ITableOptions } from './ICommons';
+import { ITableOptions } from './ICommons';
 import { NotificationType, ModalType, ServicesType } from './Types';
-import { injectable } from 'inversify';
+import { BiologicalSexResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, IDTypeResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse } from './Responses';
+import { DIVIPOLADTO } from './DTOs';
+
 
 type Subscription<S> = (state: S) => void;
 
-@injectable()
 export abstract class Bloc<S> {
-  abstract receiveData(data: IControllersMediator): void;
-  abstract clear(): void;
-  protected mediator: IControllersMediator;
+  protected mediator: IMediatorUseCases | null;
   private internalState: S;
   private listeners: Subscription<S>[] = [];
 
-  constructor(initalState: S, mediator?: IControllersMediator) {
+  constructor(initalState: S, mediator?: IMediatorUseCases) {
     this.internalState = initalState;
-    this.mediator = mediator!;
+    this.mediator = mediator || null;
   }
 
   public get state(): S {
@@ -41,7 +40,7 @@ export abstract class Bloc<S> {
     }
   }
 
-  public setMediator(mediator: IControllersMediator): void {
+  public setMediator(mediator: IMediatorUseCases): void {
     this.mediator = mediator;
   }
 
@@ -50,10 +49,7 @@ export abstract class Bloc<S> {
   }
 }
 
-@injectable()
 export abstract class Controller {
-  abstract receiveData(data: IControllersMediator): void;
-  abstract clear(): void;
   abstract state: object;
   protected mediator: IControllersMediator;
 
@@ -75,6 +71,19 @@ export interface IControllersMediator {
   notify(data: object, sender: Bloc<any>): void;
   createStore(): object;
   getStore(): object;
+}
+
+export interface IHandleGlobalState {
+  createStore(): object;
+  getAllCountries(): Promise<CountryResponse[]>
+  getAllOcupation(): Promise<OcupationResponse[]>
+  getAllHealthEntity(): Promise<HealthInsuranceResponse[]>
+  getAllCities(): Promise<DIVIPOLADTO>
+  getAllEthnicity(): Promise<EthicityResponse[]>
+  getAllKindDisability(): Promise<KindDisabilityResponse[]>
+  getAllPhoneCodes(): Promise<PhoneCodeResponse[]>
+  getAllBiologicalSex(): Promise<BiologicalSexResponse[]>
+  getAllZoneStay(): Promise<ZoneStayResponse[]>
 }
 
 export interface Notificator {
@@ -101,12 +110,15 @@ export interface HandlerEvent<RequestInfo> extends ICommand {
   data: RequestInfo;
 }
 
+export interface IUseCase<IRequest, IResponse> {
+  execute(request?: IRequest): Promise<IResponse> | IResponse;
+}
 export interface UseCase<IRequest, IResponse> {
   GenericService:
-    | GenericService<unknown, unknown>
-    | IToRead<unknown>
-    | IToCreate<unknown, unknown>
-    | IToUpdate<unknown, unknown>;
+  | GenericService<unknown, unknown>
+  | IToRead<unknown>
+  | IToCreate<unknown, unknown>
+  | IToUpdate<unknown, unknown>;
   execute(request?: IRequest): Promise<IResponse> | IResponse;
 }
 
@@ -172,4 +184,9 @@ export abstract class Subject {
 }
 export interface Observer {
   handleNotification(subject: Subject, data: object): void;
+}
+
+export interface IMediatorUseCases {
+  getAllDocumentType(): Promise<IDTypeResponse[]>
+  getAllGender(): Promise<GenderResponse[]>
 }

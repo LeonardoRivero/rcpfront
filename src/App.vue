@@ -6,7 +6,7 @@
 import { defineComponent, watch } from 'vue';
 import { useIdle } from '@vueuse/core';
 import { routerInstance } from 'src/boot/globalRouter';
-import container from './inversify.config';
+// import container from './inversify.config';
 import { dependenciesLocator } from './Infraestructure/DependenciesLocator';
 
 export default defineComponent({
@@ -23,7 +23,7 @@ export default defineComponent({
     });
   },
   provide: {
-    containerInversify: container,
+    // containerInversify: container,
     infoPatientPanelBloc: dependenciesLocator.provideInfoPatientPanelPloc(),
     preliminaryDataBloc: dependenciesLocator.providePreliminaryDataBloc(),
     scheduleFormBloc: dependenciesLocator.provideScheduleBloc(),

@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia';
 import { GroupsService } from 'src/Application/Repositories/UserRepository';
 import {
-  InsuranceService,
   PathologicalHistoryService,
 } from 'src/Application/Services';
 import { IDTypesService } from 'src/Application/Services/IDTypeService';
@@ -18,21 +17,18 @@ import {
   HealthInsuranceResponse,
   IDTypeResponse,
 } from 'src/Domine/Responses';
-import container from 'src/inversify.config';
+// import container from 'src/inversify.config';
 
 export interface ActionsSettingsMediator {
   getAllSpecialities(): Promise<Array<SpecialityResponse>>;
 }
 export class SettingsMediator
-  implements IControllersMediator, ActionsSettingsMediator
-{
+  implements IControllersMediator, ActionsSettingsMediator {
   private controllers: Bloc<any>[] = [];
   public store: IStoreSettings;
   private static instance: SettingsMediator;
   private service = new PathologicalHistoryService();
-  private serviceSpeciality =
-    container.get<SpecialityService>('SpecialityService');
-  private serviceHealthInsurance = new InsuranceService();
+  private serviceSpeciality = {} as SpecialityService;
 
   private constructor() {
     this.store = this.createStore();
@@ -135,14 +131,14 @@ export class SettingsMediator
     // this.store.allIdTypes = await response.json();
     return this.store.allIdTypes;
   }
-  public async getAllInsurance(): Promise<Array<HealthInsuranceResponse>> {
-    if (this.store.allInsurance.length > 0) {
-      return this.store.allInsurance;
-    }
-    const response = await this.serviceHealthInsurance.getAll();
-    this.store.allInsurance = response;
-    return response;
-  }
+  // public async getAllInsurance(): Promise<Array<HealthInsuranceResponse>> {
+  //   if (this.store.allInsurance.length > 0) {
+  //     return this.store.allInsurance;
+  //   }
+  //   const response = await this.serviceHealthInsurance.getAll();
+  //   this.store.allInsurance = response;
+  //   return response;
+  // }
 
   // public async addToArrayDefault(
   //   item: HealthInsuranceResponse

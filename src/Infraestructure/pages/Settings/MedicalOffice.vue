@@ -148,10 +148,10 @@ import {
   CountryService,
   RegionService,
 } from 'src/Application/Services/GeographicCollectionService';
-import container from 'src/inversify.config';
+// import container from 'src/inversify.config';
 import { MedicalOfficeController } from 'src/Adapters/MedicalOfficeController';
 import { EditCommand, InsertCommand } from 'src/Application/Commands';
-import { IMedicalOffice } from 'src/Domine/ModelsDB';
+import { IMedicalOffice } from 'src/Domine/Request';
 import { MedicalOfficeService } from 'src/Application/Services/MedicalOfficeService';
 import { required, isNotNull } from 'src/Application/Utilities/Helpers';
 import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
@@ -221,9 +221,7 @@ export default defineComponent({
         const isValid = await form.value?.validate();
         if (isValid == false) return;
 
-        const service = container.get<MedicalOfficeService>(
-          'MedicalOfficeService'
-        );
+        const service = {} as IFactoryMethodNotifications;
         let payload: IMedicalOffice = state.medicalOfficeEntity;
         payload.address = state.medicalOfficeResponse.address;
         payload.country = controller.getIdByUrl(state.countries[0].url);

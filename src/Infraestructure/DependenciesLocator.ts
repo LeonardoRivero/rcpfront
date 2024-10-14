@@ -8,26 +8,29 @@ import {
   ScheduleFormBloc,
   SpecialityFormBloc,
 } from 'src/Adapters';
-import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
+import { FactoryNotifactors } from 'src/Infraestructure/Utilities/Factories';
 import {
   DoctorSpecialityService,
   FindPatientByIdentificationUseCase,
-  GenderService,
   GetPhysicalExamBySpecialityUseCase,
-  InsuranceService,
+  PatientService,
   PhysicalExamService,
 } from 'src/Application/Services';
 import { FindScheduleByIdentificationPatientUseCase } from 'src/Application/Services/ScheduleService';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { ClientAPI } from './Utilities/HttpClientAPI';
 import { AppointmentListBloc } from 'src/Adapters/AppointmentListController';
-import { IDTypesService } from 'src/Application/Services/IDTypeService';
+import { MediatorUseCases } from 'src/Application/UseCases/MediatorUseCases';
+import { IHandleGlobalState } from 'src/Domine/IPatterns';
+import { HandleGlobalState } from './HandleGlobalState';
+import { CreatePatientUseCase } from 'src/Application/UseCases/PatientUseCases';
 
 const notificator = new FactoryNotifactors();
 const HttpClientAPI = new ClientAPI();
+const findPatientByIdentificationUseCase =
+  new FindPatientByIdentificationUseCase(HttpClientAPI);
+
 function provideInfoPatientPanelPloc(): InforPatientPanelBloc {
-  const findPatientByIdentificationUseCase =
-    new FindPatientByIdentificationUseCase();
   const findScheduleByIdentificationPatientUseCase =
     new FindScheduleByIdentificationPatientUseCase();
 
@@ -74,15 +77,20 @@ function provideRelationCodeBloc(): RelationCodeBloc {
 }
 
 function providePatientFormBloc(): PatientFormBloc {
-  const insuranceService = new InsuranceService();
-  const idTypesService = new IDTypesService();
-  const genderService = new GenderService();
+  const patientService = new PatientService(HttpClientAPI);
+  const mediatorUseCases = new MediatorUseCases(HttpClientAPI)
+  const createPatientUseCase = new CreatePatientUseCase(HttpClientAPI)
   return new PatientFormBloc(
     notificator,
-    insuranceService,
-    idTypesService,
-    genderService
+    patientService,
+    findPatientByIdentificationUseCase,
+    createPatientUseCase,
+    mediatorUseCases
   );
+}
+
+function provideHandleGlobalState(): IHandleGlobalState {
+  return HandleGlobalState.getInstance(HttpClientAPI);
 }
 export const dependenciesLocator = {
   provideInfoPatientPanelPloc,
@@ -94,4 +102,5 @@ export const dependenciesLocator = {
   provideDxMainCodeBloc,
   provideRelationCodeBloc,
   providePatientFormBloc,
+  provideHandleGlobalState
 };

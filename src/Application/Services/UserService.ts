@@ -1,8 +1,8 @@
 import { IUser } from 'src/Domine/ModelsDB';
 import { GenericService } from '../Repositories/Interface';
 import { AuthResponse, UserResponse } from 'src/Domine/Responses';
-import 'reflect-metadata';
-import { injectable } from 'inversify';
+// import 'reflect-metadata';
+// import { injectable } from 'inversify';
 import { IControllersMediator, UseCase } from 'src/Domine/IPatterns';
 import {
   ContextUser,
@@ -13,7 +13,7 @@ import {
 import { routerInstance } from 'src/boot/globalRouter';
 import { IStoreUser } from 'src/Domine/IStores';
 
-@injectable()
+// @injectable()
 export class UserService extends GenericService<IUser, UserResponse> {
   urlCreate: string;
   urlList: string;

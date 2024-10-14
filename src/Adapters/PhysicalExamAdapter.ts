@@ -1,5 +1,5 @@
 import { IColumnsDataTable } from 'src/Domine/ICommons';
-import { FactoryNotifactors } from './Creators/Factories';
+import { FactoryNotifactors } from '../Infraestructure/Utilities/Factories';
 import { PhysicalExamResponse } from 'src/Domine/Responses';
 import { IPhysicalExam } from 'src/Domine/ModelsDB';
 import { DataTableController } from './DataTableController';
@@ -19,8 +19,7 @@ import { EditCommand, InsertCommand } from 'src/Application/Commands';
 
 export class PhysicalExamParameterController
   extends Controller
-  implements Observer
-{
+  implements Observer {
   public state: PhysicalExamParameterState;
   private service = PhysicalExamService.getInstance();
   private notifySweetAlert: Notificator;

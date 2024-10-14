@@ -1,9 +1,8 @@
-import { IPatient } from 'src/Domine/ModelsDB';
+import { IPatient } from 'src/Domine/Request';
 import { GenericService } from '../Repositories/Interface';
 import { PatientResponse } from 'src/Domine/Responses';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
-import { UseCase } from 'src/Domine/IPatterns';
-import { injectable } from 'inversify';
+import { HTTPClient, UseCase } from 'src/Domine/IPatterns';
 
 export class PatientService extends GenericService<IPatient, PatientResponse> {
   urlCreate: string;
@@ -11,11 +10,11 @@ export class PatientService extends GenericService<IPatient, PatientResponse> {
   urlBase: string;
   urlUpdate: string;
 
-  public constructor() {
-    super();
+  public constructor(httpClient: HTTPClient) {
+    super(httpClient);
     const urlAPI = process.env.PATIENT ? process.env.PATIENT : '';
     this.urlBase = `${process.env.RCP}${urlAPI}filter/`;
-    this.urlCreate = `${process.env.RCP}${urlAPI}create/`;
+    this.urlCreate = `${process.env.RCP}${urlAPI}/`;
     this.urlList = '';
     this.urlUpdate = `${process.env.RCP}${urlAPI}`;
   }
@@ -25,14 +24,12 @@ export class PatientService extends GenericService<IPatient, PatientResponse> {
   }
 }
 
-@injectable()
 export class FindPatientByIdentificationUseCase
-  implements UseCase<string, PatientResponse | null>
-{
+  implements UseCase<string, PatientResponse | null> {
   GenericService: GenericService<IPatient, PatientResponse>;
 
-  public constructor() {
-    this.GenericService = new PatientService();
+  public constructor(httpClient: HTTPClient) {
+    this.GenericService = new PatientService(httpClient);
   }
 
   async execute(

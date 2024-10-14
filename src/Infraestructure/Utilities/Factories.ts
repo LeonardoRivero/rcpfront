@@ -1,4 +1,3 @@
-import { injectable } from 'inversify';
 import { IFactoryMethodNotifications, Notificator } from 'src/Domine/IPatterns';
 import { ModalType } from 'src/Domine/Types';
 import {
@@ -7,7 +6,7 @@ import {
   SweetAlertModal,
   SweetDrawAttention,
 } from 'src/Infraestructure/Utilities/Notifications';
-@injectable()
+
 export class FactoryNotifactors implements IFactoryMethodNotifications {
   // private static instance: FactoryNotifactors;
   private notifications: Record<string, Notificator>;

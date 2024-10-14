@@ -31,7 +31,7 @@ import {
 } from 'src/Application/Services/ScheduleService';
 import { ModalType } from 'src/Domine/Types';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
-import container from 'src/inversify.config';
+// import container from 'src/inversify.config';
 import { FORMAT_DATETIME } from 'src/Application/Utilities/Constants';
 import { PathologicalHistoryService } from 'src/Application/Services';
 import { ScheduleFormBloc } from 'src/Adapters';
@@ -151,8 +151,7 @@ export class ScheduleMediator
   public store: StoreGeneric;
   private service = new ScheduleService();
   private static instance: ScheduleMediator;
-  private factoryNotificator =
-    container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+  private factoryNotificator = {} as IFactoryMethodNotifications;
   private notifySweetAlert: Notificator;
 
   private constructor() {

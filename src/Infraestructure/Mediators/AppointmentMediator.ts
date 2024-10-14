@@ -2,7 +2,7 @@ import { StoreGeneric, defineStore } from 'pinia';
 import { PatientStatusService } from 'src/Application/Services';
 import { PaymentOptionsService } from 'src/Application/Services/PaymentOptionsService';
 import { ReasonConsultService } from 'src/Application/Services/ReasonConsultService';
-import { Controller, IControllersMediator } from 'src/Domine/IPatterns';
+import { Bloc, Controller, IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreAppointment } from 'src/Domine/IStores';
 import {
   PatientStatusResponse,
@@ -28,11 +28,10 @@ export class AppointmentMediator implements IControllersMediator {
     return AppointmentMediator.instance;
   }
 
-  public add(controller: Controller): void {
+  add(subscriber: Bloc<any>): void {
     throw new Error('Method not implemented.');
   }
-
-  public notify(data: object, sender: Controller): void {
+  notify(data: object, sender: Bloc<any>): void {
     throw new Error('Method not implemented.');
   }
 

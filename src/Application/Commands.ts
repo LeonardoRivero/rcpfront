@@ -1,17 +1,19 @@
 import {
   ICommand,
   IFactoryMethodNotifications,
-  IToCreate,
   Notificator,
 } from 'src/Domine/IPatterns';
 import { GenericService } from './Repositories/Interface';
-import { IUser } from 'src/Domine/ModelsDB';
-import { FactoryNotifactors } from 'src/Adapters/Creators/Factories';
+import { IUser } from 'src/Domine/Request';
 import { ModalType } from 'src/Domine/Types';
 import { Messages } from './Utilities';
 import { IUserService } from 'src/Domine/ICommons';
 import { RegisterResponse } from 'src/Domine/Responses';
-import container from 'src/inversify.config';
+
+import { HTTPClient, IUseCase } from 'src/Domine/IPatterns';
+import { PatientResponse } from 'src/Domine/Responses';
+import { IPatient } from 'src/Domine/Request';
+// import container from 'src/inversify.config';
 
 // export class CreateCommand implements ICommand {
 //   public payload: unknown;
@@ -67,8 +69,7 @@ export class FindByParametersCommand implements ICommand {
 export class RegisterUserCommand implements ICommand {
   public payload: IUser;
   public service: IUserService;
-  creatorNotificator =
-    container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+  creatorNotificator = {} as IFactoryMethodNotifications;
   private notifySweetAlert: Notificator =
     this.creatorNotificator.createNotificator(ModalType.SweetAlert);
 
@@ -105,8 +106,7 @@ export class RegisterUserCommand implements ICommand {
 export class InsertCommand implements ICommand {
   public payload: object;
   public service: GenericService<any, any>;
-  creatorNotificator =
-    container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+  private creatorNotificator = {} as IFactoryMethodNotifications;
   private notifySweetAlert: Notificator =
     this.creatorNotificator.createNotificator(ModalType.SweetAlert);
   private notifyQuasar: Notificator = this.creatorNotificator.createNotificator(
@@ -145,8 +145,7 @@ export class EditCommand implements ICommand {
   public payload: object;
   public service: GenericService<any, any>;
   public id: number;
-  creatorNotificator =
-    container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+  creatorNotificator = {} as IFactoryMethodNotifications;
   private notifySweetAlert: Notificator =
     this.creatorNotificator.createNotificator(ModalType.SweetAlert);
 
@@ -180,5 +179,16 @@ export class EditCommand implements ICommand {
     }
     this.notifyQuasar.setType('success');
     this.notifyQuasar.show(undefined, Messages.updateSuccesfully);
+  }
+}
+
+export class ShowModalNewRegister implements IUseCase<ModalType, boolean> {
+  public constructor(private factoryNotifications: IFactoryMethodNotifications) {
+  }
+
+  async execute(modalType: ModalType): Promise<boolean> {
+    const notifyQuasar: Notificator = this.factoryNotifications.createNotificator(modalType);
+    notifyQuasar.setType('question');
+    return await notifyQuasar.show('Atención', Messages.newRegister);
   }
 }

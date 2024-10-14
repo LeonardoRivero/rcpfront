@@ -91,15 +91,23 @@ export interface IIDType {
 
 export interface IPatient {
   id?: number;
+  nationalityId: number;
+  documentTypeId: number;
+  identification: string;
   name: string;
   lastName: string;
-  IDType: number;
-  identification: number;
   dateBirth: string;
-  phoneNumber: number;
-  insurance: number;
-  gender: number;
-  email: string | null;
+  biologicalSexId: number;
+  genderId: number;
+  occupationId: number;
+  kindDisabilityId: number;
+  countryStayId: number;
+  cityStayId: number;
+  ethnicityId: number;
+  zoneStayId: number;
+  healthEntityId: number;
+  phoneNumber: string;
+  email: string;
 }
 
 export interface IPaymentOptions {

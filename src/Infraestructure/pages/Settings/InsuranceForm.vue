@@ -120,7 +120,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive, ref } from 'vue';
 import { QForm } from 'quasar';
-import { IHealthInsurance } from 'src/Domine/ModelsDB';
+import { IHealthInsurance } from 'src/Domine/Request';
 import { InsuranceController } from 'src/Adapters/InsuranceAdapter';
 import { IconSVG } from 'src/Application/Utilities';
 import { HealthInsuranceResponse } from 'src/Domine/Responses';

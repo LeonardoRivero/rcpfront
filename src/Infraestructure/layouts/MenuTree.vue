@@ -22,16 +22,16 @@
       </q-item-section>
     </q-item>
 
-    <q-item clickable tag="a" link to="/schedule">
+    <!-- <q-item clickable tag="a" link to="/schedule">
       <q-item-section avatar>
         <q-icon name="mdi-calendar" />
       </q-item-section>
       <q-item-section>
         <q-item-label>{{ 'Agenda' }}</q-item-label>
       </q-item-section>
-    </q-item>
+    </q-item> -->
 
-    <q-expansion-item
+    <!-- <q-expansion-item
       :content-inset-level="0.5"
       :icon="icons.schedule_single"
       label="Citas"
@@ -53,9 +53,9 @@
           <q-item-label>{{ 'Registrar' }}</q-item-label>
         </q-item-section>
       </q-item>
-    </q-expansion-item>
+    </q-expansion-item> -->
 
-    <q-item clickable tag="a" link to="/clinichistory">
+    <!-- <q-item clickable tag="a" link to="/clinichistory">
       <q-item-section avatar>
         <q-icon name="mdi-notebook" />
       </q-item-section>
@@ -63,9 +63,9 @@
         <q-item-label>{{ 'Historia Clinica' }}</q-item-label>
         <q-item-label caption>{{ 'Gestiona Historia Pacientes' }}</q-item-label>
       </q-item-section>
-    </q-item>
+    </q-item> -->
 
-    <q-item clickable tag="a" link to="/settings">
+    <!-- <q-item clickable tag="a" link to="/settings">
       <q-item-section avatar>
         <q-icon name="mdi-cog" />
       </q-item-section>
@@ -73,7 +73,7 @@
         <q-item-label>{{ 'Configuraciones' }}</q-item-label>
         <q-item-label caption>{{ 'Configuraciones Generales' }}</q-item-label>
       </q-item-section>
-    </q-item>
+    </q-item> -->
   </q-list>
 </template>
 

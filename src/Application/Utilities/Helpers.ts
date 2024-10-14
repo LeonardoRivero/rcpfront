@@ -150,6 +150,7 @@ const emailPattern =
   /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
 const noSpacesPattern = /^[-\w\.\$@\*\!]{8,150}$/;
 
+const onlyNumbersPattern = /^\d+$/;
 export const emailRequired = (val: string) =>
   emailPattern.test(val) || 'Email invalido';
 
@@ -169,3 +170,20 @@ export const noSpaces = (val: string) =>
 
 export const noLowerZero = (val: string) =>
   parseInt(val) >= 0 || 'Valor negativo no permitido';
+
+export const isDateInFuture1 = (val: string) => {
+  if (!val) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const selectedDate = new Date(val);
+  return selectedDate < today;
+};
+
+export const isDateInFuture = (value: string) => {
+  if (!value) return true;
+  return isDateInFuture1(value) || 'Fecha futura no permitida';
+};
+
+export const onlyNumbers = (val: string) =>
+  onlyNumbersPattern.test(val) ||
+  'Solo numberos';

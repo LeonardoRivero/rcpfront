@@ -1,4 +1,4 @@
-import { IReasonConsult } from 'src/Domine/ModelsDB';
+import { IReasonConsult } from 'src/Domine/Request';
 import { GenericService } from '../Repositories/Interface';
 import { ReasonConsultResponse } from 'src/Domine/Responses';
 
