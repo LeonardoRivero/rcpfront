@@ -5,7 +5,7 @@ export enum Messages {
   notInfoFound = 'No se encontró información',
   searchIncorrect = 'Busqueda incorrecta o campos invalidos',
   updateSuccesfully = 'Datos actualizados correctamente',
-  notFoundInfoPatient = 'No encontramos el paciente con la información suministrada, ¿Deseas crearlo ahora mismo ?',
+  notFoundInfoPatient = 'No encontramos el paciente con la información suministrada, ¿Deseas crearlo ahora mismo?',
   dateOrHourNotValid = 'Hora o fecha ingresada no es valida.Intentelo de nuevo',
   newRegister = '¿Haz verificado los datos para crear el nuevo registro?',
   updateRegister = '¿Deseas actualizar los datos ingresados?',
@@ -16,4 +16,6 @@ export enum Messages {
   patientNotSaved = 'Existen datos invalidos, verifiquelos e intente de nuevo',
   requiredForDelete = 'Campo requerido para eliminar registro',
   appointmentNotFound = 'Consulta no ha sido registrada. Deseas registrarla ahora mismo?',
+  failedConfirmEmail = 'No fue posible verificar tu email',
+  sucessConfirmEmail = 'Email verificado correctamente'
 }

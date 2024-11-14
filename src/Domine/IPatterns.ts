@@ -1,8 +1,9 @@
 import { GenericService } from 'src/Application/Repositories/Interface';
-import { ITableOptions } from './ICommons';
-import { NotificationType, ModalType, ServicesType } from './Types';
-import { BiologicalSexResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, IDTypeResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse } from './Responses';
+import { IPermission, ITableOptions } from './ICommons';
+import { NotificationType, ModalType, ServicesType, GroupUser } from './Types';
+import { BiologicalSexResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, MedicalOfficeResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, AuthResponse, SpecialityResponse, PaymentOptionsResponse } from './Responses';
 import { DIVIPOLADTO } from './DTOs';
+import { IGlobalState, IStorePermissions, IStoreUser } from './IStores';
 
 
 type Subscription<S> = (state: S) => void;
@@ -74,6 +75,7 @@ export interface IControllersMediator {
 }
 
 export interface IHandleGlobalState {
+  store: IGlobalState;
   createStore(): object;
   getAllCountries(): Promise<CountryResponse[]>
   getAllOcupation(): Promise<OcupationResponse[]>
@@ -84,8 +86,24 @@ export interface IHandleGlobalState {
   getAllPhoneCodes(): Promise<PhoneCodeResponse[]>
   getAllBiologicalSex(): Promise<BiologicalSexResponse[]>
   getAllZoneStay(): Promise<ZoneStayResponse[]>
+  getAllDocumentType(): Promise<DocumentTypeResponse[]>
+  getAllGender(): Promise<GenderResponse[]>
+  getAllSpecialities(): Promise<SpecialityResponse[]>
+  getAllPaymentOptions(): Promise<PaymentOptionsResponse[]>
+  saveInfoMedicalOffice(medicalOffice: MedicalOfficeResponse[]): void
+  refecthEvents(): void
 }
 
+export interface IHandleUserState {
+  store: IStoreUser
+  createStore(): object;
+  saveInfoUser(infoAuthentication: AuthResponse): void
+  saveEmailUser(email: string): void
+  getInfoUser(): AuthResponse
+  setStrategy(strategy: StrategyUser): void
+  executeStrategy(): Promise<void>
+  setRole(role: string[]): void
+}
 export interface Notificator {
   show(title?: string, message?: string): Promise<boolean>;
   setType(type: NotificationType): void;
@@ -94,10 +112,6 @@ export interface Notificator {
 
 export interface IFactoryMethodNotifications {
   createNotificator(notificationType: ModalType): Notificator;
-}
-
-export interface IFactoryService {
-  createService(serviceType: ServicesType): GenericService<unknown, unknown>;
 }
 
 export interface ICommand {
@@ -164,11 +178,25 @@ export interface IToDelete {
   delete(id: number): Promise<object | null>;
 }
 
+export class BasePermission implements IPermission {
+  canCreate = true;
+  canDelete = false;
+  canUpdate = true;
+  canGet = true;
+}
+export interface StrategyUser {
+  // store: IStoreUser | undefined;
+  userName: string
+  setPermission(store: IStoreUser | undefined): Promise<void>;
+}
 export interface HTTPClient {
+  // handlerUserState: IHandleUserState
   GET(path: string, queryparams?: object): Promise<Response>;
   POST(path: string, body: unknown): Promise<Response>;
   PUT(path: string, body: unknown): Promise<Response>;
   DELETE(path: string): Promise<Response>;
+  logout(): Promise<Response>
+  refreshToken(refresh_token: string): Promise<Response>
 }
 
 export abstract class Subject {
@@ -187,6 +215,7 @@ export interface Observer {
 }
 
 export interface IMediatorUseCases {
-  getAllDocumentType(): Promise<IDTypeResponse[]>
+  getAllDocumentType(): Promise<DocumentTypeResponse[]>
   getAllGender(): Promise<GenderResponse[]>
+  getMedicalOfficeBelongToUser(request: string): Promise<MedicalOfficeResponse[]>
 }

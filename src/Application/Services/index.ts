@@ -2,7 +2,6 @@ export * from './AppointmentService';
 export * from './DoctorService';
 export * from './DxMainCodeService';
 export * from '../UseCases/InsuranceUseCases';
-export * from './PatientService';
 export * from './PatientStatusService';
 export * from './PatientStatusService';
 export * from './PhysicalExamService';

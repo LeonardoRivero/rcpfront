@@ -30,7 +30,7 @@ import {
 import { GenericService } from 'src/Application/Repositories';
 import { PhysicalExamResultService } from 'src/Application/Services/PhysicalExamResultService';
 import { ModalType, PhysicalExamResume } from 'src/Domine/Types';
-import { IExam, IPhysicalExam } from 'src/Domine/ModelsDB';
+import { IExam, IPhysicalExam } from 'src/Domine/Request';
 import { NotFoundElementNotify } from './Commands';
 import { IStoreClinicHistory } from 'src/Domine/IStores';
 import { ActionsScheduleMediator } from 'src/Infraestructure/Mediators';
@@ -44,7 +44,7 @@ export class InforPatientPanelBloc extends Bloc<InfoPatientState> {
     >,
     private findScheduleByIdentificationPatientUseCase: UseCase<
       string,
-      EventScheduleResponse | null
+      ScheduleResponse | null
     >,
     private notificator: IFactoryMethodNotifications
   ) {

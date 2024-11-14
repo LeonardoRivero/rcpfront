@@ -28,13 +28,13 @@
                 @update:model-value="(val) => calculateAmountPaid(val)"
                 :rules="[isNotNull]"
               ></q-select> -->
-              <q-input
+              <!-- <q-input
                 dense
                 outlined
                 v-model="state.schedule.patient.insurance.nameInsurance"
                 label="Entidad"
                 readonly
-              />
+              /> -->
             </div>
             <div class="col-6 col-md">
               <q-input
@@ -69,22 +69,22 @@
         <q-item-section>
           <div class="row q-col-gutter-x-md">
             <div class="col-6 col-md">
-              <q-input
+              <!-- <q-input
                 dense
                 outlined
                 v-model="state.schedule.patient.name"
                 label="Nombre Paciente"
                 readonly
-              />
+              /> -->
             </div>
             <div class="col-6 col-md">
-              <q-input
+              <!-- <q-input
                 dense
                 outlined
                 v-model="state.schedule.patient.lastName"
                 label="Apellido Paciente"
                 readonly
-              />
+              /> -->
             </div>
           </div>
         </q-item-section>
@@ -94,7 +94,7 @@
           <q-item-label class="q-pb-xs">Datos Consulta</q-item-label>
           <div class="row q-col-gutter-x-md">
             <div class="col-12 col-md-6">
-              <q-input
+              <!-- <q-input
                 dense
                 type="text"
                 outlined
@@ -102,10 +102,10 @@
                 label="Especialidad"
                 readonly
                 hint=" "
-              />
+              /> -->
             </div>
             <div class="col-12 col-md-6">
-              <q-input
+              <!-- <q-input
                 dense
                 outlined
                 v-model="state.schedule.start"
@@ -115,7 +115,7 @@
                 }`"
                 readonly
               >
-              </q-input>
+              </q-input> -->
             </div>
           </div>
           <div class="row q-col-gutter-x-md">
@@ -188,16 +188,12 @@
             <div class="col-12 col-md-4">
               <q-select
                 dense
-                label="Metodo Pago"
-                outlined
+                label="Metodo Pago *"
                 v-model="state.currentAppointment.paymentMethod"
-                @update:model-value="(val) => changePaymentMethod(val)"
-                :options="store.allPaymentOptions"
+                :options="state.allPaymentOptions"
                 :option-value="(item) => (item === null ? null : item.id)"
                 option-label="description"
                 map-options
-                emit-value
-                stack-label
                 :rules="[isNotNull]"
               ></q-select>
             </div>
@@ -259,110 +255,96 @@
   </q-form>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, reactive, ref, inject } from 'vue';
-import {
-  EventScheduleResponse,
-  HealthInsuranceResponse,
-} from 'src/Domine/Responses';
-import { IAppointment } from 'src/Domine/Request';
-import {
-  OPTIONS_HOURS,
-  OPTIONS_MINUTES,
-  CURRENTYEAR_MONTH,
-  FORMAT_DATETIME,
-} from 'src/Application/Utilities';
-import { AppointmentAdapter } from 'src/Adapters';
-import {
-  required,
-  noLowerZero,
-  isNotNull,
-  numberRequired,
-} from 'src/Application/Utilities/Helpers';
-import { AppointmentMediator } from 'src/Infraestructure/Mediators';
-import { QForm } from 'quasar';
-import { AppointmentState } from 'src/Domine/IStates';
-import 'src/css/app.sass';
-import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
-// import container from 'src/inversify.config';
+<script setup lang="ts">
+  import { onMounted, reactive, ref, inject } from 'vue';
+  import {
+    EventScheduleResponse,
+    HealthInsuranceResponse,
+  } from 'src/Domine/Responses';
+  import { AddAdmissionRequest } from 'src/Domine/Request';
+  import {
+    OPTIONS_HOURS,
+    OPTIONS_MINUTES,
+    CURRENTYEAR_MONTH,
+    FORMAT_DATETIME,
+  } from 'src/Application/Utilities';
+  // import { AppointmentAdapter } from 'src/Adapters';
+  import {
+    required,
+    noLowerZero,
+    isNotNull,
+    numberRequired,
+  } from 'src/Application/Utilities/Helpers';
+  import { AppointmentMediator } from 'src/Infraestructure/Mediators';
+  import { QForm } from 'quasar';
+  // import { AppointmentState } from 'src/Domine/IStates';
+  import 'src/css/app.sass';
+  import { AdmissionsBloc } from 'src/Adapters/AdmissionsBloc';
+  import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
+  import { IHandleGlobalState } from 'src/Domine/IPatterns';
+  // import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
+  // import container from 'src/inversify.config';
+  const HOURS_ALLOWED = OPTIONS_HOURS;
+  const MINUTES_ALLOWED = OPTIONS_MINUTES;
+  const form = ref<QForm>();
 
-export default defineComponent({
-  name: 'Appointment_Form',
-  setup() {
-    const HOURS_ALLOWED = OPTIONS_HOURS;
-    const MINUTES_ALLOWED = OPTIONS_MINUTES;
-    const form = ref<QForm>();
-    const state: AppointmentState = reactive({
-      identificationPatient: '',
-      reasonConsult: null,
-      currentAppointment: { isPrivate: false } as IAppointment,
-      allPaymentOptions: [],
-      allReasonConsult: [],
-      allPatientStatus: [],
-      start: '',
-      end: '',
-      schedule: {
-        patient: { insurance: {} },
-        speciality: {},
-        doctor: {},
-        end: '',
-        start: '',
-      } as EventScheduleResponse,
-      disableCodeTransaction: false,
-      disableButtonSave: false,
-    });
-    const factoryNotificator =
-      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
-    const controller = new AppointmentAdapter(state, factoryNotificator);
-    const mediator = AppointmentMediator.getInstance();
-    const listInsurancePatient = ref<Array<HealthInsuranceResponse>>([]);
-    const store = mediator.getStore();
-    onMounted(async () => {
-      await mediator.getAllPaymentOptions();
-      await mediator.getAllReasonConsult();
-      await mediator.getAllPatientStatus();
-    });
-    // onUnmounted(async () => {
-    //   state.currentPatient = {} as PatientResponse;
-    //   state.currentAppointment = {} as IAppointment;
-    //   state.identificationPatient = '';
-    //   state.currentHealthInsurance = null;
-    //   state.speciality = {} as ISpeciality;
-    // });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dependenciesLocator = inject<any>('dependenciesLocator');
+  const controller = <AdmissionsBloc>dependenciesLocator.provideAdmissionBloc();
 
-    return {
-      CURRENTYEAR_MONTH,
-      HOURS_ALLOWED,
-      MINUTES_ALLOWED,
-      FORMAT_DATETIME,
-      form,
-      async confirmChanges() {
-        const isValid = await form.value?.validate();
-        if (isValid == false) return;
-        const response = await controller.saveOrUpdate();
-        if (response != null) {
-          form.value?.reset();
-        }
-      },
-      async changePaymentMethod(idPaymentOption: number) {
-        controller.changedPaymentMethod(idPaymentOption);
-      },
+  const handleGlobalState = <IHandleGlobalState>(
+    dependenciesLocator.provideHandleGlobalState()
+  );
+  const state = usePlocState(controller);
+  // const factoryNotificator =
+  //   container.get<IFactoryMethodNotifications>('FactoryNotifactors');
+  // const controller = new AppointmentAdapter(state, factoryNotificator);
+  const mediator = AppointmentMediator.getInstance();
+  const listInsurancePatient = ref<Array<HealthInsuranceResponse>>([]);
+  const store = mediator.getStore();
+  onMounted(async () => {
+    // await mediator.getAllPaymentOptions();
+    // await mediator.getAllReasonConsult();
+    // await mediator.getAllPatientStatus();
+    await controller.loadInitialData(handleGlobalState);
+  });
+  // onUnmounted(async () => {
+  //   state.currentPatient = {} as PatientResponse;
+  //   state.currentAppointment = {} as IAppointment;
+  //   state.identificationPatient = '';
+  //   state.currentHealthInsurance = null;
+  //   state.speciality = {} as ISpeciality;
+  // });
 
-      calculateAmountPaid(val: any) {
-        controller.calculateAmountPaid();
-      },
+  CURRENTYEAR_MONTH;
+  HOURS_ALLOWED;
+  MINUTES_ALLOWED;
+  FORMAT_DATETIME;
+  form;
+  async function confirmChanges() {
+    const isValid = await form.value?.validate();
+    if (isValid == false) return;
+    // const response = await controller.saveOrUpdate();
+    // if (response != null) {
+    //   form.value?.reset();
+    // }
+  }
+  async function changePaymentMethod(idPaymentOption: number) {
+    // controller.changedPaymentMethod(idPaymentOption);
+  }
 
-      async patientWasScheduled() {
-        await controller.patientWasScheduled();
-      },
-      listInsurancePatient,
-      state,
-      store,
-      required,
-      noLowerZero,
-      numberRequired,
-      isNotNull,
-    };
-  },
-});
+  function calculateAmountPaid(val: any) {
+    // controller.calculateAmountPaid();
+  }
+
+  async function patientWasScheduled() {
+    // await controller.patientWasScheduled();
+  }
+  listInsurancePatient;
+  state;
+  store;
+  required;
+  noLowerZero;
+  numberRequired;
+  isNotNull;
 </script>

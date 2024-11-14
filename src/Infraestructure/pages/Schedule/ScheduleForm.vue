@@ -12,23 +12,25 @@
               >
             </small>
           </q-item-label>
-          <div class="row q-col-gutter-x-md">
-            <div class="col-6 col-md col-sm-12 col-xs-12">
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-sm-6">
               <q-input
                 dense
-                outlined
                 v-model="state.currentSchedule.start"
-                label="Fecha Cita"
-                :hint="`Finalizacion Cita: ${dates.formatDate(
-                  dates.addToDate(state.currentSchedule.start, { minutes: 20 }),
-                  FORMAT_DATETIME
-                )}`"
+                label="Fecha y Hora"
+                filled
+                readonly
                 :rules="[required]"
                 lazy-rules
+                :hint="`Finalizacion Cita: ${date.formatDate(
+                  date.addToDate(state.currentSchedule.start, { minutes: 20 }),
+                  FORMAT_DATETIME
+                )}`"
               >
                 <template v-slot:prepend>
-                  <q-icon name="event">
+                  <q-icon name="event" class="cursor-pointer">
                     <q-popup-proxy
+                      cover
                       transition-show="scale"
                       transition-hide="scale"
                     >
@@ -37,12 +39,22 @@
                         v-model="state.currentSchedule.start"
                         :navigation-min-year-month="CURRENTYEAR_MONTH"
                         :mask="FORMAT_DATETIME"
-                      />
+                      >
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Close"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-date>
                     </q-popup-proxy>
                   </q-icon>
                 </template>
+
                 <template v-slot:append>
-                  <q-icon name="access_time">
+                  <q-icon name="access_time" class="cursor-pointer">
                     <q-popup-proxy
                       cover
                       transition-show="scale"
@@ -53,11 +65,12 @@
                         :mask="FORMAT_DATETIME"
                         :minute-options="OPTIONS_MINUTES"
                         :hour-options="OPTIONS_HOURS"
+                        format24h
                       >
                         <div class="row items-center justify-end">
                           <q-btn
                             v-close-popup
-                            label="Cerrar"
+                            label="Close"
                             color="primary"
                             flat
                           />
@@ -68,11 +81,10 @@
                 </template>
               </q-input>
             </div>
-            <div class="col-6 col-md col-sm-12 col-xs-12">
+            <div class="col-12 col-sm-6">
               <q-input
                 dense
                 type="number"
-                outlined
                 v-model="state.identificationPatient"
                 @keydown.enter.prevent="searchPatient()"
                 label="N° Identificacion"
@@ -99,21 +111,21 @@
       </q-item>
       <q-item>
         <q-item-section>
-          <div class="row q-col-gutter-x-md">
-            <div class="col-6 col-md col-sm-12 col-xs-12">
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-sm-6">
               <q-input
+                filled
                 :readonly="true"
                 dense
-                outlined
                 v-model="state.currentPatient.name"
                 label="Nombre Paciente"
               />
             </div>
-            <div class="col-6 col-md col-sm-12 col-xs-12">
+            <div class="col-12 col-sm-6">
               <q-input
+                filled
                 :readonly="true"
                 dense
-                outlined
                 v-model="state.currentPatient.lastName"
                 label="Apellido Paciente"
               />
@@ -123,25 +135,34 @@
       </q-item>
       <q-item>
         <q-item-section>
-          <div class="row q-col-gutter-x-md">
-            <div class="col-6 col-md col-sm-12 col-xs-12">
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-sm-6">
               <q-input
+                filled
                 :readonly="true"
                 dense
-                outlined
                 v-model="state.currentPatient.phoneNumber"
                 label="Telefono Paciente"
               />
             </div>
-            <div class="col-6 col-md col-sm-12 col-xs-12">
+            <div class="col-12 col-sm-6">
+              <q-input
+                filled
+                :readonly="true"
+                dense
+                v-model="state.currentPatient.email"
+                label="Email"
+              />
+            </div>
+            <!-- <div class="col-6 col-md col-sm-12 col-xs-12">
               <q-input
                 :readonly="true"
                 dense
-                outlined
+
                 v-model="state.currentPatient.insurance.nameInsurance"
                 label="Entidad Paciente"
               />
-            </div>
+            </div> -->
           </div>
         </q-item-section>
       </q-item>
@@ -149,57 +170,53 @@
         <q-item-section>
           Datos Generales:
           <div class="row q-col-gutter-x-md">
-            <div class="col-6 col-md col-sm-12 col-xs-12">
+            <div class="col-12 col-sm-6">
               <q-select
                 dense
                 clearable
-                outlined
                 v-model="state.currentDoctor"
                 :options="state.allDoctors"
-                :option-value="(item) => (item === null ? null : item.user.id)"
-                label="Doctor"
+                :option-value="(item) => (item === null ? null : item.id)"
+                emit-value
+                :option-label="(option) => `${option.name} ${option.lastName}`"
                 map-options
+                label="Doctor *"
+                :rules="[isNotNull, required]"
                 lazy-rules
-                :rules="[isNotNull]"
-                :display-value="`${
-                  state.currentDoctor ? state.currentDoctor.user.first_name : ''
-                } ${
-                  state.currentDoctor ? state.currentDoctor.user.last_name : ''
-                }`"
+                :disable="state.allDoctors.length == 1"
               >
-                <template v-slot:option="{ itemProps, opt }">
-                  <q-item v-bind="itemProps">
-                    <q-item-section>
-                      <q-item-label
-                        >{{ opt.user.first_name }}
-                        {{ opt.user.last_name }}</q-item-label
-                      >
-                    </q-item-section>
-                  </q-item>
-                </template>
               </q-select>
             </div>
-            <div class="col-6 col-md col-sm-12 col-xs-12">
+            <div class="col-12 col-sm-6">
               <q-select
                 dense
                 clearable
-                outlined
                 v-model="state.speciality"
                 :options="state.allSpecialities"
                 :option-value="(item) => (item === null ? null : item.id)"
-                emit-value
                 option-label="description"
                 map-options
                 label="Especialidad"
                 :rules="[isNotNull]"
                 lazy-rules
-                @update:model-value="(val) => specialityChanged(val)"
               >
               </q-select>
             </div>
-          </div>
-          <div class="row q-col-gutter-x-md">
-            <div class="col-12 col-md col-sm-12 col-xs-12">
+            <div class="col-12 col-sm-6">
+              <q-select
+                dense
+                v-model="state.medicalOfficeSelected"
+                :options="state.allMedicalOffice"
+                :option-value="(item) => (item === null ? null : item.id)"
+                option-label="name"
+                map-options
+                label="Consultorio *"
+                :rules="[isNotNull]"
+                lazy-rules
+              >
+              </q-select>
+            </div>
+            <div class="col-12 col-sm-12">
               <q-input
                 v-model="state.currentSchedule.observations"
                 dense
@@ -236,62 +253,60 @@
   </q-form>
 </template>
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, inject } from 'vue';
-import { date, QForm } from 'quasar';
-import { ScheduleFormBloc } from 'src/Adapters';
-import {
-  CURRENTYEAR_MONTH,
-  FORMAT_DATETIME,
-  OPTIONS_HOURS,
-  OPTIONS_MINUTES,
-} from 'src/Application/Utilities/Constants';
-import 'src/css/app.sass';
-import { Messages } from 'src/Application/Utilities';
-import { ScheduleMediator } from 'src/Infraestructure/Mediators';
-import { required, isNotNull } from 'src/Application/Utilities/Helpers';
-import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
+  import { onMounted, onUnmounted, ref, inject } from 'vue';
+  import { date, QForm } from 'quasar';
+  import { ScheduleFormBloc } from 'src/Adapters';
+  import {
+    CURRENTYEAR_MONTH,
+    FORMAT_DATETIME,
+    OPTIONS_HOURS,
+    OPTIONS_MINUTES,
+  } from 'src/Application/Utilities/Constants';
+  import 'src/css/app.sass';
+  import { Messages } from 'src/Application/Utilities';
+  import { required, isNotNull } from 'src/Application/Utilities/Helpers';
+  import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
+  import { IHandleGlobalState, IHandleUserState } from 'src/Domine/IPatterns';
 
-const dates = date;
-const mediator = ScheduleMediator.getInstance();
-const controller = inject<ScheduleFormBloc>(
-  'scheduleFormBloc'
-) as ScheduleFormBloc;
-const state = usePlocState(controller);
-const form = ref<QForm>();
-mediator.add(controller);
+  const dependenciesLocator = inject<any>('dependenciesLocator');
+  const controller = <ScheduleFormBloc>(
+    dependenciesLocator.provideScheduleBloc()
+  );
 
-onMounted(async () => {
-  await controller.loadInitialData();
-});
+  const handleGlobalState = <IHandleGlobalState>(
+    dependenciesLocator.provideHandleGlobalState()
+  );
 
-onUnmounted(async () => {
-  await controller.clear();
-});
+  const handleUserState = <IHandleUserState>(
+    dependenciesLocator.provideHandleUserState()
+  );
+  const state = usePlocState(controller);
+  const form = ref<QForm>();
 
-async function confirmChanges() {
-  // try {
-  const isValid = await form.value?.validate();
-  if (isValid == false) return;
-  await controller.saveOrUpdate();
-  // } catch (error: any) {
-  //   const messageError = (error as Error).message;
-  //   const notifyQuasar = factoryNotificator.createNotificator(
-  //     ModalType.NotifyQuasar
-  //   );
-  //   notifyQuasar.setType('error');
-  //   notifyQuasar.show(undefined, messageError);
+  onMounted(async () => {
+    await controller.loadInitialData(handleGlobalState);
+  });
+
+  onUnmounted(async () => {
+    await controller.clear();
+  });
+
+  async function confirmChanges() {
+    const isValid = await form.value?.validate();
+    if (isValid == false) return;
+    await controller.saveOrUpdate(handleUserState.store.token.userId);
+    handleGlobalState.refecthEvents();
+  }
+
+  async function searchPatient() {
+    await controller.searchPatient();
+  }
+
+  async function confirmDeleteSchedule() {
+    await controller.confirmDeleteSchedule();
+  }
+
+  // async function specialityChanged(val: number) {
+  //   await controller.getDoctorsBelongSpeciality(val);
   // }
-}
-
-async function searchPatient() {
-  await controller.searchPatient();
-}
-
-async function confirmDeleteSchedule() {
-  await controller.confirmDeleteSchedule();
-}
-
-async function specialityChanged(val: number) {
-  await controller.getDoctorsBelongSpeciality(val);
-}
 </script>

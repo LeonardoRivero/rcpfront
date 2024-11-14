@@ -7,8 +7,8 @@ import {
 } from 'vue-router';
 
 import routes from './routes';
-import { useStoreUser } from 'src/Infraestructure/Mediators/UserMediator';
-import { storeToRefs } from 'pinia';
+// import { useStoreUser } from 'src/Infraestructure/Mediators/UserContext';
+// import { storeToRefs } from 'pinia';
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -22,8 +22,8 @@ export default route(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : process.env.VUE_ROUTER_MODE === 'history'
-    ? createWebHistory
-    : createWebHashHistory;
+      ? createWebHistory
+      : createWebHashHistory;
 
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),

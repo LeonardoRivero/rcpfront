@@ -116,6 +116,7 @@ export class SweetAlertModal implements Notificator {
     return false;
   }
   setType(type: NotificationType): void {
+    console.log(type);
     this.icon = type;
   }
   setTime(timerMs: number): void {

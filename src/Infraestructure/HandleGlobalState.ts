@@ -1,4 +1,7 @@
 import { defineStore } from 'pinia';
+import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
+import { GetAllGenderUseCase } from 'src/Application/Services';
+import { GetAllDocumentTypeUseCase } from 'src/Application/Services/IDTypeService';
 import { GetAllBiologicalSexUseCase } from 'src/Application/UseCases/BiologicalSexUseCase';
 import { GetAllCityUseCase } from 'src/Application/UseCases/CityUseCases';
 import { GetAllCountryUseCase } from 'src/Application/UseCases/CountryUseCases';
@@ -7,11 +10,13 @@ import { GetAllInsuranceUseCase } from 'src/Application/UseCases/InsuranceUseCas
 import { GetAllKindDisabilityUseCase } from 'src/Application/UseCases/KindDisabilityUseCases';
 import { GetAllOcupationUseCase } from 'src/Application/UseCases/OcupationUseCases';
 import { GetAllPhoneCodeUseCase } from 'src/Application/UseCases/PhoneCodeUseCase';
+import { GetAllSpecialityUseCase } from 'src/Application/UseCases/SpecialityUseCases';
 import { GetAllZoneStayUseCase } from 'src/Application/UseCases/ZoneStayUseCase';
 import { DIVIPOLADTO, StateDTO, TownDTO } from 'src/Domine/DTOs';
 import { HTTPClient, IHandleGlobalState, IUseCase } from 'src/Domine/IPatterns';
 import { IGlobalState } from 'src/Domine/IStores';
-import { BiologicalSexResponse, CityResponse, CountryResponse, EthicityResponse, HealthInsuranceResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse } from 'src/Domine/Responses';
+import { BiologicalSexResponse, CityResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, SpecialityResponse, RoleResponse, MedicalOfficeResponse, PaymentOptionsResponse } from 'src/Domine/Responses';
+import { GetAllPaymentOptionUseCase } from 'src/Application/UseCases/PaymentOptionsUseCases';
 
 
 export class HandleGlobalState implements IHandleGlobalState {
@@ -26,6 +31,11 @@ export class HandleGlobalState implements IHandleGlobalState {
   private getAllPhoneCodeUseCase: IUseCase<void, PhoneCodeResponse[]>
   private getAllBiologicalSexUseCase: IUseCase<void, BiologicalSexResponse[]>
   private getAllZoneStayUseCase: IUseCase<void, ZoneStayResponse[]>
+  private getAllDocumentTypeUseCase: IUseCase<void, DocumentTypeResponse[]>
+  private getAllGenderUseCase: IUseCase<void, GenderResponse[]>
+  private getAllSpecialityUseCase: IUseCase<void, SpecialityResponse[]>
+  private getAllpaymentOptionUseCase: IUseCase<void, PaymentOptionsResponse[]>
+  // private getAllGroupsUseCase: IUseCase<string, RoleResponse[]>
 
   private constructor(httpClient: HTTPClient) {
     this.store = this.createStore();
@@ -38,6 +48,11 @@ export class HandleGlobalState implements IHandleGlobalState {
     this.getAllPhoneCodeUseCase = new GetAllPhoneCodeUseCase(httpClient)
     this.getAllBiologicalSexUseCase = new GetAllBiologicalSexUseCase(httpClient)
     this.getAllZoneStayUseCase = new GetAllZoneStayUseCase(httpClient)
+    this.getAllDocumentTypeUseCase = new GetAllDocumentTypeUseCase(httpClient)
+    this.getAllGenderUseCase = new GetAllGenderUseCase(httpClient)
+    this.getAllSpecialityUseCase = new GetAllSpecialityUseCase(httpClient)
+    this.getAllpaymentOptionUseCase = new GetAllPaymentOptionUseCase(httpClient)
+    // this.getAllGroupsUseCase = new GetAllGroupsUseCase(httpClient)
   }
 
   public static getInstance(httpClient: HTTPClient): HandleGlobalState {
@@ -60,11 +75,42 @@ export class HandleGlobalState implements IHandleGlobalState {
         allPhoneCode: <PhoneCodeResponse[]>[],
         allBiologicalSex: <BiologicalSexResponse[]>[],
         allZoneStay: <ZoneStayResponse[]>[],
+        allDocumentType: [],
+        allGender: [],
+        allSpecialities: [],
         DIVIPOLA: <DIVIPOLADTO>{},
+        currentMedicalOffice: [],
+        allPaymentOption: [],
+        calendar: {} as InstanceType<typeof FullCalendar>,
       }),
-      // persist: true,
+      persist: true,
     });
     return store();
+  }
+
+  public async getAllPaymentOptions(): Promise<PaymentOptionsResponse[]> {
+    if (this.store.allPaymentOption.length != 0) {
+      console.log(this.store.allPaymentOption);
+      return this.store.allPaymentOption;
+    }
+    console.log('r');
+    const response = await this.getAllpaymentOptionUseCase.execute();
+    this.store.allPaymentOption = response;
+    return response;
+  }
+
+  public refecthEvents(): void {
+    const apiCalendar = this.store.calendar.getApi();
+    apiCalendar.refetchEvents();
+  }
+
+  public async getAllSpecialities(): Promise<SpecialityResponse[]> {
+    if (this.store.allSpecialities.length != 0) {
+      return this.store.allSpecialities;
+    }
+    const response = await this.getAllSpecialityUseCase.execute();
+    this.store.allSpecialities = response;
+    return response;
   }
 
   public async getAllZoneStay(): Promise<ZoneStayResponse[]> {
@@ -158,6 +204,34 @@ export class HandleGlobalState implements IHandleGlobalState {
     return dto
   }
 
+  async getAllBiologicalSex(): Promise<BiologicalSexResponse[]> {
+    if (this.store.allBiologicalSex.length != 0) {
+      return this.store.allBiologicalSex;
+    }
+
+    const response = await this.getAllBiologicalSexUseCase.execute()
+    this.store.allBiologicalSex = response;
+    return response;
+  }
+
+  async getAllDocumentType(): Promise<DocumentTypeResponse[]> {
+    if (this.store.allDocumentType.length != 0) {
+      return this.store.allDocumentType;
+    }
+    const response = await this.getAllDocumentTypeUseCase.execute()
+    this.store.allDocumentType = response
+    return response
+  }
+
+  async getAllGender(): Promise<GenderResponse[]> {
+    if (this.store.allGender.length != 0) {
+      return this.store.allGender;
+    }
+    const response = await this.getAllGenderUseCase.execute()
+    this.store.allGender = response
+    return response
+  }
+
   private moveToFirstCountry(countries: CountryResponse[]): CountryResponse[] {
     const index = countries.findIndex(item => item.name.toLowerCase() === 'colombia');
     if (index !== -1) {
@@ -167,13 +241,7 @@ export class HandleGlobalState implements IHandleGlobalState {
     return countries
   }
 
-  async getAllBiologicalSex(): Promise<BiologicalSexResponse[]> {
-    if (this.store.allBiologicalSex.length != 0) {
-      return this.store.allBiologicalSex;
-    }
-
-    const response = await this.getAllBiologicalSexUseCase.execute()
-    this.store.allBiologicalSex = response;
-    return response;
+  async saveInfoMedicalOffice(medicalOffice: MedicalOfficeResponse[]) {
+    this.store.currentMedicalOffice = medicalOffice
   }
 }

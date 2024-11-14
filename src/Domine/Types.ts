@@ -22,3 +22,9 @@ export type NotificationType =
 export enum ServicesType {
   Appointment = 'Appointment',
 }
+
+export enum GroupUser {
+  DOCTOR = 'Doctor',
+  SECRETARY = 'Secretary',
+  ADMIN = 'Admin'
+}

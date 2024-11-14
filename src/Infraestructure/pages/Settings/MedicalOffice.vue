@@ -1,248 +1,192 @@
 <template>
-  <q-card class="my-card" bordered>
-    <q-card-section>
-      <div class="text-h5 q-mt-sm q-mb-xs">
-        <q-icon :name="icons.medicalClinic" size="48px" /> Consultorio
-      </div>
-      <div class="fit row wrap justify-start items-start content-start">
-        <q-select
-          dense
-          clearable
-          outlined
-          v-model="state.address"
-          :options="state.medicalOffices"
-          :option-value="(item) => (item === null ? null : item.id)"
-          option-label="address"
-          map-options
-          emit-value
-          label="Consultorios"
-          @update:model-value="(val) => addressMedicalOfficeChanged(val)"
-          @clear="(val) => clearForm()"
-          style="overflow: auto"
-          class="col-grow"
-          :disable="state.disableSelectAddress"
+  <div class="q-pa-md">
+    <div class="q-pa-md q-gutter-sm">
+      <q-breadcrumbs>
+        <q-breadcrumbs-el icon="home" to="/" />
+        <q-breadcrumbs-el
+          label="Configuraciones"
+          icon="mdi-cog"
+          to="/settings"
         />
-        <q-btn color="grey-7" round flat icon="more_vert">
-          <q-tooltip transition-show="scale" transition-hide="scale">
-            Acciones
-          </q-tooltip>
-          <q-menu cover auto-close>
-            <q-list>
-              <q-item clickable @click="getAllMedicalOffice()">
-                <q-item-section>Listar</q-item-section>
+        <q-breadcrumbs-el label="Consultorio" :icon="icons.medicalClinic" />
+      </q-breadcrumbs>
+    </div>
+    <q-form @submit="confirmChanges" ref="form">
+      <div class="row q-col-gutter-md">
+        <div class="col-12 col-sm-6">
+          <q-input
+            dense
+            v-model="state.name"
+            label="Nombre Consultorio *"
+            class="col-grow"
+            :rules="[required]"
+          />
+        </div>
+        <div class="col-12 col-sm-6 row">
+          <q-input
+            dense
+            v-model="state.country.name"
+            label="Pais"
+            disable
+            class="col-grow"
+          />
+        </div>
+        <div class="col-12 col-sm-6">
+          <q-select
+            option-value="codeState"
+            option-label="state"
+            map-options
+            dense
+            v-model="state.state"
+            use-input
+            hide-selected
+            input-debounce="0"
+            :options="optionsState"
+            :rules="[isNotNull]"
+            fill-input
+            label="Departamento Residencia *"
+            @filter="filterState"
+            @update:model-value="(val) => stateChanged(val)"
+            class="col-grow"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  Sin Resultados
+                </q-item-section>
               </q-item>
-              <!-- <q-item clickable @click="edit()">
-                <q-item-section>Editar</q-item-section>
-              </q-item> -->
-            </q-list>
-          </q-menu>
-        </q-btn>
+            </template>
+          </q-select>
+        </div>
+        <div class="col-12 col-sm-6">
+          <q-select
+            option-value="codeTown"
+            option-label="town"
+            map-options
+            dense
+            v-model="state.town"
+            use-input
+            hide-selected
+            input-debounce="0"
+            :options="optionsTown"
+            :rules="[isNotNull]"
+            fill-input
+            label="Ciudad Residencia*"
+            @filter="filterTown"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey">
+                  Sin Resultados
+                </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
+        <div class="col-12 col-sm-6">
+          <q-input
+            dense
+            v-model="state.phoneNumber"
+            label="Numero Telefonico *"
+            :mask="state.phoneFormat?.format"
+            lazy-rules
+            :rules="[required]"
+          >
+          </q-input>
+        </div>
+        <div class="col-12 col-sm-6">
+          <q-input dense v-model="state.address" label="Direccion *" />
+        </div>
       </div>
-    </q-card-section>
-    <q-card-actions>
-      <q-btn flat round color="primary" icon="mdi-plus" @click="add">
-        <q-tooltip transition-show="scale" transition-hide="scale">
-          Agregar
-        </q-tooltip>
-      </q-btn>
-      <q-btn
-        flat
-        round
-        color="green"
-        icon="mdi-pencil"
-        @click="edit()"
-        v-if="state.visibleEdit"
-      >
-        <q-tooltip transition-show="scale" transition-hide="scale">
-          Editar
-        </q-tooltip>
-      </q-btn>
-      <q-space />
-      <q-btn
-        color="grey"
-        round
-        flat
-        dense
-        :icon="state.expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-        @click="state.expanded = !state.expanded"
-      />
-    </q-card-actions>
-    <q-slide-transition>
-      <div v-show="state.expanded">
-        <q-separator />
-        <q-card-section class="text-subitle2">
-          <q-form @submit="confirmChanges" ref="form" class="q-gutter-md">
-            <q-input
-              dense
-              outlined
-              v-model="state.countries[0].name_ascii"
-              label="Pais"
-              disable
-            />
-            <q-select
-              :disable="!state.enableForEdit"
-              dense
-              clearable
-              outlined
-              v-model="state.medicalOfficeResponse.department.name"
-              :options="state.regions"
-              :option-value="(item) => (item === null ? null : item.url)"
-              option-label="name"
-              map-options
-              emit-value
-              label="Departamento"
-              @update:model-value="(val) => departmentChanged(val)"
-              @clear="(val) => clearForm()"
-              :rules="[isNotNull]"
-            >
-            </q-select>
-            <q-select
-              :disable="!state.enableForEdit"
-              dense
-              clearable
-              outlined
-              v-model="state.medicalOfficeResponse.city.name"
-              :options="state.subRegions"
-              :option-value="(item) => (item === null ? null : item.id)"
-              option-label="name"
-              map-options
-              emit-value
-              label="Ciudad"
-              @clear="(val) => clearForm()"
-              @update:model-value="(val) => cityChanged(val)"
-              :rules="[isNotNull]"
-            >
-            </q-select>
-            <q-input
-              :disable="!state.enableForEdit"
-              dense
-              outlined
-              v-model="state.medicalOfficeResponse.address"
-              label="Direccion"
-              :rules="[required]"
-            />
-            <div>
-              <q-btn label="Guardar" type="submit" color="primary" />
-            </div>
-          </q-form>
-        </q-card-section>
+      <br />
+      <div>
+        <q-btn label="Guardar" type="submit" color="primary" />
       </div>
-    </q-slide-transition>
-  </q-card>
+    </q-form>
+  </div>
 </template>
-<script lang="ts">
-import { defineComponent, onMounted, reactive, ref } from 'vue';
-import { QForm } from 'quasar';
-import { IconSVG } from 'src/Application/Utilities';
-import {
-  CountryResponse,
-  MedicalOfficeResponse,
-  RegionResponse,
-  RegionResponseModel,
-  SubRegionResponse,
-  SubRegionResponseModel,
-} from 'src/Domine/Responses';
-import { MedicalOfficeState } from 'src/Domine/IStates';
-import 'src/css/app.sass';
-import {
-  CountryService,
-  RegionService,
-} from 'src/Application/Services/GeographicCollectionService';
-// import container from 'src/inversify.config';
-import { MedicalOfficeController } from 'src/Adapters/MedicalOfficeController';
-import { EditCommand, InsertCommand } from 'src/Application/Commands';
-import { IMedicalOffice } from 'src/Domine/Request';
-import { MedicalOfficeService } from 'src/Application/Services/MedicalOfficeService';
-import { required, isNotNull } from 'src/Application/Utilities/Helpers';
-import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
 
-export default defineComponent({
-  name: 'InsuranceForm',
-  setup() {
-    const state: MedicalOfficeState = reactive({
-      countries: [{ name_ascii: '' }] as Array<CountryResponse>,
-      regions: [] as Array<RegionResponse>,
-      subRegions: [] as Array<SubRegionResponse>,
-      medicalOffices: [] as Array<MedicalOfficeResponse>,
-      address: '',
-      expanded: false,
-      medicalOfficeResponse: {
-        department: {} as RegionResponseModel,
-        city: {} as SubRegionResponseModel,
-      } as MedicalOfficeResponse,
-      medicalOfficeEntity: {} as IMedicalOffice,
-      disableSelectAddress: true,
-      enableForEdit: false,
-      visibleEdit: false,
-    });
-    const factoryNotificator =
-      container.get<IFactoryMethodNotifications>('FactoryNotifactors');
-    const controller = MedicalOfficeController.getInstance(
-      state,
-      factoryNotificator
+<script setup lang="ts">
+  import { inject, onMounted, ref } from 'vue';
+  import { QForm } from 'quasar';
+  import { IconSVG } from 'src/Application/Utilities';
+  import { required, isNotNull } from 'src/Application/Utilities/Helpers';
+  import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
+  import { MedicalOfficeBloc } from 'src/Adapters/MedicalOfficeBloc';
+  import { IHandleGlobalState, IHandleUserState } from 'src/Domine/IPatterns';
+  import { StateDTO, TownDTO } from 'src/Domine/DTOs';
+  import { UpdateFunction } from 'src/Domine/Types';
+  import 'src/css/app.sass';
+
+  const form = ref<QForm>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dependenciesLocator = inject<any>('dependenciesLocator');
+  const optionsState = ref<StateDTO[]>([]);
+  const optionsTown = ref<TownDTO[]>([]);
+
+  const handleGlobalState = <IHandleGlobalState>(
+    dependenciesLocator.provideHandleGlobalState()
+  );
+  const controller = <MedicalOfficeBloc>(
+    dependenciesLocator.provideMedicalOfficeBloc()
+  );
+
+  const handleUserState = <IHandleUserState>(
+    dependenciesLocator.provideHandleUserState()
+  );
+  const state = usePlocState(controller);
+  const icons = IconSVG;
+
+  onMounted(async () => {
+    await controller.loadInitialData(handleGlobalState);
+    optionsState.value = state.value.allCities.state;
+  });
+
+  async function stateChanged(val: StateDTO) {
+    const town: TownDTO[] = state.value.allCities?.town;
+    const townBelongToState = town?.filter(
+      (num: TownDTO) => num.codeState == val.codeState
     );
-    const form = ref<QForm>();
+    optionsTown.value = townBelongToState;
+    state.value.town = townBelongToState[0];
+  }
 
-    onMounted(async () => {
-      controller.loadInitialData();
+  function filterState(val: string, update: UpdateFunction) {
+    update(() => {
+      const needle = val.toLowerCase();
+      optionsState.value = state.value.allCities.state.filter((option) => {
+        return option.state.toLowerCase().indexOf(needle) > -1;
+      });
     });
+  }
 
-    return {
-      required,
-      isNotNull,
-      state,
-      icons: IconSVG,
-      form,
-      clearForm() {
-        controller.clear();
-        form.value?.reset();
-      },
-      async departmentChanged(url: string) {
-        await controller.departmentChanged(url);
-      },
-      cityChanged(id: string) {
-        controller.cityChanged(id);
-      },
-      async addressMedicalOfficeChanged(id: number) {
-        await controller.showInfoMedicalOffice(id);
-      },
-      edit() {
-        controller.edit();
-      },
-      async getAllMedicalOffice() {
-        await controller.getAllMedicalOffice();
-      },
-      async add() {
-        controller.add();
-        form.value?.reset();
-      },
-      async confirmChanges() {
-        controller.resetAllCommand();
-        const isValid = await form.value?.validate();
-        if (isValid == false) return;
+  function filterTown(val: string, update: UpdateFunction) {
+    update(() => {
+      if (val === '') {
+        optionsTown.value = state.value.allCities.town.filter((option) => {
+          return option.codeState == state.value.state?.codeState;
+        });
+      }
+      const needle = val.toLowerCase();
+      optionsTown.value = state.value.allCities.town.filter((option) => {
+        return (
+          option.codeState == state.value.state?.codeState &&
+          option.town.toLowerCase().indexOf(needle) > -1
+        );
+      });
+    });
+  }
 
-        const service = {} as IFactoryMethodNotifications;
-        let payload: IMedicalOffice = state.medicalOfficeEntity;
-        payload.address = state.medicalOfficeResponse.address;
-        payload.country = controller.getIdByUrl(state.countries[0].url);
-
-        if (state.medicalOfficeResponse?.id == undefined) {
-          const createCommand = new InsertCommand(payload, service);
-          controller.setOnSave(createCommand);
-        } else {
-          const id = state.medicalOfficeResponse?.id;
-          payload.id = id;
-          const upateCommand = new EditCommand(payload, id, service);
-          controller.setOnUpdate(upateCommand);
-        }
-
-        const response = await controller.saveOrUpdate();
-        if (response != null) {
-          controller.clear();
-          form.value?.reset();
-        }
-      },
-    };
-  },
-});
+  async function confirmChanges() {
+    const isValid = await form.value?.validate();
+    if (isValid == false) return;
+    const response = await controller.saveOrUpdate(
+      handleUserState,
+      handleGlobalState
+    );
+    if (response != null) {
+      controller.clear();
+      form.value?.reset();
+    }
+  }
 </script>

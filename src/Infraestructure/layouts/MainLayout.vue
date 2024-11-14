@@ -17,7 +17,7 @@
         <q-space v-if="$q.screen.xs" />
         <q-btn dense flat no-wrap>
           <q-avatar color="white" text-color="primary">{{
-            initialLetters
+            handleUserState.store.initialLetters
           }}</q-avatar>
           <q-icon name="arrow_drop_down" size="16px" />
 
@@ -26,7 +26,7 @@
               <q-item class="GL__menu-link-signed-in">
                 <q-item-section>
                   <div>
-                    <strong>{{ name }}</strong>
+                    <strong>{{ handleUserState.store.userName }}</strong>
                   </div>
                 </q-item-section>
               </q-item>
@@ -75,97 +75,50 @@
   </q-layout>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { storeToRefs } from 'pinia';
-// import EssentialLink from 'src/Infraestructure/components/EssentialLink.vue';
-import { ContextUser } from 'src/Domine/StrategyUser';
-import { UserService } from 'src/Application/Services/UserService';
-import { routerInstance } from 'src/boot/globalRouter';
-import {
-  UserMediator,
-  useStoreUser,
-} from 'src/Infraestructure/Mediators/UserMediator';
-import MenuTree from './MenuTree.vue';
-import { IStoreUser } from 'src/Domine/IStores';
-// const linksList = [
-//   {
-//     title: 'Inicio',
-//     caption: 'Inicio R.C.P',
-//     icon: 'home',
-//     link: '/index',
-//   },
-//   {
-//     title: 'Pacientes',
-//     caption: 'Gestion Pacientes',
-//     icon: 'mdi-human-wheelchair',
-//     link: '/patient',
-//   },
-//   {
-//     title: 'Agenda',
-//     caption: 'Administra Agenda',
-//     icon: 'mdi-calendar',
-//     link: '/schedule',
-//   },
-//   {
-//     title: 'Citas',
-//     caption: 'Gestiona Citas Pacientes',
-//     icon: 'mdi-calendar-multiple-check',
-//     link: '/appointment',
-//   },
-//   {
-//     title: 'Historia Clinica',
-//     caption: 'Gestiona Historia Pacientes',
-//     icon: 'mdi-notebook',
-//     link: '/clinichistory',
-//   },
-//   {
-//     title: 'Configuraciones',
-//     caption: 'Configuraciones Generales',
-//     icon: 'mdi-cog',
-//     link: '/settings',
-//   },
-// ];
+<script setup lang="ts">
+  import { inject, onMounted, ref } from 'vue';
+  import { routerInstance } from 'src/boot/globalRouter';
+  import MenuTree from './MenuTree.vue';
+  import { IHandleUserState } from 'src/Domine/IPatterns';
 
-export default defineComponent({
-  name: 'MainLayout',
+  const leftDrawerOpen = ref<boolean>(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dependenciesLocator = inject<any>('dependenciesLocator');
+  const handleUserState = <IHandleUserState>(
+    dependenciesLocator.provideHandleUserState()
+  );
 
-  components: { MenuTree },
+  // const initialLetters: string = 'C'.concat('A');
+  const initialLetters = ref<string>('');
+  const name = ref<string>('');
 
-  setup() {
-    const leftDrawerOpen = ref(false);
-    const contextUser = ContextUser.getInstance();
-    const storePermissions = contextUser.getStore();
-    const name =
-      storePermissions.userData.first_name == '' ? 'Carmen' : 'Carmen';
-    const last_name =
-      storePermissions.userData.last_name == '' ? 'Arenas' : 'Arenas';
-    const initialLetters: string = name.charAt(0).concat(last_name.charAt(0));
-    const userService = new UserService();
-    return {
-      initialLetters,
-      name,
-      // essentialLinks: linksList,
-      leftDrawerOpen,
-      toggleLeftDrawer() {
-        leftDrawerOpen.value = !leftDrawerOpen.value;
-      },
-      async logout() {
-        await userService.logout();
-        // const store = useStoreUser();
-        // const { isAuthenticated } = storeToRefs(store);
-        // isAuthenticated.value = false;
-        const mediator = UserMediator.getInstance();
-        const userStore = <IStoreUser>mediator.getStore();
-        userStore.isAuthenticated = false;
-        routerInstance.push('/');
-      },
-    };
-  },
-});
+  onMounted(async () => {
+    name.value = handleUserState.store.userName;
+    initialLetters.value = handleUserState.store.initialLetters;
+    // const infoUser = handleUserState.getInfoUser();
+    // name.value = infoUser.userId;
+    // const nameSplitted = infoUser.userId.split(' ');
+    // initialLetters.value = nameSplitted
+    //   .map((element) => element[0].toUpperCase())
+    //   .join('');
+  });
+
+  function toggleLeftDrawer() {
+    leftDrawerOpen.value = !leftDrawerOpen.value;
+  }
+  async function logout() {
+    // await CreateUser.logout();
+    // const store = useStoreUser();
+    // const { isAuthenticated } = storeToRefs(store);
+    // isAuthenticated.value = false;
+    // const mediator = UserContext.getInstance();
+    // const userStore = <IStoreUser>mediator.getStore();
+    // userStore.isAuthenticated = false;
+    routerInstance.push('/');
+  }
 </script>
 <style>
-body {
-  background: #ffffff !important;
-}
+  body {
+    background: #ffffff !important;
+  }
 </style>

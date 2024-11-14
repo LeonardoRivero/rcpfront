@@ -7,12 +7,10 @@ import { GenericService } from './Repositories/Interface';
 import { IUser } from 'src/Domine/Request';
 import { ModalType } from 'src/Domine/Types';
 import { Messages } from './Utilities';
-import { IUserService } from 'src/Domine/ICommons';
+import { ICreateUser } from 'src/Domine/ICommons';
 import { RegisterResponse } from 'src/Domine/Responses';
 
-import { HTTPClient, IUseCase } from 'src/Domine/IPatterns';
-import { PatientResponse } from 'src/Domine/Responses';
-import { IPatient } from 'src/Domine/Request';
+import { IUseCase } from 'src/Domine/IPatterns';
 // import container from 'src/inversify.config';
 
 // export class CreateCommand implements ICommand {
@@ -68,7 +66,7 @@ export class FindByParametersCommand implements ICommand {
 
 export class RegisterUserCommand implements ICommand {
   public payload: IUser;
-  public service: IUserService;
+  public service: ICreateUser;
   creatorNotificator = {} as IFactoryMethodNotifications;
   private notifySweetAlert: Notificator =
     this.creatorNotificator.createNotificator(ModalType.SweetAlert);
@@ -77,7 +75,7 @@ export class RegisterUserCommand implements ICommand {
     ModalType.NotifyQuasar
   );
 
-  constructor(payload: IUser, service: IUserService) {
+  constructor(payload: IUser, service: ICreateUser) {
     this.payload = payload;
     this.service = service;
   }
@@ -187,8 +185,19 @@ export class ShowModalNewRegister implements IUseCase<ModalType, boolean> {
   }
 
   async execute(modalType: ModalType): Promise<boolean> {
-    const notifyQuasar: Notificator = this.factoryNotifications.createNotificator(modalType);
-    notifyQuasar.setType('question');
-    return await notifyQuasar.show('Atención', Messages.newRegister);
+    const notificator: Notificator = this.factoryNotifications.createNotificator(modalType);
+    notificator.setType('question');
+    return await notificator.show('Atención', Messages.newRegister);
+  }
+}
+
+export class ShowModalEditRegister implements IUseCase<ModalType, boolean> {
+  public constructor(private factoryNotifications: IFactoryMethodNotifications) {
+  }
+
+  async execute(modalType: ModalType): Promise<boolean> {
+    const notificator: Notificator = this.factoryNotifications.createNotificator(modalType);
+    notificator.setType('question');
+    return await notificator.show('Atención', Messages.updateRegister);
   }
 }

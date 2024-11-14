@@ -1,4 +1,4 @@
-import { IKeyEmailRegistration, ILogin } from 'src/Domine/Request';
+import { ConfirmEmailRequest, LoginRequest } from 'src/Domine/Request';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
 // import 'reflect-metadata';
 // import { inject, injectable } from 'inversify';
@@ -18,7 +18,7 @@ export abstract class LoginRepository {
   public constructor(httpClient: HTTPClient) {
     this.httpClient = httpClient;
   }
-  async login(data: ILogin): Promise<AuthResponse> {
+  async login(data: LoginRequest): Promise<AuthResponse> {
     const url = `${process.env.RCP}${process.env.LOGIN}`;
     try {
       const response = await this.httpClient.POST(url, data);
@@ -65,7 +65,7 @@ export abstract class LoginRepository {
     }
   }
   async confirmEmailRegistration(
-    key: IKeyEmailRegistration
+    key: ConfirmEmailRequest
   ): Promise<Response> {
     const url = `${process.env.RCP}${process.env.CONFIRM_EMAIL_REGISTRATION}`;
     try {

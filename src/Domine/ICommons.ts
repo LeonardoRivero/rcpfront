@@ -1,5 +1,5 @@
 import { Observer } from './IPatterns';
-import { IKeyEmailRegistration, IUser } from './Request';
+import { ConfirmEmailRequest, IUser } from './Request';
 import { RegisterResponse } from './Responses';
 export interface IColumnsDataTable {
   name: string;
@@ -84,8 +84,8 @@ export interface IPermission {
   canCreate: boolean;
 }
 
-export interface IUserService {
+export interface ICreateUser {
   register(user: IUser): Promise<RegisterResponse | null>;
-  confirmEmailRegistration(key: IKeyEmailRegistration): Promise<Response>;
+  confirmEmailRegistration(key: ConfirmEmailRequest): Promise<Response>;
   changePassword(user: IUser): Promise<void>;
 }

@@ -1,11 +1,11 @@
 import { DoctorResponse } from 'src/Domine/Responses';
-import { DoctorService } from 'src/Application/Services/DoctorService';
+// import { DoctorService } from 'src/Application/Services/DoctorService';
 import { DoctorState } from 'src/Domine/IStates';
 import { ICommand } from 'src/Domine/IPatterns';
 
 export class DoctorController {
   private store: DoctorState;
-  private service = new DoctorService();
+  // private service = new DoctorService();
   private static instance: DoctorController;
   private saveCommand: ICommand | undefined;
   private updateCommand: ICommand | undefined;
@@ -122,14 +122,14 @@ export class DoctorController {
   //   return response;
   // }
 
-  public async getAll(): Promise<Array<DoctorResponse>> {
-    if (this.store.allDoctor.length !== 0) {
-      return this.store.allDoctor;
-    }
-    const response = await this.service.getAll();
-    this.store.allDoctor = response;
-    return response;
-  }
+  // public async getAll(): Promise<Array<DoctorResponse>> {
+  //   if (this.store.allDoctor.length !== 0) {
+  //     return this.store.allDoctor;
+  //   }
+  //   const response = await this.service.getAll();
+  //   this.store.allDoctor = response;
+  //   return response;
+  // }
 
   public async findByParameters() {
     this.findByParametersCommand?.execute();

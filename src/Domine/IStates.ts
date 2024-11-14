@@ -1,38 +1,31 @@
 import { DIVIPOLADTO, StateDTO, TownDTO } from './DTOs';
 import {
-  IColumnsDataTable,
   IPaginationDataTable,
   ITableOptions,
 } from './ICommons';
 import {
-  EventSchedule,
-  IAppointment,
+  AddEventToScheduleRequest,
+  AddAdmissionRequest,
   IDXMainCode,
   IDoctor,
   IExam,
   IHealthInsurance,
-  IMedicalOffice,
   IPathologycalHistory,
   IPatient,
-  IPatientStatus,
   IPhysicalExam,
   IReasonConsult,
   IRelationCode,
   ISpeciality,
-  IUser,
 } from './Request';
 import {
   BiologicalSexResponse,
-  CityResponse,
   CountryResponse,
   DXMainCodeResponse,
   DoctorResponse,
-  DoctorSpecialityResponse,
+  DocumentTypeResponse,
   EthicityResponse,
-  EventScheduleResponse,
   GenderResponse,
   HealthInsuranceResponse,
-  IDTypeResponse,
   KindDisabilityResponse,
   MedicalOfficeResponse,
   OcupationResponse,
@@ -43,10 +36,9 @@ import {
   PhoneCodeResponse,
   PhysicalExamResponse,
   ReasonConsultResponse,
-  RegionResponse,
   RelationCodeResponse,
+  RoleResponse,
   SpecialityResponse,
-  SubRegionResponse,
   ZoneStayResponse,
 } from './Responses';
 
@@ -132,7 +124,7 @@ export interface DataTableState {
 
 export interface PatientState {
   currentPatient: IPatient;
-  allIDTypes: Array<IDTypeResponse>;
+  allIDTypes: Array<DocumentTypeResponse>;
   allGenders: Array<GenderResponse>;
   allInsurance: Array<HealthInsuranceResponse>;
   allCountries: CountryResponse[];
@@ -148,12 +140,9 @@ export interface PatientState {
   countryOrigin: CountryResponse | null;
   countryStay: CountryResponse | null;
   identificationPatient: string;
-  idType: IDTypeResponse | null;
+  idType: DocumentTypeResponse | null;
   gender: GenderResponse | null;
   insurance: HealthInsuranceResponse | null;
-  disable: boolean;
-  error: boolean;
-  currentInsurance: IHealthInsurance;
   ocupation: OcupationResponse | null
   state: StateDTO | null
   town: TownDTO | null
@@ -165,45 +154,56 @@ export interface PatientState {
   lookUpDocumentNumber: string
 }
 
-export interface UserState {
-  IdType: number | null;
-  identification: number | null;
-  phoneNumber: number | null;
-  groups: Array<number>;
-  specialities: Array<number>;
+export interface RegisterUserState {
+  documentType: number | null;
+  documentNumber: string | null;
+  phoneNumber: string | null;
+  medicalOffice: number[] | null
+  medicalRegister: string
+  roles: Array<RoleResponse>;
   isActive: boolean;
-  user: IUser;
-  showSelectSpecialities: boolean;
+  firstName: string;
+  lastName: string,
+  role: string | null,
+  email: string,
+  phoneFormat: PhoneCodeResponse | null
+  allPhoneFormat: PhoneCodeResponse[],
+  allDocumentType: DocumentTypeResponse[]
+  allMedicalOffice: MedicalOfficeResponse[]
+  allSpecialities: SpecialityResponse[]
+  speciality: number[]
 }
 
 export interface ScheduleState {
-  lastConsult: IAppointment;
+  lastConsult: AddAdmissionRequest;
   isReadonly: boolean;
-  currentAppointment: IAppointment;
+  currentAppointment: AddAdmissionRequest;
   currentPatient: PatientResponse;
-  currentSchedule: EventSchedule;
-  currentDoctor: DoctorSpecialityResponse | null;
-  allDoctors: Array<DoctorSpecialityResponse>;
-  speciality: number | null;
+  currentSchedule: AddEventToScheduleRequest;
+  currentDoctor: DoctorResponse | null;
+  allDoctors: Array<DoctorResponse>;
+  speciality: SpecialityResponse | null;
   allSpecialities: Array<SpecialityResponse>;
   identificationPatient: string;
   allowToUpdate: boolean;
   allowToDelete: boolean;
   error: boolean;
-  // card: boolean;
+  card: boolean;
+  allMedicalOffice: MedicalOfficeResponse[]
+  medicalOfficeSelected: MedicalOfficeResponse | null
   // calendar: InstanceType<typeof FullCalendar>;
 }
 
-export interface AppointmentState {
+export interface AdmissionState {
   identificationPatient: string;
   reasonConsult: IReasonConsult | null;
-  currentAppointment: IAppointment;
+  currentAppointment: AddAdmissionRequest;
   allPaymentOptions: Array<PaymentOptionsResponse>;
   allReasonConsult: Array<ReasonConsultResponse>;
   allPatientStatus: Array<PatientStatusResponse>;
   start: string;
   end: string;
-  schedule: EventScheduleResponse;
+  // schedule: EventScheduleResponse;
   disableCodeTransaction: boolean;
   disableButtonSave: boolean;
 }
@@ -213,6 +213,7 @@ export interface ChangePasswordState {
   newPassword: string;
   confirmPassword: string;
   visible: boolean;
+  message: string
 }
 
 export interface DoctorState {
@@ -223,17 +224,20 @@ export interface DoctorState {
 }
 
 export interface MedicalOfficeState {
-  countries: Array<CountryResponse>;
-  subRegions: Array<SubRegionResponse>;
-  medicalOffices: Array<MedicalOfficeResponse>;
+  // medicalOffices: Array<MedicalOfficeResponse>;
   medicalOfficeResponse: MedicalOfficeResponse;
-  medicalOfficeEntity: IMedicalOffice;
-  regions: Array<RegionResponse>;
+  // medicalOfficeEntity: IMedicalOfficeRequest;
   address: string;
-  expanded: boolean;
-  disableSelectAddress: boolean;
-  enableForEdit: boolean;
-  visibleEdit: boolean;
+  // disableSelectAddress: boolean;
+  // enableForEdit: boolean;
+  // visibleEdit: boolean;
+  country: CountryResponse;
+  allCities: DIVIPOLADTO;
+  state: StateDTO | null;
+  town: TownDTO | null;
+  name: string;
+  phoneNumber: string
+  phoneFormat: PhoneCodeResponse | null
 }
 
 export interface LoginState {

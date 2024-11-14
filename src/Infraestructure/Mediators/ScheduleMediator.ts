@@ -13,7 +13,7 @@ import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 import { Messages } from 'src/Application/Utilities/Messages';
 
 import {
-  EventScheduleResponse,
+  ScheduleResponse,
   PathologicalHistoryResponse,
   SpecialityResponse,
 } from 'src/Domine/Responses';
@@ -35,6 +35,7 @@ import { SpecialityService } from 'src/Application/Services/SpecialityService';
 import { FORMAT_DATETIME } from 'src/Application/Utilities/Constants';
 import { PathologicalHistoryService } from 'src/Application/Services';
 import { ScheduleFormBloc } from 'src/Adapters';
+import { FactoryNotifactors } from '../Utilities/Factories';
 
 const START_TIME = '07:00';
 const END_TIME = '23:00';
@@ -145,13 +146,12 @@ export interface ActionsScheduleMediator {
   getAllSpecialities(): Promise<Array<SpecialityResponse>>;
 }
 export class ScheduleMediator
-  implements IControllersMediator, ActionsScheduleMediator
-{
+  implements IControllersMediator, ActionsScheduleMediator {
   private controllers: Bloc<unknown>[] = [];
   public store: StoreGeneric;
   private service = new ScheduleService();
   private static instance: ScheduleMediator;
-  private factoryNotificator = {} as IFactoryMethodNotifications;
+  private factoryNotificator = new FactoryNotifactors();
   private notifySweetAlert: Notificator;
 
   private constructor() {
@@ -174,7 +174,7 @@ export class ScheduleMediator
       return;
     }
     this.controllers.push(controller);
-    controller.setMediator(this);
+    // controller.setMediator(this);
   }
 
   public getStore(): StoreGeneric {
@@ -205,109 +205,110 @@ export class ScheduleMediator
         dateSchedule: '',
         card: false,
         allSpecialities: [],
-        calendar: {} as InstanceType<typeof FullCalendar>,
+        // calendar: {} as InstanceType<typeof FullCalendar>,
         scheduleId: null,
-        calOptions: reactive({
-          plugins: [
-            dayGridPlugin,
-            timeGridPlugin,
-            listPlugin,
-            interactionPlugin,
-          ],
-          timeZone: 'local',
-          nowIndicator: true,
-          dayMaxEvents: true,
-          businessHours: {
-            daysOfWeek: [1, 2, 3, 4, 5, 6],
-            startTime: START_TIME,
-            endTime: END_TIME,
-          },
-          slotMinTime: START_TIME,
-          slotMaxTime: END_TIME,
-          slotDuration: DURATION_APPOINTMENT,
-          initialView: 'dayGridMonth',
-          headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right:
-              'timeGridDay,dayGridMonth,listMonth,timeGridWeek,listWeek,timeGridForYear',
-          },
-          events: {
-            url: `${process.env.RCP}${process.env.SCHEDULE}filter/`,
-            method: 'GET',
-            failure: async () => {
-              const statusButton: HTMLInputElement | null =
-                document.querySelector('.fc-today-button');
-              if (statusButton != null) {
-                statusButton.style.background = 'red';
-                // statusButton.style.borderRadius = '90%';
-                // statusButton.style.height = '20px';
-                // statusButton.style.width = '20px';
-              }
-            },
-            success: function (content: Array<unknown>) {
-              const timeStamp = Date.now();
-              const statusButton: HTMLInputElement | null =
-                document.querySelector('.fc-today-button');
-              if (statusButton) {
-                statusButton.style.background = 'green';
-                // statusButton.style.borderRadius = '50%';
-                // statusButton.style.height = '20px';
-                // statusButton.style.width = '20px';
-              }
-              content.forEach((element: any) => {
-                const diff = date.getDateDiff(element.start, timeStamp, 'days');
-                element.textColor = 'white';
-                if (diff < 0) {
-                  element.color = 'red';
-                }
-                if (diff == 0) {
-                  element.color = 'purple';
-                }
-                if (diff > 0) {
-                  element.color = 'green';
-                }
-              });
-            },
-            // color: '#378006',
-            // textColor: 'black',
-          },
-          locale: esLocale,
-          editable: false,
-          selectable: true,
-          weekends: true,
-          select: async (arg: DateSelectArg) => {
-            // const currentlyStore: IStoreSchedule = mediator.getStore();
-            this.store.scheduleId = null;
-            this.store.card = true;
-            this.store.dateSchedule = date.formatDate(
-              arg.start,
-              FORMAT_DATETIME
-            );
-            // const service = ScheduleAdapter.getInstance(useStoreSchedule());
-            // service.handleDateSelect(arg);
-          },
-          eventClick: async (arg: EventClickArg) => {
-            this.store.card = true;
-            this.store.scheduleId = parseInt(arg.event.id);
-            // this.controllers.forEach((element) => {
-            //   if (element instanceof ScheduleAdapter) {
-            //     element.receiveData(this);
-            //   }
-            // });
-          },
-          // eventMouseEnter(arg: EventHoveringArg) {
-          //   console.log(arg.event);
-          // },
-          views: {
-            listMonth: { buttonText: 'Full Mes' },
-            timeGridForYear: {
-              type: 'dayGridMonth',
-              duration: { years: 1 },
-              buttonText: 'Año',
-            },
-          },
-        }),
+        // calOptions: reactive({
+        //   plugins: [
+        //     dayGridPlugin,
+        //     timeGridPlugin,
+        //     listPlugin,
+        //     interactionPlugin,
+        //   ],
+        //   timeZone: 'local',
+        //   nowIndicator: true,
+        //   dayMaxEvents: true,
+        //   businessHours: {
+        //     daysOfWeek: [1, 2, 3, 4, 5, 6],
+        //     startTime: START_TIME,
+        //     endTime: END_TIME,
+        //   },
+        //   slotMinTime: START_TIME,
+        //   slotMaxTime: END_TIME,
+        //   slotDuration: DURATION_APPOINTMENT,
+        //   initialView: 'dayGridMonth',
+        //   headerToolbar: {
+        //     left: 'prev,next today',
+        //     center: 'title',
+        //     right:
+        //       'timeGridDay,dayGridMonth,listMonth,timeGridWeek,listWeek,timeGridForYear',
+        //   },
+        //   events: {
+        //     url: `${process.env.RCP}${process.env.SCHEDULE}filter/`,
+        //     method: 'GET',
+        //     failure: async () => {
+        //       const statusButton: HTMLInputElement | null =
+        //         document.querySelector('.fc-today-button');
+        //       if (statusButton != null) {
+        //         statusButton.style.background = 'red';
+        //         // statusButton.style.borderRadius = '90%';
+        //         // statusButton.style.height = '20px';
+        //         // statusButton.style.width = '20px';
+        //       }
+        //     },
+        //     success: function (content: Array<unknown>) {
+        //       const timeStamp = Date.now();
+        //       const statusButton: HTMLInputElement | null =
+        //         document.querySelector('.fc-today-button');
+        //       if (statusButton) {
+        //         statusButton.style.background = 'green';
+        //         // statusButton.style.borderRadius = '50%';
+        //         // statusButton.style.height = '20px';
+        //         // statusButton.style.width = '20px';
+        //       }
+        //       content.forEach((element: any) => {
+        //         const diff = date.getDateDiff(element.start, timeStamp, 'days');
+        //         element.textColor = 'white';
+        //         if (diff < 0) {
+        //           element.color = 'red';
+        //         }
+        //         if (diff == 0) {
+        //           element.color = 'purple';
+        //         }
+        //         if (diff > 0) {
+        //           element.color = 'green';
+        //         }
+        //       });
+        //     },
+        //     // color: '#378006',
+        //     // textColor: 'black',
+        //   },
+        //   locale: esLocale,
+        //   editable: false,
+        //   selectable: true,
+        //   weekends: true,
+        //   select: async (arg: DateSelectArg) => {
+        //     // const currentlyStore: IStoreSchedule = mediator.getStore();
+        //     this.store.scheduleId = null;
+        //     this.store.card = true;
+        //     this.store.dateSchedule = date.formatDate(
+        //       arg.start,
+        //       FORMAT_DATETIME
+        //     );
+        //     console.log(this.store.dateSchedule);
+        //     // const service = ScheduleAdapter.getInstance(useStoreSchedule());
+        //     // service.handleDateSelect(arg);
+        //   },
+        //   eventClick: async (arg: EventClickArg) => {
+        //     this.store.card = true;
+        //     this.store.scheduleId = parseInt(arg.event.id);
+        //     // this.controllers.forEach((element) => {
+        //     //   if (element instanceof ScheduleAdapter) {
+        //     //     element.receiveData(this);
+        //     //   }
+        //     // });
+        //   },
+        //   // eventMouseEnter(arg: EventHoveringArg) {
+        //   //   console.log(arg.event);
+        //   // },
+        //   views: {
+        //     listMonth: { buttonText: 'Full Mes' },
+        //     timeGridForYear: {
+        //       type: 'dayGridMonth',
+        //       duration: { years: 1 },
+        //       buttonText: 'Año',
+        //     },
+        //   },
+        // }),
       }),
     });
     return store();
@@ -328,7 +329,7 @@ export class ScheduleMediator
 
   public async findByIdentificationPatient(
     identification: string
-  ): Promise<EventScheduleResponse | null> {
+  ): Promise<ScheduleResponse | null> {
     const scheduleByIdentificationPatientUseCase =
       new FindScheduleByIdentificationPatientUseCase();
     const register = await scheduleByIdentificationPatientUseCase.execute(

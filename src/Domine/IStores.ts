@@ -5,7 +5,7 @@ import {
   AppointmentResponse,
   DXMainCodeResponse,
   DoctorResponse,
-  EventScheduleResponse,
+  ScheduleResponse,
   Group,
   PathologicalHistoryResponse,
   RelationCodeResponse,
@@ -13,7 +13,7 @@ import {
   AuthResponse,
   UserResponse,
   HealthInsuranceResponse,
-  IDTypeResponse,
+  DocumentTypeResponse,
   PaymentOptionsResponse,
   ReasonConsultResponse,
   PatientStatusResponse,
@@ -25,6 +25,8 @@ import {
   PhoneCodeResponse,
   BiologicalSexResponse,
   ZoneStayResponse,
+  GenderResponse,
+  MedicalOfficeResponse,
 } from './Responses';
 import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 import { DIVIPOLADTO } from './DTOs';
@@ -32,7 +34,7 @@ import { DIVIPOLADTO } from './DTOs';
 export interface IStoreClinicHistory {
   currentDoctor: DoctorResponse;
   currentAppointment: AppointmentResponse;
-  currentSchedule: EventScheduleResponse | null;
+  currentSchedule: ScheduleResponse | null;
   allPathologies: Array<PathologicalHistoryResponse>;
   allDxMainCodes: Array<DXMainCodeResponse>;
   allRelationCodes: Array<RelationCodeResponse>;
@@ -48,17 +50,19 @@ export interface IStoreSettings {
   allPathologies: Array<PathologicalHistoryResponse>;
   allRelationCode: Array<RelationCodeResponse>;
   allInsurance: Array<HealthInsuranceResponse>;
-  allIdTypes: Array<IDTypeResponse>;
+  allIdTypes: Array<DocumentTypeResponse>;
   currentSpeciality: SpecialityResponse;
   currentDxMainCode: DXMainCodeResponse | null;
   allGroups: Array<Group>;
 }
 
 export interface IStoreUser {
-  user: IUser;
   token: AuthResponse;
   isAuthenticated: boolean;
   changePassword: boolean;
+  email: string
+  userName: string
+  initialLetters: string
 }
 
 export interface IStorePermissions {
@@ -78,8 +82,8 @@ export interface IStoreSchedule {
   dateSchedule: string;
   card: boolean;
   allSpecialities: Array<SpecialityResponse>;
-  calendar: InstanceType<typeof FullCalendar>;
-  calOptions: CalendarOptions;
+  // calendar: InstanceType<typeof FullCalendar>;
+  // calOptions: CalendarOptions;
   scheduleId: number | null;
 }
 export interface IStoreAppointment {
@@ -98,5 +102,13 @@ export interface IGlobalState {
   allKindDisability: KindDisabilityResponse[]
   allPhoneCode: PhoneCodeResponse[]
   allBiologicalSex: BiologicalSexResponse[]
-  allZoneStay: ZoneStayResponse[]
+  allZoneStay: ZoneStayResponse[],
+  allDocumentType: DocumentTypeResponse[],
+  allGender: GenderResponse[],
+  allSpecialities: SpecialityResponse[],
+  allPaymentOption: PaymentOptionsResponse[],
+  currentMedicalOffice: MedicalOfficeResponse[],
+  calendar: InstanceType<typeof FullCalendar>;
+  // userEmail: string
+  // loginResponse: AuthResponse | null
 }

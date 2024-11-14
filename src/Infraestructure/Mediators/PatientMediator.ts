@@ -10,20 +10,14 @@ import {
   HealthInsuranceResponse,
   IDTypeResponse,
   PathologicalHistoryResponse,
-  PatientResponse,
   RelationCodeResponse,
   SpecialityResponse,
 } from 'src/Domine/Responses';
-import {
-  FindPatientByIdentificationUseCase,
-  PatientService,
-} from 'src/Application/Services';
 
-export class PatientMediator implements IControllersMediator {
+export class PatientMediator {
   private controllers: Controller[] = [];
   public store: IStoreSettings;
   private static instance: PatientMediator;
-  private service = new PatientService();
 
   private constructor() {
     this.store = this.createStore();
@@ -57,36 +51,36 @@ export class PatientMediator implements IControllersMediator {
     return PatientMediator.instance;
   }
 
-  public add(controller: Controller): void {
-    const isExist = this.controllers.includes(controller);
-    if (isExist) {
-      return;
-    }
-    controller.setMediator(this);
-    this.controllers.push(controller);
-  }
+  // public add(controller: Controller): void {
+  //   const isExist = this.controllers.includes(controller);
+  //   if (isExist) {
+  //     return;
+  //   }
+  //   controller.setMediator(this);
+  //   this.controllers.push(controller);
+  // }
 
-  public notify(data: IStoreSettings, sender: Controller): void {
-    for (const controller of this.controllers) {
-      if (controller !== sender) {
-        controller.receiveData(this);
-      }
-    }
-  }
+  // public notify(data: IStoreSettings, sender: Controller): void {
+  //   for (const controller of this.controllers) {
+  //     if (controller !== sender) {
+  //       controller.receiveData(this);
+  //     }
+  //   }
+  // }
 
-  public clearAll() {
-    for (const controller of this.controllers) {
-      controller.clear();
-    }
-  }
+  // public clearAll() {
+  //   for (const controller of this.controllers) {
+  //     controller.clear();
+  //   }
+  // }
 
-  public async searchByIdentificacion(
-    identification: string
-  ): Promise<PatientResponse | null> {
-    const findPatientUseCase = FindPatientByIdentificationUseCase.getInstance();
-    const response = await findPatientUseCase.execute(identification);
-    return response;
-  }
+  // public async searchByIdentificacion(
+  //   identification: string
+  // ): Promise<PatientResponse | null> {
+  //   const findPatientUseCase = FindPatientByIdentificationUseCase.getInstance();
+  //   const response = await findPatientUseCase.execute(identification);
+  //   return response;
+  // }
 
   // public async patientNotFound(): Promise<void> {
   //   throw new Error(

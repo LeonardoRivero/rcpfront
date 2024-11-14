@@ -5,32 +5,28 @@ import {
   IMediatorUseCases,
   IUseCase,
   Notificator,
-  UseCase,
 } from 'src/Domine/IPatterns';
-import { routerInstance } from 'src/boot/globalRouter';
 import { Messages } from 'src/Application/Utilities';
-import { IHealthInsurance, IPatient } from 'src/Domine/Request';
+import { IPatient } from 'src/Domine/Request';
 import {
+  DocumentTypeResponse,
   GenderResponse,
   HealthInsuranceResponse,
-  IDTypeResponse,
   PatientResponse,
 } from 'src/Domine/Responses';
 import { PatientState } from 'src/Domine/IStates';
 import { ModalType } from 'src/Domine/Types';
-import { EditCommand, ShowModalNewRegister } from 'src/Application/Commands';
-import { GenericService } from 'src/Application/Repositories';
+import { ShowModalEditRegister, ShowModalNewRegister } from 'src/Application/Commands';
 import { DIVIPOLADTO } from 'src/Domine/DTOs';
 
 export class PatientFormBloc extends Bloc<PatientState> {
-  private sweetAlertModal: Notificator;
   private notifyQuasar: Notificator;
   private showModalNewPatient: IUseCase<ModalType, boolean>
+  private showModalUpdatePatient: IUseCase<ModalType, boolean>
 
   constructor(
     private factoryNotificator: IFactoryMethodNotifications,
-    private service: GenericService<IPatient, PatientResponse>,
-    private findPatientByIdentificationUseCase: UseCase<
+    private findPatientByIdentificationUseCase: IUseCase<
       string,
       PatientResponse | null
     >,
@@ -38,11 +34,15 @@ export class PatientFormBloc extends Bloc<PatientState> {
       IPatient,
       PatientResponse | null
     >,
-    private mediatorUseCases: IMediatorUseCases
+    private mediatorUseCases: IMediatorUseCases,
+    private updatePatientUseCase: IUseCase<
+      IPatient,
+      PatientResponse | null
+    >,
   ) {
     const state: PatientState = {
       currentPatient: { email: '' } as IPatient,
-      allIDTypes: [] as Array<IDTypeResponse>,
+      allIDTypes: [] as Array<DocumentTypeResponse>,
       allGenders: [] as Array<GenderResponse>,
       allInsurance: [] as Array<HealthInsuranceResponse>,
       allTown: [],
@@ -58,9 +58,6 @@ export class PatientFormBloc extends Bloc<PatientState> {
       idType: null,
       gender: null,
       insurance: null,
-      disable: false,
-      error: false,
-      currentInsurance: {} as IHealthInsurance,
       countryOrigin: null,
       countryStay: null,
       ocupation: null,
@@ -78,11 +75,8 @@ export class PatientFormBloc extends Bloc<PatientState> {
     this.notifyQuasar = this.factoryNotificator.createNotificator(
       ModalType.NotifyQuasar
     );
-    this.sweetAlertModal = this.factoryNotificator.createNotificator(
-      ModalType.SweetAlert
-    );
-
     this.showModalNewPatient = new ShowModalNewRegister(factoryNotificator)
+    this.showModalUpdatePatient = new ShowModalEditRegister(factoryNotificator)
   }
 
   clear(): void {
@@ -92,93 +86,113 @@ export class PatientFormBloc extends Bloc<PatientState> {
       gender: null,
       idType: null,
       insurance: null,
+      countryOrigin: null,
+      countryStay: null,
+      ocupation: null,
+      town: null,
+      state: null,
+      ethnicity: null,
+      kindDisability: null,
+      zoneStay: null,
+      phoneFormat: null,
+      lookUpDocumentNumber: '',
+      biologicalSex: null,
     });
   }
 
   async searchByIdentificacion(): Promise<PatientResponse | null> {
     const response = await this.findPatientByIdentificationUseCase.execute(
-      this.state.identificationPatient
+      this.state.lookUpDocumentNumber
     );
     if (response === null) {
       this.clear();
       this.notifyQuasar.setType('warning');
       this.notifyQuasar.show(undefined, Messages.notInfoFound);
-      this.changeState({ ...this.state, disable: false });
-      return null;
+      return response;
     }
     this.changeState({
       ...this.state,
-      idType: response.IDType,
-      insurance: response.insurance,
+      idType: response.documentType,
+      insurance: response.healthEntity,
       gender: response.gender,
       currentPatient: this.responseToEntity(response),
-      disable: true,
+      identificationPatient: response.identification,
+      biologicalSex: response.biologicalSex,
+      ocupation: response.ocupation,
+      countryOrigin: response.country,
+      countryStay: response.countryStay,
+      town: response.cityStay,
+      kindDisability: response.kindDisability,
+      ethnicity: response.ethnicity,
+      zoneStay: response.zoneStay,
+      state: response.cityStay
     });
     return response;
   }
 
-  enableEdition(): void {
-    this.changeState({ ...this.state, disable: false });
-  }
+  // enableEdition(): void {
+  //   this.changeState({ ...this.state, disable: false });
+  // }
 
   private responseToEntity(response: PatientResponse): IPatient {
-    const responser = {
+    const responser: IPatient = {
       id: response.id,
       name: response.name,
       lastName: response.lastName,
-      documentTypeId: response.IDType?.id,
+      documentTypeId: response.documentType?.id,
       identification: response.identification,
       dateBirth: response.dateBirth,
       phoneNumber: response.phoneNumber,
-      healthEntityId: response.insurance.id,
+      healthEntityId: response.healthEntity.id,
       genderId: response.gender.id,
       email: response.email,
-      biologicalSexId: 0,
-      cityStayId: 0
-
+      biologicalSexId: response.biologicalSex.id,
+      cityStayId: response.cityStay.id,
+      countryStayId: response.countryStay.id,
+      ethnicityId: response.ethnicity.id,
+      kindDisabilityId: response.kindDisability.id,
+      nationalityId: response.country.id,
+      occupationId: response.ocupation.id,
+      zoneStayId: response.zoneStay.id
     };
-    return responser as IPatient
+    return responser
   }
 
   async saveOrUpdate(): Promise<PatientResponse | null> {
     if (!this.state.currentPatient) return null;
-    let payload: IPatient;
     let response: PatientResponse | null = null;
 
+    const payload: IPatient = {
+      dateBirth: new Date(this.state.currentPatient.dateBirth).toISOString(),
+      email: this.state.currentPatient.email,
+      lastName: this.state.currentPatient.lastName,
+      name: this.state.currentPatient.name,
+      phoneNumber: this.state.currentPatient.phoneNumber,
+      healthEntityId: this.getId(this.state.insurance),
+      identification: this.state.identificationPatient,
+      genderId: this.getId(this.state.gender),
+      documentTypeId: this.getId(this.state.idType),
+      nationalityId: this.getId(this.state.countryOrigin),
+      biologicalSexId: this.getId(this.state.biologicalSex),
+      occupationId: this.getId(this.state.ocupation),
+      kindDisabilityId: this.getId(this.state.kindDisability),
+      countryStayId: this.getId(this.state.countryStay),
+      cityStayId: this.getId(this.state.town),
+      ethnicityId: this.getId(this.state.ethnicity),
+      zoneStayId: this.getId(this.state.zoneStay),
+    }
     if (this.state.currentPatient.id == undefined) {
       delete this.state.currentPatient['id'];
-      const payload: IPatient = {
-        dateBirth: new Date(this.state.currentPatient.dateBirth).toISOString(),
-        email: this.state.currentPatient.email,
-        lastName: this.state.currentPatient.lastName,
-        name: this.state.currentPatient.name,
-        phoneNumber: this.state.currentPatient.phoneNumber,
-        healthEntityId: this.state.insurance == null ? 0 : this.state.insurance?.id,
-        identification: this.state.identificationPatient,
-        genderId: this.state.gender == null ? 0 : this.state.gender?.id,
-        documentTypeId: this.state.idType?.id == null ? 0 : this.state.idType.id,
-        nationalityId: this.state.countryOrigin?.id == null ? 0 : this.state.countryOrigin.id,
-        biologicalSexId: this.state.biologicalSex?.id == null ? 0 : this.state.biologicalSex.id,
-        occupationId: this.state.ocupation?.id == null ? 0 : this.state.ocupation.id,
-        kindDisabilityId: this.state.kindDisability?.id == null ? 0 : this.state.kindDisability.id,
-        countryStayId: this.state.countryStay?.id == null ? 0 : this.state.countryStay.id,
-        cityStayId: this.state.town?.id == null ? 0 : this.state.town.id,
-        ethnicityId: this.state.ethnicity?.id == null ? 0 : this.state.ethnicity.id,
-        zoneStayId: this.state.zoneStay?.id == null ? 0 : this.state.zoneStay.id
-      }
+
       const confirm: boolean = await this.showModalNewPatient.execute(ModalType.SweetAlert)
       if (!confirm) return null
       response = await this.createPatientUseCase.execute(payload)
     }
     else {
-      payload = this.state.currentPatient;
-      const editCommand = new EditCommand(
-        payload,
-        this.state.currentPatient.id,
-        this.service
-      );
-      response = <PatientResponse | null>await editCommand.execute();
-      editCommand.showNotification(response);
+      payload.id = this.state.currentPatient.id
+      const confirm: boolean = await this.showModalUpdatePatient.execute(ModalType.SweetAlert)
+      if (!confirm) return null
+      response = await this.updatePatientUseCase.execute(payload)
     }
 
     if (response != null) {
@@ -191,6 +205,9 @@ export class PatientFormBloc extends Bloc<PatientState> {
     return response;
   }
 
+  private getId(item: { id?: number } | null): number {
+    return item?.id ?? 0;
+  }
   // async patientNotFound(): Promise<void> {
   //   this.sweetAlertModal.setType('error');
   //   const confirm = await this.sweetAlertModal.show(

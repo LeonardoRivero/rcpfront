@@ -22,7 +22,7 @@ export interface IDoctor {
   id?: number;
   codigo: string;
   user: number;
-  speciality: Array<number> | Array<ISpeciality>;
+  speciality: Array<number>;
 }
 
 export interface IPhysicalExam {
@@ -43,7 +43,7 @@ export interface IReasonConsult {
   abbreviation: string;
 }
 
-export interface IAppointment {
+export interface AddAdmissionRequest {
   id?: number;
   price: number;
   copayment: number;
@@ -60,15 +60,17 @@ export interface IAppointment {
   isPrivate: boolean;
 }
 
-export interface EventSchedule {
+export interface AddEventToScheduleRequest {
   id?: number;
   title: string;
   start: string;
-  end: string;
-  patient: number;
-  speciality: number;
-  doctor: number;
+  // end?: string;
+  specialityId: number;
+  doctorId: number;
   observations: string;
+  medicalOfficeId: number
+  patientId: number;
+  userId: string
 }
 
 export interface IGender {
@@ -127,18 +129,24 @@ export interface IUser {
   first_name: string;
   last_name: string;
   first_time: boolean;
-  group: number | null;
+  role: string;
   medical_office: number | null;
 }
 
-export interface ILogin {
-  id?: number;
-  email: string;
-  password: string;
+export interface LoginRequest {
+  Email: string;
+  Password: string;
+  RememberMe: boolean
 }
 
-export interface IKeyEmailRegistration {
-  key: string;
+export interface ChangePasswordRequest {
+  UserId: string;
+  CurrentPassword: string;
+  NewPassword: string
+}
+export interface ConfirmEmailRequest {
+  userId: string;
+  token: string
 }
 
 export interface Permission {
@@ -154,12 +162,14 @@ export interface IExam {
   result: string;
 }
 
-export interface IMedicalOffice {
+export interface IMedicalOfficeRequest {
   id?: number;
-  country: number;
-  city: number;
-  department: number;
+  countryId: number;
+  cityId: number;
   address: string;
+  name: string;
+  doctor: number[],
+  phoneNumber: string
 }
 
 export interface IMedicalHistory {
@@ -173,4 +183,31 @@ export interface IMedicalHistory {
   relation_code: number;
   pathologies: Array<number>;
   physical_exam_result: Array<IExam>;
+}
+
+export interface RegisterUserRequest {
+  email: string;
+  role: string;
+  lastName: string;
+  firstName: string;
+}
+
+export interface NewOrEditDoctorRequest {
+  name: string
+  lastName: string
+  documentTypeId: number
+  documentNumber: string
+  userId: string
+  phoneNumber: string
+  specialities: number[]
+}
+
+export interface NewOrEditSecretaryRequest {
+  name: string
+  lastName: string
+  documentTypeId: number
+  documentNumber: string
+  userId: string
+  phoneNumber: string
+  medicalOffice: number[];
 }

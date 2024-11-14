@@ -23,6 +23,19 @@
             type="number"
             @keydown.enter.prevent="searchPatient"
           >
+            <template v-slot:prepend>
+              <q-btn
+                flat
+                round
+                dense
+                icon="refresh"
+                class="q-mr-xs"
+                @click="clear"
+              />
+              <q-tooltip transition-show="scale" transition-hide="scale">
+                Limpiar
+              </q-tooltip>
+            </template>
             <template v-slot:append
               ><q-btn
                 flat
@@ -33,10 +46,10 @@
                 @click="searchPatient"
               />
               <q-tooltip transition-show="scale" transition-hide="scale">
-                Buscar paciente por N° identificacion
-              </q-tooltip></template
-            ></q-input
-          >
+                Buscar
+              </q-tooltip>
+            </template>
+          </q-input>
         </q-toolbar>
       </div>
       <q-form @submit="() => {$refs.stepper!.next();}">
@@ -179,19 +192,19 @@
           </div>
           <div class="col-12 col-sm-6">
             <q-select
-              dense
               option-value="id"
               option-label="name"
               map-options
+              dense
               v-model="state.ocupation"
               use-input
               hide-selected
               input-debounce="0"
               :options="optionsOcupations"
-              @filter="filterOcupation"
               :rules="[isNotNull]"
               fill-input
               label="Ocupacion *"
+              @filter="filterOcupation"
             >
               <template v-slot:no-option>
                 <q-item>
@@ -215,7 +228,7 @@
       icon="contact_mail"
       :done="step > 2"
     >
-      <q-form @submit="onSubmit">
+      <q-form @submit="onSubmit" ref="form">
         <div class="row q-col-gutter-md">
           <div class="col-12 col-sm-6 row">
             <q-select
@@ -373,6 +386,7 @@
 
 <script setup lang="ts">
   import { QStepper } from 'quasar';
+  import { routerInstance } from 'src/boot/globalRouter';
   import { inject, onMounted, ref } from 'vue';
   import { QForm } from 'quasar';
   import { PatientFormBloc } from 'src/Adapters';
@@ -381,7 +395,6 @@
     isNotNull,
     emailRequired,
     isDateInFuture,
-    onlyNumbers,
   } from 'src/Application/Utilities/Helpers';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   import 'src/css/app.sass';
@@ -395,13 +408,14 @@
   import { UpdateFunction } from 'src/Domine/Types';
 
   const form = ref<QForm>();
-  const step = ref<number>(2);
+  const step = ref<number>(1);
   const stepper = ref<QStepper>();
   const optionsOcupations = ref<OcupationResponse[]>([]);
   const optionsState = ref<StateDTO[]>([]);
   const optionsTown = ref<TownDTO[]>([]);
   const optionsInsurance = ref<HealthInsuranceResponse[]>([]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dependenciesLocator = inject<any>('dependenciesLocator');
   const handleGlobalState = <IHandleGlobalState>(
     dependenciesLocator.provideHandleGlobalState()
@@ -422,6 +436,7 @@
     if (isValid == false) return;
     const response = await controller.saveOrUpdate();
     if (response != null) {
+      routerInstance.push('/schedule');
       form.value?.reset();
     }
   }
@@ -499,14 +514,15 @@
     });
   }
 
-  function enableEdition() {
-    controller.enableEdition();
+  function clear() {
+    controller.clear();
+    form.value?.reset();
+    form.value?.resetValidation();
   }
+  // function enableEdition() {
+  //   controller.enableEdition();
+  // }
 </script>
-<!-- <style lang="sass" scoped>
-.my-custom-toggle
-  border: 1px solid #027be3
-</style> -->
 <style scoped>
   .checkbox-label-top {
     display: flex;
@@ -515,6 +531,6 @@
   }
 
   .checkbox-label-top .q-checkbox__label {
-    margin-bottom: 8px; /* Espacio entre la etiqueta y el checkbox */
+    margin-bottom: 8px;
   }
 </style>

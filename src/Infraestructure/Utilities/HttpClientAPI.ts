@@ -1,18 +1,39 @@
 import { Loading } from 'quasar';
-// import 'reflect-metadata';
+import HttpStatusCode from 'src/Application/Utilities/HttpStatusCodes';
 import { HTTPClient } from 'src/Domine/IPatterns';
+import { AuthResponse } from 'src/Domine/Responses';
+import { UserContext } from '../Mediators/UserContext';
 
 export class ClientAPI implements HTTPClient {
-  private async http(request: RequestInfo): Promise<Response> {
+  // public handlerUserState: IHandleUserState
+  constructor() {
+    // this.handlerUserState = {} as IHandleUserState
+  }
+  private async http(request: Request): Promise<Response> {
+    const userContext = UserContext.getInstance(this)
+    const infoLogin = userContext.getInfoUser()
     try {
       Loading.show();
       const controller = new AbortController();
+      request.headers.append('Authorization', `Bearer ${infoLogin.token}`)
       const id = setTimeout(() => controller.abort(), 25000);
       const response: Response = await fetch(request, {
         signal: controller.signal,
       });
+
       clearTimeout(id);
       Loading.hide();
+
+      if (response.status === HttpStatusCode.UNAUTHORIZED) {
+        const responseRefresh = await this.refreshToken(infoLogin.refreshToken);
+        const authResponse: AuthResponse = await responseRefresh.json()
+
+        if (authResponse.token && authResponse.refreshToken) {
+          userContext.saveInfoUser(authResponse)
+          request.headers.append('Authorization', `Bearer ${authResponse.token}`);
+          return await fetch(request);
+        }
+      }
       return response;
     } catch (err: any) {
       Loading.hide();
@@ -22,7 +43,7 @@ export class ClientAPI implements HTTPClient {
       } else if (err.name === 'AbortError') {
         throw Error('Fetch aborted AbortSignal.timeout()');
       } else if (err.name === 'TypeError') {
-        throw Error(' method is not supported');
+        throw Error('Exception TypeError on ClientAPI');
       } else {
         throw Error(`Error: type: ${err.name}, message: ${err.message}`);
       }
@@ -95,5 +116,25 @@ export class ClientAPI implements HTTPClient {
     this.validateUrl(path);
     const args: RequestInit = { method: 'DELETE' };
     return await this.http(new Request(path, args));
+  }
+
+  async logout(): Promise<Response> {
+    const url = `${process.env.RCP}${process.env.LOGOUT}`;
+    try {
+      const response = await this.POST(url, null);
+      return response;
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
+  }
+
+  async refreshToken(refresh_token: string): Promise<Response> {
+    const url = `${process.env.RCP}${process.env.REFRESH_TOKEN}`;
+    try {
+      const response = await this.POST(url, refresh_token);
+      return response;
+    } catch (error) {
+      throw Error(`Error in ${Object.name} : ${error}`);
+    }
   }
 }

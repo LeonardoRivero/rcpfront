@@ -1,5 +1,8 @@
 import { IExam, Permission } from './Request';
-
+export interface ResponseData<T> {
+  description: string
+  result: T
+}
 export interface SpecialityResponse {
   id: number;
   description: string;
@@ -17,12 +20,36 @@ export interface RelationCodeResponse {
   code: string;
   dxmaincode: DXMainCodeResponse;
 }
+export interface DocumentTypeResponse {
+  id: number
+  code: string
+  description: string
+}
 export interface DoctorResponse {
-  id: number;
-  codigo: string;
-  name: string;
-  lastName: string;
-  speciality: Array<SpecialityResponse>;
+  id: number
+  name: string
+  lastName: string
+  documentTypeId: number
+  documentNumber: number
+  userId: string
+  phoneNumber: string
+  documentType: DocumentTypeResponse
+}
+
+interface SecretaryMedicalOffice {
+  secretaryId: number,
+  medicalOfficeId: number
+}
+export interface SecretaryResponse {
+  id: number
+  name: string
+  lastName: string
+  documentTypeId: number
+  documentNumber: number
+  userId: string
+  phoneNumber: string
+  documentType: DocumentTypeResponse
+  secretaryMedicalOffice: SecretaryMedicalOffice[]
 }
 export interface PhysicalExamResponse {
   id: number;
@@ -47,7 +74,7 @@ export interface AppointmentResponse {
   authorizationNumber: string;
   patientStatus: PatientResponse;
   reasonConsult: ReasonConsultResponse;
-  schedule: EventScheduleResponse;
+  schedule: ScheduleResponse;
   patient: PatientResponse;
   doctor: DoctorResponse;
   paymentMethod: PaymentOptionsResponse;
@@ -64,15 +91,21 @@ export interface PaginationAppointmentResponse {
   next?: number;
   results: Array<AppointmentResponse>;
 }
-export interface EventScheduleResponse {
+export interface ScheduleResponse {
   id: number;
   title: string;
   start: string;
   end: string;
+  specialityId: number
+  doctorId: number
+  medicalofficeId: number
+  patientId: number
   patient: PatientResponse;
   speciality: SpecialityResponse;
-  doctor: DoctorSpecialityResponse;
+  doctor: DoctorResponse;
+  medicalOffice: MedicalOfficeResponse
   observations: string;
+  createdBy: string
 }
 export interface GenderResponse {
   id: number;
@@ -83,24 +116,28 @@ export interface HealthInsuranceResponse {
   id: number;
   name: string;
   code: string;
-  takeCopayment: boolean;
-}
-export interface IDTypeResponse {
-  id: number;
-  description: string;
-  code: string;
+  regimen: string;
+  nit: string
 }
 export interface PatientResponse {
   id: number;
+  identification: string;
   name: string;
   lastName: string;
-  IDType: IDTypeResponse;
-  identification: string;
   dateBirth: string;
   phoneNumber: string;
-  insurance: HealthInsuranceResponse;
-  gender: GenderResponse;
   email: string;
+  country: CountryResponse;
+  countryStay: CountryResponse;
+  cityStay: CityResponse;
+  healthEntity: HealthInsuranceResponse;
+  ethnicity: EthicityResponse;
+  documentType: DocumentTypeResponse
+  gender: GenderResponse;
+  ocupation: OcupationResponse;
+  kindDisability: KindDisabilityResponse;
+  biologicalSex: BiologicalSexResponse;
+  zoneStay: ZoneStayResponse
 }
 export interface PaymentOptionsResponse {
   id: number;
@@ -127,10 +164,11 @@ export interface RegisterResponse {
   detail: string;
 }
 export interface AuthResponse {
-  access_token: string;
-  refresh_token: string;
-  user: UserResponse;
-  groups: Array<Group>;
+  refreshToken: string,
+  token: string,
+  isFirstLogin: boolean
+  userId: string
+  roles: string[]
 }
 
 export interface RefreshTokenResponse {
@@ -163,18 +201,6 @@ export interface UserBase {
   last_name: string;
 }
 
-interface Country {
-  name: string;
-  name_ascii: string;
-  slug: string;
-  geoname_id: number;
-  alternate_names: string;
-  code2: string;
-  code3: string;
-  continent: string;
-  tld: string;
-  phone: string;
-}
 
 export interface CountryResponse {
   id: number;
@@ -192,54 +218,13 @@ export interface CityResponse {
   town: string
 }
 
-interface CountryResponseModel extends Country {
-  id: number;
-}
-
-interface SubRegion {
-  name: string;
-  country: string;
-  region: string;
-  name_ascii: string;
-  geoname_id: number;
-  alternate_names: string;
-  display_name: string;
-  geoname_code: string;
-}
-export interface SubRegionResponse extends SubRegion {
-  url: string;
-}
-
-export interface SubRegionResponseModel extends SubRegion {
-  id: number;
-  slug: string;
-}
-
-interface Region {
-  country: number;
-  name: string;
-  name_ascii: string;
-  geoname_id: number;
-  alternate_names: string;
-  display_name: string;
-  geoname_code: string;
-}
-
-export interface RegionResponse extends Region {
-  url: string;
-}
-
-export interface RegionResponseModel extends Region {
-  id: number;
-  slug: string;
-}
-
 export interface MedicalOfficeResponse {
-  id: number;
   address: string;
-  country: CountryResponseModel;
-  department: RegionResponseModel;
-  city: SubRegionResponseModel;
+  city: CityResponse;
+  country: CountryResponse;
+  id: number;
+  name: string;
+  phoneNumber: string
 }
 
 export interface OcupationResponse {
@@ -280,4 +265,21 @@ export interface ZoneStayResponse {
   id: number,
   code: string,
   description: string
+}
+
+export interface RoleResponse {
+  concurrencyStamp: string,
+  id: string,
+  name: string,
+  normalizedName: string
+}
+
+export interface EventScheduleResponse {
+  id: number
+  end: string
+  start: string
+  title: string;
+  medicalOffice: string
+  doctor: string
+  speciality: string
 }

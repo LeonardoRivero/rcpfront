@@ -15,9 +15,9 @@ export class Validators {
 
     return Validators.instance;
   }
-  public dateAndHour(dateString: string): boolean | null {
+  public dateAndHour(dateString: string): boolean {
     if (!date.isValid(dateString)) {
-      return null;
+      return false;
     }
     const timeStamp = Date.now();
     const dateSchedule = new Date(dateString).getTime();
@@ -25,8 +25,7 @@ export class Validators {
       return false;
     }
     if (dateSchedule > timeStamp) {
-      const response = this.hourIsInRangeAllowed(dateString);
-      return response;
+      return this.hourIsInRangeAllowed(dateString);
     }
 
     const hourIsGreater = this.hourGreater(dateString);
@@ -35,35 +34,11 @@ export class Validators {
       return response;
     }
     return false;
-    // const years = 'years';
-
-    // const diffYear = date.getDateDiff(dateString, timeStamp, years);
-    // if (diffYear < 0) {
-    //   return false;
-    // }
-    // const month = 'months';
-    // const diffMonth = date.getDateDiff(dateString, timeStamp, month);
-    // if (diffMonth < 0) {
-    //   return false;
-    // }
-    // const days = 'days';
-    // const diffDays = date.getDateDiff(dateString, timeStamp, days);
-    // if (diffDays < 0) {
-    //   return false;
-    // }
-    // let hourIsValid = null;
-    // if (diffDays == 0) {
-    //   hourIsValid = this.hourGreater(dateString);
-    // }
-    // if (diffDays > 0) {
-    //   hourIsValid = this.hourIsInRangeAllowed(dateString);
-    // }
-    // return hourIsValid == null || hourIsValid == false ? false : true;
   }
 
-  public hourIsInRangeAllowed(dateString: string): boolean | null {
+  public hourIsInRangeAllowed(dateString: string): boolean {
     if (!date.isValid(dateString)) {
-      return null;
+      return false;
     }
 
     const dateFormated = new Date(dateString);
@@ -80,9 +55,9 @@ export class Validators {
     return false;
   }
 
-  public hourGreater(dateString: string): boolean | null {
+  public hourGreater(dateString: string): boolean {
     if (!date.isValid(dateString)) {
-      return null;
+      return false;
     }
 
     const dateFormated = new Date(dateString);
@@ -114,25 +89,25 @@ export class Validators {
     const dateBirthday = new Date(birthday);
     const ageDifMs = Date.now() - dateBirthday.getTime();
     const ageDate = new Date(ageDifMs);
-    const result = Math.abs(ageDate.getUTCFullYear() - BASE_YEAR);
-    return result;
+    return Math.abs(ageDate.getUTCFullYear() - BASE_YEAR);
   }
   public calculateMonths(birthday: string): number {
     const dateBirthday = new Date(birthday);
     const today = new Date();
     return today.getMonth() - dateBirthday.getMonth();
   }
-  public randomPassword(): string {
-    const chars =
-      '0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const passwordLength = 12;
-    let password = '';
-    for (let i = 0; i <= passwordLength; i++) {
-      const randomNumber = Math.floor(Math.random() * chars.length);
-      password += chars.substring(randomNumber, randomNumber + 1);
-    }
-    return password;
-  }
+
+  // public randomPassword(): string {
+  //   const chars =
+  //     '0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  //   const passwordLength = 12;
+  //   let password = '';
+  //   for (let i = 0; i <= passwordLength; i++) {
+  //     const randomNumber = Math.floor(Math.random() * chars.length);
+  //     password += chars.substring(randomNumber, randomNumber + 1);
+  //   }
+  //   return password;
+  // }
 }
 export class Convert {
   public toTitle(sentence: string): string {
@@ -186,4 +161,8 @@ export const isDateInFuture = (value: string) => {
 
 export const onlyNumbers = (val: string) =>
   onlyNumbersPattern.test(val) ||
-  'Solo numberos';
+  'Solo numeros';
+
+export const onlyLetters = (val: string) => {
+  return /^[A-Za-z]+$/.test(val) || 'Solo se permiten letras';
+};

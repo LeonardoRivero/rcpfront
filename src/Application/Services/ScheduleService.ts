@@ -1,6 +1,6 @@
-import { EventSchedule } from 'src/Domine/ModelsDB';
+import { AddEventToScheduleRequest } from 'src/Domine/ModelsDB';
 import { GenericService } from '../Repositories/Interface';
-import { EventScheduleResponse } from 'src/Domine/Responses';
+import { ScheduleResponse } from 'src/Domine/Responses';
 import { UseCase } from 'src/Domine/IPatterns';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
@@ -29,8 +29,7 @@ export class ScheduleService extends GenericService<
 
 // @injectable()
 export class FindScheduleByIdentificationPatientUseCase
-  implements UseCase<string, EventScheduleResponse | null>
-{
+  implements UseCase<string, ScheduleResponse | null> {
   GenericService: GenericService<EventSchedule, EventScheduleResponse>;
   constructor() {
     this.GenericService = new ScheduleService();
@@ -38,7 +37,7 @@ export class FindScheduleByIdentificationPatientUseCase
 
   async execute(
     identification: string | undefined
-  ): Promise<EventScheduleResponse | null> {
+  ): Promise<ScheduleResponse | null> {
     const queryParameters = { patientIdentification: identification };
     const url = this.GenericService.urlBase + 'filter/';
     let response: Array<EventScheduleResponse>;

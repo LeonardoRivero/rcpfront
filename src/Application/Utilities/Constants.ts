@@ -30,21 +30,29 @@ export enum Gender {
   MALE = 2,
 }
 
-export enum GroupUser {
-  DOCTOR = 'Doctor',
-}
+
 export const MININUM_AGE = 18;
 export const BASE_YEAR = 1970;
 export const FORMAT_DATE = 'YYYY/MM/DD';
 export const FORMAT_HOUR = 'HH:mm';
-export const FORMAT_DATETIME = 'YYYY-MM-DD HH:mm';
+export const FORMAT_DATETIME = 'MM/DD/YYYY, HH:mm:ss';
 export const OPTIONS_MINUTES = [0, 20, 40];
 export const OPTIONS_HOURS = [
   7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
 ];
 export const CURRENTYEAR_MONTH = date.formatDate(timeStamp, 'YYYY/MM');
-export const FIELD_REQUIRED = 'Campo Requerido';
 export const START_TIME = '07:00';
-export const END_TIME = '18:00';
+export const END_TIME = '23:00';
 export const DURATION_APPOINTMENT = '00:20';
 export const MINUTES_APPOINTMENT = parseInt(DURATION_APPOINTMENT.split(':')[1]);
+
+export const OPTIONS_TIMEZONE: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false,
+  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+};
