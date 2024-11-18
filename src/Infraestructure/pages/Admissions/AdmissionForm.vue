@@ -1,293 +1,199 @@
 <template>
-  <q-form @submit="confirmChanges" ref="form">
-    <q-list>
-      <q-item>
-        <q-item-section>
-          <q-item-label class="q-pb-xs"
-            >Datos Paciente
-            <small>
-              <cite
-                >(Antes de crear la cita,verifique la informacion del
-                paciente)</cite
-              >
-            </small>
-          </q-item-label>
-          <div class="row q-col-gutter-x-md">
-            <div class="col-6 col-md">
-              <!-- <q-select
-                dense
-                label="Entidad"
-                outlined
-                v-model="state.currentHealthInsurance"
-                :options="listInsurancePatient"
-                :option-value="(item) => (item === null ? null : item.id)"
-                option-label="nameInsurance"
-                map-options
-                stack-label
-                :disable="shape"
-                @update:model-value="(val) => calculateAmountPaid(val)"
-                :rules="[isNotNull]"
-              ></q-select> -->
-              <!-- <q-input
-                dense
-                outlined
-                v-model="state.schedule.patient.insurance.nameInsurance"
-                label="Entidad"
-                readonly
-              /> -->
+  <q-page class="q-pa-md">
+    <div class="row q-col-gutter-md">
+      <div class="col-12 col-md-8">
+        <q-card>
+          <q-card-section>
+            <div class="text-h6">
+              <q-icon name="img:schedule-calendar.svg" size="32px" />
+              Admisiones
             </div>
-            <div class="col-6 col-md">
-              <q-input
-                dense
-                type="number"
-                outlined
-                v-model="state.identificationPatient"
-                @keydown.enter.prevent="patientWasScheduled()"
-                label="N° Identificacion"
-                lazy-rules
-                :rules="[numberRequired]"
-              >
-                <template v-slot:append>
-                  <q-btn
-                    flat
-                    round
+          </q-card-section>
+          <q-card-section>
+            <q-form @submit="confirmChanges" ref="form" @keydown.enter.prevent>
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-sm-6"></div>
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    outlined
                     dense
-                    icon="search"
-                    class="q-mr-xs"
-                    @click="patientWasScheduled()"
+                    type="number"
+                    v-model="state.identificationPatient"
+                    @keydown.enter.prevent="patientWasScheduled()"
+                    label="N° Identificacion"
+                    lazy-rules
+                    :rules="[numberRequired]"
+                  >
+                    <template v-slot:append>
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        icon="search"
+                        class="q-mr-xs"
+                        @click="patientWasScheduled()"
+                      />
+                      <q-tooltip
+                        transition-show="scale"
+                        transition-hide="scale"
+                      >
+                        Buscar Paciente
+                      </q-tooltip></template
+                    >
+                  </q-input>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-select
+                    dense
+                    label="Razon Consulta *"
+                    v-model="state.currentAppointment.medicalEntryId"
+                    :options="state.allReasonConsult"
+                    :option-value="(item) => (item === null ? null : item.id)"
+                    option-label="description"
+                    map-options
+                    emit-value
+                    :rules="[isNotNull]"
+                  ></q-select>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-select
+                    dense
+                    label="Metodo Pago *"
+                    v-model="state.currentAppointment.paymentMethodId"
+                    :options="state.allPaymentOptions"
+                    :option-value="(item) => (item === null ? null : item.id)"
+                    option-label="description"
+                    emit-value
+                    map-options
+                    @update:model-value="(val) => changePaymentMethod(val)"
+                    :rules="[isNotNull]"
+                  ></q-select>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    dense
+                    type="text"
+                    label="Codigo Transaccion"
+                    v-model="state.currentAppointment.transactionCode"
+                    :disable="state.disableCodeTransaction"
                   />
-                  <q-tooltip transition-show="scale" transition-hide="scale">
-                    Buscar Paciente
-                  </q-tooltip></template
-                >
-              </q-input>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    dense
+                    v-model="state.copayment"
+                    label="Copago"
+                    :rules="[isNotNull]"
+                    :disable="state.currentAppointment.isParticular"
+                    @blur="(evt) => changeCopayment(evt)"
+                    @keydown.enter.prevent="(evt:any) =>changeCopayment(evt)"
+                  />
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    dense
+                    type="number"
+                    v-model="state.currentAppointment.authorizationNumber"
+                    label="N° Autorización"
+                    lazy-rules
+                    :rules="[numberRequired]"
+                    :disable="state.currentAppointment.isParticular"
+                  />
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    dense
+                    v-model="state.price"
+                    label="Valor Consulta"
+                    lazy-rules
+                    :rules="[isNotNull]"
+                    clearable
+                    @blur="(evt) => changePrice(evt)"
+                    @keydown.enter.prevent="(evt:any) =>changePrice(evt)"
+                  />
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-checkbox
+                    size="md"
+                    v-model="state.currentAppointment.isParticular"
+                    val="lg"
+                    label="Cita Particular"
+                    @update:model-value="(val) => calculateAmountPaid(val)"
+                  />
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    :bg-color="
+                      state.currentAppointment.amountPaid > 0 ? 'green' : 'red'
+                    "
+                    outlined
+                    readonly
+                    dense
+                    hint="Total monto a pagar"
+                    v-model="state.amount"
+                    :rules="[isNotNull]"
+                  >
+                  </q-input>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <q-btn
+                  label="Guardar"
+                  type="submit"
+                  color="primary"
+                  :disable="state.disableButtonSave"
+                />
+              </div>
+            </q-form>
+          </q-card-section>
+        </q-card>
+      </div>
+      <div class="col-12 col-md-4">
+        <q-card flat bordered>
+          <q-card-section>
+            <div class="text-h6">Información Adicional</div>
+          </q-card-section>
+          <q-card-section>
+            <div class="col-12 col-sm-6">
+              <b>Nombre Paciente:</b>
+              {{ state.schedule.patient.name }}
+              {{ state.schedule.patient.lastName }}
             </div>
-          </div>
-        </q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section>
-          <div class="row q-col-gutter-x-md">
-            <div class="col-6 col-md">
-              <!-- <q-input
-                dense
-                outlined
-                v-model="state.schedule.patient.name"
-                label="Nombre Paciente"
-                readonly
-              /> -->
+            <div class="col-12 col-sm-6">
+              <b>Especialidad :</b> {{ state.schedule.speciality.description }}
             </div>
-            <div class="col-6 col-md">
-              <!-- <q-input
-                dense
-                outlined
-                v-model="state.schedule.patient.lastName"
-                label="Apellido Paciente"
-                readonly
-              /> -->
+            <div class="col-12 col-sm-6">
+              <b>Entidad :</b>
+              {{ state.schedule.healthEntity.name }}
             </div>
-          </div>
-        </q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section>
-          <q-item-label class="q-pb-xs">Datos Consulta</q-item-label>
-          <div class="row q-col-gutter-x-md">
-            <div class="col-12 col-md-6">
-              <!-- <q-input
-                dense
-                type="text"
-                outlined
-                v-model="state.schedule.speciality.description"
-                label="Especialidad"
-                readonly
-                hint=" "
-              /> -->
+            <div class="col-12 col-sm-6">
+              <b>Hora Cita:</b>
+              <span v-if="state.schedule.start.length != 0">
+                {{ new Date(state.schedule.start).toLocaleString() }}
+              </span>
             </div>
-            <div class="col-12 col-md-6">
-              <!-- <q-input
-                dense
-                outlined
-                v-model="state.schedule.start"
-                label="Fecha Cita"
-                :hint="`Finalizacion Cita: ${
-                  state.end == undefined ? '' : state.schedule.end
-                }`"
-                readonly
-              >
-              </q-input> -->
-            </div>
-          </div>
-          <div class="row q-col-gutter-x-md">
-            <div class="col-12 col-md-4">
-              <q-input
-                dense
-                type="number"
-                outlined
-                v-model="state.currentAppointment.authorizationNumber"
-                label="N° Autorización"
-                lazy-rules
-                :rules="[numberRequired]"
-              />
-            </div>
-            <div class="col-12 col-md-4">
-              <q-select
-                dense
-                label="Razon Consulta"
-                outlined
-                v-model="state.currentAppointment.reasonConsult"
-                :options="store.allReasonConsult"
-                :option-value="(item) => (item === null ? null : item.id)"
-                option-label="abbreviation"
-                map-options
-                emit-value
-                stack-label
-                :rules="[isNotNull]"
-              ></q-select>
-            </div>
-            <div class="col-12 col-md-4">
-              <q-select
-                dense
-                outlined
-                v-model="state.currentAppointment.patientStatus"
-                :options="store.allPatientStatus"
-                :option-value="(item) => (item === null ? null : item.id)"
-                option-label="description"
-                map-options
-                emit-value
-                stack-label
-                label="Estado Paciente"
-                :rules="[isNotNull]"
-              ></q-select>
-            </div>
-          </div>
-          <div class="row q-col-gutter-x-md">
-            <div class="col-12 col-md-4">
-              <q-input
-                prefix="$"
-                dense
-                type="number"
-                outlined
-                v-model="state.currentAppointment.copayment"
-                label="Copago"
-                @update:model-value="(val) => calculateAmountPaid(val)"
-                lazy-rules
-                :rules="[(val) => val >= 0 || 'Valor copago invalido']"
-              />
-            </div>
-            <div class="col-12 col-md-4">
-              <q-input
-                dense
-                type="text"
-                outlined
-                label="Codigo Transaccion"
-                v-model="state.currentAppointment.codeTransaction"
-                :disable="state.disableCodeTransaction"
-              />
-            </div>
-            <div class="col-12 col-md-4">
-              <q-select
-                dense
-                label="Metodo Pago *"
-                v-model="state.currentAppointment.paymentMethod"
-                :options="state.allPaymentOptions"
-                :option-value="(item) => (item === null ? null : item.id)"
-                option-label="description"
-                map-options
-                :rules="[isNotNull]"
-              ></q-select>
-            </div>
-          </div>
-          <div class="row q-col-gutter-x-md">
-            <div class="col-12 col-md-4">
-              <q-input
-                prefix="$"
-                dense
-                type="number"
-                outlined
-                v-model="state.currentAppointment.price"
-                label="Valor Consulta"
-                @update:model-value="(val) => calculateAmountPaid(val)"
-                lazy-rules
-                :rules="[numberRequired]"
-              />
-            </div>
-            <div class="col-12 col-md-4">
-              <q-checkbox
-                size="md"
-                v-model="state.currentAppointment.isPrivate"
-                val="lg"
-                label="Cita Particular"
-                @update:model-value="(val) => calculateAmountPaid(val)"
-              />
-            </div>
-          </div>
-
-          <div class="row q-col-gutter-x-md">
-            <div class="col-12 col-md-4 align-xright">
-              <q-input
-                outlined
-                :bg-color="
-                  state.currentAppointment.amountPaid > 0 ? 'green' : 'red'
-                "
-                readonly
-                dense
-                hint="Total monto a pagar"
-                v-model="state.currentAppointment.amountPaid"
-                type="number"
-                prefix="$"
-                :rules="[noLowerZero]"
-              >
-              </q-input>
-            </div>
-          </div>
-        </q-item-section>
-      </q-item>
-    </q-list>
-    <q-card-actions align="right" class="text-teal">
-      <q-btn
-        label="Guardar"
-        type="submit"
-        color="primary"
-        :disable="state.disableButtonSave"
-      />
-    </q-card-actions>
-  </q-form>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
+  </q-page>
 </template>
 
 <script setup lang="ts">
-  import { onMounted, reactive, ref, inject } from 'vue';
+  import { onMounted, ref, inject } from 'vue';
   import {
-    EventScheduleResponse,
-    HealthInsuranceResponse,
-  } from 'src/Domine/Responses';
-  import { AddAdmissionRequest } from 'src/Domine/Request';
-  import {
-    OPTIONS_HOURS,
-    OPTIONS_MINUTES,
-    CURRENTYEAR_MONTH,
-    FORMAT_DATETIME,
-  } from 'src/Application/Utilities';
-  // import { AppointmentAdapter } from 'src/Adapters';
-  import {
-    required,
     noLowerZero,
     isNotNull,
     numberRequired,
   } from 'src/Application/Utilities/Helpers';
-  import { AppointmentMediator } from 'src/Infraestructure/Mediators';
   import { QForm } from 'quasar';
-  // import { AppointmentState } from 'src/Domine/IStates';
   import 'src/css/app.sass';
   import { AdmissionsBloc } from 'src/Adapters/AdmissionsBloc';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
-  import { IHandleGlobalState } from 'src/Domine/IPatterns';
-  // import { IFactoryMethodNotifications } from 'src/Domine/IPatterns';
-  // import container from 'src/inversify.config';
-  const HOURS_ALLOWED = OPTIONS_HOURS;
-  const MINUTES_ALLOWED = OPTIONS_MINUTES;
+  import { IHandleGlobalState, IHandleUserState } from 'src/Domine/IPatterns';
+  import { IconSVG } from 'src/Application/Utilities';
   const form = ref<QForm>();
-
+  const icons = IconSVG;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dependenciesLocator = inject<any>('dependenciesLocator');
   const controller = <AdmissionsBloc>dependenciesLocator.provideAdmissionBloc();
@@ -295,17 +201,12 @@
   const handleGlobalState = <IHandleGlobalState>(
     dependenciesLocator.provideHandleGlobalState()
   );
+  const handleUserState = <IHandleUserState>(
+    dependenciesLocator.provideHandleUserState()
+  );
   const state = usePlocState(controller);
-  // const factoryNotificator =
-  //   container.get<IFactoryMethodNotifications>('FactoryNotifactors');
-  // const controller = new AppointmentAdapter(state, factoryNotificator);
-  const mediator = AppointmentMediator.getInstance();
-  const listInsurancePatient = ref<Array<HealthInsuranceResponse>>([]);
-  const store = mediator.getStore();
+
   onMounted(async () => {
-    // await mediator.getAllPaymentOptions();
-    // await mediator.getAllReasonConsult();
-    // await mediator.getAllPatientStatus();
     await controller.loadInitialData(handleGlobalState);
   });
   // onUnmounted(async () => {
@@ -315,36 +216,50 @@
   //   state.currentHealthInsurance = null;
   //   state.speciality = {} as ISpeciality;
   // });
-
-  CURRENTYEAR_MONTH;
-  HOURS_ALLOWED;
-  MINUTES_ALLOWED;
-  FORMAT_DATETIME;
-  form;
   async function confirmChanges() {
     const isValid = await form.value?.validate();
     if (isValid == false) return;
-    // const response = await controller.saveOrUpdate();
-    // if (response != null) {
-    //   form.value?.reset();
-    // }
+    await controller.saveOrUpdate(handleUserState);
   }
+
+  function changeCopayment(value: any) {
+    // state.value.copayment = currency(value.target.value).format();
+    // state.value.currentAppointment.copayment = currency(
+    //   value.target.value
+    // ).value;
+    controller.calculateAmountPaid();
+    // state.value.amount = currency(
+    //   state.value.currentAppointment.amountPaid
+    // ).format();
+  }
+
+  function changePrice(value: any) {
+    // state.value.currentAppointment.price = currency(value.target.value).value;
+    // state.value.price = currency(value.target.value).format();
+    controller.calculateAmountPaid();
+    // state.value.amount = currency(
+    //   state.value.currentAppointment.amountPaid
+    // ).format();
+  }
+
   async function changePaymentMethod(idPaymentOption: number) {
-    // controller.changedPaymentMethod(idPaymentOption);
+    controller.changedPaymentMethod(idPaymentOption);
   }
 
   function calculateAmountPaid(val: any) {
-    // controller.calculateAmountPaid();
+    // if (val) {
+    //   console.log('entr');
+    //   state.value.copayment = currency(0).format();
+    // }
+    controller.calculateAmountPaid();
+    // state.value.amount = currency(
+    //   state.value.currentAppointment.amountPaid
+    // ).format();
   }
 
   async function patientWasScheduled() {
-    // await controller.patientWasScheduled();
+    await controller.patientWasScheduled(
+      handleGlobalState.store.currentMedicalOffice[0].id
+    );
   }
-  listInsurancePatient;
-  state;
-  store;
-  required;
-  noLowerZero;
-  numberRequired;
-  isNotNull;
 </script>

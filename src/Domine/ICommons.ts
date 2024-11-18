@@ -89,3 +89,8 @@ export interface ICreateUser {
   confirmEmailRegistration(key: ConfirmEmailRequest): Promise<Response>;
   changePassword(user: IUser): Promise<void>;
 }
+
+export interface IHelpers {
+  formatToMoneyString(value: string): string
+  getValueFromString(value: string | null): number
+}

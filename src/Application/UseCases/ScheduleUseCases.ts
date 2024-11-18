@@ -1,9 +1,10 @@
 import { HTTPClient, IUseCase } from 'src/Domine/IPatterns';
-import { AddEventToScheduleRequest } from 'src/Domine/Request';
+import { AddEventToScheduleRequest, FilterScheduleRequest } from 'src/Domine/Request';
 import { ResponseData, ScheduleResponse } from 'src/Domine/Responses';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
 import { OPTIONS_HOURS, OPTIONS_MINUTES } from '../Utilities/Constants';
 import { Messages } from '../Utilities/Messages';
+import HttpStatusCodes from '../Utilities/HttpStatusCodes';
 
 export class AddEventScheduleUseCase implements IUseCase<AddEventToScheduleRequest, ScheduleResponse | null> {
   private url: string
@@ -130,3 +131,45 @@ export class UpdateScheduleUseCase implements IUseCase<AddEventToScheduleRequest
     return schedule.result;
   }
 }
+
+export class FindScheduleForPatientUseCase
+  implements IUseCase<FilterScheduleRequest, ScheduleResponse | null> {
+  private url: string
+
+  constructor(private httpClient: HTTPClient) {
+    this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+  }
+
+  async execute(request: FilterScheduleRequest): Promise<ScheduleResponse | null> {
+    const response = await this.httpClient.POST(`${this.url}patient/`, request);
+    if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT) {
+      return null;
+    }
+
+    const schedule: ResponseData<ScheduleResponse> = await response.json();
+    return schedule.result;
+    // let register = undefined;
+    // if (Array.isArray(response)) {
+    //   register = response.pop();
+    // }
+    // if (register === undefined) {
+    //   return null;
+    // }
+    // return await this.GenericService.getById(register.id);
+  }
+}
+
+
+// export class DeleteScheduleUseCase implements UseCase<number, boolean> {
+//   GenericService: GenericService<EventSchedule, EventScheduleResponse>;
+
+//   constructor() {
+//     this.GenericService = new ScheduleService();
+//   }
+//   async execute(id: number): Promise<boolean> {
+//     const url = `${this.GenericService.urlBase}${id.toString()}`;
+//     const response = await this.GenericService.httpClient.DELETE(url);
+//     if (response.status === HttpStatusCode.NO_CONTENT) return true;
+//     return false;
+//   }
+// }

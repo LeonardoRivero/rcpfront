@@ -27,9 +27,11 @@ import {
   GenderResponse,
   HealthInsuranceResponse,
   KindDisabilityResponse,
+  MedicalEntryResponse,
   MedicalOfficeResponse,
   OcupationResponse,
   PathologicalHistoryResponse,
+  Patient,
   PatientResponse,
   PatientStatusResponse,
   PaymentOptionsResponse,
@@ -38,6 +40,7 @@ import {
   ReasonConsultResponse,
   RelationCodeResponse,
   RoleResponse,
+  ScheduleResponse,
   SpecialityResponse,
   ZoneStayResponse,
 } from './Responses';
@@ -178,7 +181,7 @@ export interface ScheduleState {
   lastConsult: AddAdmissionRequest;
   isReadonly: boolean;
   currentAppointment: AddAdmissionRequest;
-  currentPatient: PatientResponse;
+  currentPatient: Patient;
   currentSchedule: AddEventToScheduleRequest;
   currentDoctor: DoctorResponse | null;
   allDoctors: Array<DoctorResponse>;
@@ -199,13 +202,17 @@ export interface AdmissionState {
   reasonConsult: IReasonConsult | null;
   currentAppointment: AddAdmissionRequest;
   allPaymentOptions: Array<PaymentOptionsResponse>;
-  allReasonConsult: Array<ReasonConsultResponse>;
+  allReasonConsult: MedicalEntryResponse[];
   allPatientStatus: Array<PatientStatusResponse>;
   start: string;
   end: string;
-  // schedule: EventScheduleResponse;
+  schedule: ScheduleResponse;
   disableCodeTransaction: boolean;
   disableButtonSave: boolean;
+  patient: Patient | null
+  amount: string | null
+  copayment: string | null
+  price: string | null
 }
 
 export interface ChangePasswordState {

@@ -55,7 +55,7 @@
         </q-btn>
       </q-toolbar>
     </q-header>
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered class="custom-bg">
       <q-list>
         <q-item-label header>
           <q-img
@@ -119,6 +119,9 @@
 </script>
 <style>
   body {
-    background: #ffffff !important;
+    background: #f9f9fb !important;
+  }
+  .custom-bg {
+    background-color: #f9f9fb; /* Cambia el color a lo que necesites */
   }
 </style>

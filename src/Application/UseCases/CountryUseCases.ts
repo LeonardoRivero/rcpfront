@@ -13,5 +13,4 @@ export class GetAllCountryUseCase implements IUseCase<void, CountryResponse[]> {
     }
     return await response.json()
   }
-
 }

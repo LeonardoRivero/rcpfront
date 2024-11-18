@@ -45,19 +45,18 @@ export interface IReasonConsult {
 
 export interface AddAdmissionRequest {
   id?: number;
-  price: number;
+  appointmentPrice: number;
   copayment: number;
   amountPaid: number;
-  date: string;
   authorizationNumber: string;
-  patientStatus: number;
-  reasonConsult: number;
-  schedule: number;
-  patient: number;
-  doctor: number;
-  paymentMethod: number;
-  codeTransaction: string | null;
-  isPrivate: boolean;
+  medicalEntryId: number;
+  scheduleId: number;
+  patientId: number;
+  doctorId: number;
+  paymentMethodId: number;
+  transactionCode: string | null;
+  isParticular: boolean;
+  userId: string
 }
 
 export interface AddEventToScheduleRequest {
@@ -210,4 +209,9 @@ export interface NewOrEditSecretaryRequest {
   userId: string
   phoneNumber: string
   medicalOffice: number[];
+}
+
+export interface FilterScheduleRequest {
+  identificationPatient: string;
+  medicalOfficeId: number
 }

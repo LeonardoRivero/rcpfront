@@ -1,5 +1,5 @@
 import { Bloc } from 'src/Domine/IPatterns';
-import { DeepReadonly, onMounted, onUnmounted, readonly, Ref, ref } from 'vue';
+import { onMounted, onUnmounted, Ref, ref } from 'vue';
 
 export function usePlocState<S>(bloc: Bloc<S>): Ref<S> {
   const state = ref(bloc.state) as Ref<S>;

@@ -5,47 +5,29 @@ import {
   PaginationAppointmentResponse,
 } from 'src/Domine/Responses';
 import { GenericService } from '../Repositories';
-import { HTTPClient, IToRead, UseCase } from 'src/Domine/IPatterns';
+import { HTTPClient, IToRead, IUseCase, UseCase } from 'src/Domine/IPatterns';
 // import 'reflect-metadata';
 // import { inject, injectable } from 'inversify';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
 import { IPaginationDataTable } from 'src/Domine/ICommons';
-export class AppointmentService extends GenericService<
-  IAppointment,
-  AppointmentResponse
-> {
-  urlCreate: string;
-  urlList: string;
-  urlBase: string;
-  urlUpdate: string;
-  public constructor() {
-    super();
-    const urlAPI = process.env.CONSULT ? process.env.CONSULT : '';
-    this.urlBase = `${process.env.RCP}${urlAPI}`;
-    this.urlCreate = `${this.urlBase}create/`;
-    this.urlList = `${this.urlBase}list/`;
-    this.urlUpdate = this.urlBase;
-  }
-}
+// export class AppointmentService extends GenericService<
+//   IAppointment,
+//   AppointmentResponse
+// > {
+//   urlCreate: string;
+//   urlList: string;
+//   urlBase: string;
+//   urlUpdate: string;
+//   public constructor() {
+//     super();
+//     const urlAPI = process.env.CONSULT ? process.env.CONSULT : '';
+//     this.urlBase = `${process.env.RCP}${urlAPI}`;
+//     this.urlCreate = `${this.urlBase}create/`;
+//     this.urlList = `${this.urlBase}list/`;
+//     this.urlUpdate = this.urlBase;
+//   }
+// }
 
-export class CalculateAmountPaidAppointmentUseCase
-  implements UseCase<IAppointment, number> {
-  public GenericService: GenericService<IAppointment, AppointmentResponse>;
-  public insurance: HealthInsuranceResponse | undefined;
-  constructor() {
-    this.GenericService = new AppointmentService();
-  }
-
-  execute(appointment: IAppointment): number {
-    if (this.insurance == undefined) {
-      throw new EvalError('Insurance is undefined');
-    }
-    if (this.insurance.takeCopayment == true) {
-      return +appointment.price - +appointment.copayment;
-    }
-    return appointment.price;
-  }
-}
 // @injectable()
 export class PaginationAppointmentService
   implements IToRead<PaginationAppointmentResponse> {

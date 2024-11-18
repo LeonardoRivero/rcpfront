@@ -47,7 +47,7 @@
       </q-item> -->
       <q-item clickable tag="a" link to="/appointment">
         <q-item-section avatar>
-          <q-icon :name="icons.calendar_plus" />
+          <q-icon :name="icons.scheduleCalendar" />
         </q-item-section>
         <q-item-section>
           <q-item-label>{{ 'Admisiones' }}</q-item-label>
@@ -75,7 +75,7 @@
       </q-item-section>
     </q-item> -->
   </q-list>
-  <q-list>
+  <q-list v-if="canAccessAdmin || canAccessDoctor">
     <q-expansion-item
       v-for="item in menuItems"
       :key="item.label"
@@ -130,6 +130,7 @@
   const isAuthenticated = handleUserState.store.isAuthenticated;
   const userRoles = handleUserState.store.token.roles;
   const canAccessAdmin = isAuthenticated && userRoles.includes(GroupUser.ADMIN);
-  const canAccessEditor = isAuthenticated && userRoles.includes('editor');
+  const canAccessDoctor =
+    isAuthenticated && userRoles.includes(GroupUser.DOCTOR);
   const canAccessViewer = isAuthenticated && userRoles.includes('viewer');
 </script>

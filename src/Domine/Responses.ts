@@ -100,12 +100,12 @@ export interface ScheduleResponse {
   doctorId: number
   medicalofficeId: number
   patientId: number
-  patient: PatientResponse;
+  patient: Patient;
   speciality: SpecialityResponse;
   doctor: DoctorResponse;
   medicalOffice: MedicalOfficeResponse
   observations: string;
-  createdBy: string
+  healthEntity: HealthInsuranceResponse
 }
 export interface GenderResponse {
   id: number;
@@ -119,7 +119,8 @@ export interface HealthInsuranceResponse {
   regimen: string;
   nit: string
 }
-export interface PatientResponse {
+
+export interface Patient {
   id: number;
   identification: string;
   name: string;
@@ -127,6 +128,8 @@ export interface PatientResponse {
   dateBirth: string;
   phoneNumber: string;
   email: string;
+}
+export interface PatientResponse extends Patient {
   country: CountryResponse;
   countryStay: CountryResponse;
   cityStay: CityResponse;
@@ -282,4 +285,10 @@ export interface EventScheduleResponse {
   medicalOffice: string
   doctor: string
   speciality: string
+}
+
+export interface MedicalEntryResponse {
+  id: number;
+  description: string;
+  code: number;
 }

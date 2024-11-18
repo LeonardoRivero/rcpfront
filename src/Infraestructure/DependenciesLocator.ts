@@ -14,7 +14,6 @@ import {
   PhysicalExamService,
 } from 'src/Application/Services';
 import { ClientAPI } from './Utilities/HttpClientAPI';
-import { AppointmentListBloc } from 'src/Adapters/AppointmentListController';
 import { MediatorUseCases } from 'src/Application/UseCases/MediatorUseCases';
 import { IHandleGlobalState, IHandleUserState } from 'src/Domine/IPatterns';
 import { HandleGlobalState } from './HandleGlobalState';
@@ -37,14 +36,18 @@ import { RegisterUserBloc } from 'src/Adapters/RegisterUserBloc';
 import { CreateDoctorUseCase, GetDoctorBelongToMedicalOffice, GetDoctorByUserIdUseCase } from 'src/Application/UseCases/DoctorUseCase';
 import { CreateSecretaryUseCase } from 'src/Application/UseCases/SecretaryUseCase';
 import { UserContext } from './Mediators/UserContext';
-import { AddEventScheduleUseCase, GetByIdScheduleUseCase, UpdateScheduleUseCase } from 'src/Application/UseCases/ScheduleUseCases';
+import { AddEventScheduleUseCase, FindScheduleForPatientUseCase, GetByIdScheduleUseCase, UpdateScheduleUseCase } from 'src/Application/UseCases/ScheduleUseCases';
 import { GetSpecialityBelongToMedicalOfficeUseCase } from 'src/Application/UseCases/SpecialityUseCases';
+import { PaymentOptionIsCashUseCase } from 'src/Application/UseCases/PaymentOptionsUseCases';
+import { Helpers } from './Utilities/Helpers';
+import { CreateAdmissionUseCase } from 'src/Application/UseCases/AdmissionUseCases';
 
 const notificator = new FactoryNotifactors();
 const HttpClientAPI = new ClientAPI();
 const findPatientByIdentificationUseCase = new FindPatientByIdentificationUseCase(HttpClientAPI);
 const mediatorUseCases = new MediatorUseCases(HttpClientAPI)
-
+const findScheduleForPatientUseCase = new FindScheduleForPatientUseCase(HttpClientAPI)
+const helper = new Helpers()
 // function provideInfoPatientPanelPloc(): InforPatientPanelBloc {
 //   const findScheduleByIdentificationPatientUseCase =
 //     new FindScheduleByIdentificationPatientUseCase();
@@ -71,13 +74,18 @@ function provideScheduleBloc(): ScheduleFormBloc {
   const getByIdScheduleUseCase = new GetByIdScheduleUseCase(HttpClientAPI)
   const updateScheduleUseCase = new UpdateScheduleUseCase(HttpClientAPI)
   const getSpecialityBelongToMedicalOfficeUseCase = new GetSpecialityBelongToMedicalOfficeUseCase(HttpClientAPI)
+
   return ScheduleFormBloc.getInstance(notificator, doctorSpecialityService, findPatientByIdentificationUseCase,
     getDoctorBelongToMedicalOfficeUseCase, addEventScheduleUseCase, getByIdScheduleUseCase, updateScheduleUseCase,
-    getSpecialityBelongToMedicalOfficeUseCase);
+    getSpecialityBelongToMedicalOfficeUseCase, findScheduleForPatientUseCase);
 }
 
 function provideAdmissionBloc(): AdmissionsBloc {
-  return new AdmissionsBloc(notificator, mediatorUseCases);
+  const handleGlobalState = provideHandleGlobalState();
+  const paymentOptionIsCashUseCase = new PaymentOptionIsCashUseCase(handleGlobalState)
+  const createAdmissionUseCase = new CreateAdmissionUseCase(HttpClientAPI)
+  return new AdmissionsBloc(notificator, mediatorUseCases, findPatientByIdentificationUseCase,
+    findScheduleForPatientUseCase, paymentOptionIsCashUseCase, helper, createAdmissionUseCase);
 }
 
 function provideMedicalProcedureBloc(): MedicalProcedureBloc {

@@ -1,6 +1,5 @@
 import { StoreGeneric, defineStore } from 'pinia';
 import { PatientStatusService } from 'src/Application/Services';
-import { PaymentOptionsService } from 'src/Application/Services/PaymentOptionsService';
 import { ReasonConsultService } from 'src/Application/Services/ReasonConsultService';
 import { Bloc, Controller, IControllersMediator } from 'src/Domine/IPatterns';
 import { IStoreAppointment } from 'src/Domine/IStores';
@@ -13,7 +12,7 @@ import {
 export class AppointmentMediator implements IControllersMediator {
   public store: StoreGeneric;
   private static instance: AppointmentMediator;
-  private servicePaymentOptions = new PaymentOptionsService();
+  // private servicePaymentOptions = new PaymentOptionsService();
   private serviceReasonConsult = ReasonConsultService.getInstance();
   private servicePatientStatus = PatientStatusService.getInstance();
 
@@ -52,10 +51,11 @@ export class AppointmentMediator implements IControllersMediator {
   }
 
   public async getAllPaymentOptions(): Promise<Array<PaymentOptionsResponse>> {
-    if (this.store.allPaymentOptions.length == 0) {
-      this.store.allPaymentOptions = await this.servicePaymentOptions.getAll();
-    }
-    return this.store.allPaymentOptions;
+    return []
+    // if (this.store.allPaymentOptions.length == 0) {
+    //   this.store.allPaymentOptions = await this.servicePaymentOptions.getAll();
+    // }
+    // return this.store.allPaymentOptions;
   }
 
   public async getAllReasonConsult(): Promise<Array<ReasonConsultResponse>> {

@@ -1,7 +1,7 @@
 import { date } from 'quasar';
 import { Messages } from 'src/Application/Utilities';
 import * as Constants from 'src/Application/Utilities/Constants';
-import { AddAdmissionRequest, AddEventToScheduleRequest } from 'src/Domine/Request';
+import { AddAdmissionRequest, AddEventToScheduleRequest, FilterScheduleRequest } from 'src/Domine/Request';
 import {
   DoctorResponse,
   DoctorSpecialityResponse,
@@ -9,12 +9,8 @@ import {
   HealthInsuranceResponse,
   PatientResponse,
   SpecialityResponse,
+  Patient,
 } from 'src/Domine/Responses';
-import {
-  DeleteScheduleUseCase,
-  FindScheduleByIdentificationPatientUseCase,
-  ScheduleService,
-} from 'src/Application/Services/ScheduleService';
 import {
   Bloc,
   IFactoryMethodNotifications,
@@ -26,21 +22,12 @@ import {
 
 import { ScheduleState } from 'src/Domine/IStates';
 import { ModalType } from 'src/Domine/Types';
-import {
-  AppointmentService,
-} from 'src/Application/Services';
-import { DeleteElementNotify } from './Commands';
 import { routerInstance } from 'src/boot/globalRouter';
 
 export class ScheduleFormBloc extends Bloc<ScheduleState> {
   private static instance: ScheduleFormBloc
   private notifySweetAlert: Notificator;
   private notifyQuasar: Notificator;
-  private appointmentService = new AppointmentService();
-  private service = new ScheduleService();
-  private scheduleByIdentificationPatientUseCase =
-    new FindScheduleByIdentificationPatientUseCase();
-  private deleteScheduleUseCase = new DeleteScheduleUseCase();
 
   private constructor(
     private factoryNotify: IFactoryMethodNotifications,
@@ -50,15 +37,15 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
     private addEventScheduleUseCase: IUseCase<AddEventToScheduleRequest, ScheduleResponse | null>,
     private getByIdScheduleUseCase: IUseCase<string, ScheduleResponse | null>,
     private updateScheduleUseCase: IUseCase<AddEventToScheduleRequest, ScheduleResponse | null>,
-    private getSpecialityBelongToMedicalOfficeUseCase: IUseCase<number, SpecialityResponse[]>
+    private getSpecialityBelongToMedicalOfficeUseCase: IUseCase<number, SpecialityResponse[]>,
+    private scheduleByIdentificationPatientUseCase: IUseCase<FilterScheduleRequest, ScheduleResponse | null>
   ) {
     const state: ScheduleState = {
       lastConsult: {} as AddAdmissionRequest,
       isReadonly: false,
       currentAppointment: {} as AddAdmissionRequest,
       currentPatient: {
-        healthEntity: {} as HealthInsuranceResponse,
-      } as PatientResponse,
+      } as Patient,
       currentSchedule: {
         id: undefined,
         start: '',
@@ -98,8 +85,7 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
       currentDoctor: null,
       currentAppointment: {} as AddAdmissionRequest,
       currentPatient: {
-        healthEntity: {} as HealthInsuranceResponse,
-      } as PatientResponse,
+      } as Patient,
       identificationPatient: '',
       currentSchedule: { observations: '' } as AddEventToScheduleRequest,
     });
@@ -112,42 +98,44 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
     addEventScheduleUseCase: IUseCase<AddEventToScheduleRequest, ScheduleResponse | null>,
     getByIdScheduleUseCase: IUseCase<string, ScheduleResponse | null>,
     updateScheduleUseCase: IUseCase<AddEventToScheduleRequest, ScheduleResponse | null>,
-    getSpecialityBelongToMedicalOfficeUseCase: IUseCase<number, SpecialityResponse[]>): ScheduleFormBloc {
+    getSpecialityBelongToMedicalOfficeUseCase: IUseCase<number, SpecialityResponse[]>,
+    scheduleByIdentificationPatientUseCase: IUseCase<FilterScheduleRequest, ScheduleResponse | null>): ScheduleFormBloc {
 
     if (!ScheduleFormBloc.instance) {
       ScheduleFormBloc.instance = new ScheduleFormBloc(factoryNotify, doctorSpecialityService, findPatientByIdentificationUseCase,
-        getDoctorBelongToMedicalOffice, addEventScheduleUseCase, getByIdScheduleUseCase, updateScheduleUseCase, getSpecialityBelongToMedicalOfficeUseCase);
+        getDoctorBelongToMedicalOffice, addEventScheduleUseCase, getByIdScheduleUseCase, updateScheduleUseCase, getSpecialityBelongToMedicalOfficeUseCase,
+        scheduleByIdentificationPatientUseCase);
     }
     return ScheduleFormBloc.instance
   }
 
   public async confirmDeleteSchedule(): Promise<void> {
-    if (
-      this.state.currentSchedule.observations.length === 0 ||
-      this.state.currentSchedule.id == undefined
-    ) {
-      this.state.error = true;
-      return;
-    }
+    // if (
+    //   this.state.currentSchedule.observations.length === 0 ||
+    //   this.state.currentSchedule.id == undefined
+    // ) {
+    //   this.state.error = true;
+    //   return;
+    // }
 
-    // this.showThisForm(false);
-    const deleteCommand = new DeleteElementNotify(
-      Messages.deleteRegister,
-      this.factoryNotify
-    );
-    const confirm = await deleteCommand.execute();
-    if (confirm == false) {
-      return;
-    }
+    // // this.showThisForm(false);
+    // const deleteCommand = new DeleteElementNotify(
+    //   Messages.deleteRegister,
+    //   this.factoryNotify
+    // );
+    // const confirm = await deleteCommand.execute();
+    // if (confirm == false) {
+    //   return;
+    // }
 
-    const response = await this.deleteScheduleUseCase.execute(
-      this.state.currentSchedule.id
-    );
-    if (response === false) {
-      this.notifyQuasar.setType('warning');
-      this.notifyQuasar.show(undefined, Messages.notInfoFound);
-      return;
-    }
+    // const response = await this.deleteScheduleUseCase.execute(
+    //   this.state.currentSchedule.id
+    // );
+    // if (response === false) {
+    //   this.notifyQuasar.setType('warning');
+    //   this.notifyQuasar.show(undefined, Messages.notInfoFound);
+    //   return;
+    // }
 
     // const apiCalendar = this.state.calendar.getApi();
     // apiCalendar.refetchEvents();
@@ -318,8 +306,12 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
   public async findByIdentificationPatient(
     identification: string
   ): Promise<ScheduleResponse | null> {
+    const payload: FilterScheduleRequest = {
+      identificationPatient: identification,
+      medicalOfficeId: this.state.medicalOfficeSelected == null ? 0 : this.state.medicalOfficeSelected.id
+    }
     const register = await this.scheduleByIdentificationPatientUseCase.execute(
-      identification
+      payload
     );
     return register;
   }

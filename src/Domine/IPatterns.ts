@@ -1,7 +1,7 @@
 import { GenericService } from 'src/Application/Repositories/Interface';
 import { IPermission, ITableOptions } from './ICommons';
 import { NotificationType, ModalType, ServicesType, GroupUser } from './Types';
-import { BiologicalSexResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, MedicalOfficeResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, AuthResponse, SpecialityResponse, PaymentOptionsResponse } from './Responses';
+import { BiologicalSexResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, MedicalOfficeResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, AuthResponse, SpecialityResponse, PaymentOptionsResponse, MedicalEntryResponse } from './Responses';
 import { DIVIPOLADTO } from './DTOs';
 import { IGlobalState, IStorePermissions, IStoreUser } from './IStores';
 
@@ -90,6 +90,7 @@ export interface IHandleGlobalState {
   getAllGender(): Promise<GenderResponse[]>
   getAllSpecialities(): Promise<SpecialityResponse[]>
   getAllPaymentOptions(): Promise<PaymentOptionsResponse[]>
+  getAllMedicalEntry(): Promise<MedicalEntryResponse[]>
   saveInfoMedicalOffice(medicalOffice: MedicalOfficeResponse[]): void
   refecthEvents(): void
 }

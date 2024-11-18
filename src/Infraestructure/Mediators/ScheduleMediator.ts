@@ -25,10 +25,7 @@ import {
 } from 'src/Domine/IPatterns';
 import { routerInstance } from 'src/boot/globalRouter';
 import { IStoreSchedule } from 'src/Domine/IStores';
-import {
-  FindScheduleByIdentificationPatientUseCase,
-  ScheduleService,
-} from 'src/Application/Services/ScheduleService';
+
 import { ModalType } from 'src/Domine/Types';
 import { SpecialityService } from 'src/Application/Services/SpecialityService';
 // import container from 'src/inversify.config';
@@ -149,7 +146,7 @@ export class ScheduleMediator
   implements IControllersMediator, ActionsScheduleMediator {
   private controllers: Bloc<unknown>[] = [];
   public store: StoreGeneric;
-  private service = new ScheduleService();
+  // private service = new ScheduleService();
   private static instance: ScheduleMediator;
   private factoryNotificator = new FactoryNotifactors();
   private notifySweetAlert: Notificator;
@@ -330,12 +327,13 @@ export class ScheduleMediator
   public async findByIdentificationPatient(
     identification: string
   ): Promise<ScheduleResponse | null> {
-    const scheduleByIdentificationPatientUseCase =
-      new FindScheduleByIdentificationPatientUseCase();
-    const register = await scheduleByIdentificationPatientUseCase.execute(
-      identification
-    );
-    return register;
+    // const scheduleByIdentificationPatientUseCase =
+    //   new FindScheduleByIdentificationPatientUseCase();
+    // const register = await scheduleByIdentificationPatientUseCase.execute(
+    //   identification
+    // );
+    // return register;
+    return null
   }
 
   public async getAllSpecialities() {
