@@ -7,7 +7,7 @@
       <div class="text-caption text-grey">
         <q-checkbox
           v-if="state.insurance != null"
-          v-model="state.insurance.takeCopayment"
+          v-model="state.insurance.code"
           checked-icon="task_alt"
           unchecked-icon="highlight_off"
           :disable="true"
@@ -118,59 +118,59 @@
   </q-card>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, reactive, ref } from 'vue';
-import { QForm } from 'quasar';
-import { IHealthInsurance } from 'src/Domine/Request';
-import { InsuranceController } from 'src/Adapters/InsuranceAdapter';
-import { IconSVG } from 'src/Application/Utilities';
-import { HealthInsuranceResponse } from 'src/Domine/Responses';
-import { InsuranceState } from 'src/Domine/IStates';
-import { required, isNotNull } from 'src/Application/Utilities/Helpers';
-import 'src/css/app.sass';
+  import { defineComponent, onMounted, reactive, ref } from 'vue';
+  import { QForm } from 'quasar';
+  import { IHealthInsurance } from 'src/Domine/Request';
+  import { InsuranceController } from 'src/Adapters/InsuranceAdapter';
+  import { IconSVG } from 'src/Application/Utilities';
+  import { HealthInsuranceResponse } from 'src/Domine/Responses';
+  import { InsuranceState } from 'src/Domine/IStates';
+  import { required, isNotNull } from 'src/Application/Utilities/Helpers';
+  import 'src/css/app.sass';
 
-export default defineComponent({
-  name: 'InsuranceForm',
+  export default defineComponent({
+    name: 'InsuranceForm',
 
-  setup() {
-    const state: InsuranceState = reactive({
-      allInsurance: [] as Array<HealthInsuranceResponse>,
-      currentInsurance: {} as IHealthInsurance,
-      expanded: false,
-      error: false,
-      insurance: null,
-    });
-    const controller = InsuranceController.getInstance(state);
-    const form = ref<QForm>();
+    setup() {
+      const state: InsuranceState = reactive({
+        allInsurance: [] as Array<HealthInsuranceResponse>,
+        currentInsurance: {} as IHealthInsurance,
+        expanded: false,
+        error: false,
+        insurance: null,
+      });
+      const controller = InsuranceController.getInstance(state);
+      const form = ref<QForm>();
 
-    onMounted(async () => {
-      state.allInsurance = await controller.getAll();
-    });
+      onMounted(async () => {
+        state.allInsurance = await controller.getAll();
+      });
 
-    return {
-      required,
-      isNotNull,
-      state,
-      icons: IconSVG,
-      form,
-      clearInsurance() {
-        controller.clear();
-        form.value?.reset();
-      },
-      insuranceChanged(val: HealthInsuranceResponse) {
-        controller.insuranceSelectChanged(val);
-      },
-      edit() {
-        controller.edit();
-      },
-      add() {
-        controller.add();
-      },
-      async confirmChanges() {
-        const isValid = await form.value?.validate();
-        if (isValid == false) return;
-        await controller.saveOrUpdate();
-      },
-    };
-  },
-});
+      return {
+        required,
+        isNotNull,
+        state,
+        icons: IconSVG,
+        form,
+        clearInsurance() {
+          controller.clear();
+          form.value?.reset();
+        },
+        insuranceChanged(val: HealthInsuranceResponse) {
+          controller.insuranceSelectChanged(val);
+        },
+        edit() {
+          controller.edit();
+        },
+        add() {
+          controller.add();
+        },
+        async confirmChanges() {
+          const isValid = await form.value?.validate();
+          if (isValid == false) return;
+          await controller.saveOrUpdate();
+        },
+      };
+    },
+  });
 </script>

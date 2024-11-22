@@ -93,4 +93,5 @@ export interface ICreateUser {
 export interface IHelpers {
   formatToMoneyString(value: string): string
   getValueFromString(value: string | null): number
+  calculateAge(dateBirth: string): string
 }

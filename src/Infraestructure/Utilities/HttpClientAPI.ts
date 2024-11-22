@@ -12,10 +12,12 @@ export class ClientAPI implements HTTPClient {
   private async http(request: Request): Promise<Response> {
     const userContext = UserContext.getInstance(this)
     const infoLogin = userContext.getInfoUser()
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     try {
       Loading.show();
       const controller = new AbortController();
       request.headers.append('Authorization', `Bearer ${infoLogin.token}`)
+      request.headers.append('Time-Zone', timezone);
       const id = setTimeout(() => controller.abort(), 25000);
       const response: Response = await fetch(request, {
         signal: controller.signal,
@@ -31,6 +33,7 @@ export class ClientAPI implements HTTPClient {
         if (authResponse.token && authResponse.refreshToken) {
           userContext.saveInfoUser(authResponse)
           request.headers.append('Authorization', `Bearer ${authResponse.token}`);
+          request.headers.append('Time-Zone', timezone);
           return await fetch(request);
         }
       }
@@ -51,12 +54,19 @@ export class ClientAPI implements HTTPClient {
   }
 
   private urlQueryParameter(urlBase: string, parameters: object): string {
-    urlBase = urlBase.concat('?');
+    // urlBase = urlBase.concat('?');
+    const params = new URLSearchParams();
+
     for (const [key, value] of Object.entries(parameters)) {
-      urlBase = urlBase.concat(key, '=', value, '&');
+      if (Array.isArray(value)) {
+        value.forEach(num => {
+          params.append(key, num.toString());
+        });
+        return `${urlBase}?${params.toString()}`;
+      }
+      params.append(key, value.toString())
     }
-    const fullUrl = urlBase.slice(0, -1);
-    return fullUrl;
+    return `${urlBase}?${params.toString()}`;
   }
 
   private validateUrl(url: string) {

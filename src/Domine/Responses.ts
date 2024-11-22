@@ -292,3 +292,16 @@ export interface MedicalEntryResponse {
   description: string;
   code: number;
 }
+
+export interface CIE10Response {
+  id: number;
+  description: string;
+  code: string;
+  name: string;
+}
+
+export interface AllergieResponse {
+  id: number;
+  description: string;
+  code: string;
+}

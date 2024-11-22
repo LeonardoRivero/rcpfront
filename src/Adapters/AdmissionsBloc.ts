@@ -17,7 +17,7 @@ import {
 } from 'src/Domine/Responses';
 import { ModalType } from 'src/Domine/Types';
 import { Messages } from 'src/Application/Utilities';
-import globalRouter, { routerInstance } from 'src/boot/globalRouter';
+import { routerInstance } from 'src/boot/globalRouter';
 import { CalculateAmountPaidAppointmentUseCase } from 'src/Application/UseCases/AdmissionUseCases';
 import { ShowModalNewRegister } from 'src/Application/Commands';
 import { IHelpers } from 'src/Domine/ICommons';
@@ -69,7 +69,8 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
       patient: null,
       amount: null,
       copayment: null,
-      price: null
+      price: null,
+      showSkeleton: true
     };
     super(state, mediatorUseCases);
     // this.state = store;
@@ -283,7 +284,10 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
       return
     }
 
-    this.changeState({ ...this.state, patient: response, disableButtonSave: false });
+    this.changeState({
+      ...this.state, patient: response, disableButtonSave: false,
+      showSkeleton: false
+    });
 
     const request: FilterScheduleRequest = {
       identificationPatient: this.state.identificationPatient,
@@ -293,7 +297,7 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
     if (schedule === null) {
       const confirm = await this.notifySweetAlert.show('Error', Messages.patientNotSchedule)
       if (confirm) {
-        routerInstance.push('/appointment')
+        routerInstance.push('/admission')
       }
       return;
     }

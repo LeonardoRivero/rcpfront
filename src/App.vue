@@ -22,8 +22,8 @@
       });
     },
     provide: {
-      preliminaryDataBloc: dependenciesLocator.providePreliminaryDataBloc(), // esto se deberia sacar de aca
-      scheduleFormBloc: dependenciesLocator.provideScheduleBloc(), // esto se deberia sacar de aca
+      // AppointmentBloc: dependenciesLocator.provideAppointmentBloc(), // esto se deberia sacar de aca
+      // scheduleFormBloc: dependenciesLocator.provideScheduleBloc(), // esto se deberia sacar de aca
       dependenciesLocator: dependenciesLocator,
     },
   });

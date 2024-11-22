@@ -6,7 +6,6 @@ import {
   DoctorResponse,
   DoctorSpecialityResponse,
   ScheduleResponse,
-  HealthInsuranceResponse,
   PatientResponse,
   SpecialityResponse,
   Patient,

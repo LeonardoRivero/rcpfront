@@ -1,10 +1,20 @@
 <template>
+  <div class="q-pa-md">
+    <div class="text-h6 text-grey">
+      <q-icon name="mdi-account-multiple-plus" size="32px" />
+      Pacientes
+      <q-separator inset />
+    </div>
+  </div>
+
   <q-stepper
     v-model="step"
     ref="stepper"
     color="primary"
     animated
     style="height: 100vh"
+    flat
+    :bordered="false"
   >
     <q-step
       :name="1"
@@ -429,6 +439,7 @@
     await controller.loadInitialData(handleGlobalState);
     optionsOcupations.value = state.value.allOcupations;
     optionsState.value = state.value.allCities.state;
+    optionsInsurance.value = state.value.allInsurance;
   });
 
   async function onSubmit() {

@@ -18,7 +18,9 @@ import {
   ISpeciality,
 } from './Request';
 import {
+  AllergieResponse,
   BiologicalSexResponse,
+  CIE10Response,
   CountryResponse,
   DXMainCodeResponse,
   DoctorResponse,
@@ -37,7 +39,6 @@ import {
   PaymentOptionsResponse,
   PhoneCodeResponse,
   PhysicalExamResponse,
-  ReasonConsultResponse,
   RelationCodeResponse,
   RoleResponse,
   ScheduleResponse,
@@ -47,22 +48,34 @@ import {
 
 export interface InfoPatientState {
   identificationPatient: string;
-  age: number;
+  age: string;
   currentPatient: PatientResponse | null;
-  iconAvatar: string;
-  labelAge: string;
+  showSkeleton: boolean
 }
-export interface PreliminaryDataState {
+export interface AppointmentState {
   allPathologies: Array<PathologicalHistoryResponse>;
   items: Array<unknown>;
   reasonConsultation: string;
   descriptionConsultation: string;
   pathology: PathologicalHistoryResponse | null;
   pathologiesForFilter: Array<PathologicalHistoryResponse>;
-  allDxMainCodes: Array<DXMainCodeResponse>;
-  allRelationCodes: Array<RelationCodeResponse>;
-  dxMainCode: DXMainCodeResponse | null;
-  relationCode: RelationCodeResponse | null;
+  allDxMainCodes: Array<CIE10Response>;
+  allRelationCodes: Array<CIE10Response>;
+  allAllergies: AllergieResponse[];
+  dxMainCode: CIE10Response | null;
+  relationCode: CIE10Response | null;
+  allergie: AllergieResponse | null;
+  filterCIE10: string | null
+  filterRelatedCode: string | null
+  smoke: boolean
+  alcohol: boolean
+  drugs: boolean
+  alcoholObservations: string | null
+  smokeObservations: string | null
+  drugsObservations: string | null
+  allergen: string | null
+  treatmentMedical: string | null
+  patientHasTreatment: boolean
 }
 
 export interface PathologicalHistoryState {
@@ -212,7 +225,8 @@ export interface AdmissionState {
   patient: Patient | null
   amount: string | null
   copayment: string | null
-  price: string | null
+  price: string | null;
+  showSkeleton: boolean
 }
 
 export interface ChangePasswordState {
@@ -258,4 +272,8 @@ export interface AppointmentListState {
   pagination: IPaginationDataTable;
   loading: boolean;
   filter: string;
+}
+
+export interface IndexState {
+  scheduleForMedicalOffice: ScheduleResponse[]
 }

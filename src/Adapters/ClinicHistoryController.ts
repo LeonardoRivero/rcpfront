@@ -1,113 +1,106 @@
 import {
-  AppointmentResponse,
-  DXMainCodeResponse,
-  EventScheduleResponse,
-  PathologicalHistoryResponse,
+  CIE10Response,
+  GenderResponse,
+  MedicalOfficeResponse,
   PatientResponse,
-  PhysicalExamResponse,
-  PhysicalExamResultResponse,
+  ScheduleResponse,
 } from 'src/Domine/Responses';
 import {
   IconSVG,
-  Gender,
   Messages,
-  Validators,
 } from 'src/Application/Utilities';
-import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators/ClinicHistoryMediator';
+// import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators/ClinicHistoryMediator';
 import {
+  AppointmentState,
   InfoPatientState,
-  MedicalProcedureState,
-  PreliminaryDataState,
 } from 'src/Domine/IStates';
 import {
-  Controller,
-  IControllersMediator,
   IFactoryMethodNotifications,
   Notificator,
   Bloc,
-  UseCase,
+  IUseCase,
+  Subject,
+  Observer,
+  IHandleGlobalState,
 } from 'src/Domine/IPatterns';
-import { GenericService } from 'src/Application/Repositories';
-import { PhysicalExamResultService } from 'src/Application/Services/PhysicalExamResultService';
-import { ModalType, PhysicalExamResume } from 'src/Domine/Types';
-import { IExam, IPhysicalExam } from 'src/Domine/Request';
-import { NotFoundElementNotify } from './Commands';
-import { IStoreClinicHistory } from 'src/Domine/IStores';
-import { ActionsScheduleMediator } from 'src/Infraestructure/Mediators';
+import { ModalType } from 'src/Domine/Types';
+import { FilterScheduleRequest } from 'src/Domine/Request';
+import { IHelpers } from 'src/Domine/ICommons';
+import { routerInstance } from 'src/boot/globalRouter';
+import { NotificatorIndexBloc } from './IndexBloc';
+// import { ActionsScheduleMediator } from 'src/Infraestructure/Mediators';
 
-export class InforPatientPanelBloc extends Bloc<InfoPatientState> {
+export class InfoPatientPanelBloc extends Bloc<InfoPatientState> {
   private iconSVG = IconSVG;
-  constructor(
-    private searchPatientByIdentificationUseCase: UseCase<
-      string,
-      PatientResponse | null
-    >,
-    private findScheduleByIdentificationPatientUseCase: UseCase<
-      string,
-      ScheduleResponse | null
-    >,
-    private notificator: IFactoryMethodNotifications
+  private notifySweetAlert: Notificator;
+  private static instance: InfoPatientPanelBloc
+  private constructor(
+    private searchPatientByIdentificationUseCase: IUseCase<string, PatientResponse | null>,
+    private findScheduleByIdentificationPatientUseCase: IUseCase<FilterScheduleRequest, ScheduleResponse | null>,
+    private notificator: IFactoryMethodNotifications,
+    private helper: IHelpers
   ) {
     const state: InfoPatientState = {
       identificationPatient: '',
-      age: 0,
-      currentPatient: {} as PatientResponse,
-      iconAvatar: '',
-      labelAge: 'Años',
+      age: '',
+      currentPatient: { gender: {} as GenderResponse, healthEntity: {} } as PatientResponse,
+      showSkeleton: true,
+
     };
     super(state);
-  }
-  public receiveData(data: IControllersMediator): void {
-    return;
-  }
-
-  public getGender(patient: PatientResponse) {
-    if (this.state.currentPatient == null) return;
-    const iconAvatar =
-      patient.gender.id == Gender.FEMALE
-        ? this.iconSVG.female_avatar
-        : this.iconSVG.male_avatar;
-
-    this.changeState({ ...this.state, iconAvatar: iconAvatar });
+    this.notifySweetAlert = notificator.createNotificator(
+      ModalType.SweetAlert
+    );
   }
 
-  public sendData(state: InfoPatientState): void {
-    if (this.mediator === null || this.mediator === undefined) {
-      throw new Error('Aun no se definido un mediador para esta operacion');
+  public static getInstance(searchPatientByIdentificationUseCase: IUseCase<string, PatientResponse | null>,
+    findScheduleByIdentificationPatientUseCase: IUseCase<FilterScheduleRequest, ScheduleResponse | null>,
+    notificator: IFactoryMethodNotifications,
+    helper: IHelpers) {
+
+    if (!InfoPatientPanelBloc.instance) {
+      InfoPatientPanelBloc.instance = new InfoPatientPanelBloc(searchPatientByIdentificationUseCase,
+        findScheduleByIdentificationPatientUseCase, notificator, helper);
     }
-    this.mediator.notify(state, this);
+    return InfoPatientPanelBloc.instance
   }
+
+  public override async handleNotification<T>(subject: Subject, data: T): Promise<void> {
+    const isInstance = subject instanceof NotificatorIndexBloc;
+    if (isInstance == false) {
+      throw Error('Instancia no admitida');
+    }
+    const scheduleResponse = <ScheduleResponse>data
+    this.changeState({ ...this.state, identificationPatient: scheduleResponse.patient.identification })
+    await this.patientHasAppointment(scheduleResponse.medicalOffice)
+  };
 
   public clear() {
     this.changeState({
       ...this.state,
-      currentPatient: {} as PatientResponse,
-      age: 0,
-      iconAvatar: '',
+      currentPatient: {
+        gender: {} as GenderResponse,
+        healthEntity: {}
+      } as PatientResponse,
+      age: '',
     });
   }
 
-  async patientHasAppointment() {
+  async patientHasAppointment(medicaloffice: MedicalOfficeResponse) {
     const patient = await this.searchPatientByIdentificationUseCase.execute(
       this.state.identificationPatient
     );
 
     if (patient === null) {
       this.clear();
-      const notFound = new NotFoundElementNotify(
-        Messages.notFoundInfoPatient,
-        this.notificator,
-        '/patient'
-      );
-      await notFound.execute();
+      this.notifySweetAlert.setType('error')
+      const confirm = await this.notifySweetAlert.show('Error', Messages.notFoundInfoPatient)
+      if (confirm) {
+        routerInstance.push('/patient')
+      }
       return;
     }
-    const validator = Validators.getInstance();
-    let age = validator.calculateAge(patient.dateBirth.toString());
 
-    if (age == 0) {
-      age = validator.calculateMonths(patient.dateBirth.toString());
-    }
     const dateBirth = new Date(patient.dateBirth.toLocaleString());
     const options = {
       year: 'numeric',
@@ -115,38 +108,33 @@ export class InforPatientPanelBloc extends Bloc<InfoPatientState> {
       day: 'numeric',
     } as const;
     patient.dateBirth = dateBirth.toLocaleDateString('es-Es', options);
-    this.getGender(patient);
     this.changeState({
       ...this.state,
       currentPatient: patient,
-      age: age < 0 ? 0 : age,
-      labelAge: age < 0 ? 'Meses' : 'Años',
+      age: this.helper.calculateAge(patient.dateBirth),
+      showSkeleton: false
     });
-    const schedule =
-      await this.findScheduleByIdentificationPatientUseCase.execute(
-        patient.identification.toString()
-      );
-    const store = <IStoreClinicHistory>this.mediator.getStore();
-    store.currentSchedule = schedule;
-    // this.mediator.notify(store, this);
 
-    if (schedule === null) {
-      const notFound = new NotFoundElementNotify(
-        Messages.patientNotSchedule,
-        this.notificator,
-        '/schedule'
-      );
-      await notFound.execute();
-      return;
+    const request: FilterScheduleRequest = {
+      identificationPatient: this.state.identificationPatient,
+      medicalOfficeId: medicaloffice.id
     }
-    this.sendData(this.state);
+
+    const schedule = await this.findScheduleByIdentificationPatientUseCase.execute(request);
+    if (schedule === null) {
+      this.clear()
+      this.notifySweetAlert.setType('error')
+      const confirm = await this.notifySweetAlert.show('Error', Messages.patientNotSchedule)
+      if (confirm) {
+        routerInstance.push('/schedule')
+      }
+    }
   }
 }
-export class PreliminaryDataBloc extends Bloc<PreliminaryDataState> {
-  public constructor(
-    private service: GenericService<IPhysicalExam, PhysicalExamResponse>
-  ) {
-    const state: PreliminaryDataState = {
+
+export class AppointmentBloc extends Bloc<AppointmentState> {
+  public constructor(private getByFilterCIE10UseCase: IUseCase<string, CIE10Response[]>) {
+    const state: AppointmentState = {
       allPathologies: [],
       pathology: null,
       items: [],
@@ -155,8 +143,21 @@ export class PreliminaryDataBloc extends Bloc<PreliminaryDataState> {
       pathologiesForFilter: [],
       allDxMainCodes: [],
       allRelationCodes: [],
+      allAllergies: [],
       dxMainCode: null,
       relationCode: null,
+      allergie: null,
+      allergen: null,
+      filterCIE10: null,
+      filterRelatedCode: null,
+      alcohol: false,
+      drugs: false,
+      smoke: false,
+      treatmentMedical: null,
+      alcoholObservations: null,
+      smokeObservations: null,
+      drugsObservations: null,
+      patientHasTreatment: false
     };
     super(state);
   }
@@ -165,149 +166,173 @@ export class PreliminaryDataBloc extends Bloc<PreliminaryDataState> {
     throw new Error('Method not implemented.');
   }
 
-  async receiveData(data: ClinicHistoryMediator): Promise<void> {
-    if (!(data instanceof ClinicHistoryMediator)) {
-      return;
+  public override async handleNotification<T>(subject: Subject, data: T): Promise<void> {
+    const isInstance = subject instanceof NotificatorIndexBloc;
+    if (isInstance == false) {
+      throw Error('Instancia no admitida');
     }
-    const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
-    const speciality = data.store.currentSchedule?.speciality;
-    const listAllDxMainCodes = await mediator.getAllDxMainCodes();
-    const dxMainCodeFiltered = listAllDxMainCodes.filter(
-      (dxMainCode) => dxMainCode.speciality.id === speciality?.id
-    );
-    this.changeState({ ...this.state, allDxMainCodes: dxMainCodeFiltered });
+    const scheduleResponse = <ScheduleResponse>data
+    console.log({ scheduleResponse }, 'en appointment bloc');
+    // this.changeState({ ...this.state, identificationPatient: scheduleResponse.patient.identification })
+    // await this.patientHasAppointment(scheduleResponse.medicalOffice)
+  };
+
+  async receiveData(): Promise<void> {
+    // if (!(data instanceof ClinicHistoryMediator)) {
+    //   return;
+    // }
+    // const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
+    // const speciality = data.store.currentSchedule?.speciality;
+    // const listAllDxMainCodes = await mediator.getAllDxMainCodes();
+    // const dxMainCodeFiltered = listAllDxMainCodes.filter(
+    //   (dxMainCode) => dxMainCode.speciality.id === speciality?.id
+    // );
+    // this.changeState({ ...this.state, allDxMainCodes: dxMainCodeFiltered });
     // console.log(response);
     // this.adaptPhysicalExam(response, appointment);
   }
 
-  async loadInitialData() {
-    const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
-    const listPathologies = await mediator.getAllPathologies();
-
+  async loadInitialData(handleGlobalState: IHandleGlobalState): Promise<void> {
+    const allAllergies = await handleGlobalState.getAllAllergies()
     this.changeState({
       ...this.state,
-      allPathologies: listPathologies,
-      pathologiesForFilter: listPathologies,
+      allAllergies: allAllergies,
     });
   }
 
-  async dxMainCodeChanged(val: number) {
-    const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
-    const listRelationCode = await mediator.getAllRelationCode();
-    const relationCodeFiltered = listRelationCode.filter(
-      (relationCode) => relationCode.dxmaincode.id === val
-    );
-    this.changeState({
-      ...this.state,
-      allRelationCodes: relationCodeFiltered,
-      relationCode: null,
-    });
+  async dxMainCodeChanged() {
+    const dxMainCode = await this.getByFilterCIE10UseCase.execute(this.state.filterCIE10 ?? '')
+    this.changeState({ ...this.state, allDxMainCodes: dxMainCode, dxMainCode: dxMainCode[0] })
+    // const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
+    // const listRelationCode = await mediator.getAllRelationCode();
+    // const relationCodeFiltered = listRelationCode.filter(
+    //   (relationCode) => relationCode.dxmaincode.id === val
+    // );
+    // this.changeState({
+    //   ...this.state,
+    //   allRelationCodes: relationCodeFiltered,
+    //   relationCode: null,
+    // });
+  }
+  async filterRelatedCode() {
+    const relatedCode = await this.getByFilterCIE10UseCase.execute(this.state.filterRelatedCode ?? '')
+    this.changeState({ ...this.state, allRelationCodes: relatedCode, relationCode: relatedCode[0] })
+    // const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
+    // const listRelationCode = await mediator.getAllRelationCode();
+    // const relationCodeFiltered = listRelationCode.filter(
+    //   (relationCode) => relationCode.dxmaincode.id === val
+    // );
+    // this.changeState({
+    //   ...this.state,
+    //   allRelationCodes: relationCodeFiltered,
+    //   relationCode: null,
+    // });
   }
 }
 
-export class MedicalProcedureBloc extends Bloc<MedicalProcedureState> {
-  public constructor(
-    private getPhysicalExamBySpecilityUseCase: UseCase<
-      number,
-      Array<PhysicalExamResponse>
-    >
-  ) {
-    const state: MedicalProcedureState = {
-      items: [],
-    };
-    super(state);
-  }
+// export class MedicalProcedureBloc extends Bloc<MedicalProcedureState> {
+//   public constructor(
+//     private getPhysicalExamBySpecilityUseCase: UseCase<
+//       number,
+//       Array<PhysicalExamResponse>
+//     >
+//   ) {
+//     const state: MedicalProcedureState = {
+//       items: [],
+//     };
+//     super(state);
+//   }
 
-  async receiveData(_data: IControllersMediator): Promise<void> {
-    // if (this.mediator instanceof ClinicHistoryMediator) {
-    //   const store = <IStoreClinicHistory>this.mediator.getStore();
-    //   const val = store.currentSchedule?.speciality;
-    //   const response = await this.getPhysicalExamBySpecilityUseCase.execute(
-    //     val?.id
-    //   );
-    //   this.changeState({ ...this.state, items: response });
-    // }
-  }
-  clear(): void {
-    throw new Error('Method not implemented.');
-  }
-  async loadInitialData() {
-    if (this.mediator instanceof ClinicHistoryMediator) {
-      const store = <IStoreClinicHistory>this.mediator.getStore();
-      const val = store.currentSchedule?.speciality;
-      const response = await this.getPhysicalExamBySpecilityUseCase.execute(
-        val?.id
-      );
-      const adapted: Array<IExam> = response.map((item) => ({
-        description: item.description,
-        result: '',
-        id: item.id,
-      }));
-      this.changeState({ ...this.state, items: adapted });
-    }
-  }
-  updateValue(_value: string) {
-    const store = <IStoreClinicHistory>this.mediator.getStore();
-    store.examParameterResult = this.state.items;
-  }
-}
+//   async receiveData(_data: IControllersMediator): Promise<void> {
+//     // if (this.mediator instanceof ClinicHistoryMediator) {
+//     //   const store = <IStoreClinicHistory>this.mediator.getStore();
+//     //   const val = store.currentSchedule?.speciality;
+//     //   const response = await this.getPhysicalExamBySpecilityUseCase.execute(
+//     //     val?.id
+//     //   );
+//     //   this.changeState({ ...this.state, items: response });
+//     // }
+//   }
+//   clear(): void {
+//     throw new Error('Method not implemented.');
+//   }
+//   async loadInitialData() {
+//     if (this.mediator instanceof ClinicHistoryMediator) {
+//       const store = <IStoreClinicHistory>this.mediator.getStore();
+//       const val = store.currentSchedule?.speciality;
+//       const response = await this.getPhysicalExamBySpecilityUseCase.execute(
+//         val?.id
+//       );
+//       const adapted: Array<IExam> = response.map((item) => ({
+//         description: item.description,
+//         result: '',
+//         id: item.id,
+//       }));
+//       this.changeState({ ...this.state, items: adapted });
+//     }
+//   }
+//   updateValue(_value: string) {
+//     const store = <IStoreClinicHistory>this.mediator.getStore();
+//     store.examParameterResult = this.state.items;
+//   }
+// }
 
-export class ClinicHistoryResumeController extends Controller {
-  public state: object;
-  private service: GenericService<IExam, PhysicalExamResultResponse>;
-  private notifyQuasar: Notificator;
+// export class ClinicHistoryResumeController extends Controller {
+//   public state: object;
+//   private service: GenericService<IExam, PhysicalExamResultResponse>;
+//   private notifyQuasar: Notificator;
 
-  public constructor(factoryNotify: IFactoryMethodNotifications) {
-    super();
-    this.service = new PhysicalExamResultService();
-    this.state = {};
-    this.notifyQuasar = factoryNotify.createNotificator(ModalType.NotifyQuasar);
-  }
+//   public constructor(factoryNotify: IFactoryMethodNotifications) {
+//     super();
+//     this.service = new PhysicalExamResultService();
+//     this.state = {};
+//     this.notifyQuasar = factoryNotify.createNotificator(ModalType.NotifyQuasar);
+//   }
 
-  receiveData(data: IControllersMediator): void {
-    throw new Error('Method not implemented.');
-  }
+//   receiveData(data: IControllersMediator): void {
+//     throw new Error('Method not implemented.');
+//   }
 
-  clear(): void {
-    throw new Error('Method not implemented.');
-  }
+//   clear(): void {
+//     throw new Error('Method not implemented.');
+//   }
 
-  public async getAll(): Promise<Array<PhysicalExamResultResponse>> {
-    try {
-      const items = await this.service.getAll();
-      return items;
-    } catch (error: any) {
-      this.notifyQuasar.setType('error');
-      this.notifyQuasar.show(
-        undefined,
-        'Lo sentimos no pudimos cargar el historial del paciente'
-      );
-      return [];
-    }
-  }
+//   public async getAll(): Promise<Array<PhysicalExamResultResponse>> {
+//     try {
+//       const items = await this.service.getAll();
+//       return items;
+//     } catch (error: any) {
+//       this.notifyQuasar.setType('error');
+//       this.notifyQuasar.show(
+//         undefined,
+//         'Lo sentimos no pudimos cargar el historial del paciente'
+//       );
+//       return [];
+//     }
+//   }
 
-  public adaptObject(
-    items: Array<PhysicalExamResultResponse>
-  ): Array<PhysicalExamResume> {
-    const groups = items.reduce((groups: any, game) => {
-      const date = new Date(game.date_exam.toString());
-      if (!groups[date.getFullYear()]) {
-        groups[date.getFullYear()] = [];
-      }
-      groups[date.getFullYear()].push(game);
-      return groups;
-    }, {});
+//   public adaptObject(
+//     items: Array<PhysicalExamResultResponse>
+//   ): Array<PhysicalExamResume> {
+//     const groups = items.reduce((groups: any, game) => {
+//       const date = new Date(game.date_exam.toString());
+//       if (!groups[date.getFullYear()]) {
+//         groups[date.getFullYear()] = [];
+//       }
+//       groups[date.getFullYear()].push(game);
+//       return groups;
+//     }, {});
 
-    const groupArrays = Object.keys(groups).map((year) => {
-      return {
-        year,
-        results: groups[year],
-      };
-    });
-    return groupArrays;
-  }
-  public async getHistoryPatient(documentPatient: string) {
-    const parameters = { documentPatient: documentPatient };
-    const t = await this.service.findByParameters(parameters);
-  }
-}
+//     const groupArrays = Object.keys(groups).map((year) => {
+//       return {
+//         year,
+//         results: groups[year],
+//       };
+//     });
+//     return groupArrays;
+//   }
+//   public async getHistoryPatient(documentPatient: string) {
+//     const parameters = { documentPatient: documentPatient };
+//     const t = await this.service.findByParameters(parameters);
+//   }
+// }

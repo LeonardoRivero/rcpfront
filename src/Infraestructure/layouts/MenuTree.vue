@@ -11,9 +11,20 @@
       </q-item-section>
     </q-item>
 
+    <q-item clickable tag="a" link to="/appointment">
+      <q-item-section avatar>
+        <q-icon name="mdi-notebook" />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>{{ 'Cita Medica' }}</q-item-label>
+        <q-item-label caption>{{ 'Gestiona Cita Medica' }}</q-item-label>
+      </q-item-section>
+    </q-item>
+
     <q-item clickable tag="a" link to="/patient">
       <q-item-section avatar>
-        <q-icon name="mdi-human-wheelchair" />
+        <q-icon name="mdi-account-multiple-plus" />
       </q-item-section>
 
       <q-item-section>
@@ -45,7 +56,7 @@
           <q-item-label>{{ 'Listado' }}</q-item-label>
         </q-item-section>
       </q-item> -->
-      <q-item clickable tag="a" link to="/appointment">
+      <q-item clickable tag="a" link to="/admission">
         <q-item-section avatar>
           <q-icon :name="icons.scheduleCalendar" />
         </q-item-section>

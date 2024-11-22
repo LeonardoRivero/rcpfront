@@ -1,7 +1,7 @@
 import { GenericService } from 'src/Application/Repositories/Interface';
 import { IPermission, ITableOptions } from './ICommons';
-import { NotificationType, ModalType, ServicesType, GroupUser } from './Types';
-import { BiologicalSexResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, MedicalOfficeResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, AuthResponse, SpecialityResponse, PaymentOptionsResponse, MedicalEntryResponse } from './Responses';
+import { NotificationType, ModalType } from './Types';
+import { BiologicalSexResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, MedicalOfficeResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, AuthResponse, SpecialityResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse } from './Responses';
 import { DIVIPOLADTO } from './DTOs';
 import { IGlobalState, IStorePermissions, IStoreUser } from './IStores';
 
@@ -12,6 +12,7 @@ export abstract class Bloc<S> {
   protected mediator: IMediatorUseCases | null;
   private internalState: S;
   private listeners: Subscription<S>[] = [];
+  private observers: Bloc<any>[] = [];
 
   constructor(initalState: S, mediator?: IMediatorUseCases) {
     this.internalState = initalState;
@@ -45,9 +46,9 @@ export abstract class Bloc<S> {
     this.mediator = mediator;
   }
 
-  public isCommand(object: unknown): object is ICommand {
-    return object !== undefined;
-  }
+  public handleNotification<T>(subject: Subject, data: T): void {
+    return
+  };
 }
 
 export abstract class Controller {
@@ -91,6 +92,7 @@ export interface IHandleGlobalState {
   getAllSpecialities(): Promise<SpecialityResponse[]>
   getAllPaymentOptions(): Promise<PaymentOptionsResponse[]>
   getAllMedicalEntry(): Promise<MedicalEntryResponse[]>
+  getAllAllergies(): Promise<AllergieResponse[]>
   saveInfoMedicalOffice(medicalOffice: MedicalOfficeResponse[]): void
   refecthEvents(): void
 }
@@ -200,16 +202,10 @@ export interface HTTPClient {
   refreshToken(refresh_token: string): Promise<Response>
 }
 
-export abstract class Subject {
-  attach(observer: Observer): void {
-    return;
-  }
-  detach(observer: Observer): void {
-    return;
-  }
-  notify(data: object): void {
-    return;
-  }
+export interface Subject {
+  attach(observer: Bloc<unknown>): void
+  detach(observer: Bloc<unknown>): void
+  notify<T>(data: T): void
 }
 export interface Observer {
   handleNotification(subject: Subject, data: object): void;

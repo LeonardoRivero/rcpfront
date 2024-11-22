@@ -19,9 +19,6 @@ export type NotificationType =
   | 'error'
   | 'question';
 
-export enum ServicesType {
-  Appointment = 'Appointment',
-}
 
 export enum GroupUser {
   DOCTOR = 'Doctor',

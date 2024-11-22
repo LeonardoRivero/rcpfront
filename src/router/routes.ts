@@ -21,15 +21,15 @@ const routes: RouteRecordRaw[] = [
       //     ),
       // },
       {
-        path: 'appointment',
+        path: 'admission',
         component: () =>
           import('src/Infraestructure/pages/Admissions/AdmissionsPage.vue'),
       },
-      // {
-      //   path: 'appointment/list',
-      //   component: () =>
-      //     import('src/Infraestructure/pages/Appointment/AppointmentList.vue'),
-      // },
+      {
+        path: 'appointment',
+        component: () =>
+          import('src/Infraestructure/pages/Appointment/AppointmentPage.vue'),
+      },
       {
         path: 'schedule',
         component: () =>

@@ -1,17 +1,15 @@
 import {
   AdmissionsBloc,
+  AppointmentBloc,
   DxMainCodeBloc,
-  MedicalProcedureBloc,
+  InfoPatientPanelBloc,
   PatientFormBloc,
-  PreliminaryDataBloc,
   RelationCodeBloc,
   ScheduleFormBloc,
 } from 'src/Adapters';
 import { FactoryNotifactors } from 'src/Infraestructure/Utilities/Factories';
 import {
   DoctorSpecialityService,
-  GetPhysicalExamBySpecialityUseCase,
-  PhysicalExamService,
 } from 'src/Application/Services';
 import { ClientAPI } from './Utilities/HttpClientAPI';
 import { MediatorUseCases } from 'src/Application/UseCases/MediatorUseCases';
@@ -36,11 +34,13 @@ import { RegisterUserBloc } from 'src/Adapters/RegisterUserBloc';
 import { CreateDoctorUseCase, GetDoctorBelongToMedicalOffice, GetDoctorByUserIdUseCase } from 'src/Application/UseCases/DoctorUseCase';
 import { CreateSecretaryUseCase } from 'src/Application/UseCases/SecretaryUseCase';
 import { UserContext } from './Mediators/UserContext';
-import { AddEventScheduleUseCase, FindScheduleForPatientUseCase, GetByIdScheduleUseCase, UpdateScheduleUseCase } from 'src/Application/UseCases/ScheduleUseCases';
+import { AddEventScheduleUseCase, FindScheduleForPatientUseCase, GetByIdScheduleUseCase, GetScheduleForMedicalOfficeUseCase, UpdateScheduleUseCase } from 'src/Application/UseCases/ScheduleUseCases';
 import { GetSpecialityBelongToMedicalOfficeUseCase } from 'src/Application/UseCases/SpecialityUseCases';
 import { PaymentOptionIsCashUseCase } from 'src/Application/UseCases/PaymentOptionsUseCases';
 import { Helpers } from './Utilities/Helpers';
 import { CreateAdmissionUseCase } from 'src/Application/UseCases/AdmissionUseCases';
+import { IndexBloc } from 'src/Adapters/IndexBloc';
+import { GetByFilterCIE10UseCase } from 'src/Application/UseCases/CIE10UseCases';
 
 const notificator = new FactoryNotifactors();
 const HttpClientAPI = new ClientAPI();
@@ -48,22 +48,22 @@ const findPatientByIdentificationUseCase = new FindPatientByIdentificationUseCas
 const mediatorUseCases = new MediatorUseCases(HttpClientAPI)
 const findScheduleForPatientUseCase = new FindScheduleForPatientUseCase(HttpClientAPI)
 const helper = new Helpers()
-// function provideInfoPatientPanelPloc(): InforPatientPanelBloc {
-//   const findScheduleByIdentificationPatientUseCase =
-//     new FindScheduleByIdentificationPatientUseCase();
+function provideInfoPatientPanelPloc(): InfoPatientPanelBloc {
+  const findScheduleByIdentificationPatientUseCase = new FindScheduleForPatientUseCase(HttpClientAPI);
 
-//   const productsPloc = new InforPatientPanelBloc(
-//     findPatientByIdentificationUseCase,
-//     findScheduleByIdentificationPatientUseCase,
-//     notificator
-//   );
+  const productsPloc = InfoPatientPanelBloc.getInstance(
+    findPatientByIdentificationUseCase,
+    findScheduleByIdentificationPatientUseCase,
+    notificator, helper
+  );
 
-//   return productsPloc;
-// }
+  return productsPloc;
+}
 
-function providePreliminaryDataBloc(): PreliminaryDataBloc {
-  const physicalExamService = PhysicalExamService.getInstance();
-  return new PreliminaryDataBloc(physicalExamService);
+function provideAppointmentBloc(): AppointmentBloc {
+  // const physicalExamService = PhysicalExamService.getInstance();
+  const getByFilterCIE10UseCase = new GetByFilterCIE10UseCase(HttpClientAPI)
+  return new AppointmentBloc(getByFilterCIE10UseCase);
 }
 
 
@@ -88,11 +88,11 @@ function provideAdmissionBloc(): AdmissionsBloc {
     findScheduleForPatientUseCase, paymentOptionIsCashUseCase, helper, createAdmissionUseCase);
 }
 
-function provideMedicalProcedureBloc(): MedicalProcedureBloc {
-  const getPhysicalExamBySpecilityUseCase =
-    new GetPhysicalExamBySpecialityUseCase();
-  return new MedicalProcedureBloc(getPhysicalExamBySpecilityUseCase);
-}
+// function provideMedicalProcedureBloc(): MedicalProcedureBloc {
+//   const getPhysicalExamBySpecilityUseCase =
+//     new GetPhysicalExamBySpecialityUseCase();
+//   return new MedicalProcedureBloc(getPhysicalExamBySpecilityUseCase);
+// }
 
 function provideDxMainCodeBloc(): DxMainCodeBloc {
   return new DxMainCodeBloc();
@@ -146,18 +146,24 @@ function provideRegisterUserBloc(): RegisterUserBloc {
 function provideHandleGlobalState(): IHandleGlobalState {
   return HandleGlobalState.getInstance(HttpClientAPI);
 }
+
 function provideHandleUserState(): IHandleUserState {
   const instance = UserContext.getInstance(HttpClientAPI)
   // HttpClientAPI.handlerUserState = instance
   return instance;
 }
 
+function provideIndexBloc(): IndexBloc {
+  const getScheduleForMedicalOffice = new GetScheduleForMedicalOfficeUseCase(HttpClientAPI)
+  return new IndexBloc(getScheduleForMedicalOffice)
+}
+
 export const dependenciesLocator = {
-  // provideInfoPatientPanelPloc,
-  providePreliminaryDataBloc,
+  provideInfoPatientPanelPloc,
+  provideAppointmentBloc,
   provideScheduleBloc,
   provideAdmissionBloc,
-  provideMedicalProcedureBloc,
+  // provideMedicalProcedureBloc,
   provideDxMainCodeBloc,
   provideRelationCodeBloc,
   providePatientFormBloc,
@@ -166,5 +172,6 @@ export const dependenciesLocator = {
   provideHandleUserState,
   provideLoginBloc,
   provideChangePasswordBloc,
-  provideRegisterUserBloc
+  provideRegisterUserBloc,
+  provideIndexBloc
 };

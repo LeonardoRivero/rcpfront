@@ -2,172 +2,168 @@
   <q-page class="q-pa-md">
     <div class="row q-col-gutter-md">
       <div class="col-12 col-md-8">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6">
-              <q-icon name="img:schedule-calendar.svg" size="32px" />
-              Admisiones
+        <div class="text-h6 text-grey">
+          <q-icon name="img:schedule-calendar.svg" size="32px" />
+          Admisiones
+          <q-separator inset />
+        </div>
+        <q-form @submit="confirmChanges" ref="form" @keydown.enter.prevent>
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-sm-6"></div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                dense
+                type="number"
+                v-model="state.identificationPatient"
+                @keydown.enter.prevent="patientWasScheduled()"
+                label="N° Identificacion"
+                lazy-rules
+                :rules="[numberRequired]"
+              >
+                <template v-slot:append>
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    icon="search"
+                    class="q-mr-xs"
+                    @click="patientWasScheduled()"
+                  />
+                  <q-tooltip transition-show="scale" transition-hide="scale">
+                    Buscar Paciente
+                  </q-tooltip></template
+                >
+              </q-input>
             </div>
-          </q-card-section>
-          <q-card-section>
-            <q-form @submit="confirmChanges" ref="form" @keydown.enter.prevent>
-              <div class="row q-col-gutter-md">
-                <div class="col-12 col-sm-6"></div>
-                <div class="col-12 col-sm-6">
-                  <q-input
-                    outlined
-                    dense
-                    type="number"
-                    v-model="state.identificationPatient"
-                    @keydown.enter.prevent="patientWasScheduled()"
-                    label="N° Identificacion"
-                    lazy-rules
-                    :rules="[numberRequired]"
-                  >
-                    <template v-slot:append>
-                      <q-btn
-                        flat
-                        round
-                        dense
-                        icon="search"
-                        class="q-mr-xs"
-                        @click="patientWasScheduled()"
-                      />
-                      <q-tooltip
-                        transition-show="scale"
-                        transition-hide="scale"
-                      >
-                        Buscar Paciente
-                      </q-tooltip></template
-                    >
-                  </q-input>
-                </div>
-                <div class="col-12 col-sm-6">
-                  <q-select
-                    dense
-                    label="Razon Consulta *"
-                    v-model="state.currentAppointment.medicalEntryId"
-                    :options="state.allReasonConsult"
-                    :option-value="(item) => (item === null ? null : item.id)"
-                    option-label="description"
-                    map-options
-                    emit-value
-                    :rules="[isNotNull]"
-                  ></q-select>
-                </div>
-                <div class="col-12 col-sm-6">
-                  <q-select
-                    dense
-                    label="Metodo Pago *"
-                    v-model="state.currentAppointment.paymentMethodId"
-                    :options="state.allPaymentOptions"
-                    :option-value="(item) => (item === null ? null : item.id)"
-                    option-label="description"
-                    emit-value
-                    map-options
-                    @update:model-value="(val) => changePaymentMethod(val)"
-                    :rules="[isNotNull]"
-                  ></q-select>
-                </div>
-                <div class="col-12 col-sm-6">
-                  <q-input
-                    dense
-                    type="text"
-                    label="Codigo Transaccion"
-                    v-model="state.currentAppointment.transactionCode"
-                    :disable="state.disableCodeTransaction"
-                  />
-                </div>
-                <div class="col-12 col-sm-6">
-                  <q-input
-                    dense
-                    v-model="state.copayment"
-                    label="Copago"
-                    :rules="[isNotNull]"
-                    :disable="state.currentAppointment.isParticular"
-                    @blur="(evt) => changeCopayment(evt)"
-                    @keydown.enter.prevent="(evt:any) =>changeCopayment(evt)"
-                  />
-                </div>
-                <div class="col-12 col-sm-6">
-                  <q-input
-                    dense
-                    type="number"
-                    v-model="state.currentAppointment.authorizationNumber"
-                    label="N° Autorización"
-                    lazy-rules
-                    :rules="[numberRequired]"
-                    :disable="state.currentAppointment.isParticular"
-                  />
-                </div>
-                <div class="col-12 col-sm-6">
-                  <q-input
-                    dense
-                    v-model="state.price"
-                    label="Valor Consulta"
-                    lazy-rules
-                    :rules="[isNotNull]"
-                    clearable
-                    @blur="(evt) => changePrice(evt)"
-                    @keydown.enter.prevent="(evt:any) =>changePrice(evt)"
-                  />
-                </div>
-                <div class="col-12 col-sm-6">
-                  <q-checkbox
-                    size="md"
-                    v-model="state.currentAppointment.isParticular"
-                    val="lg"
-                    label="Cita Particular"
-                    @update:model-value="(val) => calculateAmountPaid(val)"
-                  />
-                </div>
-                <div class="col-12 col-sm-6">
-                  <q-input
-                    :bg-color="
-                      state.currentAppointment.amountPaid > 0 ? 'green' : 'red'
-                    "
-                    outlined
-                    readonly
-                    dense
-                    hint="Total monto a pagar"
-                    v-model="state.amount"
-                    :rules="[isNotNull]"
-                  >
-                  </q-input>
-                </div>
-              </div>
-              <div class="col-12 col-md-3">
-                <q-btn
-                  label="Guardar"
-                  type="submit"
-                  color="primary"
-                  :disable="state.disableButtonSave"
-                />
-              </div>
-            </q-form>
-          </q-card-section>
-        </q-card>
+            <div class="col-12 col-sm-6">
+              <q-select
+                dense
+                label="Razon Consulta *"
+                v-model="state.currentAppointment.medicalEntryId"
+                :options="state.allReasonConsult"
+                :option-value="(item) => (item === null ? null : item.id)"
+                option-label="description"
+                map-options
+                emit-value
+                :rules="[isNotNull]"
+              ></q-select>
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-select
+                dense
+                label="Metodo Pago *"
+                v-model="state.currentAppointment.paymentMethodId"
+                :options="state.allPaymentOptions"
+                :option-value="(item) => (item === null ? null : item.id)"
+                option-label="description"
+                emit-value
+                map-options
+                @update:model-value="(val) => changePaymentMethod(val)"
+                :rules="[isNotNull]"
+              ></q-select>
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                dense
+                type="text"
+                label="Codigo Transaccion"
+                v-model="state.currentAppointment.transactionCode"
+                :disable="state.disableCodeTransaction"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                dense
+                v-model="state.copayment"
+                label="Copago"
+                :rules="[isNotNull]"
+                :disable="state.currentAppointment.isParticular"
+                @blur="(evt) => changeCopayment(evt)"
+                @keydown.enter.prevent="(evt:any) =>changeCopayment(evt)"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                dense
+                type="number"
+                v-model="state.currentAppointment.authorizationNumber"
+                label="N° Autorización"
+                lazy-rules
+                :rules="[numberRequired]"
+                :disable="state.currentAppointment.isParticular"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                dense
+                v-model="state.price"
+                label="Valor Consulta"
+                lazy-rules
+                :rules="[isNotNull]"
+                clearable
+                @blur="(evt) => changePrice(evt)"
+                @keydown.enter.prevent="(evt:any) =>changePrice(evt)"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-checkbox
+                size="md"
+                v-model="state.currentAppointment.isParticular"
+                val="lg"
+                label="Cita Particular"
+                @update:model-value="(val) => calculateAmountPaid(val)"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                :bg-color="
+                  state.currentAppointment.amountPaid > 0 ? 'green' : 'red'
+                "
+                outlined
+                readonly
+                dense
+                hint="Total monto a pagar"
+                v-model="state.amount"
+                :rules="[isNotNull]"
+              >
+              </q-input>
+            </div>
+          </div>
+          <div class="col-12 col-md-3">
+            <q-btn
+              label="Guardar"
+              type="submit"
+              color="primary"
+              :disable="state.disableButtonSave"
+            />
+          </div>
+        </q-form>
       </div>
       <div class="col-12 col-md-4">
-        <q-card flat bordered>
+        <q-card flat bordered class="bg-grey-1">
           <q-card-section>
-            <div class="text-h6">Información Adicional</div>
+            <div class="text-h6 text-grey">Información Adicional</div>
           </q-card-section>
           <q-card-section>
             <div class="col-12 col-sm-6">
               <b>Nombre Paciente:</b>
+              <q-skeleton type="text" v-if="state.showSkeleton" />
               {{ state.schedule.patient.name }}
               {{ state.schedule.patient.lastName }}
             </div>
             <div class="col-12 col-sm-6">
-              <b>Especialidad :</b> {{ state.schedule.speciality.description }}
+              <b>Especialidad :</b>
+              <q-skeleton type="text" v-if="state.showSkeleton" />
+              {{ state.schedule.speciality.description }}
             </div>
             <div class="col-12 col-sm-6">
               <b>Entidad :</b>
+              <q-skeleton type="text" v-if="state.showSkeleton" />
               {{ state.schedule.healthEntity.name }}
             </div>
             <div class="col-12 col-sm-6">
               <b>Hora Cita:</b>
+              <q-skeleton type="text" v-if="state.showSkeleton" />
               <span v-if="state.schedule.start.length != 0">
                 {{ new Date(state.schedule.start).toLocaleString() }}
               </span>

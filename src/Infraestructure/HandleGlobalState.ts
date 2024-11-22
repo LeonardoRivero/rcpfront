@@ -15,9 +15,10 @@ import { GetAllZoneStayUseCase } from 'src/Application/UseCases/ZoneStayUseCase'
 import { DIVIPOLADTO, StateDTO, TownDTO } from 'src/Domine/DTOs';
 import { HTTPClient, IHandleGlobalState, IUseCase } from 'src/Domine/IPatterns';
 import { IGlobalState } from 'src/Domine/IStores';
-import { BiologicalSexResponse, CityResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, SpecialityResponse, RoleResponse, MedicalOfficeResponse, PaymentOptionsResponse, MedicalEntryResponse } from 'src/Domine/Responses';
+import { BiologicalSexResponse, CityResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, SpecialityResponse, RoleResponse, MedicalOfficeResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse } from 'src/Domine/Responses';
 import { GetAllPaymentOptionUseCase } from 'src/Application/UseCases/PaymentOptionsUseCases';
 import { GetAllMedicalEntryUseCase } from 'src/Application/UseCases/MedicalEntryUseCases';
+import { GetAllAllergieUseCase } from 'src/Application/UseCases/AllergieUseCases';
 
 
 export class HandleGlobalState implements IHandleGlobalState {
@@ -37,6 +38,7 @@ export class HandleGlobalState implements IHandleGlobalState {
   private getAllSpecialityUseCase: IUseCase<void, SpecialityResponse[]>
   private getAllpaymentOptionUseCase: IUseCase<void, PaymentOptionsResponse[]>
   private getAllMedicalEntryUseCase: IUseCase<void, MedicalEntryResponse[]>
+  private getAllAllergieUseCase: IUseCase<void, AllergieResponse[]>
   // private getAllGroupsUseCase: IUseCase<string, RoleResponse[]>
 
   private constructor(httpClient: HTTPClient) {
@@ -55,8 +57,10 @@ export class HandleGlobalState implements IHandleGlobalState {
     this.getAllSpecialityUseCase = new GetAllSpecialityUseCase(httpClient)
     this.getAllpaymentOptionUseCase = new GetAllPaymentOptionUseCase(httpClient)
     this.getAllMedicalEntryUseCase = new GetAllMedicalEntryUseCase(httpClient)
+    this.getAllAllergieUseCase = new GetAllAllergieUseCase(httpClient)
     // this.getAllGroupsUseCase = new GetAllGroupsUseCase(httpClient)
   }
+
   public static getInstance(httpClient: HTTPClient): HandleGlobalState {
     if (!HandleGlobalState.instance) {
       HandleGlobalState.instance = new HandleGlobalState(httpClient);
@@ -80,6 +84,7 @@ export class HandleGlobalState implements IHandleGlobalState {
         allDocumentType: [],
         allGender: [],
         allSpecialities: [],
+        allAllergies: [],
         DIVIPOLA: <DIVIPOLADTO>{},
         currentMedicalOffice: [],
         allPaymentOption: [],
@@ -89,6 +94,15 @@ export class HandleGlobalState implements IHandleGlobalState {
       persist: true,
     });
     return store();
+  }
+
+  public async getAllAllergies(): Promise<AllergieResponse[]> {
+    if (this.store.allAllergies.length != 0) {
+      return this.store.allAllergies;
+    }
+    const response = await this.getAllAllergieUseCase.execute();
+    this.store.allAllergies = response;
+    return response;
   }
 
   public async getAllPaymentOptions(): Promise<PaymentOptionsResponse[]> {

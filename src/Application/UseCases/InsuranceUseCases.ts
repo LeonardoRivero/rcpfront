@@ -1,4 +1,4 @@
-import { HealthInsuranceResponse } from 'src/Domine/Responses';
+import { HealthInsuranceResponse, ResponseData } from 'src/Domine/Responses';
 import { HTTPClient, IUseCase } from 'src/Domine/IPatterns';
 
 export class GetAllInsuranceUseCase implements IUseCase<void, HealthInsuranceResponse[]> {
@@ -11,7 +11,8 @@ export class GetAllInsuranceUseCase implements IUseCase<void, HealthInsuranceRes
     if (!response.ok) {
       return []
     }
-    return await response.json()
+    const allHealhEntity: ResponseData<HealthInsuranceResponse[]> = await response.json()
+    return allHealhEntity.result
   }
 
 }

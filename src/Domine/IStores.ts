@@ -28,6 +28,7 @@ import {
   GenderResponse,
   MedicalOfficeResponse,
   MedicalEntryResponse,
+  AllergieResponse,
 } from './Responses';
 import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 import { DIVIPOLADTO } from './DTOs';
@@ -109,6 +110,7 @@ export interface IGlobalState {
   allSpecialities: SpecialityResponse[],
   allPaymentOption: PaymentOptionsResponse[],
   allMedicalEntry: MedicalEntryResponse[],
+  allAllergies: AllergieResponse[],
   currentMedicalOffice: MedicalOfficeResponse[],
   calendar: InstanceType<typeof FullCalendar>;
   // userEmail: string

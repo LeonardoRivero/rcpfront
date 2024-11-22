@@ -119,9 +119,9 @@
 </script>
 <style>
   body {
-    background: #f9f9fb !important;
+    background: 'white' !important;
   }
   .custom-bg {
-    background-color: #f9f9fb; /* Cambia el color a lo que necesites */
+    background-color: 'white'; /* Cambia el color a lo que necesites */
   }
 </style>

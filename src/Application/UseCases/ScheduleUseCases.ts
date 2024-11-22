@@ -159,6 +159,34 @@ export class FindScheduleForPatientUseCase
   }
 }
 
+export class GetScheduleForMedicalOfficeUseCase
+  implements IUseCase<number[], ScheduleResponse[]> {
+  private url: string
+
+  constructor(private httpClient: HTTPClient) {
+    this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+  }
+
+  async execute(medicalOfficeId: number[]): Promise<ScheduleResponse[]> {
+    const params = { medicalOfficeId: medicalOfficeId }
+    const response = await this.httpClient.GET(`${this.url}medicaloffice/`, params);
+    if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT) {
+      return [];
+    }
+
+    const schedule: ResponseData<ScheduleResponse[]> = await response.json();
+    return schedule.result;
+    // let register = undefined;
+    // if (Array.isArray(response)) {
+    //   register = response.pop();
+    // }
+    // if (register === undefined) {
+    //   return null;
+    // }
+    // return await this.GenericService.getById(register.id);
+  }
+}
+
 
 // export class DeleteScheduleUseCase implements UseCase<number, boolean> {
 //   GenericService: GenericService<EventSchedule, EventScheduleResponse>;

@@ -1,7 +1,6 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row q-col-gutter-md">
-      <!-- Acciones Rápidas -->
       <div class="col-12 col-md-4">
         <q-card class="my-card">
           <q-card-section>
@@ -46,43 +45,47 @@
             <div class="text-h6">Próximas Citas</div>
           </q-card-section>
           <q-separator />
-          <q-card-section>
+          <q-card-section v-if="state.scheduleForMedicalOffice.length > 0">
             <q-list bordered separator>
               <q-item
-                v-for="appointment in upcomingAppointments"
-                :key="appointment.id"
+                v-for="schedule in state.scheduleForMedicalOffice"
+                :key="schedule.id"
                 clickable
                 v-ripple
+                @click="showAppointmentDetails(schedule.id)"
               >
                 <q-item-section avatar>
                   <q-avatar color="primary" text-color="white">
-                    {{ appointment.patientName.charAt(0) }}
+                    {{ schedule.patient.name.charAt(0).toUpperCase() }}
                   </q-avatar>
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label>{{ appointment.patientName }}</q-item-label>
+                  <q-item-label
+                    >{{ schedule.patient.name }}
+                    {{ schedule.patient.lastName }}</q-item-label
+                  >
                   <q-item-label caption
-                    >{{ appointment.doctorName }} -
-                    {{ appointment.time }}</q-item-label
+                    >Dr {{ schedule.doctor.name }}
+                    {{ schedule.doctor.lastName }} -
+                    {{
+                      new Date(schedule.start).toLocaleString()
+                    }}</q-item-label
                   >
                 </q-item-section>
                 <q-item-section side>
-                  <q-btn
-                    flat
-                    round
-                    color="primary"
-                    icon="info"
-                    @click="showAppointmentDetails(appointment.id)"
-                  />
+                  <q-btn flat round color="primary" icon="info" />
                 </q-item-section>
               </q-item>
             </q-list>
+          </q-card-section>
+          <q-card-section v-if="state.scheduleForMedicalOffice.length == 0">
+            <q-list separator> No se encontraron datos para mostrar</q-list>
           </q-card-section>
         </q-card>
       </div>
 
       <!-- Resultados Pendientes -->
-      <div class="col-12 col-md-6">
+      <!-- <div class="col-12 col-md-6">
         <q-card class="my-card">
           <q-card-section>
             <div class="text-h6">Resultados Pendientes</div>
@@ -118,18 +121,43 @@
             </q-list>
           </q-card-section>
         </q-card>
-      </div>
+      </div> -->
     </div>
   </q-page>
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { inject, onMounted, ref } from 'vue';
   import { useQuasar } from 'quasar';
+  import { IHandleGlobalState } from 'src/Domine/IPatterns';
+  import { IndexBloc, NotificatorIndexBloc } from 'src/Adapters/IndexBloc';
+  import { usePlocState } from '../Utilities/usePlocState';
+  import { routerInstance } from 'src/boot/globalRouter';
+  import { AppointmentBloc } from 'src/Adapters';
 
+  const dependenciesLocator = inject<any>('dependenciesLocator');
+  const handleGlobalState = <IHandleGlobalState>(
+    dependenciesLocator.provideHandleGlobalState()
+  );
+  const controller = <IndexBloc>dependenciesLocator.provideIndexBloc();
+  const controllerInfoPatientPanel = <IndexBloc>(
+    dependenciesLocator.provideInfoPatientPanelPloc()
+  );
+
+  const controllerAppointmentBloc = <AppointmentBloc>(
+    dependenciesLocator.provideAppointmentBloc()
+  );
+
+  const state = usePlocState(controller);
+  const notificatorIndexBloc = new NotificatorIndexBloc();
+  notificatorIndexBloc.attach(controllerInfoPatientPanel);
+  notificatorIndexBloc.attach(controllerAppointmentBloc);
+
+  onMounted(async () => {
+    await controller.loadInitialData(handleGlobalState);
+  });
   const $q = useQuasar();
 
-  // Datos de ejemplo (en una aplicación real, estos datos vendrían de una API o store)
   const stats = ref({
     totalPatients: 1250,
     appointmentsToday: 28,
@@ -179,7 +207,6 @@
     },
   ]);
 
-  // Funciones para manejar las acciones
   const onNewPatient = () => {
     $q.notify({
       color: 'positive',
@@ -212,12 +239,14 @@
     });
   };
 
-  const showAppointmentDetails = (id: number) => {
-    $q.dialog({
-      title: 'Detalles de la Cita',
-      message: `Mostrando detalles de la cita ID: ${id}`,
-    });
-  };
+  function showAppointmentDetails(id: number) {
+    const schedule = state.value.scheduleForMedicalOffice.find(
+      (s) => s.id === id
+    );
+    if (schedule === undefined) return;
+    notificatorIndexBloc.notify(schedule);
+    routerInstance.push('/appointment');
+  }
 
   const viewPendingResult = (id: number) => {
     $q.dialog({
