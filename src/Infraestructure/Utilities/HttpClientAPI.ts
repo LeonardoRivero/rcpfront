@@ -1,4 +1,4 @@
-import { Loading } from 'quasar';
+// import { Loading } from 'quasar';
 import HttpStatusCode from 'src/Application/Utilities/HttpStatusCodes';
 import { HTTPClient } from 'src/Domine/IPatterns';
 import { AuthResponse } from 'src/Domine/Responses';
@@ -14,7 +14,7 @@ export class ClientAPI implements HTTPClient {
     const infoLogin = userContext.getInfoUser()
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     try {
-      Loading.show();
+      // Loading.show();
       const controller = new AbortController();
       request.headers.append('Authorization', `Bearer ${infoLogin.token}`)
       request.headers.append('Time-Zone', timezone);
@@ -24,7 +24,7 @@ export class ClientAPI implements HTTPClient {
       });
 
       clearTimeout(id);
-      Loading.hide();
+      // Loading.hide();
 
       if (response.status === HttpStatusCode.UNAUTHORIZED) {
         const responseRefresh = await this.refreshToken(infoLogin.refreshToken);
@@ -39,14 +39,14 @@ export class ClientAPI implements HTTPClient {
       }
       return response;
     } catch (err: any) {
-      Loading.hide();
+      // Loading.hide();
 
       if (err.name === 'TimeoutError') {
         throw Error('Timeout: It took more than 5 seconds to get the result!');
       } else if (err.name === 'AbortError') {
         throw Error('Fetch aborted AbortSignal.timeout()');
       } else if (err.name === 'TypeError') {
-        throw Error('Exception TypeError on ClientAPI');
+        throw Error(err);
       } else {
         throw Error(`Error: type: ${err.name}, message: ${err.message}`);
       }

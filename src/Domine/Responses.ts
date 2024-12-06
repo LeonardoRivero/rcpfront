@@ -305,3 +305,9 @@ export interface AllergieResponse {
   description: string;
   code: string;
 }
+
+export interface KinshipResponse {
+  id: number;
+  description: string;
+  code: string;
+}

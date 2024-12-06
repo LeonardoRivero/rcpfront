@@ -5,23 +5,14 @@
     dense
     v-model="state.dxMainCode"
     :options="state.allDxMainCodes"
-    @filter="onSearch"
-    :hint="`${state.allDxMainCodes.length} resultado${
-      state.allDxMainCodes.length > 1 ? 's' : ''
-    } encontrado${state.allDxMainCodes.length > 1 ? 's' : ''}`"
     label="Codigo Principal"
     clearable
+    input-debounce="300"
+    fill-input
+    use-input
+    hide-selected
+    @filter="onSearch"
   >
-    <template v-slot:after>
-      <q-input
-        v-model="state.filterCIE10"
-        label="Nombre o codigo"
-        dense
-        @keydown.enter.prevent="searchDxMain"
-        clearable
-      ></q-input>
-      <q-btn round dense flat icon="search" @click="searchDxMain" />
-    </template>
   </q-select>
   <br />
   <q-select
@@ -47,6 +38,34 @@
       <q-btn round dense flat icon="search" @click="searchRelatedCode" />
     </template>
   </q-select>
+
+  <q-select
+    option-value="id"
+    :option-label="(option) => `${option.code} ${option.name}`"
+    dense
+    v-model="state.relationCode"
+    :options="state.allRelationCodes"
+    :hint="`${state.allRelationCodes.length} resultado${
+      state.allRelationCodes.length > 1 ? 's' : ''
+    } encontrado${state.allRelationCodes.length > 1 ? 's' : ''}`"
+    label="Codigo Relacionado"
+    clearable
+    use-input
+  >
+    <template v-slot:after>
+      <q-btn round dense flat icon="search">
+        <q-menu touch-position>
+          <div class="row no-wrap q-pa-md">
+            <div class="column">
+              <q-checkbox v-model="state.patientHasTreatment" label="Codigo" />
+              <q-checkbox v-model="state.patientHasTreatment" label="Nombre" />
+            </div>
+          </div>
+        </q-menu>
+      </q-btn>
+    </template>
+  </q-select>
+
   <!-- <q-select
     dense
     v-model="selectedItem"
@@ -206,6 +225,11 @@
   const options2 = computed(() =>
     allOptions.slice(0, pageSize * (nextPage.value - 1))
   );
+  async function onEnterPress() {
+    console.log('Se presionó Enter', state.value.dxMainCode);
+    await controller.dxMainCodeChanged();
+    // Puedes realizar cualquier acción aquí
+  }
 
   function onScroll(object: any) {
     const lastIndex = options2.value.length - 1;
@@ -238,16 +262,16 @@
   }
 
   function onSearch(val: string, update: UpdateFunction) {
-    console.log('se', val);
-    // if (this.searchText) {
-    //   this.filteredOptions = this.options.filter(option =>
-    //     option.label.toLowerCase().includes(this.searchText.toLowerCase())
-    //   );
-    // } else {
-    //   this.filteredOptions = this.options;
-    // }
-    update(() => {
-      return options2;
+    if (val === '') {
+      update(() => {
+        console.log(state.value.allDxMainCodes);
+        // state.value.allDxMainCodes = [];
+      });
+      return;
+    }
+    state.value.filterCIE10 = val;
+    update(async () => {
+      await controller.dxMainCodeChanged();
     });
   }
 

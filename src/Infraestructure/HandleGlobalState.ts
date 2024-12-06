@@ -15,10 +15,11 @@ import { GetAllZoneStayUseCase } from 'src/Application/UseCases/ZoneStayUseCase'
 import { DIVIPOLADTO, StateDTO, TownDTO } from 'src/Domine/DTOs';
 import { HTTPClient, IHandleGlobalState, IUseCase } from 'src/Domine/IPatterns';
 import { IGlobalState } from 'src/Domine/IStores';
-import { BiologicalSexResponse, CityResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, SpecialityResponse, RoleResponse, MedicalOfficeResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse } from 'src/Domine/Responses';
+import { BiologicalSexResponse, CityResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, SpecialityResponse, RoleResponse, MedicalOfficeResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse, KinshipResponse } from 'src/Domine/Responses';
 import { GetAllPaymentOptionUseCase } from 'src/Application/UseCases/PaymentOptionsUseCases';
 import { GetAllMedicalEntryUseCase } from 'src/Application/UseCases/MedicalEntryUseCases';
 import { GetAllAllergieUseCase } from 'src/Application/UseCases/AllergieUseCases';
+import { GetAllKinshipUseCase } from 'src/Application/UseCases/KinShipUseCase';
 
 
 export class HandleGlobalState implements IHandleGlobalState {
@@ -39,6 +40,7 @@ export class HandleGlobalState implements IHandleGlobalState {
   private getAllpaymentOptionUseCase: IUseCase<void, PaymentOptionsResponse[]>
   private getAllMedicalEntryUseCase: IUseCase<void, MedicalEntryResponse[]>
   private getAllAllergieUseCase: IUseCase<void, AllergieResponse[]>
+  private getAllKinshipUseCase: IUseCase<void, KinshipResponse[]>
   // private getAllGroupsUseCase: IUseCase<string, RoleResponse[]>
 
   private constructor(httpClient: HTTPClient) {
@@ -58,6 +60,7 @@ export class HandleGlobalState implements IHandleGlobalState {
     this.getAllpaymentOptionUseCase = new GetAllPaymentOptionUseCase(httpClient)
     this.getAllMedicalEntryUseCase = new GetAllMedicalEntryUseCase(httpClient)
     this.getAllAllergieUseCase = new GetAllAllergieUseCase(httpClient)
+    this.getAllKinshipUseCase = new GetAllKinshipUseCase(httpClient)
     // this.getAllGroupsUseCase = new GetAllGroupsUseCase(httpClient)
   }
 
@@ -89,11 +92,21 @@ export class HandleGlobalState implements IHandleGlobalState {
         currentMedicalOffice: [],
         allPaymentOption: [],
         allMedicalEntry: [],
+        allKinShip: [],
         calendar: {} as InstanceType<typeof FullCalendar>,
       }),
       persist: true,
     });
     return store();
+  }
+
+  public async getAllKinship(): Promise<KinshipResponse[]> {
+    if (this.store.allKinShip.length != 0) {
+      return this.store.allKinShip;
+    }
+    const response = await this.getAllKinshipUseCase.execute();
+    this.store.allKinShip = response;
+    return response;
   }
 
   public async getAllAllergies(): Promise<AllergieResponse[]> {

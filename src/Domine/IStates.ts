@@ -29,6 +29,7 @@ import {
   GenderResponse,
   HealthInsuranceResponse,
   KindDisabilityResponse,
+  KinshipResponse,
   MedicalEntryResponse,
   MedicalOfficeResponse,
   OcupationResponse,
@@ -62,6 +63,7 @@ export interface AppointmentState {
   allDxMainCodes: Array<CIE10Response>;
   allRelationCodes: Array<CIE10Response>;
   allAllergies: AllergieResponse[];
+  allKinship: KinshipResponse[];
   dxMainCode: CIE10Response | null;
   relationCode: CIE10Response | null;
   allergie: AllergieResponse | null;
@@ -76,6 +78,9 @@ export interface AppointmentState {
   allergen: string | null
   treatmentMedical: string | null
   patientHasTreatment: boolean
+  patientHasAllergie: boolean,
+  patientWithFamilyHistory: boolean,
+  kinship: KinshipResponse | null
 }
 
 export interface PathologicalHistoryState {

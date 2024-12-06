@@ -1,4 +1,5 @@
 import {
+  AllergieResponse,
   CIE10Response,
   GenderResponse,
   MedicalOfficeResponse,
@@ -144,6 +145,7 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
       allDxMainCodes: [],
       allRelationCodes: [],
       allAllergies: [],
+      allKinship: [],
       dxMainCode: null,
       relationCode: null,
       allergie: null,
@@ -157,7 +159,10 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
       alcoholObservations: null,
       smokeObservations: null,
       drugsObservations: null,
-      patientHasTreatment: false
+      patientHasTreatment: false,
+      patientHasAllergie: false,
+      patientWithFamilyHistory: false,
+      kinship: null
     };
     super(state);
   }
@@ -194,15 +199,18 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
 
   async loadInitialData(handleGlobalState: IHandleGlobalState): Promise<void> {
     const allAllergies = await handleGlobalState.getAllAllergies()
+    const allKinship = await handleGlobalState.getAllKinship()
     this.changeState({
       ...this.state,
       allAllergies: allAllergies,
+      allKinship: allKinship
     });
   }
 
   async dxMainCodeChanged() {
+    // if (this.state.filterCIE10 == '') return
     const dxMainCode = await this.getByFilterCIE10UseCase.execute(this.state.filterCIE10 ?? '')
-    this.changeState({ ...this.state, allDxMainCodes: dxMainCode, dxMainCode: dxMainCode[0] })
+    this.changeState({ ...this.state, allDxMainCodes: dxMainCode })
     // const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
     // const listRelationCode = await mediator.getAllRelationCode();
     // const relationCodeFiltered = listRelationCode.filter(
@@ -214,7 +222,9 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
     //   relationCode: null,
     // });
   }
+
   async filterRelatedCode() {
+    if (this.state.filterRelatedCode == '') return
     const relatedCode = await this.getByFilterCIE10UseCase.execute(this.state.filterRelatedCode ?? '')
     this.changeState({ ...this.state, allRelationCodes: relatedCode, relationCode: relatedCode[0] })
     // const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
@@ -227,6 +237,10 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
     //   allRelationCodes: relationCodeFiltered,
     //   relationCode: null,
     // });
+  }
+
+  allergieChanged(allergie: AllergieResponse) {
+    this.changeState({ ...this.state, patientHasAllergie: allergie.description.toLowerCase() != 'ninguna' })
   }
 }
 

@@ -62,6 +62,7 @@ function provideInfoPatientPanelPloc(): InfoPatientPanelBloc {
 
 function provideAppointmentBloc(): AppointmentBloc {
   // const physicalExamService = PhysicalExamService.getInstance();
+  console.log('dep');
   const getByFilterCIE10UseCase = new GetByFilterCIE10UseCase(HttpClientAPI)
   return new AppointmentBloc(getByFilterCIE10UseCase);
 }

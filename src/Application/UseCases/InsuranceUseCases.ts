@@ -11,8 +11,9 @@ export class GetAllInsuranceUseCase implements IUseCase<void, HealthInsuranceRes
     if (!response.ok) {
       return []
     }
-    const allHealhEntity: ResponseData<HealthInsuranceResponse[]> = await response.json()
-    return allHealhEntity.result
+
+    const { result }: ResponseData<HealthInsuranceResponse[]> = await response.json();
+    return result;
   }
 
 }
