@@ -10,9 +10,7 @@
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
-        <q-toolbar-title v-if="!$q.screen.xs">
-          Registro Clinico de Pacientes
-        </q-toolbar-title>
+        <q-toolbar-title v-if="!$q.screen.xs"></q-toolbar-title>
         <div>R.C.P Version(Beta)</div>
         <q-space v-if="$q.screen.xs" />
         <q-btn dense flat no-wrap>

@@ -46,7 +46,8 @@ export class LoginBloc extends Bloc<LoginState> {
 
       const response = await this.loginUseCase.execute(payload);
       if (response == null) {
-        throw new ErrorEvent(Messages.errorMessage)
+        this.changeState({ ...this.state, labelMessage: 'Ocurrio un error con las credenciales suministradas' })
+        return null
       }
 
       if (response.isFirstLogin) {

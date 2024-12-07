@@ -79,6 +79,7 @@ export class ClientAPI implements HTTPClient {
     this.validateUrl(path);
     const args: RequestInit = {
       method: 'GET',
+      mode: 'cors',
       credentials: 'include',
       headers: {
         'Accept': 'application/json',

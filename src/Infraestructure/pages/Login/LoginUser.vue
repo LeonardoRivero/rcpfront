@@ -1,79 +1,102 @@
 <template>
   <div id="q-app">
-    <q-layout view="lHh Lpr fff" class="bg-image">
-      <q-page
-        class="window-height window-width row justify-center items-center"
-      >
-        <div class="column q-pa-lg">
-          <div class="row">
-            <q-card
-              bordered
-              class="shadow-24"
-              style="width: 400px; height: 540px"
-            >
-              <q-card-section class="bg-blue-7">
-                <h4 class="text-h5 text-white q-my-md">Bienvenido</h4>
-              </q-card-section>
-              <q-card-section>
-                <q-form
-                  class="q-px-sm q-pt-xl"
-                  ref="form"
-                  @keyup.enter="login()"
+    <q-layout view="hHh lpR fFf">
+      <q-page-container>
+        <q-page class="row no-wrap items-stretch login-page">
+          <!-- Sección de imagen/bienvenida -->
+          <div
+            class="col-12 col-md-6 bg-blue-9 flex flex-center welcome-section"
+          >
+            <div class="text-center text-white">
+              <h2 class="text-h2 q-mb-md">Bienvenido a R.C.P</h2>
+              <br />
+              <p class="text-h4">
+                Digitaliza, optimiza y gestiona tu informacion parar generar tus
+                RIPS (JSON)
+              </p>
+              <p class="text-h6">
+                Software Médico herramienta diseñada para ayudar a profesionales
+                del sector salud en el manejo de historias clínicas y la gestión
+                de consultorios, clínicas, centros médicos, IPS.
+              </p>
+            </div>
+          </div>
+
+          <!-- Sección de formulario -->
+          <div class="col-12 col-md-6 flex flex-center q-pa-md form-section">
+            <div class="form-container">
+              <h4 class="text-h4 q-mb-md">Iniciar sesión</h4>
+              <q-form ref="form" @keyup.enter="login()" class="q-gutter-md">
+                <q-input
+                  square
+                  clearable
+                  v-model="state.email"
+                  type="email"
+                  lazy-rules
+                  :rules="[required, emailRequired, short]"
+                  label="Email"
                 >
-                  <q-input
-                    square
-                    clearable
-                    v-model="state.email"
-                    type="email"
-                    lazy-rules
-                    :rules="[required, emailRequired, short]"
-                    label="Email"
+                  <template v-slot:prepend>
+                    <q-icon name="email" />
+                  </template>
+                </q-input>
+                <q-input
+                  square
+                  clearable
+                  v-model="state.password"
+                  type="password"
+                  lazy-rules
+                  :rules="[required, short]"
+                  label="Contraseña"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="lock" />
+                  </template>
+                </q-input>
+                <!-- <q-input
+                  v-if="state.labelMessage != ''"
+                  v-model="state.labelMessage"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="error" />
+                  </template>
+                </q-input> -->
+                <transition
+                  appear
+                  enter-active-class="animated fadeIn"
+                  leave-active-class="animated fadeOut"
+                >
+                  <div
+                    v-if="hasError"
+                    class="text-negative q-mb-md error-message"
+                    role="alert"
                   >
-                    <template v-slot:prepend>
-                      <q-icon name="email" />
-                    </template>
-                  </q-input>
-                  <q-input
-                    square
-                    clearable
-                    v-model="state.password"
-                    type="password"
-                    lazy-rules
-                    :rules="[required, short]"
-                    label="Contraseña"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="lock" />
-                    </template>
-                  </q-input>
-                  <q-item-section>
-                    <q-item-label class="text-center text-red">
-                      {{ state.labelMessage }}
-                    </q-item-label>
-                  </q-item-section>
-                </q-form>
-              </q-card-section>
-              <q-card-actions class="q-px-lg">
+                    Credenciales incorrectas. Por favor, inténtalo de nuevo.
+                  </div>
+                </transition>
                 <q-btn
-                  unelevated
+                  rounded
+                  color="primary"
                   size="lg"
-                  color="secondary"
-                  class="full-width text-white"
-                  label="Ingresar"
+                  class="full-width"
+                  label="Iniciar sesión"
                   @click="login()"
                 />
-              </q-card-actions>
-              <q-card-section class="text-center q-pa-sm">
-                <p class="text-grey-6">Olvidaste tu contraseña?</p>
-              </q-card-section>
-            </q-card>
+              </q-form>
+              <div class="text-center q-mt-sm">
+                ¿No tienes una cuenta?
+                <q-btn flat color="grey-8" label="Regístrate" />
+              </div>
+            </div>
           </div>
-        </div>
-      </q-page>
+        </q-page>
+      </q-page-container>
     </q-layout>
   </div>
 </template>
+
 <script setup lang="ts">
+  import { Loading, QSpinnerCube } from 'quasar';
   import { inject, ref } from 'vue';
   import { QForm } from 'quasar';
   import {
@@ -85,7 +108,10 @@
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   import { routerInstance } from 'src/boot/globalRouter';
   import { IHandleGlobalState, IHandleUserState } from 'src/Domine/IPatterns';
+  import { useQuasar } from 'quasar';
 
+  const $q = useQuasar();
+  const hasError = ref(false);
   const form = ref<QForm>();
   const dependenciesLocator = inject<any>('dependenciesLocator');
   const controller = <LoginBloc>dependenciesLocator.provideLoginBloc();
@@ -108,9 +134,11 @@
   async function login() {
     const isValid = await form.value?.validate();
     if (!isValid) return;
+    Loading.show({ message: 'Cargando datos ...', spinner: QSpinnerCube });
     const response = await controller.login(handleUserState, handleGlobalState);
-
+    Loading.hide();
     if (response == null) {
+      hasError.value = true;
       return;
     }
 
@@ -122,11 +150,77 @@
     // const namegroup = response.user.groups[0].name.toString();
   }
 </script>
-<style>
-  .bg-image {
-    background-image: url('../pngwing.com.png');
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: right;
+
+<style scoped>
+  .q-page-container {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    height: 100vh;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .login-page {
+    width: calc(100% - 2rem);
+    max-width: 1200px;
+    margin: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    height: calc(100vh - 2rem);
+  }
+
+  .welcome-section,
+  .form-section {
+    padding: 2rem;
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  @media (min-width: 1024px) {
+    .login-page {
+      width: calc(100% - 4rem);
+      margin: 2rem;
+      height: calc(100vh - 4rem);
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .login-page {
+      flex-direction: column;
+      height: auto;
+      min-height: calc(100vh - 2rem);
+    }
+
+    .welcome-section,
+    .form-section {
+      width: 100%;
+      flex: 0 0 auto;
+    }
+  }
+
+  @media (max-width: 599px) {
+    .q-page-container {
+      height: auto;
+      min-height: 100vh;
+    }
+
+    .login-page {
+      margin: 0;
+      width: 100%;
+      height: auto;
+      min-height: 100vh;
+      border-radius: 0;
+      box-shadow: none;
+    }
   }
 </style>

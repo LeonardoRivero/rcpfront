@@ -73,6 +73,8 @@ export class UserContext implements IHandleUserState {
       const role = validFoundRoles[0];
       switch (role) {
         case GroupUser.ADMIN:
+          console.log('ADMIN');
+          this.strategy = new AdminStrategy(this.httpClient);
           break;
         case GroupUser.DOCTOR:
           console.log('DOCTOR');
@@ -175,6 +177,18 @@ export class GuestStrategy implements StrategyUser {
   }
   setPermission(store: IStoreUser | undefined): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+}
+
+export class AdminStrategy implements StrategyUser {
+  userName: string;
+  public constructor(httpClient: HTTPClient) {
+    this.userName = ''
+  }
+  async setPermission(store: IStoreUser | undefined): Promise<void> {
+    console.log('Todos los permisos admitidos');
+    return
   }
 
 }

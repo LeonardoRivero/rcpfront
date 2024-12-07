@@ -129,6 +129,7 @@
           <q-select
             option-value="id"
             option-label="description"
+            use-chips
             map-options
             dense
             emit-value
