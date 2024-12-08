@@ -128,7 +128,7 @@ export class SecretaryStrategy implements StrategyUser {
       throw Error('Store is undefined');
     }
     const response = await this.useCase.execute(store.token.userId)
-    this.userName = response?.name + ' ' + response?.lastName
+    this.userName = response?.name.split(' ')[0] + ' ' + response?.lastName.split(' ')[0]
     // this.store.healthInsurances.canUpdate = false;
     // this.store.healthInsurances.canCreate = false;
     // this.store.doctors.canCreate = false;
@@ -162,7 +162,7 @@ export class DoctorStrategy implements StrategyUser {
       throw Error('Store is undefined');
     }
     const response = await this.useCase.execute(store.token.userId)
-    this.userName = response?.name + ' ' + response?.lastName
+    this.userName = response?.name.split(' ')[0] + ' ' + response?.lastName.split(' ')[0]
     // this.store.paymentOptions.canCreate = false;
     // this.store.paymentOptions.canUpdate = false;
     // this.store.reasonConsult.canCreate = false;
@@ -187,8 +187,7 @@ export class AdminStrategy implements StrategyUser {
     this.userName = ''
   }
   async setPermission(store: IStoreUser | undefined): Promise<void> {
-    console.log('Todos los permisos admitidos');
+    this.userName = 'ADMIN'
     return
   }
-
 }

@@ -3,11 +3,12 @@
     <q-layout view="hHh lpR fFf">
       <q-page-container>
         <q-page class="row no-wrap items-stretch login-page">
-          <!-- Sección de imagen/bienvenida -->
           <div
             class="col-12 col-md-6 bg-blue-9 flex flex-center welcome-section"
+            v-if="!$q.screen.xs"
           >
-            <div class="text-center text-white">
+            <q-img src="undraw_login_re_4vu2.svg" alt="Logo" />
+            <!-- <div class="text-center text-white">
               <h2 class="text-h2 q-mb-md">Bienvenido a R.C.P</h2>
               <br />
               <p class="text-h4">
@@ -19,11 +20,11 @@
                 del sector salud en el manejo de historias clínicas y la gestión
                 de consultorios, clínicas, centros médicos, IPS.
               </p>
-            </div>
+            </div> -->
           </div>
-
-          <!-- Sección de formulario -->
           <div class="col-12 col-md-6 flex flex-center q-pa-md form-section">
+            <h2 class="text-h2 q-mb-md">Bienvenido a R.C.P</h2>
+            <br />
             <div class="form-container">
               <h4 class="text-h4 q-mb-md">Iniciar sesión</h4>
               <q-form ref="form" @keyup.enter="login()" class="q-gutter-md">
@@ -35,6 +36,7 @@
                   lazy-rules
                   :rules="[required, emailRequired, short]"
                   label="Email"
+                  rounded
                 >
                   <template v-slot:prepend>
                     <q-icon name="email" />
@@ -48,6 +50,7 @@
                   lazy-rules
                   :rules="[required, short]"
                   label="Contraseña"
+                  rounded
                 >
                   <template v-slot:prepend>
                     <q-icon name="lock" />

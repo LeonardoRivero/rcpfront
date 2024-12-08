@@ -56,9 +56,14 @@
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered class="custom-bg">
       <q-list>
         <q-item-label header>
-          <q-img
+          <q-card flat style="height: 300px">
+            <img src="~assets/undraw_doctors_p6aq.svg" alt="item" />
+            <q-card-section> </q-card-section>
+          </q-card>
+          <!-- <q-img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0xHovWAQLBx7HGcdVg6RfZoDtXc9YVMrYHw&usqp=CAU"
-        /></q-item-label>
+          /> -->
+        </q-item-label>
         <!-- <EssentialLink
           v-for="link in essentialLinks"
           :key="link.title"

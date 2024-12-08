@@ -62,14 +62,13 @@
           </q-input>
         </q-toolbar>
       </div>
-      <q-form @submit="() => {$refs.stepper!.next();}">
+      <q-form @submit="() => {$refs.stepper!.next();}" ref="form">
         <div class="row q-col-gutter-md">
           <div class="col-12 col-sm-6">
             <q-input
               v-model="state.currentPatient.name"
               label="Nombres *"
-              lazy-rules
-              :rules="[required]"
+              :rules="[required, noSpecialCharsNoNumbers]"
               dense
             />
           </div>
@@ -77,8 +76,7 @@
             <q-input
               v-model="state.currentPatient.lastName"
               label="Apellidos *"
-              lazy-rules
-              :rules="[required]"
+              :rules="[required, noSpecialCharsNoNumbers]"
               dense
             />
           </div>
@@ -93,14 +91,14 @@
               label="Tipo de identificacion *"
               lazy-rules
               :rules="[isNotNull]"
+              @update:model-value="updateValidationRules"
             />
           </div>
           <div class="col-12 col-sm-6">
             <q-input
               v-model="state.identificationPatient"
               label="Numero identificacion *"
-              lazy-rules
-              :rules="[isNotNull, required]"
+              :rules="inputRules"
               dense
             />
           </div>
@@ -190,8 +188,7 @@
               v-model="state.currentPatient.phoneNumber"
               label="Numero Telefonico *"
               :mask="state.phoneFormat?.format"
-              lazy-rules
-              :rules="[required]"
+              :rules="[required, onlyNumbers]"
             >
               <template v-slot:prepend>
                 <q-avatar size="24px" color="gray">{{
@@ -405,6 +402,8 @@
     isNotNull,
     emailRequired,
     isDateInFuture,
+    noSpecialCharsNoNumbers,
+    onlyNumbers,
   } from 'src/Application/Utilities/Helpers';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   import 'src/css/app.sass';
@@ -434,6 +433,7 @@
     dependenciesLocator.providePatientFormBloc()
   );
   const state = usePlocState(controller);
+  const inputRules = ref<Array<any>>([]);
 
   onMounted(async () => {
     await controller.loadInitialData(handleGlobalState);
@@ -452,6 +452,21 @@
     }
   }
 
+  function updateValidationRules() {
+    inputRules.value = [];
+    inputRules.value.push(required);
+    console.log(state.value.idType?.id);
+    if (
+      state.value.idType?.id === 1 ||
+      state.value.idType?.id === 8 ||
+      state.value.idType?.id === 9
+    ) {
+      inputRules.value.push(required, onlyNumbers);
+    }
+    state.value.identificationPatient = '';
+    form.value?.resetValidation();
+    form.value?.reset();
+  }
   async function stateChanged(val: StateDTO) {
     const town: TownDTO[] = state.value.allCities?.town;
     const townBelongToState = town?.filter(

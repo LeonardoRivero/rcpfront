@@ -273,7 +273,6 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
     const response = await this.findPatientByIdentificationUseCase.execute(
       this.state.identificationPatient
     );
-
     this.notifySweetAlert.setType('error')
     if (response === null) {
       this.changeState({ ...this.state, disableButtonSave: true });
@@ -297,7 +296,7 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
     if (schedule === null) {
       const confirm = await this.notifySweetAlert.show('Error', Messages.patientNotSchedule)
       if (confirm) {
-        routerInstance.push('/admission')
+        routerInstance.push('/schedule')
       }
       return;
     }

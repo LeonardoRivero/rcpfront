@@ -166,3 +166,11 @@ export const onlyNumbers = (val: string) =>
 export const onlyLetters = (val: string) => {
   return /^[A-Za-z]+$/.test(val) || 'Solo se permiten letras';
 };
+
+export const notNumber = (val: string) => {
+  return /^[^0-9]*$/.test(val) || 'No se permiten números'
+}
+
+export const noSpecialCharsNoNumbers = (val: string) => {
+  return /^[a-zA-Z\s]*$/.test(val) || 'No se permiten caracteres especiales ni números'
+}
