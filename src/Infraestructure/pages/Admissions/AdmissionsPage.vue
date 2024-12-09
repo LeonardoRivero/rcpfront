@@ -13,7 +13,7 @@
               </q-card-section>
               <q-separator inset></q-separator>
               <q-card-section> -->
-    <AppointmentForm />
+    <AdmissionForm />
     <!-- </q-card-section>
             </q-card>
           </div>
@@ -31,7 +31,7 @@
   </q-page>
 </template>
 <script setup lang="ts">
-  import AppointmentForm from './AdmissionForm.vue';
+  import AdmissionForm from './AdmissionForm.vue';
   import 'src/css/app.sass';
   const columns = [
     {

@@ -97,6 +97,24 @@
         <div class="col-12 col-sm-6">
           <q-input dense v-model="state.address" label="Direccion *" />
         </div>
+        <!-- <div class="col-12 col-sm-6">
+          <q-input
+            dense
+            v-model="state.intervalAppointment"
+            label="Intervalo Tiempo Consulta *"
+          />
+          <span>Lunes</span>
+          <q-range
+            v-model="state.range"
+            :min="0"
+            :max="24"
+            :step="state.intervalAppointment"
+            :left-label-value="state.range.min + 'horas'"
+            :right-label-value="state.range.max + 'horas'"
+            label-always
+            color="purple"
+          />
+        </div> -->
       </div>
       <br />
       <div>
@@ -123,6 +141,10 @@
   const dependenciesLocator = inject<any>('dependenciesLocator');
   const optionsState = ref<StateDTO[]>([]);
   const optionsTown = ref<TownDTO[]>([]);
+  const label = ref({
+    min: -12,
+    max: 8,
+  });
 
   const handleGlobalState = <IHandleGlobalState>(
     dependenciesLocator.provideHandleGlobalState()

@@ -43,7 +43,12 @@ export class MedicalOfficeBloc extends Bloc<MedicalOfficeState> {
       town: null,
       name: '',
       phoneNumber: '',
-      phoneFormat: null
+      phoneFormat: null,
+      range: {
+        min: 0,
+        max: 24
+      },
+      intervalAppointment: 15
     };
     super(state);
     this.initialState = state

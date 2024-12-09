@@ -1,4 +1,4 @@
-import { ChangePasswordRequest, ConfirmEmailRequest, RegisterUserRequest } from 'src/Domine/Request';
+import { ChangePasswordRequest, ConfirmEmailRequest, ForgetPasswordRequest, NewPasswordRequest, RegisterUserRequest } from 'src/Domine/Request';
 import { AuthResponse, ResponseData, RoleResponse } from 'src/Domine/Responses';
 import { HTTPClient, IUseCase, } from 'src/Domine/IPatterns';
 
@@ -80,6 +80,34 @@ export class ConfirmEmailUseCase implements IUseCase<ConfirmEmailRequest, boolea
   }
 }
 
+export class ForgetPasswordUseCase implements IUseCase<ForgetPasswordRequest, boolean> {
+  private url: string
+
+  constructor(private httpClient: HTTPClient) {
+    this.url = `${process.env.RCP}${process.env.FORGET_PASSWORD}`;
+  }
+
+  async execute(request: ForgetPasswordRequest): Promise<boolean> {
+    const payload = { email: request.email }
+    const response = await this.httpClient.POST(this.url, payload);
+    const roleResponse: ResponseData<boolean> = await response.json();
+    return roleResponse.result;
+  }
+}
+
+export class ResetPasswordUseCase implements IUseCase<NewPasswordRequest, boolean> {
+  private url: string
+
+  constructor(private httpClient: HTTPClient) {
+    this.url = `${process.env.RCP}${process.env.RESET_PASSWORD}`;
+  }
+
+  async execute(request: NewPasswordRequest): Promise<boolean> {
+    const response = await this.httpClient.POST(this.url, request);
+    const roleResponse: ResponseData<boolean> = await response.json();
+    return roleResponse.result;
+  }
+}
 // export class EnableProfileUserUseCase implements UseCase<AuthResponse, void> {
 //   public GenericService: GenericService<IUser, UserResponse>;
 

@@ -2,7 +2,7 @@
   <q-layout>
     <q-header reveal bordered class="bg-primary text-white">
       <q-toolbar>
-        <q-toolbar-title> R.C.P </q-toolbar-title>
+        <q-toolbar-title> Mercurio </q-toolbar-title>
       </q-toolbar>
     </q-header>
     <q-drawer show-if-above side="left" bordered class="bg-blue-grey-1">

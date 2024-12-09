@@ -1,3 +1,4 @@
+import { Messages } from 'src/Application/Utilities';
 import { Bloc, IHandleUserState, IUseCase } from 'src/Domine/IPatterns';
 import { ChangePasswordState } from 'src/Domine/IStates';
 import { ChangePasswordRequest } from 'src/Domine/Request';
@@ -12,7 +13,7 @@ export class ChangePasswordBloc extends Bloc<ChangePasswordState> {
       currentPassword: '',
       confirmPassword: '',
       visible: true,
-      message: 'f'
+      message: ''
     };
     super(state);
   }
@@ -23,7 +24,7 @@ export class ChangePasswordBloc extends Bloc<ChangePasswordState> {
 
   async save(handleGlobalState: IHandleUserState): Promise<boolean> {
     if (this.state.newPassword != this.state.confirmPassword) {
-      this.changeState({ ...this.state, message: 'Las nuevas credenciales no coinciden en su verificacion.' })
+      this.changeState({ ...this.state, message: Messages.invalidConfirmCredentials })
       return false
     }
 

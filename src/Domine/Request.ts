@@ -215,3 +215,13 @@ export interface FilterScheduleRequest {
   identificationPatient: string;
   medicalOfficeId: number
 }
+
+export interface ForgetPasswordRequest {
+  email: string;
+}
+
+export interface NewPasswordRequest {
+  userId: string
+  token: string
+  newPassword: string
+}

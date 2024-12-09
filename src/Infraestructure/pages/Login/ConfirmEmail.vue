@@ -6,7 +6,7 @@
           <q-avatar>
             <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg" />
           </q-avatar>
-          R.C.P
+          Mercurio
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -25,7 +25,7 @@
               Confirma tu dirección de correo electrónico
             </div>
             <p class="text-body2 text-center q-mb-md">
-              Para habilitar tu cuenta de R.C.P verifica que esta sea tu
+              Para habilitar tu cuenta de Mercurio verifica que esta sea tu
               dirección de correo electrónico.
             </p>
           </q-card-section>

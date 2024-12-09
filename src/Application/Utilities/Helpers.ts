@@ -121,30 +121,19 @@ export class Convert {
   }
 }
 
-const emailPattern =
-  /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
+const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
 const noSpacesPattern = /^[-\w\.\$@\*\!]{8,150}$/;
 
 const onlyNumbersPattern = /^\d+$/;
-export const emailRequired = (val: string) =>
-  emailPattern.test(val) || 'Email invalido';
-
-export const required = (val: any) =>
-  (val && val.length > 0) || 'Campo requerido';
-
+export const emailRequired = (val: string) => emailPattern.test(val) || 'Email invalido';
+export const required = (val: any) => (val && val.length > 0) || 'Campo requerido';
 export const numberRequired = (val: any) => val > 0 || 'Numero invalido';
 export const isNotNull = (val: any) => (val && val != null) || 'Campo nulo';
-export const isNotUndefined = (val: any) =>
-  (val && val != undefined) || 'Campo nulo';
-export const short = (val: string) =>
-  (val && val.length > 3) || 'Longitud mayor a 3 caracteres';
-
-export const noSpaces = (val: string) =>
-  noSpacesPattern.test(val) ||
-  'Minimo 8 caracteres. Únicamente letras, dígitos y @ . + - _';
-
-export const noLowerZero = (val: string) =>
-  parseInt(val) >= 0 || 'Valor negativo no permitido';
+export const isNotUndefined = (val: any) => (val && val != undefined) || 'Campo nulo';
+export const short = (val: string) => (val && val.length > 3) || 'Longitud mayor a 3 caracteres';
+export const noSpaces = (val: string) => noSpacesPattern.test(val) || 'Minimo 8 caracteres. Únicamente letras, dígitos y @ . + - _';
+export const noLowerZero = (val: string) => parseInt(val) >= 0 || 'Valor negativo no permitido';
+export const onlyNumbers = (val: string) => onlyNumbersPattern.test(val) || 'Solo numeros';
 
 export const isDateInFuture1 = (val: string) => {
   if (!val) return false;
@@ -159,18 +148,6 @@ export const isDateInFuture = (value: string) => {
   return isDateInFuture1(value) || 'Fecha futura no permitida';
 };
 
-export const onlyNumbers = (val: string) =>
-  onlyNumbersPattern.test(val) ||
-  'Solo numeros';
-
-export const onlyLetters = (val: string) => {
-  return /^[A-Za-z]+$/.test(val) || 'Solo se permiten letras';
-};
-
-export const notNumber = (val: string) => {
-  return /^[^0-9]*$/.test(val) || 'No se permiten números'
-}
-
-export const noSpecialCharsNoNumbers = (val: string) => {
-  return /^[a-zA-Z\s]*$/.test(val) || 'No se permiten caracteres especiales ni números'
-}
+export const onlyLetters = (val: string) => { return /^[A-Za-z]+$/.test(val) || 'Solo se permiten letras'; };
+export const notNumber = (val: string) => { return /^[^0-9]*$/.test(val) || 'No se permiten números' }
+export const noSpecialCharsNoNumbers = (val: string) => { return /^[a-zA-Z\s]*$/.test(val) || 'No se permiten caracteres especiales ni números' }

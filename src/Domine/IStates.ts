@@ -264,6 +264,8 @@ export interface MedicalOfficeState {
   name: string;
   phoneNumber: string
   phoneFormat: PhoneCodeResponse | null
+  range: Range,
+  intervalAppointment: number
 }
 
 export interface LoginState {
@@ -281,4 +283,15 @@ export interface AppointmentListState {
 
 export interface IndexState {
   scheduleForMedicalOffice: ScheduleResponse[]
+}
+
+export interface ResetPasswordState {
+  newPassword: string;
+  confirmPassword: string;
+  visible: boolean;
+  message: string
+}
+export interface Range {
+  min: number,
+  max: number
 }

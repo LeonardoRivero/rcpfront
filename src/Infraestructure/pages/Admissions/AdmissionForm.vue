@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <div class="row q-col-gutter-md">
-      <div class="col-12 col-md-8">
+      <div class="col-12 col-md-8" :class="{ 'order-first': !$q.screen.xs }">
         <div class="text-h6 text-grey">
           <q-icon name="img:schedule-calendar.svg" size="32px" />
           Admisiones
@@ -116,15 +116,11 @@
             </div>
             <div class="col-12 col-sm-6">
               <q-input
-                :bg-color="
-                  state.currentAppointment.amountPaid > 0 ? 'green' : 'red'
-                "
-                outlined
                 readonly
                 dense
                 hint="Total monto a pagar"
                 v-model="state.amount"
-                :rules="[isNotNull]"
+                :rules="[isNotNull, noLowerZero]"
               >
               </q-input>
             </div>
@@ -139,7 +135,7 @@
           </div>
         </q-form>
       </div>
-      <div class="col-12 col-md-4">
+      <div class="col-12 col-md-4" :class="{ 'order-first': $q.screen.xs }">
         <q-card flat bordered class="bg-grey-1">
           <q-card-section>
             <div class="text-h6 text-grey">Información Adicional</div>
@@ -182,7 +178,7 @@
     isNotNull,
     numberRequired,
   } from 'src/Application/Utilities/Helpers';
-  import { QForm } from 'quasar';
+  import { Loading, QForm } from 'quasar';
   import 'src/css/app.sass';
   import { AdmissionsBloc } from 'src/Adapters/AdmissionsBloc';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';

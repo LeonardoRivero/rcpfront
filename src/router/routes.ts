@@ -67,6 +67,16 @@ const routes: RouteRecordRaw[] = [
     component: () =>
       import('src/Infraestructure/pages/Login/ChangePassword.vue'),
   },
+  {
+    path: '/forgetpassword',
+    component: () =>
+      import('src/Infraestructure/pages/Login/ForgetPassword.vue'),
+  },
+  {
+    path: '/resetpassword',
+    component: () =>
+      import('src/Infraestructure/pages/Login/ResetPassword.vue'),
+  },
   // Always leave this as last one,
   // but you can also remove it
   {

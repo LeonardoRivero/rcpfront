@@ -17,5 +17,9 @@ export enum Messages {
   requiredForDelete = 'Campo requerido para eliminar registro',
   appointmentNotFound = 'Consulta no ha sido registrada. Deseas registrarla ahora mismo?',
   failedConfirmEmail = 'No fue posible verificar tu email',
-  sucessConfirmEmail = 'Email verificado correctamente'
+  sucessConfirmEmail = 'Email verificado correctamente',
+  verifyEmailSucess = 'Solicitud procesada correctamente. Verifica tu email',
+  resetEmailSucess = 'Credenciales restauradas correctamente',
+  invalidConfirmCredentials = 'Las nuevas credenciales no coinciden en su verificacion',
+  invalidResetCredentials = 'No fue posible reestablecer tus credenciales'
 }

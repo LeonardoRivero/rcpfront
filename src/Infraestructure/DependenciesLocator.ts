@@ -27,7 +27,8 @@ import {
 import { LoginBloc } from 'src/Adapters/LoginBloc';
 import {
   ChangePasswordUseCase, ConfirmEmailUseCase,
-  CreateUserUseCase, GetAllGroupsUseCase, LoginUseCase
+  CreateUserUseCase, ForgetPasswordUseCase, GetAllGroupsUseCase, LoginUseCase,
+  ResetPasswordUseCase
 } from 'src/Application/UseCases/UserUseCase';
 import { ChangePasswordBloc } from 'src/Adapters/ChangePasswordBloc';
 import { RegisterUserBloc } from 'src/Adapters/RegisterUserBloc';
@@ -41,6 +42,8 @@ import { Helpers } from './Utilities/Helpers';
 import { CreateAdmissionUseCase } from 'src/Application/UseCases/AdmissionUseCases';
 import { IndexBloc } from 'src/Adapters/IndexBloc';
 import { GetByFilterCIE10UseCase } from 'src/Application/UseCases/CIE10UseCases';
+import { ForgetPasswordBloc } from 'src/Adapters/ForgetPasswordBloc';
+import { ResetPasswordBloc } from 'src/Adapters/ResetPasswordBloc';
 
 const notificator = new FactoryNotifactors();
 const HttpClientAPI = new ClientAPI();
@@ -48,6 +51,7 @@ const findPatientByIdentificationUseCase = new FindPatientByIdentificationUseCas
 const mediatorUseCases = new MediatorUseCases(HttpClientAPI)
 const findScheduleForPatientUseCase = new FindScheduleForPatientUseCase(HttpClientAPI)
 const helper = new Helpers()
+
 function provideInfoPatientPanelPloc(): InfoPatientPanelBloc {
   const findScheduleByIdentificationPatientUseCase = new FindScheduleForPatientUseCase(HttpClientAPI);
 
@@ -61,12 +65,9 @@ function provideInfoPatientPanelPloc(): InfoPatientPanelBloc {
 }
 
 function provideAppointmentBloc(): AppointmentBloc {
-  // const physicalExamService = PhysicalExamService.getInstance();
-  console.log('dep');
   const getByFilterCIE10UseCase = new GetByFilterCIE10UseCase(HttpClientAPI)
   return new AppointmentBloc(getByFilterCIE10UseCase);
 }
-
 
 function provideScheduleBloc(): ScheduleFormBloc {
   const doctorSpecialityService = new DoctorSpecialityService(HttpClientAPI);
@@ -159,6 +160,15 @@ function provideIndexBloc(): IndexBloc {
   return new IndexBloc(getScheduleForMedicalOffice)
 }
 
+function provideForgetPasswordBloc(): ForgetPasswordBloc {
+  const forgetPasswordUseCase = new ForgetPasswordUseCase(HttpClientAPI)
+  return new ForgetPasswordBloc(forgetPasswordUseCase, notificator)
+}
+
+function provideResetPasswordBloc(): ResetPasswordBloc {
+  const forgetPasswordUseCase = new ResetPasswordUseCase(HttpClientAPI)
+  return new ResetPasswordBloc(forgetPasswordUseCase, notificator)
+}
 export const dependenciesLocator = {
   provideInfoPatientPanelPloc,
   provideAppointmentBloc,
@@ -174,5 +184,7 @@ export const dependenciesLocator = {
   provideLoginBloc,
   provideChangePasswordBloc,
   provideRegisterUserBloc,
-  provideIndexBloc
+  provideIndexBloc,
+  provideForgetPasswordBloc,
+  provideResetPasswordBloc
 };

@@ -11,7 +11,7 @@
           @click="toggleLeftDrawer"
         />
         <q-toolbar-title v-if="!$q.screen.xs"></q-toolbar-title>
-        <div>R.C.P Version(Beta)</div>
+        <div>Mercurio Version(Beta)</div>
         <q-space v-if="$q.screen.xs" />
         <q-btn dense flat no-wrap>
           <q-avatar color="white" text-color="primary">{{

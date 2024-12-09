@@ -7,7 +7,7 @@
 
       <q-item-section>
         <q-item-label>{{ 'Inicio' }}</q-item-label>
-        <q-item-label caption>{{ 'Inicio R.C.P' }}</q-item-label>
+        <q-item-label caption>{{ 'Inicio Mercurio' }}</q-item-label>
       </q-item-section>
     </q-item>
 

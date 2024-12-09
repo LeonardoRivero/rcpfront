@@ -8,22 +8,9 @@
             v-if="!$q.screen.xs"
           >
             <q-img src="undraw_login_re_4vu2.svg" alt="Logo" />
-            <!-- <div class="text-center text-white">
-              <h2 class="text-h2 q-mb-md">Bienvenido a R.C.P</h2>
-              <br />
-              <p class="text-h4">
-                Digitaliza, optimiza y gestiona tu informacion parar generar tus
-                RIPS (JSON)
-              </p>
-              <p class="text-h6">
-                Software Médico herramienta diseñada para ayudar a profesionales
-                del sector salud en el manejo de historias clínicas y la gestión
-                de consultorios, clínicas, centros médicos, IPS.
-              </p>
-            </div> -->
           </div>
           <div class="col-12 col-md-6 flex flex-center q-pa-md form-section">
-            <h2 class="text-h2 q-mb-md">Bienvenido a R.C.P</h2>
+            <q-img src="mercury.svg" alt="Logo" width="30%" />
             <br />
             <div class="form-container">
               <h4 class="text-h4 q-mb-md">Iniciar sesión</h4>
@@ -87,8 +74,10 @@
                 />
               </q-form>
               <div class="text-center q-mt-sm">
-                ¿No tienes una cuenta?
-                <q-btn flat color="grey-8" label="Regístrate" />
+                <!-- ¿No tienes una cuenta? -->
+                <a href="/forgetpassword" class="text-primary q-mt-md">
+                  ¿Olvidaste tu contraseña?
+                </a>
               </div>
             </div>
           </div>
@@ -116,6 +105,7 @@
   const $q = useQuasar();
   const hasError = ref(false);
   const form = ref<QForm>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dependenciesLocator = inject<any>('dependenciesLocator');
   const controller = <LoginBloc>dependenciesLocator.provideLoginBloc();
   const handleUserState = <IHandleUserState>(
