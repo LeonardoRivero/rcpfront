@@ -15,11 +15,6 @@
         <div class="col-12 col-sm-8 col-md-8 col-lg-8">
           <q-card class="password-reset-card q-pa-lg">
             <q-card-section>
-              <q-img
-                src="undraw_forgot_password_re_hxwm.svg"
-                alt="Logo"
-                width="50%"
-              />
               <h2 class="text-h4 text-center q-mb-md">
                 Olvidaste tu Contraseña?
               </h2>
@@ -27,6 +22,11 @@
                 Ingresa tu correo electrónico y te enviaremos instrucciones para
                 reestablecer tu contraseña.
               </p>
+              <q-img
+                src="undraw_forgot_password_re_hxwm.svg"
+                alt="Logo"
+                width="50%"
+              />
             </q-card-section>
             <q-card-section>
               <q-form @submit="onSubmit" ref="form" class="q-gutter-md">

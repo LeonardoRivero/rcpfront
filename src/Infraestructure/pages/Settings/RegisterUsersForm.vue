@@ -3,11 +3,7 @@
     <div class="q-pa-md q-gutter-sm">
       <q-breadcrumbs>
         <q-breadcrumbs-el icon="home" to="/" />
-        <q-breadcrumbs-el
-          label="Configuraciones"
-          icon="mdi-cog"
-          to="/settings"
-        />
+        <q-breadcrumbs-el label="Configuraciones" icon="mdi-cog" />
         <q-breadcrumbs-el label="Registro Usuarios" />
       </q-breadcrumbs>
     </div>

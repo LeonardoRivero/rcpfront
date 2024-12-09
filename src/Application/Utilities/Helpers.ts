@@ -134,6 +134,8 @@ export const short = (val: string) => (val && val.length > 3) || 'Longitud mayor
 export const noSpaces = (val: string) => noSpacesPattern.test(val) || 'Minimo 8 caracteres. Únicamente letras, dígitos y @ . + - _';
 export const noLowerZero = (val: string) => parseInt(val) >= 0 || 'Valor negativo no permitido';
 export const onlyNumbers = (val: string) => onlyNumbersPattern.test(val) || 'Solo numeros';
+export const noSpecialCharsNoNumbers = (val: string) => /^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ]+$/.test(val) || 'No se permiten caracteres especiales ni números';
+export const maskPhoneNumber = (val: string) => /^[0-9\s]+$/.test(val) || 'Numero telefonico invalido'
 
 export const isDateInFuture1 = (val: string) => {
   if (!val) return false;
@@ -150,4 +152,3 @@ export const isDateInFuture = (value: string) => {
 
 export const onlyLetters = (val: string) => { return /^[A-Za-z]+$/.test(val) || 'Solo se permiten letras'; };
 export const notNumber = (val: string) => { return /^[^0-9]*$/.test(val) || 'No se permiten números' }
-export const noSpecialCharsNoNumbers = (val: string) => { return /^[a-zA-Z\s]*$/.test(val) || 'No se permiten caracteres especiales ni números' }

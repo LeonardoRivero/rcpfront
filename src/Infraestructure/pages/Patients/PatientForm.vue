@@ -188,7 +188,7 @@
               v-model="state.currentPatient.phoneNumber"
               label="Numero Telefonico *"
               :mask="state.phoneFormat?.format"
-              :rules="[required, onlyNumbers]"
+              :rules="[required, maskPhoneNumber]"
             >
               <template v-slot:prepend>
                 <q-avatar size="24px" color="gray">{{
@@ -404,6 +404,7 @@
     isDateInFuture,
     noSpecialCharsNoNumbers,
     onlyNumbers,
+    maskPhoneNumber,
   } from 'src/Application/Utilities/Helpers';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   import 'src/css/app.sass';
