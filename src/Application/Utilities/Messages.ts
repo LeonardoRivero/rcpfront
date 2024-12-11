@@ -21,5 +21,6 @@ export enum Messages {
   verifyEmailSucess = 'Solicitud procesada correctamente. Verifica tu email',
   resetEmailSucess = 'Credenciales restauradas correctamente',
   invalidConfirmCredentials = 'Las nuevas credenciales no coinciden en su verificacion',
-  invalidResetCredentials = 'No fue posible reestablecer tus credenciales'
+  invalidResetCredentials = 'No fue posible reestablecer tus credenciales',
+  intervalHourInvalid = 'Uno o mas intevalo de hora es invalido'
 }

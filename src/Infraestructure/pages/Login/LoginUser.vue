@@ -20,8 +20,6 @@
                   clearable
                   v-model="state.email"
                   type="email"
-                  lazy-rules
-                  :rules="[required, emailRequired, short]"
                   label="Email"
                   rounded
                 >
@@ -34,8 +32,6 @@
                   clearable
                   v-model="state.password"
                   type="password"
-                  lazy-rules
-                  :rules="[required, short]"
                   label="Contraseña"
                   rounded
                 >

@@ -434,6 +434,7 @@
     dependenciesLocator.providePatientFormBloc()
   );
   const state = usePlocState(controller);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const inputRules = ref<Array<any>>([]);
 
   onMounted(async () => {

@@ -25,7 +25,7 @@
             dense
             label="Apellidos *"
             lazy-rules
-            :rules="[required]"
+            :rules="[required, onlyLetters]"
             @keydown="blockNumbers"
           />
         </div>
@@ -78,7 +78,6 @@
             lazy-rules
             :rules="[required]"
             @keydown="preventE"
-            type="number"
           >
             <template v-slot:prepend>
               <q-avatar size="24px" color="gray">{{

@@ -1,3 +1,4 @@
+
 export interface ISpeciality {
   id?: number;
   description: string;
@@ -161,14 +162,20 @@ export interface IExam {
   result: string;
 }
 
+export interface OpeningHoursRequest {
+  start: string;
+  end: string;
+  dayOfWeekId: number
+}
 export interface IMedicalOfficeRequest {
   id?: number;
+  name: string;
+  address: string;
   countryId: number;
   cityId: number;
-  address: string;
-  name: string;
-  doctor: number[],
-  phoneNumber: string
+  phoneNumber: string;
+  doctor: number[];
+  openingHours: OpeningHoursRequest[]
 }
 
 export interface IMedicalHistory {

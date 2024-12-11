@@ -93,24 +93,105 @@
         <div class="col-12 col-sm-6">
           <q-input dense v-model="state.address" label="Direccion *" />
         </div>
-        <!-- <div class="col-12 col-sm-6">
+        <div class="col-12 col-sm-6">
           <q-input
             dense
             v-model="state.intervalAppointment"
-            label="Intervalo Tiempo Consulta *"
+            label="Intervalo Consulta en Min *"
+            @blur="(val) => changeInterval(val)"
+            min="0"
+            max="60"
+            :rules="[
+              (val) => (val >= 0 && val <= 60) || 'Debe estar entre 0 y 60',
+            ]"
           />
-          <span>Lunes</span>
-          <q-range
-            v-model="state.range"
-            :min="0"
-            :max="24"
-            :step="state.intervalAppointment"
-            :left-label-value="state.range.min + 'horas'"
-            :right-label-value="state.range.max + 'horas'"
-            label-always
-            color="purple"
-          />
-        </div> -->
+          <br />
+          <q-table
+            :rows="state.openingHoursDTO"
+            :columns="columns"
+            hide-bottom
+            flat
+            title="Horario Consulta"
+            dense
+            row-key="id"
+          >
+            <template v-slot:body="props">
+              <q-tr :props="props">
+                <q-td key="nameDay" :props="props">
+                  {{ props.row.nameDay }}
+                </q-td>
+                <q-td key="start" :props="props">
+                  <q-input
+                    filled
+                    v-model="props.row.start"
+                    mask="time"
+                    :rules="['time']"
+                    dense
+                  >
+                    <template v-slot:append>
+                      <q-icon name="access_time" class="cursor-pointer">
+                        <q-popup-proxy
+                          cover
+                          transition-show="scale"
+                          transition-hide="scale"
+                        >
+                          <q-time
+                            v-model="props.row.start"
+                            format24h
+                            :minute-options="state.options"
+                          >
+                            <div class="row items-center justify-end">
+                              <q-btn
+                                v-close-popup
+                                label="Close"
+                                color="primary"
+                                flat
+                              />
+                            </div>
+                          </q-time>
+                        </q-popup-proxy>
+                      </q-icon>
+                    </template>
+                  </q-input>
+                </q-td>
+                <q-td key="end" :props="props">
+                  <q-input
+                    filled
+                    v-model="props.row.end"
+                    mask="time"
+                    :rules="['time']"
+                    dense
+                  >
+                    <template v-slot:append>
+                      <q-icon name="access_time" class="cursor-pointer">
+                        <q-popup-proxy
+                          cover
+                          transition-show="scale"
+                          transition-hide="scale"
+                        >
+                          <q-time
+                            v-model="props.row.end"
+                            format24h
+                            :minute-options="state.options"
+                          >
+                            <div class="row items-center justify-end">
+                              <q-btn
+                                v-close-popup
+                                label="Close"
+                                color="primary"
+                                flat
+                              />
+                            </div>
+                          </q-time>
+                        </q-popup-proxy>
+                      </q-icon>
+                    </template>
+                  </q-input>
+                </q-td>
+              </q-tr>
+            </template>
+          </q-table>
+        </div>
       </div>
       <br />
       <div>
@@ -119,28 +200,56 @@
     </q-form>
   </div>
 </template>
-
 <script setup lang="ts">
   import { inject, onMounted, ref } from 'vue';
   import { QForm } from 'quasar';
+  import { QTableColumn } from 'quasar';
   import { IconSVG } from 'src/Application/Utilities';
   import { required, isNotNull } from 'src/Application/Utilities/Helpers';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   import { MedicalOfficeBloc } from 'src/Adapters/MedicalOfficeBloc';
   import { IHandleGlobalState, IHandleUserState } from 'src/Domine/IPatterns';
-  import { StateDTO, TownDTO } from 'src/Domine/DTOs';
+  import { OpeningHoursDTO, StateDTO, TownDTO } from 'src/Domine/DTOs';
   import { UpdateFunction } from 'src/Domine/Types';
   import 'src/css/app.sass';
 
   const form = ref<QForm>();
+  // const time = ref('10:56');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dependenciesLocator = inject<any>('dependenciesLocator');
   const optionsState = ref<StateDTO[]>([]);
   const optionsTown = ref<TownDTO[]>([]);
-  const label = ref({
-    min: -12,
-    max: 8,
-  });
+  // const test = ref<number[]>([0, 15, 60]);
+  // const rows = ref<OpeningHoursDTO[]>([
+  //   { nameDay: 'Lunes', start: '08:00', end: '12:00' },
+  //   { nameDay: 'Martes', start: '09:30', end: '12:00' },
+  //   { nameDay: 'Miercoles', start: '12:15', end: '12:00' },
+  //   { nameDay: 'Jueves', start: '14:45', end: '12:00' },
+  //   { nameDay: 'Viernes', start: '16:00', end: '12:00' },
+  //   { nameDay: 'Sabado', start: '16:00', end: '12:00' },
+  //   { nameDay: 'Domingo', start: '16:00', end: '12:00' },
+  // ]);
+
+  const columns: QTableColumn<OpeningHoursDTO>[] = [
+    {
+      name: 'nameDay',
+      label: 'Nombre',
+      align: 'left',
+      field: 'nameDay',
+    },
+    {
+      name: 'start',
+      label: 'Hora Inicio',
+      align: 'center',
+      field: 'start',
+    },
+    {
+      name: 'end',
+      label: 'Hora Fin',
+      align: 'center',
+      field: 'end',
+    },
+  ];
 
   const handleGlobalState = <IHandleGlobalState>(
     dependenciesLocator.provideHandleGlobalState()
@@ -159,6 +268,11 @@
     await controller.loadInitialData(handleGlobalState);
     optionsState.value = state.value.allCities.state;
   });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function changeInterval(event: any) {
+    controller.generateInterval(parseInt(event.target.value));
+  }
 
   async function stateChanged(val: StateDTO) {
     const town: TownDTO[] = state.value.allCities?.town;
@@ -197,7 +311,11 @@
 
   async function confirmChanges() {
     const isValid = await form.value?.validate();
-    if (isValid == false) return;
+    const intervalIsValid = controller.checkIntervalOpeningHours(
+      state.value.openingHoursDTO
+    );
+    if (!isValid || !intervalIsValid) return;
+
     const response = await controller.saveOrUpdate(
       handleUserState,
       handleGlobalState

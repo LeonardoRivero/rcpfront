@@ -1,4 +1,4 @@
-import { DIVIPOLADTO, StateDTO, TownDTO } from './DTOs';
+import { DIVIPOLADTO, OpeningHoursDTO, StateDTO, TownDTO } from './DTOs';
 import {
   IPaginationDataTable,
   ITableOptions,
@@ -262,10 +262,11 @@ export interface MedicalOfficeState {
   state: StateDTO | null;
   town: TownDTO | null;
   name: string;
-  phoneNumber: string
-  phoneFormat: PhoneCodeResponse | null
-  range: Range,
-  intervalAppointment: number
+  phoneNumber: string;
+  phoneFormat: PhoneCodeResponse | null;
+  intervalAppointment: number;
+  options: number[]
+  openingHoursDTO: OpeningHoursDTO[]
 }
 
 export interface LoginState {
@@ -290,8 +291,4 @@ export interface ResetPasswordState {
   confirmPassword: string;
   visible: boolean;
   message: string
-}
-export interface Range {
-  min: number,
-  max: number
 }

@@ -37,13 +37,16 @@ export class LoginBloc extends Bloc<LoginState> {
   }
 
   async login(handleUserState: IHandleUserState, handleGlobalState: IHandleGlobalState): Promise<AuthResponse | null> {
-    try {
-      const payload: LoginRequest = {
-        Email: this.state.email,
-        Password: this.state.password,
-        RememberMe: false
-      };
+    const payload: LoginRequest = {
+      Email: this.state.email,
+      Password: this.state.password,
+      RememberMe: false
+    };
+    if (this.state.email == '' || this.state.password == '') {
+      return null
+    }
 
+    try {
       const response = await this.loginUseCase.execute(payload);
       if (response == null) {
         this.changeState({ ...this.state, labelMessage: 'Ocurrio un error con las credenciales suministradas' })

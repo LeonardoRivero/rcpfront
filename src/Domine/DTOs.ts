@@ -13,3 +13,10 @@ export interface DIVIPOLADTO {
   town: TownDTO[],
   state: StateDTO[]
 }
+
+export interface OpeningHoursDTO {
+  id: number
+  nameDay: string,
+  start: string,
+  end: string
+}

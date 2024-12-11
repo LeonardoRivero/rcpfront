@@ -76,7 +76,12 @@
                 dense
                 v-model="state.copayment"
                 label="Copago"
-                :rules="[isNotNull]"
+                :rules="[
+                  isNotNull,
+                  (val) =>
+                    currency(val).value >= 0 ||
+                    'El valor no puede ser negativo',
+                ]"
                 :disable="state.currentAppointment.isParticular"
                 @blur="(evt) => changeCopayment(evt)"
                 @keydown.enter.prevent="(evt:any) =>changeCopayment(evt)"
@@ -98,11 +103,17 @@
                 dense
                 v-model="state.price"
                 label="Valor Consulta"
-                lazy-rules
-                :rules="[isNotNull]"
+                :rules="[
+                  isNotNull,
+                  (val) =>
+                    currency(val).value >= 0 ||
+                    'El valor no puede ser negativo',
+                ]"
                 clearable
                 @blur="(evt) => changePrice(evt)"
                 @keydown.enter.prevent="(evt:any) =>changePrice(evt)"
+                :error="error"
+                :error-message="errorMessage"
               />
             </div>
             <div class="col-12 col-sm-6">
@@ -115,17 +126,18 @@
               />
             </div>
             <div class="col-12 col-sm-6">
-              <q-input
-                readonly
-                dense
-                hint="Total monto a pagar"
-                v-model="state.amount"
-                :rules="[isNotNull, noLowerZero]"
+              <q-chip
+                :color="
+                  currency(state.amount ?? '0').value >= 0 ? 'green' : 'red'
+                "
+                text-color="white"
               >
-              </q-input>
+                <b>TOTAL :</b> {{ state.amount }}
+              </q-chip>
             </div>
           </div>
-          <div class="col-12 col-md-3">
+          <br />
+          <div class="col-12 col-md-12">
             <q-btn
               label="Guardar"
               type="submit"
@@ -173,19 +185,16 @@
 
 <script setup lang="ts">
   import { onMounted, ref, inject } from 'vue';
-  import {
-    noLowerZero,
-    isNotNull,
-    numberRequired,
-  } from 'src/Application/Utilities/Helpers';
-  import { Loading, QForm } from 'quasar';
+  import { isNotNull, numberRequired } from 'src/Application/Utilities/Helpers';
+  import { QForm } from 'quasar';
   import 'src/css/app.sass';
   import { AdmissionsBloc } from 'src/Adapters/AdmissionsBloc';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   import { IHandleGlobalState, IHandleUserState } from 'src/Domine/IPatterns';
-  import { IconSVG } from 'src/Application/Utilities';
+  import currency from 'currency.js';
   const form = ref<QForm>();
-  const icons = IconSVG;
+  const error = ref<boolean>(false);
+  const errorMessage = ref<string>('');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dependenciesLocator = inject<any>('dependenciesLocator');
   const controller = <AdmissionsBloc>dependenciesLocator.provideAdmissionBloc();

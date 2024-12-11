@@ -9,7 +9,7 @@ import {
   IUseCase,
   Notificator,
 } from 'src/Domine/IPatterns';
-import { AdmissionState, } from 'src/Domine/IStates';
+import { AdmissionState } from 'src/Domine/IStates';
 import {
   EventScheduleResponse,
   PatientResponse,
@@ -36,16 +36,25 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
   // private notificator: IFactoryMethodNotifications;
   private notifySweetAlert: Notificator;
   private notifyQuasar: Notificator;
-  private showModalNewPatient: IUseCase<ModalType, boolean>
+  private showModalNewPatient: IUseCase<ModalType, boolean>;
 
   constructor(
     private factoryNotificator: IFactoryMethodNotifications,
     private mediatorUseCases: IMediatorUseCases,
-    private findPatientByIdentificationUseCase: IUseCase<string, PatientResponse | null>,
-    private findScheduleForPatientUseCase: IUseCase<FilterScheduleRequest, ScheduleResponse | null>,
+    private findPatientByIdentificationUseCase: IUseCase<
+      string,
+      PatientResponse | null
+    >,
+    private findScheduleForPatientUseCase: IUseCase<
+      FilterScheduleRequest,
+      ScheduleResponse | null
+    >,
     private paymentOptionsIsCashUseCase: IUseCase<number, boolean>,
     private helper: IHelpers,
-    private createAdmissionUseCase: IUseCase<AddAdmissionRequest, [string, boolean]>,
+    private createAdmissionUseCase: IUseCase<
+      AddAdmissionRequest,
+      [string, boolean]
+    >
   ) {
     const state: AdmissionState = {
       identificationPatient: '',
@@ -62,7 +71,7 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
         doctor: {},
         end: '',
         start: '',
-        healthEntity: {}
+        healthEntity: {},
       } as ScheduleResponse,
       disableCodeTransaction: false,
       disableButtonSave: true,
@@ -70,7 +79,7 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
       amount: null,
       copayment: null,
       price: null,
-      showSkeleton: true
+      showSkeleton: true,
     };
     super(state, mediatorUseCases);
     // this.state = store;
@@ -81,7 +90,7 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
     this.notifyQuasar = this.factoryNotificator.createNotificator(
       ModalType.NotifyQuasar
     );
-    this.showModalNewPatient = new ShowModalNewRegister(factoryNotificator)
+    this.showModalNewPatient = new ShowModalNewRegister(factoryNotificator);
   }
 
   // receiveData(data: IControllersMediator): void {
@@ -90,10 +99,9 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
 
   public async clear(): Promise<void> {
     const state = {
-      currentAppointment:
-        { isParticular: false } as AddAdmissionRequest
-    } as AdmissionState
-    this.changeState({ ...state })
+      currentAppointment: { isParticular: false } as AddAdmissionRequest,
+    } as AdmissionState;
+    this.changeState({ ...state });
     // this.state.currentPatient = {} as PatientResponse;
     // this.state.currentHealthInsurance = null;
     // this.state.speciality = {} as ISpeciality;
@@ -130,20 +138,23 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
     const appointment = this.state.currentAppointment;
     appointment.appointmentPrice = this.helper.getValueFromString(this.state.price);
     appointment.copayment = appointment.isParticular ? 0 : this.helper.getValueFromString(this.state.copayment);
-    const amountToPaid =
-      this.calculeAmountPaidUseCase.execute(this.state.currentAppointment);
+    const amountToPaid = this.calculeAmountPaidUseCase.execute(this.state.currentAppointment);
 
     this.changeState({
       ...this.state,
       amount: this.helper.formatToMoneyString(amountToPaid.toString()),
-      price: this.helper.formatToMoneyString(appointment.appointmentPrice.toString()),
-      copayment: this.helper.formatToMoneyString(appointment.copayment.toString()),
+      price: this.helper.formatToMoneyString(
+        appointment.appointmentPrice.toString()
+      ),
+      copayment: this.helper.formatToMoneyString(
+        appointment.copayment.toString()
+      ),
       currentAppointment: {
         ...this.state.currentAppointment,
         amountPaid: amountToPaid,
-        copayment: appointment.isParticular ? 0 : appointment.copayment
-      }
-    })
+        copayment: appointment.isParticular ? 0 : appointment.copayment,
+      },
+    });
   }
 
   // public async searchByPatientId(
@@ -182,23 +193,27 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
       paymentMethodId: this.state.currentAppointment.paymentMethodId,
       transactionCode: this.state.currentAppointment.transactionCode,
       isParticular: this.state.currentAppointment.isParticular,
-      userId: handleUserState.getInfoUser().userId
+      userId: handleUserState.getInfoUser().userId,
     };
 
     if (this.state.currentAppointment.id == undefined) {
       delete this.state.currentAppointment['id'];
-      const confirm: boolean = await this.showModalNewPatient.execute(ModalType.SweetAlert)
-      if (!confirm) return
-      const [message, wasSucess] = await this.createAdmissionUseCase.execute(payload);
-      description = message
-      sucess = wasSucess
+      const confirm: boolean = await this.showModalNewPatient.execute(
+        ModalType.SweetAlert
+      );
+      if (!confirm) return;
+      const [message, wasSucess] = await this.createAdmissionUseCase.execute(
+        payload
+      );
+      description = message;
+      sucess = wasSucess;
     }
 
     if (sucess) {
       this.notifyQuasar.setType('success');
       this.notifyQuasar.show('', description);
       routerInstance.push('/index');
-      return
+      return;
     }
     this.notifyQuasar.setType('error');
     this.notifyQuasar.show('', description);
@@ -215,12 +230,15 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
   public async changedPaymentMethod(val: number) {
     const isCash = await this.paymentOptionsIsCashUseCase.execute(val);
     this.changeState({
-      ...this.state, disableCodeTransaction: isCash,
+      ...this.state,
+      disableCodeTransaction: isCash,
       currentAppointment: {
         ...this.state.currentAppointment,
-        transactionCode: isCash ? null : this.state.currentAppointment.transactionCode
-      }
-    })
+        transactionCode: isCash
+          ? null
+          : this.state.currentAppointment.transactionCode,
+      },
+    });
   }
 
   public responseToEntity(response: EventScheduleResponse) {
@@ -249,9 +267,7 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
     // if (confirm == false) {
     //   return;
     // }
-
     // routerInstance.push('/appointment');
-
     // const notFound = new NotFoundElementNotify(
     //   Messages.appointmentNotFound,
     //   this.notificator,
@@ -269,38 +285,45 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
   }
 
   public async patientWasScheduled(medicalOfficeId: number): Promise<void> {
-
     const response = await this.findPatientByIdentificationUseCase.execute(
       this.state.identificationPatient
     );
-    this.notifySweetAlert.setType('error')
+    this.notifySweetAlert.setType('error');
     if (response === null) {
       this.changeState({ ...this.state, disableButtonSave: true });
-      const confirm = await this.notifySweetAlert.show('Error', Messages.notFoundInfoPatient)
+      const confirm = await this.notifySweetAlert.show(
+        'Error',
+        Messages.notFoundInfoPatient
+      );
       if (confirm) {
-        routerInstance.push('/patient')
+        routerInstance.push('/patient');
       }
-      return
+      return;
     }
 
     this.changeState({
-      ...this.state, patient: response, disableButtonSave: false,
-      showSkeleton: false
+      ...this.state,
+      patient: response,
+      showSkeleton: false,
     });
 
     const request: FilterScheduleRequest = {
       identificationPatient: this.state.identificationPatient,
-      medicalOfficeId: medicalOfficeId
-    }
+      medicalOfficeId: medicalOfficeId,
+    };
     const schedule = await this.findScheduleForPatientUseCase.execute(request);
     if (schedule === null) {
-      const confirm = await this.notifySweetAlert.show('Error', Messages.patientNotSchedule)
+      this.changeState({ ...this.state, disableButtonSave: true });
+      const confirm = await this.notifySweetAlert.show(
+        'Error',
+        Messages.patientNotSchedule
+      );
       if (confirm) {
-        routerInstance.push('/schedule')
+        routerInstance.push('/schedule');
       }
       return;
     }
-    this.changeState({ ...this.state, schedule: schedule });
+    this.changeState({ ...this.state, schedule: schedule, disableButtonSave: false });
   }
 
   async loadInitialData(handleGlobalState: IHandleGlobalState): Promise<void> {
@@ -309,7 +332,7 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
     this.changeState({
       ...this.state,
       allPaymentOptions: allPaymentOptions,
-      allReasonConsult: allMedicalEntry
+      allReasonConsult: allMedicalEntry,
     });
   }
 }
