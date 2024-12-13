@@ -5,13 +5,14 @@ import { GetAllGenderUseCase } from '../Services';
 import { GetAttenttionMedicalOfficeUseCase, GetMedicalOfficeBelongToUserUseCase } from './MedicalOfficeUseCase';
 import { GetSpecialityBelongToMedicalOfficeUseCase } from './SpecialityUseCases';
 import { FindPatientByIdentificationUseCase } from './PatientUseCases';
+import { AttentionScheduleMedicalRequest } from 'src/Domine/Request';
 
 export class MediatorUseCases implements IMediatorUseCases {
 
   private getAllDocumentTypeUseCase: IUseCase<void, DocumentTypeResponse[]>
   private getAllGenderUseCase: IUseCase<void, GenderResponse[]>
   private getMedicalOfficeBelongToUserUseCase: IUseCase<string, MedicalOfficeResponse[]>
-  private getAttenttionMedicalOfficeUseCase: IUseCase<number, AttentionScheduleMedicalResponse | null>
+  private getAttenttionMedicalOfficeUseCase: IUseCase<AttentionScheduleMedicalRequest, AttentionScheduleMedicalResponse | null>
   private getSpecialityBelongToMedicalOfficeUseCase: IUseCase<number, SpecialityResponse[]>
   private findPatientByIdentificationUseCase: IUseCase<string, PatientResponse | null>
 
@@ -24,7 +25,7 @@ export class MediatorUseCases implements IMediatorUseCases {
     this.findPatientByIdentificationUseCase = new FindPatientByIdentificationUseCase(httpClient)
   }
 
-  async getAttentionMedicalOffice(request: number): Promise<AttentionScheduleMedicalResponse | null> {
+  async getAttentionMedicalOffice(request: AttentionScheduleMedicalRequest): Promise<AttentionScheduleMedicalResponse | null> {
     return await this.getAttenttionMedicalOfficeUseCase.execute(request)
   }
 
