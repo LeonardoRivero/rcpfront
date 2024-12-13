@@ -213,6 +213,19 @@ export interface CountryResponse {
   numeric: string;
 }
 
+export interface AttentionScheduleMedicalResponse {
+  id: number,
+  start: string,
+  end: string,
+  dayOfWeekId: number,
+  interval: number,
+  medicalOfficeId: number,
+  daysOfWeek: {
+    id: number,
+    code: string,
+    nameDay: string
+  }
+}
 export interface CityResponse {
   id: number;
   state: string
@@ -228,6 +241,8 @@ export interface MedicalOfficeResponse {
   id: number;
   name: string;
   phoneNumber: string
+  attentionScheduleMedicalOffice: AttentionScheduleMedicalResponse[]
+  interval: number
 }
 
 export interface OcupationResponse {

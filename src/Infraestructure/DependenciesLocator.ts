@@ -8,9 +8,6 @@ import {
   ScheduleFormBloc,
 } from 'src/Adapters';
 import { FactoryNotifactors } from 'src/Infraestructure/Utilities/Factories';
-import {
-  DoctorSpecialityService,
-} from 'src/Application/Services';
 import { ClientAPI } from './Utilities/HttpClientAPI';
 import { MediatorUseCases } from 'src/Application/UseCases/MediatorUseCases';
 import { IHandleGlobalState, IHandleUserState } from 'src/Domine/IPatterns';
@@ -19,9 +16,12 @@ import {
   CreatePatientUseCase, FindPatientByIdentificationUseCase,
   UpdatePatientUseCase
 } from 'src/Application/UseCases/PatientUseCases';
-import { MedicalOfficeBloc } from 'src/Adapters/MedicalOfficeBloc';
+import { ListMedicalOfficeBloc, MedicalOfficeBloc } from 'src/Adapters/MedicalOfficeBloc';
 import {
   CreateMedicalOfficeUseCase,
+  GetAttenttionMedicalOfficeUseCase,
+  GetMedicalOfficeBelongToUserUseCase,
+  GetMedicalOfficeByIdUseCase,
   UpdateMedicalOfficeUseCase
 } from 'src/Application/UseCases/MedicalOfficeUseCase';
 import { LoginBloc } from 'src/Adapters/LoginBloc';
@@ -36,7 +36,6 @@ import { CreateDoctorUseCase, GetDoctorBelongToMedicalOffice, GetDoctorByUserIdU
 import { CreateSecretaryUseCase } from 'src/Application/UseCases/SecretaryUseCase';
 import { UserContext } from './Mediators/UserContext';
 import { AddEventScheduleUseCase, FindScheduleForPatientUseCase, GetByIdScheduleUseCase, GetScheduleForMedicalOfficeUseCase, UpdateScheduleUseCase } from 'src/Application/UseCases/ScheduleUseCases';
-import { GetSpecialityBelongToMedicalOfficeUseCase } from 'src/Application/UseCases/SpecialityUseCases';
 import { PaymentOptionIsCashUseCase } from 'src/Application/UseCases/PaymentOptionsUseCases';
 import { Helpers } from './Utilities/Helpers';
 import { CreateAdmissionUseCase } from 'src/Application/UseCases/AdmissionUseCases';
@@ -70,16 +69,15 @@ function provideAppointmentBloc(): AppointmentBloc {
 }
 
 function provideScheduleBloc(): ScheduleFormBloc {
-  const doctorSpecialityService = new DoctorSpecialityService(HttpClientAPI);
   const getDoctorBelongToMedicalOfficeUseCase = new GetDoctorBelongToMedicalOffice(HttpClientAPI)
   const addEventScheduleUseCase = new AddEventScheduleUseCase(HttpClientAPI)
   const getByIdScheduleUseCase = new GetByIdScheduleUseCase(HttpClientAPI)
   const updateScheduleUseCase = new UpdateScheduleUseCase(HttpClientAPI)
-  const getSpecialityBelongToMedicalOfficeUseCase = new GetSpecialityBelongToMedicalOfficeUseCase(HttpClientAPI)
+  const getAttenttionMedicalOfficeUseCase = new GetAttenttionMedicalOfficeUseCase(HttpClientAPI)
 
-  return ScheduleFormBloc.getInstance(notificator, doctorSpecialityService, findPatientByIdentificationUseCase,
-    getDoctorBelongToMedicalOfficeUseCase, addEventScheduleUseCase, getByIdScheduleUseCase, updateScheduleUseCase,
-    getSpecialityBelongToMedicalOfficeUseCase, findScheduleForPatientUseCase);
+  return ScheduleFormBloc.getInstance(notificator, getDoctorBelongToMedicalOfficeUseCase,
+    addEventScheduleUseCase, getByIdScheduleUseCase, updateScheduleUseCase,
+    findScheduleForPatientUseCase, getAttenttionMedicalOfficeUseCase, mediatorUseCases);
 }
 
 function provideAdmissionBloc(): AdmissionsBloc {
@@ -120,8 +118,16 @@ function provideMedicalOfficeBloc(): MedicalOfficeBloc {
   const createMedicalOfficeUseCase = new CreateMedicalOfficeUseCase(HttpClientAPI)
   const updateMedicalOfficeUseCase = new UpdateMedicalOfficeUseCase(HttpClientAPI)
   const getDoctorByUserIdUseCase = new GetDoctorByUserIdUseCase(HttpClientAPI)
-  return new MedicalOfficeBloc(notificator, createMedicalOfficeUseCase,
-    updateMedicalOfficeUseCase, getDoctorByUserIdUseCase);
+  const getMedicalOfficeBelongToUserUseCase = new GetMedicalOfficeBelongToUserUseCase(HttpClientAPI)
+  const getMedicalOfficeByIdUseCase = new GetMedicalOfficeByIdUseCase(HttpClientAPI)
+  return MedicalOfficeBloc.getInstance(notificator, createMedicalOfficeUseCase, updateMedicalOfficeUseCase,
+    getDoctorByUserIdUseCase, getMedicalOfficeBelongToUserUseCase, getMedicalOfficeByIdUseCase);
+}
+
+function provideListMedicalOfficeBloc(): ListMedicalOfficeBloc {
+  const getMedicalOfficeBelongToUserUseCase = new GetMedicalOfficeBelongToUserUseCase(HttpClientAPI)
+  const getMedicalOfficeByIdUseCase = new GetMedicalOfficeByIdUseCase(HttpClientAPI)
+  return new ListMedicalOfficeBloc(getMedicalOfficeBelongToUserUseCase, getMedicalOfficeByIdUseCase)
 }
 
 function provideLoginBloc(): LoginBloc {
@@ -186,5 +192,6 @@ export const dependenciesLocator = {
   provideRegisterUserBloc,
   provideIndexBloc,
   provideForgetPasswordBloc,
-  provideResetPasswordBloc
+  provideResetPasswordBloc,
+  provideListMedicalOfficeBloc
 };

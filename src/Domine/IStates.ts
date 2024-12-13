@@ -212,6 +212,8 @@ export interface ScheduleState {
   card: boolean;
   allMedicalOffice: MedicalOfficeResponse[]
   medicalOfficeSelected: MedicalOfficeResponse | null
+  minuteOptionsSchedule: number[]
+  hourOptionsSchedule: number[]
   // calendar: InstanceType<typeof FullCalendar>;
 }
 
@@ -267,6 +269,7 @@ export interface MedicalOfficeState {
   intervalAppointment: number;
   options: number[]
   openingHoursDTO: OpeningHoursDTO[]
+  medicalOfficeBelongToDoctor: MedicalOfficeResponse[]
 }
 
 export interface LoginState {

@@ -1,20 +1,18 @@
 import { date } from 'quasar';
 import { Messages } from 'src/Application/Utilities';
 import * as Constants from 'src/Application/Utilities/Constants';
-import { AddAdmissionRequest, AddEventToScheduleRequest, FilterScheduleRequest } from 'src/Domine/Request';
+import { AddAdmissionRequest, AddEventToScheduleRequest, AttentionScheduleMedicalRequest, FilterScheduleRequest } from 'src/Domine/Request';
 import {
   DoctorResponse,
-  DoctorSpecialityResponse,
   ScheduleResponse,
-  PatientResponse,
-  SpecialityResponse,
   Patient,
+  AttentionScheduleMedicalResponse,
 } from 'src/Domine/Responses';
 import {
   Bloc,
   IFactoryMethodNotifications,
   IHandleGlobalState,
-  IToRead,
+  IMediatorUseCases,
   IUseCase,
   Notificator,
 } from 'src/Domine/IPatterns';
@@ -30,14 +28,13 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
 
   private constructor(
     private factoryNotify: IFactoryMethodNotifications,
-    private doctorSpecialityService: IToRead<DoctorSpecialityResponse>,
-    private findPatientByIdentificationUseCase: IUseCase<string, PatientResponse | null>,
     private getDoctorBelongToMedicalOffice: IUseCase<number, DoctorResponse[]>,
     private addEventScheduleUseCase: IUseCase<AddEventToScheduleRequest, ScheduleResponse | null>,
     private getByIdScheduleUseCase: IUseCase<string, ScheduleResponse | null>,
     private updateScheduleUseCase: IUseCase<AddEventToScheduleRequest, ScheduleResponse | null>,
-    private getSpecialityBelongToMedicalOfficeUseCase: IUseCase<number, SpecialityResponse[]>,
-    private scheduleByIdentificationPatientUseCase: IUseCase<FilterScheduleRequest, ScheduleResponse | null>
+    private scheduleByIdentificationPatientUseCase: IUseCase<FilterScheduleRequest, ScheduleResponse | null>,
+    private getAttentionScheduleMedicalOfficeUseCase: IUseCase<AttentionScheduleMedicalRequest, AttentionScheduleMedicalResponse | null>,
+    private mediatorUseCase: IMediatorUseCases
   ) {
     const state: ScheduleState = {
       lastConsult: {} as AddAdmissionRequest,
@@ -61,6 +58,8 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
       card: false,
       allMedicalOffice: [],
       medicalOfficeSelected: null,
+      minuteOptionsSchedule: [],
+      hourOptionsSchedule: []
     };
     super(state);
     this.notifyQuasar = factoryNotify.createNotificator(ModalType.NotifyQuasar);
@@ -91,19 +90,18 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
   }
 
   public static getInstance(factoryNotify: IFactoryMethodNotifications,
-    doctorSpecialityService: IToRead<DoctorSpecialityResponse>,
-    findPatientByIdentificationUseCase: IUseCase<string, PatientResponse | null>,
     getDoctorBelongToMedicalOffice: IUseCase<number, DoctorResponse[]>,
     addEventScheduleUseCase: IUseCase<AddEventToScheduleRequest, ScheduleResponse | null>,
     getByIdScheduleUseCase: IUseCase<string, ScheduleResponse | null>,
     updateScheduleUseCase: IUseCase<AddEventToScheduleRequest, ScheduleResponse | null>,
-    getSpecialityBelongToMedicalOfficeUseCase: IUseCase<number, SpecialityResponse[]>,
-    scheduleByIdentificationPatientUseCase: IUseCase<FilterScheduleRequest, ScheduleResponse | null>): ScheduleFormBloc {
+    scheduleByIdentificationPatientUseCase: IUseCase<FilterScheduleRequest, ScheduleResponse | null>,
+    getAttentionScheduleMedicalOfficeUseCase: IUseCase<AttentionScheduleMedicalRequest, AttentionScheduleMedicalResponse | null>,
+    mediatorUseCase: IMediatorUseCases): ScheduleFormBloc {
 
     if (!ScheduleFormBloc.instance) {
-      ScheduleFormBloc.instance = new ScheduleFormBloc(factoryNotify, doctorSpecialityService, findPatientByIdentificationUseCase,
-        getDoctorBelongToMedicalOffice, addEventScheduleUseCase, getByIdScheduleUseCase, updateScheduleUseCase, getSpecialityBelongToMedicalOfficeUseCase,
-        scheduleByIdentificationPatientUseCase);
+      ScheduleFormBloc.instance = new ScheduleFormBloc(factoryNotify, getDoctorBelongToMedicalOffice,
+        addEventScheduleUseCase, getByIdScheduleUseCase, updateScheduleUseCase, scheduleByIdentificationPatientUseCase,
+        getAttentionScheduleMedicalOfficeUseCase, mediatorUseCase);
     }
     return ScheduleFormBloc.instance
   }
@@ -141,7 +139,7 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
   }
 
   public async searchPatient(): Promise<void> {
-    const response = await this.findPatientByIdentificationUseCase.execute(this.state.identificationPatient);
+    const response = await this.mediatorUseCase.findPatientByIdentification(this.state.identificationPatient);
     if (response !== null) {
       this.changeState({ ...this.state, currentPatient: response });
       return;
@@ -222,6 +220,7 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
       // const apiCalendar = this.state.calendar.getApi();
       // apiCalendar.refetchEvents();
       // this.mediator.notify({}, this);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const messageError = (error as Error).message;
       const notifyQuasar = this.factoryNotify.createNotificator(
@@ -315,17 +314,17 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
     return register;
   }
 
-  public async getDoctorsBelongSpeciality(specialityId: number): Promise<void> {
-    if (this.doctorSpecialityService == undefined) return;
-    const response = await this.doctorSpecialityService.findByParameters({
-      speciality: specialityId,
-    });
-    this.changeState({
-      ...this.state,
-      // allDoctors: response,
-      currentDoctor: null,
-    });
-  }
+  // public async getDoctorsBelongSpeciality(specialityId: number): Promise<void> {
+  //   if (this.doctorSpecialityService == undefined) return;
+  //   const response = await this.doctorSpecialityService.findByParameters({
+  //     speciality: specialityId,
+  //   });
+  //   this.changeState({
+  //     ...this.state,
+  //     // allDoctors: response,
+  //     currentDoctor: null,
+  //   });
+  // }
 
   // public showThisForm(visibility: boolean) {
   //   // const store = <IStoreSchedule>this.mediator.getStore();
@@ -347,8 +346,9 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
     //   (<unknown>this.mediator)
     // );
     const medicalofficeId = handleGlobalState.store.currentMedicalOffice[0].id
-    const response = await this.getSpecialityBelongToMedicalOfficeUseCase.execute(medicalofficeId);
+    const response = await this.mediatorUseCase.getSpecialityBelongToMedicalOffice(medicalofficeId);
     const doctors = await this.getDoctorBelongToMedicalOffice.execute(medicalofficeId)
+
 
     this.changeState({
       ...this.state,
@@ -365,5 +365,44 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
     // } else {
     //   this.setDateWhenScheduleIsNew();
     // }
+
+  }
+
+  public async getAttentionScheduleMedicalOffice(medicalofficeId: number) {
+    const request: AttentionScheduleMedicalRequest = {
+      medicalOfficeId: medicalofficeId,
+      dayOfWeek: new Date(this.state.currentSchedule.start).getDay()
+    }
+    const attentionSchedule = await this.getAttentionScheduleMedicalOfficeUseCase.execute(request)
+    if (attentionSchedule == null) {
+      this.notifyQuasar.setType('error')
+      this.notifyQuasar.show(undefined, Messages.notAttentionScheduleForMedicalOffice)
+      return
+    }
+    await this.setHourScheduleOptions(attentionSchedule)
+  }
+
+  private async setHourScheduleOptions(options: AttentionScheduleMedicalResponse) {
+    const minuteOptions = [];
+    const hourOptions = [];
+
+    for (let init = 0; init * options.interval <= 60; init++) {
+      minuteOptions.push(init * options.interval);
+    }
+
+    const start = parseInt(options.start.split(':')[0])
+    const end = parseInt(options.end.split(':')[0])
+    const adjustedEnd = end < start ? end + 24 : end;
+
+    for (let hour = start; hour <= adjustedEnd; hour++) {
+      hourOptions.push(hour % 24);
+    }
+
+    this.changeState({
+      ...this.state,
+      minuteOptionsSchedule: minuteOptions,
+      hourOptionsSchedule: hourOptions
+    })
+
   }
 }

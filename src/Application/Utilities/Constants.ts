@@ -13,13 +13,13 @@ export enum IconSVG {
   barCodePrice = 'img:barcode-price.svg',
   medicalHospital = 'img:medical-hospital-building.svg',
   calendarCheckMark = 'img:calendar-checkmark.svg',
-  scheduleCalendar = 'img:schedule-calendar.svg',
+  scheduleCalendar = '/schedule-calendar.svg',
   historyLog = 'img:history-log.svg',
   hurt = 'img:hurt.svg',
   physicalTherapy = 'img:physical-therapy.svg',
   question = 'img:question.svg',
   open_book = 'img:open-book.svg',
-  schedule_single = 'img:schedule-single.svg',
+  schedule_single = '/schedule-single.svg',
   calendar_plus = 'M19 19V8H5v11h14M16 1h2v2h1a2 2 0 0 1 2 2v14c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2V5c0-1.11.89-2 2-2h1V1h2v2h8V1m-5 8.5h2v3h3v2h-3v3h-2v-3H8v-2h3v-3Z',
   index = 'index.svg',
   medicalClinic = 'img:medical-clinic-care.svg',
@@ -41,8 +41,8 @@ export const OPTIONS_HOURS = [
   7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
 ];
 export const CURRENTYEAR_MONTH = date.formatDate(timeStamp, 'YYYY/MM');
-export const START_TIME = '07:00';
-export const END_TIME = '23:00';
+export const START_TIME = '00:00';
+export const END_TIME = '24:00';
 export const DURATION_APPOINTMENT = '00:20';
 export const MINUTES_APPOINTMENT = parseInt(DURATION_APPOINTMENT.split(':')[1]);
 

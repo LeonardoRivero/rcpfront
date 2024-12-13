@@ -1,4 +1,4 @@
-import { Bloc, IHandleGlobalState, IUseCase, Observer, Subject } from 'src/Domine/IPatterns';
+import { Bloc, IHandleGlobalState, IUseCase, Subject } from 'src/Domine/IPatterns';
 import { IndexState } from 'src/Domine/IStates';
 import { ScheduleResponse } from 'src/Domine/Responses';
 

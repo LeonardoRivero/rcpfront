@@ -199,12 +199,13 @@
   import { QForm, QStepper } from 'quasar';
   import 'src/css/app.sass';
   import { AppointmentBloc } from 'src/Adapters';
-  import { isNotNull, required } from 'src/Application/Utilities/Helpers';
+  import { isNotNull } from 'src/Application/Utilities/Helpers';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   import { IHandleGlobalState } from 'src/Domine/IPatterns';
   import { AllergieResponse } from 'src/Domine/Responses';
   import DiagnosticAppointment from './DiagnosticAppointment.vue';
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dependenciesLocator = inject<any>('dependenciesLocator');
   const controller = <AppointmentBloc>(
     dependenciesLocator.provideAppointmentBloc()

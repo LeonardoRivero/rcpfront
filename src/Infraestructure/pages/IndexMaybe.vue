@@ -135,6 +135,7 @@
   import { routerInstance } from 'src/boot/globalRouter';
   import { AppointmentBloc } from 'src/Adapters';
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dependenciesLocator = inject<any>('dependenciesLocator');
   const handleGlobalState = <IHandleGlobalState>(
     dependenciesLocator.provideHandleGlobalState()

@@ -457,7 +457,6 @@
   function updateValidationRules() {
     inputRules.value = [];
     inputRules.value.push(required);
-    console.log(state.value.idType?.id);
     if (
       state.value.idType?.id === 1 ||
       state.value.idType?.id === 8 ||

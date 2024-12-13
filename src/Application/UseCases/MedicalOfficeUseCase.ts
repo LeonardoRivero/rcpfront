@@ -1,6 +1,6 @@
 import { HTTPClient, IUseCase } from 'src/Domine/IPatterns';
-import { MedicalOfficeResponse, ResponseData } from 'src/Domine/Responses';
-import { IMedicalOfficeRequest } from 'src/Domine/Request';
+import { AttentionScheduleMedicalResponse, MedicalOfficeResponse, ResponseData } from 'src/Domine/Responses';
+import { AttentionScheduleMedicalRequest, IMedicalOfficeRequest } from 'src/Domine/Request';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
 
 export class CreateMedicalOfficeUseCase implements IUseCase<IMedicalOfficeRequest, MedicalOfficeResponse | null> {
@@ -30,8 +30,8 @@ export class UpdateMedicalOfficeUseCase implements IUseCase<IMedicalOfficeReques
     if (!response.ok) {
       return null;
     }
-    const patient: MedicalOfficeResponse = await response.json();
-    return patient;
+    const patient: ResponseData<MedicalOfficeResponse> = await response.json();
+    return patient.result;
   }
 }
 
@@ -50,4 +50,33 @@ export class GetMedicalOfficeBelongToUserUseCase implements IUseCase<string, Med
   }
 }
 
+export class GetMedicalOfficeByIdUseCase implements IUseCase<number, MedicalOfficeResponse | null> {
+  private url: string
+  public constructor(private httpClient: HTTPClient) {
+    this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}`;
+  }
+  async execute(id: number): Promise<MedicalOfficeResponse | null> {
+    const response = await this.httpClient.GET(`${this.url}${id}`);
+    if (!response.ok) {
+      return null;
+    }
+    const medicalOffice: ResponseData<MedicalOfficeResponse> = await response.json();
+    return medicalOffice.result;
+  }
+}
 
+export class GetAttenttionMedicalOfficeUseCase implements IUseCase<AttentionScheduleMedicalRequest, AttentionScheduleMedicalResponse | null> {
+  private url: string
+  public constructor(private httpClient: HTTPClient) {
+    this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}${'attentionschedule/'}`;
+  }
+  async execute(request: AttentionScheduleMedicalRequest): Promise<AttentionScheduleMedicalResponse | null> {
+    const params = { medicalOfficeId: request.medicalOfficeId, dayOfWeek: request.dayOfWeek }
+    const response = await this.httpClient.GET(`${this.url}`, params);
+    if (!response.ok) {
+      return null;
+    }
+    const attentionSchedule: ResponseData<AttentionScheduleMedicalResponse> = await response.json();
+    return attentionSchedule.result;
+  }
+}

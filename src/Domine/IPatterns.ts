@@ -1,7 +1,7 @@
 import { GenericService } from 'src/Application/Repositories/Interface';
 import { IPermission, ITableOptions } from './ICommons';
 import { NotificationType, ModalType } from './Types';
-import { BiologicalSexResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, MedicalOfficeResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, AuthResponse, SpecialityResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse, KinshipResponse } from './Responses';
+import { BiologicalSexResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, MedicalOfficeResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, AuthResponse, SpecialityResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse, KinshipResponse, AttentionScheduleMedicalResponse, PatientResponse } from './Responses';
 import { DIVIPOLADTO } from './DTOs';
 import { IGlobalState, IStorePermissions, IStoreUser } from './IStores';
 
@@ -216,4 +216,8 @@ export interface IMediatorUseCases {
   getAllDocumentType(): Promise<DocumentTypeResponse[]>
   getAllGender(): Promise<GenderResponse[]>
   getMedicalOfficeBelongToUser(request: string): Promise<MedicalOfficeResponse[]>
+  getAttentionMedicalOffice(request: number): Promise<AttentionScheduleMedicalResponse | null>
+  getSpecialityBelongToMedicalOffice(request: number): Promise<SpecialityResponse[]>
+  findPatientByIdentification(request: string): Promise<PatientResponse | null>
 }
+

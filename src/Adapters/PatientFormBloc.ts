@@ -196,6 +196,8 @@ export class PatientFormBloc extends Bloc<PatientState> {
     }
 
     if (response != null) {
+      this.notifyQuasar.setType('success')
+      this.notifyQuasar.show('', Messages.successMessage)
       this.clear();
     }
     else {

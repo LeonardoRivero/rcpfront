@@ -22,5 +22,6 @@ export enum Messages {
   resetEmailSucess = 'Credenciales restauradas correctamente',
   invalidConfirmCredentials = 'Las nuevas credenciales no coinciden en su verificacion',
   invalidResetCredentials = 'No fue posible reestablecer tus credenciales',
-  intervalHourInvalid = 'Uno o mas intevalo de hora es invalido'
+  intervalHourInvalid = 'Uno o mas intevalo de hora es invalido',
+  notAttentionScheduleForMedicalOffice = 'No se encontro horario para el consultorio solicitado'
 }

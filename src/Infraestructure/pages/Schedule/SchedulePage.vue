@@ -73,7 +73,7 @@
     nowIndicator: true,
     dayMaxEvents: true,
     businessHours: {
-      daysOfWeek: [1, 2, 3, 4, 5, 6],
+      daysOfWeek: [1, 2, 3, 4, 5, 6, 7],
       startTime: START_TIME,
       endTime: END_TIME,
     },

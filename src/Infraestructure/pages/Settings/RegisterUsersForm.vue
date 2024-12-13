@@ -112,6 +112,7 @@
             dense
             emit-value
             multiple
+            use-chips
             v-model="state.medicalOffice"
             :options="state.allMedicalOffice"
             label="Consultorios *"

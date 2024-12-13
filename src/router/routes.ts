@@ -1,3 +1,5 @@
+import ListMedicalOffice from 'src/Infraestructure/pages/Settings/ListMedicalOffice.vue';
+import MedicalOffice from 'src/Infraestructure/pages/Settings/MedicalOffice.vue';
 import { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
@@ -47,9 +49,12 @@ const routes: RouteRecordRaw[] = [
       //     import('src/Infraestructure/pages/Settings/DashBoard.vue'),
       // },
       {
-        path: 'medicaloffice',
-        component: () =>
-          import('src/Infraestructure/pages/Settings/MedicalOffice.vue'),
+        path: '/medicaloffice',
+        children: [
+          { path: '', component: ListMedicalOffice },
+          { path: 'edit', component: MedicalOffice },
+          { path: 'add', component: MedicalOffice }
+        ]
       },
       {
         path: 'users',

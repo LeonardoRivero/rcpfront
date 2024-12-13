@@ -165,7 +165,7 @@ export interface IExam {
 export interface OpeningHoursRequest {
   start: string;
   end: string;
-  dayOfWeekId: number
+  dayOfWeek: string
 }
 export interface IMedicalOfficeRequest {
   id?: number;
@@ -176,6 +176,7 @@ export interface IMedicalOfficeRequest {
   phoneNumber: string;
   doctor: number[];
   openingHours: OpeningHoursRequest[]
+  intervalAttention: number
 }
 
 export interface IMedicalHistory {
@@ -231,4 +232,8 @@ export interface NewPasswordRequest {
   userId: string
   token: string
   newPassword: string
+}
+export interface AttentionScheduleMedicalRequest {
+  dayOfWeek: number
+  medicalOfficeId: number
 }

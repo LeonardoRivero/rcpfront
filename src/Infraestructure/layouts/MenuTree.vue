@@ -7,7 +7,6 @@
 
       <q-item-section>
         <q-item-label>{{ 'Inicio' }}</q-item-label>
-        <q-item-label caption>{{ 'Inicio Mercurio' }}</q-item-label>
       </q-item-section>
     </q-item>
 
@@ -18,7 +17,6 @@
 
       <q-item-section>
         <q-item-label>{{ 'Cita Medica' }}</q-item-label>
-        <q-item-label caption>{{ 'Gestiona Cita Medica' }}</q-item-label>
       </q-item-section>
     </q-item>
 
@@ -29,7 +27,6 @@
 
       <q-item-section>
         <q-item-label>{{ 'Pacientes' }}</q-item-label>
-        <q-item-label caption>{{ 'Gestion Pacientes' }}</q-item-label>
       </q-item-section>
     </q-item>
 
@@ -42,12 +39,15 @@
       </q-item-section>
     </q-item>
 
-    <q-expansion-item
-      :content-inset-level="0.5"
-      :icon="icons.schedule_single"
-      label="Admisiones"
-      caption="Admisiones citas"
-    >
+    <q-expansion-item :content-inset-level="0.5" label="Admisiones">
+      <template v-slot:header>
+        <q-item-section avatar>
+          <q-icon>
+            <img :src="icons.schedule_single" />
+          </q-icon>
+        </q-item-section>
+        <q-item-section>Admisiones</q-item-section>
+      </template>
       <!-- <q-item clickable tag="a" link to="/appointment/list">
         <q-item-section avatar>
           <q-icon name="mdi-calendar-multiple-check" />
@@ -58,11 +58,11 @@
       </q-item> -->
       <q-item clickable tag="a" link to="/admission">
         <q-item-section avatar>
-          <q-icon :name="icons.scheduleCalendar" />
+          <q-icon>
+            <img :src="icons.scheduleCalendar" />
+          </q-icon>
         </q-item-section>
-        <q-item-section>
-          <q-item-label>{{ 'Admisiones' }}</q-item-label>
-        </q-item-section>
+        <q-item-section>Admisiones</q-item-section>
       </q-item>
     </q-expansion-item>
 
@@ -92,8 +92,8 @@
       :key="item.label"
       :icon="item.icon"
       :label="item.label"
-      :caption="item.caption"
       expand-separator
+      :content-inset-level="1"
     >
       <q-list v-if="item.children">
         <q-item
@@ -123,10 +123,9 @@
     {
       icon: 'settings',
       label: 'Configuración',
-      caption: 'Preferencias del sistema',
       children: [
-        { icon: 'person', label: 'Usuarios', linkTo: 'users' },
-        { icon: 'place ', label: 'Consultorio', linkTo: 'medicaloffice' },
+        { icon: 'person', label: 'Usuarios', linkTo: '/users' },
+        { icon: 'place ', label: 'Consultorio', linkTo: '/medicaloffice' },
         // { icon: 'notifications', label: 'Notificaciones' },
       ],
     },

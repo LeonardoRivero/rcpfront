@@ -87,11 +87,6 @@
   import { Loading, QSpinnerCube } from 'quasar';
   import { inject, ref } from 'vue';
   import { QForm } from 'quasar';
-  import {
-    required,
-    emailRequired,
-    short,
-  } from 'src/Application/Utilities/Helpers';
   import { LoginBloc } from 'src/Adapters/LoginBloc';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   import { routerInstance } from 'src/boot/globalRouter';
