@@ -1,4 +1,4 @@
-export const API_BASE_URL = `${process.env.RCP}/rcp`;
+export const API_BASE_URL = process.env.NODE_ENV === 'development' ? `${process.env.RCPDEV}/rcp` : `${process.env.RCP}/rcp`;
 
 export const ENDPOINTS = {
   CUP: {
