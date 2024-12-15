@@ -21,6 +21,7 @@ import {
   AllergieResponse,
   BiologicalSexResponse,
   CIE10Response,
+  CUPResponse,
   CountryResponse,
   DXMainCodeResponse,
   DoctorResponse,
@@ -64,23 +65,28 @@ export interface AppointmentState {
   allRelationCodes: Array<CIE10Response>;
   allAllergies: AllergieResponse[];
   allKinship: KinshipResponse[];
+  allCUP: CUPResponse[];
   dxMainCode: CIE10Response | null;
   relationCode: CIE10Response | null;
+  cupCode: CUPResponse | null
   allergie: AllergieResponse | null;
   filterCIE10: string | null
   filterRelatedCode: string | null
+  filterCUP: string | null
   smoke: boolean
   alcohol: boolean
   drugs: boolean
   alcoholObservations: string | null
   smokeObservations: string | null
   drugsObservations: string | null
+  diagnosticObservations: string | null
   allergen: string | null
   treatmentMedical: string | null
   patientHasTreatment: boolean
   patientHasAllergie: boolean,
   patientWithFamilyHistory: boolean,
   kinship: KinshipResponse | null
+  familiarCondition: string | null
 }
 
 export interface PathologicalHistoryState {

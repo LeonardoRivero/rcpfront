@@ -2,11 +2,13 @@ import { HTTPClient, IUseCase } from 'src/Domine/IPatterns';
 import { PatientResponse, ResponseData } from 'src/Domine/Responses';
 import { IPatient } from 'src/Domine/Request';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
+import { ENDPOINTS } from '../Utilities/EndPoints';
 
 export class CreatePatientUseCase implements IUseCase<IPatient, PatientResponse | null> {
   private url: string
   public constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.PATIENT}`;
+    // this.url = `${process.env.RCP}${process.env.PATIENT}`;
+    this.url = ENDPOINTS.PATIENT.root
   }
 
   async execute(payload: IPatient): Promise<PatientResponse | null> {
@@ -22,7 +24,8 @@ export class CreatePatientUseCase implements IUseCase<IPatient, PatientResponse 
 export class FindPatientByIdentificationUseCase implements IUseCase<string, PatientResponse | null> {
   private url: string
   public constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.PATIENT}${'filter/'}`;
+    // this.url = `${process.env.RCP}${process.env.PATIENT}${'filter/'}`;
+    this.url = ENDPOINTS.PATIENT.filter
   }
 
   async execute(
@@ -41,7 +44,8 @@ export class FindPatientByIdentificationUseCase implements IUseCase<string, Pati
 export class UpdatePatientUseCase implements IUseCase<IPatient, PatientResponse | null> {
   private url: string
   public constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.PATIENT}`;
+    // this.url = `${process.env.RCP}${process.env.PATIENT}`;
+    this.url = ENDPOINTS.PATIENT.root
   }
 
   async execute(payload: IPatient): Promise<PatientResponse | null> {

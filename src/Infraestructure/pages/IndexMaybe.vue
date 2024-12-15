@@ -127,13 +127,13 @@
 </template>
 
 <script setup lang="ts">
-  import { inject, onMounted, ref } from 'vue';
+  import { inject, onMounted } from 'vue';
   import { useQuasar } from 'quasar';
   import { IHandleGlobalState } from 'src/Domine/IPatterns';
   import { IndexBloc, NotificatorIndexBloc } from 'src/Adapters/IndexBloc';
   import { usePlocState } from '../Utilities/usePlocState';
   import { routerInstance } from 'src/boot/globalRouter';
-  import { AppointmentBloc } from 'src/Adapters';
+  import { AppointmentBloc, InfoPatientPanelBloc } from 'src/Adapters';
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dependenciesLocator = inject<any>('dependenciesLocator');
@@ -141,7 +141,7 @@
     dependenciesLocator.provideHandleGlobalState()
   );
   const controller = <IndexBloc>dependenciesLocator.provideIndexBloc();
-  const controllerInfoPatientPanel = <IndexBloc>(
+  const controllerInfoPatientPanel = <InfoPatientPanelBloc>(
     dependenciesLocator.provideInfoPatientPanelPloc()
   );
 
@@ -159,54 +159,54 @@
   });
   const $q = useQuasar();
 
-  const stats = ref({
-    totalPatients: 1250,
-    appointmentsToday: 28,
-    pendingResults: 15,
-    availableDoctors: 8,
-  });
+  // const stats = ref({
+  //   totalPatients: 1250,
+  //   appointmentsToday: 28,
+  //   pendingResults: 15,
+  //   availableDoctors: 8,
+  // });
 
-  const upcomingAppointments = ref([
-    {
-      id: 1,
-      patientName: 'Juan Pérez',
-      doctorName: 'Dra. García',
-      time: '10:00 AM',
-    },
-    {
-      id: 2,
-      patientName: 'María López',
-      doctorName: 'Dr. Rodríguez',
-      time: '11:30 AM',
-    },
-    {
-      id: 3,
-      patientName: 'Carlos Gómez',
-      doctorName: 'Dra. Martínez',
-      time: '2:00 PM',
-    },
-  ]);
+  // const upcomingAppointments = ref([
+  //   {
+  //     id: 1,
+  //     patientName: 'Juan Pérez',
+  //     doctorName: 'Dra. García',
+  //     time: '10:00 AM',
+  //   },
+  //   {
+  //     id: 2,
+  //     patientName: 'María López',
+  //     doctorName: 'Dr. Rodríguez',
+  //     time: '11:30 AM',
+  //   },
+  //   {
+  //     id: 3,
+  //     patientName: 'Carlos Gómez',
+  //     doctorName: 'Dra. Martínez',
+  //     time: '2:00 PM',
+  //   },
+  // ]);
 
-  const pendingResults = ref([
-    {
-      id: 1,
-      patientName: 'Ana Torres',
-      testType: 'Análisis de Sangre',
-      date: '2023-05-15',
-    },
-    {
-      id: 2,
-      patientName: 'Pedro Sánchez',
-      testType: 'Radiografía',
-      date: '2023-05-16',
-    },
-    {
-      id: 3,
-      patientName: 'Laura Ramírez',
-      testType: 'Electrocardiograma',
-      date: '2023-05-17',
-    },
-  ]);
+  // const pendingResults = ref([
+  //   {
+  //     id: 1,
+  //     patientName: 'Ana Torres',
+  //     testType: 'Análisis de Sangre',
+  //     date: '2023-05-15',
+  //   },
+  //   {
+  //     id: 2,
+  //     patientName: 'Pedro Sánchez',
+  //     testType: 'Radiografía',
+  //     date: '2023-05-16',
+  //   },
+  //   {
+  //     id: 3,
+  //     patientName: 'Laura Ramírez',
+  //     testType: 'Electrocardiograma',
+  //     date: '2023-05-17',
+  //   },
+  // ]);
 
   const onNewPatient = () => {
     $q.notify({
@@ -249,12 +249,12 @@
     routerInstance.push('/appointment');
   }
 
-  const viewPendingResult = (id: number) => {
-    $q.dialog({
-      title: 'Resultado Pendiente',
-      message: `Visualizando resultado pendiente ID: ${id}`,
-    });
-  };
+  // const viewPendingResult = (id: number) => {
+  //   $q.dialog({
+  //     title: 'Resultado Pendiente',
+  //     message: `Visualizando resultado pendiente ID: ${id}`,
+  //   });
+  // };
 </script>
 
 <style scoped>

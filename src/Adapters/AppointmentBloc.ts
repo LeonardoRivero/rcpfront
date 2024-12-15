@@ -1,6 +1,7 @@
 import {
   AllergieResponse,
   CIE10Response,
+  CUPResponse,
   GenderResponse,
   MedicalOfficeResponse,
   PatientResponse,
@@ -21,11 +22,10 @@ import {
   Bloc,
   IUseCase,
   Subject,
-  Observer,
   IHandleGlobalState,
 } from 'src/Domine/IPatterns';
 import { ModalType } from 'src/Domine/Types';
-import { FilterScheduleRequest } from 'src/Domine/Request';
+import { CheckAdmissionPatientRequest } from 'src/Domine/Request';
 import { IHelpers } from 'src/Domine/ICommons';
 import { routerInstance } from 'src/boot/globalRouter';
 import { NotificatorIndexBloc } from './IndexBloc';
@@ -36,10 +36,9 @@ export class InfoPatientPanelBloc extends Bloc<InfoPatientState> {
   private notifySweetAlert: Notificator;
   private static instance: InfoPatientPanelBloc
   private constructor(
-    private searchPatientByIdentificationUseCase: IUseCase<string, PatientResponse | null>,
-    private findScheduleByIdentificationPatientUseCase: IUseCase<FilterScheduleRequest, ScheduleResponse | null>,
+    private checkAdmissionForPatient: IUseCase<CheckAdmissionPatientRequest, [string, boolean]>,
     private notificator: IFactoryMethodNotifications,
-    private helper: IHelpers
+    private helper: IHelpers,
   ) {
     const state: InfoPatientState = {
       identificationPatient: '',
@@ -54,14 +53,11 @@ export class InfoPatientPanelBloc extends Bloc<InfoPatientState> {
     );
   }
 
-  public static getInstance(searchPatientByIdentificationUseCase: IUseCase<string, PatientResponse | null>,
-    findScheduleByIdentificationPatientUseCase: IUseCase<FilterScheduleRequest, ScheduleResponse | null>,
-    notificator: IFactoryMethodNotifications,
-    helper: IHelpers) {
+  public static getInstance(checkAdmissionForPatient: IUseCase<CheckAdmissionPatientRequest, [string, boolean]>,
+    notificator: IFactoryMethodNotifications, helper: IHelpers) {
 
     if (!InfoPatientPanelBloc.instance) {
-      InfoPatientPanelBloc.instance = new InfoPatientPanelBloc(searchPatientByIdentificationUseCase,
-        findScheduleByIdentificationPatientUseCase, notificator, helper);
+      InfoPatientPanelBloc.instance = new InfoPatientPanelBloc(checkAdmissionForPatient, notificator, helper);
     }
     return InfoPatientPanelBloc.instance
   }
@@ -73,7 +69,7 @@ export class InfoPatientPanelBloc extends Bloc<InfoPatientState> {
     }
     const scheduleResponse = <ScheduleResponse>data
     this.changeState({ ...this.state, identificationPatient: scheduleResponse.patient.identification })
-    await this.patientHasAppointment(scheduleResponse.medicalOffice)
+    await this.patientHasAppointment(scheduleResponse.id, scheduleResponse.medicalOffice)
   };
 
   public clear() {
@@ -87,12 +83,9 @@ export class InfoPatientPanelBloc extends Bloc<InfoPatientState> {
     });
   }
 
-  async patientHasAppointment(medicaloffice: MedicalOfficeResponse) {
-    const patient = await this.searchPatientByIdentificationUseCase.execute(
-      this.state.identificationPatient
-    );
-
-    if (patient === null) {
+  async patientHasAppointment(scheduleId: number, medicaloffice: MedicalOfficeResponse) {
+    const patient = await this.mediator?.findPatientByIdentification(this.state.identificationPatient)
+    if (patient === null || patient === undefined) {
       this.clear();
       this.notifySweetAlert.setType('error')
       const confirm = await this.notifySweetAlert.show('Error', Messages.notFoundInfoPatient)
@@ -116,16 +109,16 @@ export class InfoPatientPanelBloc extends Bloc<InfoPatientState> {
       showSkeleton: false
     });
 
-    const request: FilterScheduleRequest = {
-      identificationPatient: this.state.identificationPatient,
+    const request: CheckAdmissionPatientRequest = {
+      scheduleId: scheduleId,
       medicalOfficeId: medicaloffice.id
     }
 
-    const schedule = await this.findScheduleByIdentificationPatientUseCase.execute(request);
-    if (schedule === null) {
+    const [message, wasAdmissioned] = await this.checkAdmissionForPatient.execute(request);
+    if (!wasAdmissioned) {
       this.clear()
       this.notifySweetAlert.setType('error')
-      const confirm = await this.notifySweetAlert.show('Error', Messages.patientNotSchedule)
+      const confirm = await this.notifySweetAlert.show('Error', message)
       if (confirm) {
         routerInstance.push('/schedule')
       }
@@ -134,7 +127,9 @@ export class InfoPatientPanelBloc extends Bloc<InfoPatientState> {
 }
 
 export class AppointmentBloc extends Bloc<AppointmentState> {
-  public constructor(private getByFilterCIE10UseCase: IUseCase<string, CIE10Response[]>) {
+  public constructor(private getByFilterCIE10UseCase: IUseCase<string, CIE10Response[]>,
+    private getByFilterCUPUseCase: IUseCase<string, CUPResponse[]>
+  ) {
     const state: AppointmentState = {
       allPathologies: [],
       pathology: null,
@@ -146,12 +141,15 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
       allRelationCodes: [],
       allAllergies: [],
       allKinship: [],
+      allCUP: [],
       dxMainCode: null,
       relationCode: null,
+      cupCode: null,
       allergie: null,
       allergen: null,
       filterCIE10: null,
       filterRelatedCode: null,
+      filterCUP: null,
       alcohol: false,
       drugs: false,
       smoke: false,
@@ -159,10 +157,12 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
       alcoholObservations: null,
       smokeObservations: null,
       drugsObservations: null,
+      diagnosticObservations: null,
       patientHasTreatment: false,
       patientHasAllergie: false,
       patientWithFamilyHistory: false,
-      kinship: null
+      kinship: null,
+      familiarCondition: null,
     };
     super(state);
   }
@@ -207,7 +207,7 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
     });
   }
 
-  async dxMainCodeChanged() {
+  async filterDxMainCode() {
     // if (this.state.filterCIE10 == '') return
     const dxMainCode = await this.getByFilterCIE10UseCase.execute(this.state.filterCIE10 ?? '')
     this.changeState({ ...this.state, allDxMainCodes: dxMainCode })
@@ -226,7 +226,7 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
   async filterRelatedCode() {
     if (this.state.filterRelatedCode == '') return
     const relatedCode = await this.getByFilterCIE10UseCase.execute(this.state.filterRelatedCode ?? '')
-    this.changeState({ ...this.state, allRelationCodes: relatedCode, relationCode: relatedCode[0] })
+    this.changeState({ ...this.state, allRelationCodes: relatedCode })
     // const mediator = <ActionsScheduleMediator>(<unknown>this.mediator);
     // const listRelationCode = await mediator.getAllRelationCode();
     // const relationCodeFiltered = listRelationCode.filter(
@@ -239,11 +239,23 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
     // });
   }
 
+  async filterCUP() {
+    if (this.state.filterCUP == '') return
+    const cupCode = await this.getByFilterCUPUseCase.execute(this.state.filterCUP ?? '')
+    this.changeState({ ...this.state, allCUP: cupCode })
+  }
   allergieChanged(allergie: AllergieResponse) {
     this.changeState({ ...this.state, patientHasAllergie: allergie.description.toLowerCase() != 'ninguna' })
   }
 }
 
+export class LastAppointmentPanelBloc extends Bloc<string> {
+  public constructor(
+    private checkAdmissionForPatient: IUseCase<CheckAdmissionPatientRequest, [string, boolean]>,
+  ) {
+    super('state');
+  }
+}
 // export class MedicalProcedureBloc extends Bloc<MedicalProcedureState> {
 //   public constructor(
 //     private getPhysicalExamBySpecilityUseCase: UseCase<

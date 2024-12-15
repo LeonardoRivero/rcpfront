@@ -33,12 +33,6 @@ export interface IPhysicalExam {
   active: boolean;
 }
 
-export interface IPatientStatus {
-  id?: number;
-  code: string;
-  description: string;
-}
-
 export interface IReasonConsult {
   id?: number;
   abbreviation: string;
@@ -73,22 +67,11 @@ export interface AddEventToScheduleRequest {
   userId: string
 }
 
-export interface IGender {
-  id: number;
-  nameGender: string;
-}
-
 export interface IHealthInsurance {
   id?: number;
   nameInsurance: string;
   entityCode: string;
   takeCopayment: boolean;
-}
-
-export interface IIDType {
-  id?: number;
-  description: string;
-  abbreviation: string;
 }
 
 export interface IPatient {
@@ -221,7 +204,7 @@ export interface NewOrEditSecretaryRequest {
 
 export interface FilterScheduleRequest {
   identificationPatient: string;
-  medicalOfficeId: number
+  medicalOfficeId: number[]
 }
 
 export interface ForgetPasswordRequest {
@@ -236,4 +219,9 @@ export interface NewPasswordRequest {
 export interface AttentionScheduleMedicalRequest {
   dayOfWeek: number
   medicalOfficeId: number
+}
+
+export interface CheckAdmissionPatientRequest {
+  medicalOfficeId: number
+  scheduleId: number
 }

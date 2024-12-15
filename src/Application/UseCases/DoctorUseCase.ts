@@ -2,11 +2,13 @@ import { HTTPClient, IUseCase } from 'src/Domine/IPatterns';
 import { NewOrEditDoctorRequest } from 'src/Domine/Request';
 import { DoctorResponse, ResponseData } from 'src/Domine/Responses';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
+import { ENDPOINTS } from '../Utilities/EndPoints';
 
 export class CreateDoctorUseCase implements IUseCase<NewOrEditDoctorRequest, DoctorResponse | null> {
   private url: string
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.DOCTOR}`;
+    // this.url = `${process.env.RCP}${process.env.DOCTOR}`;
+    this.url = ENDPOINTS.DOCTOR.root
   }
 
   async execute(payload: NewOrEditDoctorRequest): Promise<DoctorResponse | null> {
@@ -22,7 +24,8 @@ export class CreateDoctorUseCase implements IUseCase<NewOrEditDoctorRequest, Doc
 export class GetDoctorByUserIdUseCase implements IUseCase<string, DoctorResponse | null> {
   private url: string
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.DOCTOR}`;
+    // this.url = `${process.env.RCP}${process.env.DOCTOR}`;
+    this.url = ENDPOINTS.DOCTOR.root
   }
 
   async execute(userId: string): Promise<DoctorResponse | null> {
@@ -39,7 +42,8 @@ export class GetDoctorByUserIdUseCase implements IUseCase<string, DoctorResponse
 export class GetDoctorBelongToMedicalOffice implements IUseCase<number, DoctorResponse[]> {
   private url: string
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.DOCTOR}${'medicaloffice/'}`;
+    // this.url = `${process.env.RCP}${process.env.DOCTOR}${'medicaloffice/'}`;
+    this.url = ENDPOINTS.DOCTOR.belongMedicalOffice
   }
   async execute(medicalofficeId: number): Promise<DoctorResponse[]> {
     const fullUrl = `${this.url}${medicalofficeId.toString()}`;

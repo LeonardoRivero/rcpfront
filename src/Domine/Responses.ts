@@ -326,3 +326,9 @@ export interface KinshipResponse {
   description: string;
   code: string;
 }
+
+export interface CUPResponse {
+  id: number;
+  code: string;
+  name: string;
+}

@@ -4,11 +4,13 @@ import { HTTPClient, IUseCase, } from 'src/Domine/IPatterns';
 
 import { LoginRequest } from 'src/Domine/Request';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
+import { ENDPOINTS } from '../Utilities/EndPoints';
 
 export class CreateUserUseCase implements IUseCase<RegisterUserRequest, Response> {
   private url: string
   public constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.REGISTRATION}`;
+    // this.url = `${process.env.RCP}${process.env.REGISTRATION}`;
+    this.url = ENDPOINTS.ACCOUNT.registration
   }
 
   public async execute(user: RegisterUserRequest): Promise<Response> {
@@ -20,7 +22,8 @@ export class CreateUserUseCase implements IUseCase<RegisterUserRequest, Response
 export class LoginUseCase implements IUseCase<LoginRequest, AuthResponse | null> {
   private url: string
   public constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.LOGIN}`;
+    // this.url = `${process.env.RCP}${process.env.LOGIN}`;
+    this.url = ENDPOINTS.ACCOUNT.login
   }
 
   async execute(payload: LoginRequest): Promise<AuthResponse | null> {
@@ -38,7 +41,8 @@ export class LoginUseCase implements IUseCase<LoginRequest, AuthResponse | null>
 export class ChangePasswordUseCase implements IUseCase<ChangePasswordRequest, ResponseData<boolean>> {
   private url: string
   public constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.CHANGE_PASSWORD}`;
+    // this.url = `${process.env.RCP}${process.env.CHANGE_PASSWORD}`;
+    this.url = ENDPOINTS.ACCOUNT.changePassword
   }
 
   async execute(payload: ChangePasswordRequest | undefined): Promise<ResponseData<boolean>> {
@@ -51,7 +55,8 @@ export class GetAllGroupsUseCase implements IUseCase<string, RoleResponse[]> {
   private url: string
 
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.GROUPS}`;
+    // this.url = `${process.env.RCP}${process.env.GROUPS}`;
+    this.url = ENDPOINTS.ACCOUNT.role
   }
 
   async execute(userId: string): Promise<RoleResponse[]> {
@@ -69,7 +74,8 @@ export class ConfirmEmailUseCase implements IUseCase<ConfirmEmailRequest, boolea
   private url: string
 
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.CONFIRM_EMAIL_REGISTRATION}`;
+    // this.url = `${process.env.RCP}${process.env.CONFIRM_EMAIL_REGISTRATION}`;
+    this.url = ENDPOINTS.ACCOUNT.confirmEmailRegistration
   }
 
   async execute(request: ConfirmEmailRequest): Promise<boolean> {
@@ -84,7 +90,8 @@ export class ForgetPasswordUseCase implements IUseCase<ForgetPasswordRequest, bo
   private url: string
 
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.FORGET_PASSWORD}`;
+    // this.url = `${process.env.RCP}${process.env.FORGET_PASSWORD}`;
+    this.url = ENDPOINTS.ACCOUNT.forgetPassword
   }
 
   async execute(request: ForgetPasswordRequest): Promise<boolean> {
@@ -99,7 +106,8 @@ export class ResetPasswordUseCase implements IUseCase<NewPasswordRequest, boolea
   private url: string
 
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.RESET_PASSWORD}`;
+    // this.url = `${process.env.RCP}${process.env.RESET_PASSWORD}`;
+    this.url = ENDPOINTS.ACCOUNT.resetPassword
   }
 
   async execute(request: NewPasswordRequest): Promise<boolean> {

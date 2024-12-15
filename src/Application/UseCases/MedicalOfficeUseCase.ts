@@ -2,11 +2,13 @@ import { HTTPClient, IUseCase } from 'src/Domine/IPatterns';
 import { AttentionScheduleMedicalResponse, MedicalOfficeResponse, ResponseData } from 'src/Domine/Responses';
 import { AttentionScheduleMedicalRequest, IMedicalOfficeRequest } from 'src/Domine/Request';
 import HttpStatusCode from '../Utilities/HttpStatusCodes';
+import { ENDPOINTS } from '../Utilities/EndPoints';
 
 export class CreateMedicalOfficeUseCase implements IUseCase<IMedicalOfficeRequest, MedicalOfficeResponse | null> {
   private url: string
   public constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}`;
+    // this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}`;
+    this.url = ENDPOINTS.MEDICAL_OFFICE.root
   }
 
   async execute(payload: IMedicalOfficeRequest): Promise<MedicalOfficeResponse | null> {
@@ -22,7 +24,8 @@ export class CreateMedicalOfficeUseCase implements IUseCase<IMedicalOfficeReques
 export class UpdateMedicalOfficeUseCase implements IUseCase<IMedicalOfficeRequest, MedicalOfficeResponse | null> {
   private url: string
   public constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}`;
+    // this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}`;
+    this.url = ENDPOINTS.MEDICAL_OFFICE.root
   }
 
   async execute(payload: IMedicalOfficeRequest): Promise<MedicalOfficeResponse | null> {
@@ -38,10 +41,11 @@ export class UpdateMedicalOfficeUseCase implements IUseCase<IMedicalOfficeReques
 export class GetMedicalOfficeBelongToUserUseCase implements IUseCase<string, MedicalOfficeResponse[]> {
   private url: string
   public constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}`;
+    // this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}`;
+    this.url = ENDPOINTS.MEDICAL_OFFICE.belong
   }
   async execute(userId: string): Promise<MedicalOfficeResponse[]> {
-    const response = await this.httpClient.GET(`${this.url}${'belong'}/${userId}`);
+    const response = await this.httpClient.GET(`${this.url}/${userId}`);
     if (!response.ok || response.status == HttpStatusCode.NO_CONTENT) {
       return [];
     }
@@ -53,7 +57,8 @@ export class GetMedicalOfficeBelongToUserUseCase implements IUseCase<string, Med
 export class GetMedicalOfficeByIdUseCase implements IUseCase<number, MedicalOfficeResponse | null> {
   private url: string
   public constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}`;
+    // this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}`;
+    this.url = ENDPOINTS.MEDICAL_OFFICE.root
   }
   async execute(id: number): Promise<MedicalOfficeResponse | null> {
     const response = await this.httpClient.GET(`${this.url}${id}`);
@@ -68,7 +73,8 @@ export class GetMedicalOfficeByIdUseCase implements IUseCase<number, MedicalOffi
 export class GetAttenttionMedicalOfficeUseCase implements IUseCase<AttentionScheduleMedicalRequest, AttentionScheduleMedicalResponse | null> {
   private url: string
   public constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}${'attentionschedule/'}`;
+    // this.url = `${process.env.RCP}${process.env.MEDICAL_OFFICE}${'attentionschedule/'}`;
+    this.url = ENDPOINTS.MEDICAL_OFFICE.attentionschedule
   }
   async execute(request: AttentionScheduleMedicalRequest): Promise<AttentionScheduleMedicalResponse | null> {
     const params = { medicalOfficeId: request.medicalOfficeId, dayOfWeek: request.dayOfWeek }

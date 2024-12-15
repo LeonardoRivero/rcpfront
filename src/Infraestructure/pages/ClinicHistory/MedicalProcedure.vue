@@ -36,25 +36,25 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted } from 'vue';
-import { MedicalProcedureBloc } from 'src/Adapters/ClinicHistoryController';
-import { IconSVG } from 'src/Application/Utilities';
-import { required } from 'src/Application/Utilities/Helpers';
-import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
-import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
+  import { inject, onMounted } from 'vue';
+  import { MedicalProcedureBloc } from 'src/Adapters/AppointmentBloc';
+  import { IconSVG } from 'src/Application/Utilities';
+  import { required } from 'src/Application/Utilities/Helpers';
+  import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
+  import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
 
-const icons = IconSVG;
-const dependenciesLocator = inject<any>('dependenciesLocator');
-const mediator = ClinicHistoryMediator.getInstance();
-const controller = <MedicalProcedureBloc>(
-  dependenciesLocator.provideMedicalProcedureBloc()
-);
-const state = usePlocState(controller);
-mediator.add(controller);
-onMounted(async () => {
-  await controller.loadInitialData();
-});
-function updateValue(event: any) {
-  controller.updateValue(event.target.value);
-}
+  const icons = IconSVG;
+  const dependenciesLocator = inject<any>('dependenciesLocator');
+  const mediator = ClinicHistoryMediator.getInstance();
+  const controller = <MedicalProcedureBloc>(
+    dependenciesLocator.provideMedicalProcedureBloc()
+  );
+  const state = usePlocState(controller);
+  mediator.add(controller);
+  onMounted(async () => {
+    await controller.loadInitialData();
+  });
+  function updateValue(event: any) {
+    controller.updateValue(event.target.value);
+  }
 </script>

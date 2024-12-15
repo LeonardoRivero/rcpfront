@@ -5,6 +5,7 @@ import HttpStatusCode from '../Utilities/HttpStatusCodes';
 import { OPTIONS_HOURS, OPTIONS_MINUTES } from '../Utilities/Constants';
 import { Messages } from '../Utilities/Messages';
 import HttpStatusCodes from '../Utilities/HttpStatusCodes';
+import { ENDPOINTS } from '../Utilities/EndPoints';
 
 export class AddEventScheduleUseCase implements IUseCase<AddEventToScheduleRequest, ScheduleResponse | null> {
   private url: string
@@ -12,7 +13,8 @@ export class AddEventScheduleUseCase implements IUseCase<AddEventToScheduleReque
   private optionsMinutes = OPTIONS_MINUTES;
 
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+    // this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+    this.url = ENDPOINTS.SCHEDULE.root
   }
 
   async execute(payload: AddEventToScheduleRequest): Promise<ScheduleResponse | null> {
@@ -100,7 +102,8 @@ export class GetByIdScheduleUseCase implements IUseCase<string, ScheduleResponse
   private url: string
 
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+    // this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+    this.url = ENDPOINTS.SCHEDULE.root
   }
 
   async execute(id: string): Promise<ScheduleResponse | null> {
@@ -118,7 +121,8 @@ export class UpdateScheduleUseCase implements IUseCase<AddEventToScheduleRequest
   private url: string
 
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+    // this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+    this.url = ENDPOINTS.SCHEDULE.root
   }
 
   async execute(request: AddEventToScheduleRequest): Promise<ScheduleResponse | null> {
@@ -137,11 +141,12 @@ export class FindScheduleForPatientUseCase
   private url: string
 
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+    // this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+    this.url = ENDPOINTS.SCHEDULE.patient
   }
 
   async execute(request: FilterScheduleRequest): Promise<ScheduleResponse | null> {
-    const response = await this.httpClient.POST(`${this.url}patient/`, request);
+    const response = await this.httpClient.POST(this.url, request);
     if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT) {
       return null;
     }
@@ -164,12 +169,13 @@ export class GetScheduleForMedicalOfficeUseCase
   private url: string
 
   constructor(private httpClient: HTTPClient) {
-    this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+    // this.url = `${process.env.RCP}${process.env.SCHEDULE}`;
+    this.url = ENDPOINTS.SCHEDULE.medicalOffice
   }
 
   async execute(medicalOfficeId: number[]): Promise<ScheduleResponse[]> {
     const params = { medicalOfficeId: medicalOfficeId }
-    const response = await this.httpClient.GET(`${this.url}medicaloffice/`, params);
+    const response = await this.httpClient.GET(this.url, params);
     if (!response.ok || response.status == HttpStatusCodes.NO_CONTENT) {
       return [];
     }

@@ -38,11 +38,12 @@ import { UserContext } from './Mediators/UserContext';
 import { AddEventScheduleUseCase, FindScheduleForPatientUseCase, GetByIdScheduleUseCase, GetScheduleForMedicalOfficeUseCase, UpdateScheduleUseCase } from 'src/Application/UseCases/ScheduleUseCases';
 import { PaymentOptionIsCashUseCase } from 'src/Application/UseCases/PaymentOptionsUseCases';
 import { Helpers } from './Utilities/Helpers';
-import { CreateAdmissionUseCase } from 'src/Application/UseCases/AdmissionUseCases';
+import { CheckAdmissionForPatientUseCase, CreateAdmissionUseCase } from 'src/Application/UseCases/AdmissionUseCases';
 import { IndexBloc } from 'src/Adapters/IndexBloc';
 import { GetByFilterCIE10UseCase } from 'src/Application/UseCases/CIE10UseCases';
 import { ForgetPasswordBloc } from 'src/Adapters/ForgetPasswordBloc';
 import { ResetPasswordBloc } from 'src/Adapters/ResetPasswordBloc';
+import { GetByFilterCUPUseCase } from 'src/Application/UseCases/CUPUseCases';
 
 const notificator = new FactoryNotifactors();
 const HttpClientAPI = new ClientAPI();
@@ -52,20 +53,20 @@ const findScheduleForPatientUseCase = new FindScheduleForPatientUseCase(HttpClie
 const helper = new Helpers()
 
 function provideInfoPatientPanelPloc(): InfoPatientPanelBloc {
-  const findScheduleByIdentificationPatientUseCase = new FindScheduleForPatientUseCase(HttpClientAPI);
+  const checkAdmissionForPatientUseCase = new CheckAdmissionForPatientUseCase(HttpClientAPI)
 
-  const productsPloc = InfoPatientPanelBloc.getInstance(
-    findPatientByIdentificationUseCase,
-    findScheduleByIdentificationPatientUseCase,
+  const infoPatientPaneBloc = InfoPatientPanelBloc.getInstance(
+    checkAdmissionForPatientUseCase,
     notificator, helper
   );
-
-  return productsPloc;
+  infoPatientPaneBloc.setMediator(mediatorUseCases)
+  return infoPatientPaneBloc;
 }
 
 function provideAppointmentBloc(): AppointmentBloc {
   const getByFilterCIE10UseCase = new GetByFilterCIE10UseCase(HttpClientAPI)
-  return new AppointmentBloc(getByFilterCIE10UseCase);
+  const getByFilterCUPUseCase = new GetByFilterCUPUseCase(HttpClientAPI, notificator)
+  return new AppointmentBloc(getByFilterCIE10UseCase, getByFilterCUPUseCase);
 }
 
 function provideScheduleBloc(): ScheduleFormBloc {

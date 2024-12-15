@@ -83,8 +83,8 @@
                     'El valor no puede ser negativo',
                 ]"
                 :disable="state.currentAppointment.isParticular"
-                @blur="(evt) => changeCopayment(evt)"
-                @keydown.enter.prevent="(evt:any) =>changeCopayment(evt)"
+                @blur="(evt) => changeCopayment()"
+                @keydown.enter.prevent="(evt:any) =>changeCopayment()"
               />
             </div>
             <div class="col-12 col-sm-6">
@@ -110,8 +110,8 @@
                     'El valor no puede ser negativo',
                 ]"
                 clearable
-                @blur="(evt) => changePrice(evt)"
-                @keydown.enter.prevent="(evt:any) =>changePrice(evt)"
+                @blur="(evt) => changePrice()"
+                @keydown.enter.prevent="(evt:any) =>changePrice()"
                 :error="error"
                 :error-message="errorMessage"
               />
@@ -122,7 +122,7 @@
                 v-model="state.currentAppointment.isParticular"
                 val="lg"
                 label="Cita Particular"
-                @update:model-value="(val) => calculateAmountPaid(val)"
+                @update:model-value="(val) => calculateAmountPaid()"
               />
             </div>
             <div class="col-12 col-sm-6">
@@ -154,26 +154,33 @@
           </q-card-section>
           <q-card-section>
             <div class="col-12 col-sm-6">
-              <b>Nombre Paciente:</b>
+              <b>Nombre Paciente : </b>
               <q-skeleton type="text" v-if="state.showSkeleton" />
               {{ state.schedule.patient.name }}
               {{ state.schedule.patient.lastName }}
             </div>
             <div class="col-12 col-sm-6">
-              <b>Especialidad :</b>
+              <b>Especialidad : </b>
               <q-skeleton type="text" v-if="state.showSkeleton" />
               {{ state.schedule.speciality.description }}
             </div>
             <div class="col-12 col-sm-6">
-              <b>Entidad :</b>
+              <b>Entidad : </b>
               <q-skeleton type="text" v-if="state.showSkeleton" />
               {{ state.schedule.healthEntity.name }}
             </div>
             <div class="col-12 col-sm-6">
-              <b>Hora Cita:</b>
+              <b>Hora Cita : </b>
               <q-skeleton type="text" v-if="state.showSkeleton" />
               <span v-if="state.schedule.start.length != 0">
                 {{ new Date(state.schedule.start).toLocaleString() }}
+              </span>
+            </div>
+            <div class="col-12 col-sm-6">
+              <b>Consultorio : </b>
+              <q-skeleton type="text" v-if="state.showSkeleton" />
+              <span v-if="state.schedule.medicalOffice !== undefined">
+                {{ state.schedule.medicalOffice.name }}
               </span>
             </div>
           </q-card-section>
@@ -223,7 +230,7 @@
     await controller.saveOrUpdate(handleUserState);
   }
 
-  function changeCopayment(value: any) {
+  function changeCopayment() {
     // state.value.copayment = currency(value.target.value).format();
     // state.value.currentAppointment.copayment = currency(
     //   value.target.value
@@ -234,7 +241,7 @@
     // ).format();
   }
 
-  function changePrice(value: any) {
+  function changePrice() {
     // state.value.currentAppointment.price = currency(value.target.value).value;
     // state.value.price = currency(value.target.value).format();
     controller.calculateAmountPaid();
@@ -247,7 +254,7 @@
     controller.changedPaymentMethod(idPaymentOption);
   }
 
-  function calculateAmountPaid(val: any) {
+  function calculateAmountPaid() {
     // if (val) {
     //   console.log('entr');
     //   state.value.copayment = currency(0).format();
@@ -260,7 +267,7 @@
 
   async function patientWasScheduled() {
     await controller.patientWasScheduled(
-      handleGlobalState.store.currentMedicalOffice[0].id
+      handleGlobalState.store.currentMedicalOffice
     );
   }
 </script>

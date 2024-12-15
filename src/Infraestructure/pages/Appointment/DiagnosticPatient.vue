@@ -11,11 +11,54 @@
     fill-input
     use-input
     hide-selected
-    @filter="onSearch"
+    @filter="onSearchMainCode"
+    :rules="[isNotNull]"
   >
   </q-select>
   <br />
   <q-select
+    option-value="id"
+    :option-label="(option) => `${option.code} ${option.name}`"
+    dense
+    v-model="state.relationCode"
+    :options="state.allRelationCodes"
+    label="Codigo Relacionado"
+    clearable
+    input-debounce="300"
+    fill-input
+    use-input
+    hide-selected
+    @filter="onSearchRelatedCode"
+    :rules="[isNotNull]"
+  >
+  </q-select>
+  <br />
+  <q-select
+    option-value="id"
+    :option-label="(option) => `${option.code} ${option.name}`"
+    dense
+    v-model="state.cupCode"
+    :options="state.allCUP"
+    label="Procedimiento (CUP)"
+    clearable
+    input-debounce="300"
+    fill-input
+    use-input
+    hide-selected
+    @filter="onSearchCUP"
+    :rules="[isNotNull]"
+  />
+  <br />
+  <q-input
+    v-model="state.diagnosticObservations"
+    filled
+    type="textarea"
+    label="Observaciones"
+    autogrow
+    autocapitalize="sentences"
+    clearable
+  />
+  <!-- <q-select
     option-value="id"
     :option-label="(option) => `${option.code} ${option.name}`"
     dense
@@ -37,9 +80,9 @@
       ></q-input>
       <q-btn round dense flat icon="search" @click="searchRelatedCode" />
     </template>
-  </q-select>
+  </q-select> -->
 
-  <q-select
+  <!-- <q-select
     option-value="id"
     :option-label="(option) => `${option.code} ${option.name}`"
     dense
@@ -64,7 +107,7 @@
         </q-menu>
       </q-btn>
     </template>
-  </q-select>
+  </q-select> -->
 
   <!-- <q-select
     dense
@@ -181,18 +224,21 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, inject, onMounted, ref, nextTick } from 'vue';
+  import { computed, ref, nextTick } from 'vue';
   import { AppointmentBloc } from 'src/Adapters';
-  import { required } from 'src/Application/Utilities/Helpers';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   // import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
   import 'src/css/app.sass';
   import { UpdateFunction } from 'src/Domine/Types';
+  import { isNotNull } from 'src/Application/Utilities';
   const text = ref('');
-  const dependenciesLocator = inject<any>('dependenciesLocator');
-  const controller = <AppointmentBloc>(
-    dependenciesLocator.provideAppointmentBloc()
-  );
+  const props = defineProps<{ bloc: AppointmentBloc }>();
+  // const dependenciesLocator = inject<any>('dependenciesLocator');
+  // const controller = <AppointmentBloc>(
+  //   dependenciesLocator.provideAppointmentBloc()
+  // );
+
+  const controller = <AppointmentBloc>props.bloc;
   const state = usePlocState(controller);
   const selectedItem = ref('');
   const isLoading = ref(false);
@@ -217,7 +263,6 @@
     allOptions.push('Opt ' + i);
   }
   const model = ref(null);
-
   const pageSize = 50;
   const lastPage = Math.ceil(allOptions.length / pageSize);
   const loading = ref(false);
@@ -227,7 +272,7 @@
   );
   async function onEnterPress() {
     console.log('Se presionó Enter', state.value.dxMainCode);
-    await controller.dxMainCodeChanged();
+    await controller.filterDxMainCode();
     // Puedes realizar cualquier acción aquí
   }
 
@@ -261,23 +306,25 @@
     });
   }
 
-  function onSearch(val: string, update: UpdateFunction) {
+  function onSearchMainCode(val: string, update: UpdateFunction) {
     if (val === '') {
-      update(() => {
-        console.log(state.value.allDxMainCodes);
-        // state.value.allDxMainCodes = [];
-      });
       return;
     }
     state.value.filterCIE10 = val;
     update(async () => {
-      await controller.dxMainCodeChanged();
+      await controller.filterDxMainCode();
     });
   }
 
-  async function searchRelatedCode() {
+  async function onSearchRelatedCode(val: string, update: UpdateFunction) {
+    if (val === '') {
+      return;
+    }
+    state.value.filterRelatedCode = val;
+    update(async () => {
+      await controller.filterRelatedCode();
+    });
     // isLoading.value = false;
-    await controller.filterRelatedCode();
     // if (this.searchText) {
     //   this.filteredOptions = this.options.filter(option =>
     //     option.label.toLowerCase().includes(this.searchText.toLowerCase())
@@ -287,9 +334,18 @@
     // }
   }
 
+  function onSearchCUP(val: string, update: UpdateFunction) {
+    if (val === '') {
+      return;
+    }
+    state.value.filterCUP = val;
+    update(async () => {
+      await controller.filterCUP();
+    });
+  }
   async function searchDxMain() {
     // isLoading.value = false;
-    await controller.dxMainCodeChanged();
+    await controller.filterDxMainCode();
     // if (this.searchText) {
     //   this.filteredOptions = this.options.filter(option =>
     //     option.label.toLowerCase().includes(this.searchText.toLowerCase())
@@ -299,11 +355,11 @@
     // }
   }
   function filterDxMain() {
-    controller.dxMainCodeChanged();
+    controller.filterDxMainCode();
   }
 
   function dxMainCodeChanged(val: number) {
-    controller.dxMainCodeChanged();
+    controller.filterDxMainCode();
   }
 
   // function setModel(val: string) {

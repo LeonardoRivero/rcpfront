@@ -3,8 +3,8 @@
     <div class="q-pa-md q-gutter-sm">
       <q-breadcrumbs>
         <q-breadcrumbs-el icon="home" to="/" />
-        <q-breadcrumbs-el label="Configuraciones" icon="mdi-cog" />
         <q-breadcrumbs-el label="Lista Consultorios" :to="'/medicaloffice'" />
+        <q-breadcrumbs-el :label="state.name" />
       </q-breadcrumbs>
     </div>
     <q-stepper
@@ -116,7 +116,10 @@
       >
         <q-form @submit="onSubmit" ref="form">
           <div class="row q-col-gutter-md">
-            <div class="col-9 col-sm-9">
+            <div
+              class="col-12 col-sm-9"
+              :class="{ 'order-first': !$q.screen.xs }"
+            >
               <q-table
                 :rows="state.openingHoursDTO"
                 :columns="columns"
@@ -204,7 +207,10 @@
                 </template>
               </q-table>
             </div>
-            <div class="col-3 col-sm-3">
+            <div
+              class="col-12 col-sm-3"
+              :class="{ 'order-first': $q.screen.xs }"
+            >
               <q-input
                 dense
                 v-model="state.intervalAppointment"

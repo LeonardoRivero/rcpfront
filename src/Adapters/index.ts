@@ -5,4 +5,4 @@ export * from './PatientFormBloc';
 export * from './ScheduleBloc';
 export * from './DoctorController';
 export * from './AdmissionsBloc';
-export * from './ClinicHistoryController';
+export * from './AppointmentBloc';

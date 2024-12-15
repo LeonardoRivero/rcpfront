@@ -1,4 +1,4 @@
-import { AddAdmissionRequest, FilterScheduleRequest } from 'src/Domine/Request';
+import { AddAdmissionRequest, CheckAdmissionPatientRequest, FilterScheduleRequest } from 'src/Domine/Request';
 // import { Messages } from 'src/Application/Utilities/Messages';
 import {
   Bloc,
@@ -12,6 +12,7 @@ import {
 import { AdmissionState } from 'src/Domine/IStates';
 import {
   EventScheduleResponse,
+  MedicalOfficeResponse,
   PatientResponse,
   ScheduleResponse,
 } from 'src/Domine/Responses';
@@ -284,17 +285,15 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
     // this.state.disableButtonSave = false;
   }
 
-  public async patientWasScheduled(medicalOfficeId: number): Promise<void> {
+  public async patientWasScheduled(medicalOffice: MedicalOfficeResponse[]): Promise<void> {
     const response = await this.findPatientByIdentificationUseCase.execute(
       this.state.identificationPatient
     );
     this.notifySweetAlert.setType('error');
+
     if (response === null) {
       this.changeState({ ...this.state, disableButtonSave: true });
-      const confirm = await this.notifySweetAlert.show(
-        'Error',
-        Messages.notFoundInfoPatient
-      );
+      const confirm = await this.notifySweetAlert.show('Error', Messages.notFoundInfoPatient);
       if (confirm) {
         routerInstance.push('/patient');
       }
@@ -309,15 +308,12 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
 
     const request: FilterScheduleRequest = {
       identificationPatient: this.state.identificationPatient,
-      medicalOfficeId: medicalOfficeId,
+      medicalOfficeId: medicalOffice.map(m => m.id),
     };
     const schedule = await this.findScheduleForPatientUseCase.execute(request);
     if (schedule === null) {
       this.changeState({ ...this.state, disableButtonSave: true });
-      const confirm = await this.notifySweetAlert.show(
-        'Error',
-        Messages.patientNotSchedule
-      );
+      const confirm = await this.notifySweetAlert.show('Error', Messages.patientNotSchedule);
       if (confirm) {
         routerInstance.push('/schedule');
       }
