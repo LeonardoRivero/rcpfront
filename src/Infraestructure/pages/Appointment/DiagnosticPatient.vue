@@ -1,6 +1,23 @@
 <template>
   <q-select
     option-value="id"
+    :option-label="(option) => `${option.description}`"
+    dense
+    v-model="state.reasonConsult"
+    :options="optionsReasonConsult"
+    label="Razon Consulta *"
+    clearable
+    input-debounce="300"
+    fill-input
+    use-input
+    hide-selected
+    @filter="onSearchReasonConsult"
+    :rules="[isNotNull]"
+  >
+  </q-select>
+  <br />
+  <q-select
+    option-value="id"
     :option-label="(option) => `${option.code} ${option.name}`"
     dense
     v-model="state.dxMainCode"
@@ -33,7 +50,7 @@
   >
   </q-select>
   <br />
-  <q-select
+  <!-- <q-select
     option-value="id"
     :option-label="(option) => `${option.code} ${option.name}`"
     dense
@@ -48,7 +65,7 @@
     @filter="onSearchCUP"
     :rules="[isNotNull]"
   />
-  <br />
+  <br /> -->
   <q-input
     v-model="state.diagnosticObservations"
     filled
@@ -224,87 +241,31 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, nextTick } from 'vue';
+  import { onMounted, inject, ref } from 'vue';
   import { AppointmentBloc } from 'src/Adapters';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   // import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
   import 'src/css/app.sass';
   import { UpdateFunction } from 'src/Domine/Types';
   import { isNotNull } from 'src/Application/Utilities';
-  const text = ref('');
+  import { IHandleGlobalState } from 'src/Domine/IPatterns';
+  import { ReasonConsultResponse } from 'src/Domine/Responses';
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dependenciesLocator = inject<any>('dependenciesLocator');
   const props = defineProps<{ bloc: AppointmentBloc }>();
-  // const dependenciesLocator = inject<any>('dependenciesLocator');
-  // const controller = <AppointmentBloc>(
-  //   dependenciesLocator.provideAppointmentBloc()
-  // );
+  const optionsReasonConsult = ref<ReasonConsultResponse[]>([]);
+  const handleGlobalState = <IHandleGlobalState>(
+    dependenciesLocator.provideHandleGlobalState()
+  );
 
   const controller = <AppointmentBloc>props.bloc;
   const state = usePlocState(controller);
-  const selectedItem = ref('');
-  const isLoading = ref(false);
-  const options = [
-    { label: 'Opción 1', value: 1 },
-    { label: 'Opción 2', value: 2 },
-    { label: 'Opción 3', value: 3 },
-    { label: 'Opción 4', value: 4 },
-    { label: 'Opción 5', value: 5 },
-    { label: 'Opción 6', value: 6 },
-  ];
-  const filteredOptions: any[] = [];
-  // onMounted(async () => {
-  //   await controller.loadInitialData();
-  // });
 
-  // const clinicHistoryMediator = ClinicHistoryMediator.getInstance();
-  // clinicHistoryMediator.add(controller);
-  // const icons = IconSVG;
-  const allOptions: string[] = [];
-  for (let i = 0; i <= 100000; i++) {
-    allOptions.push('Opt ' + i);
-  }
-  const model = ref(null);
-  const pageSize = 50;
-  const lastPage = Math.ceil(allOptions.length / pageSize);
-  const loading = ref(false);
-  const nextPage = ref(2);
-  const options2 = computed(() =>
-    allOptions.slice(0, pageSize * (nextPage.value - 1))
-  );
-  async function onEnterPress() {
-    console.log('Se presionó Enter', state.value.dxMainCode);
-    await controller.filterDxMainCode();
-    // Puedes realizar cualquier acción aquí
-  }
-
-  function onScroll(object: any) {
-    const lastIndex = options2.value.length - 1;
-
-    if (
-      loading.value !== true &&
-      nextPage.value < lastPage &&
-      object.to === lastIndex
-    ) {
-      loading.value = true;
-
-      setTimeout(() => {
-        nextPage.value++;
-        nextTick(() => {
-          object.ref.refresh();
-          loading.value = false;
-        });
-      }, 500);
-    }
-  }
-
-  function filterFn(val: string, update: any) {
-    console.log(val, { update });
-    update(() => {
-      const needle = val.toLowerCase();
-      state.value.allPathologies = state.value.pathologiesForFilter.filter(
-        (v) => v.description.toLowerCase().indexOf(needle) > -1
-      );
-    });
-  }
+  onMounted(async () => {
+    await controller.loadInitialData(handleGlobalState);
+    optionsReasonConsult.value = state.value.allReasonConsult;
+  });
 
   function onSearchMainCode(val: string, update: UpdateFunction) {
     if (val === '') {
@@ -343,29 +304,12 @@
       await controller.filterCUP();
     });
   }
-  async function searchDxMain() {
-    // isLoading.value = false;
-    await controller.filterDxMainCode();
-    // if (this.searchText) {
-    //   this.filteredOptions = this.options.filter(option =>
-    //     option.label.toLowerCase().includes(this.searchText.toLowerCase())
-    //   );
-    // } else {
-    //   this.filteredOptions = this.options;
-    // }
-  }
-  function filterDxMain() {
-    controller.filterDxMainCode();
-  }
 
-  function dxMainCodeChanged(val: number) {
-    controller.filterDxMainCode();
+  function onSearchReasonConsult(val: string, update: UpdateFunction) {
+    update(async () => {
+      optionsReasonConsult.value = await controller.filterReasonConsult(val);
+    });
   }
-
-  // function setModel(val: string) {
-  //   console.log(val);
-  //   state.value.CIE10Filter.code = val;
-  // }
 </script>
 <style scoped>
   .custom-popup-content {

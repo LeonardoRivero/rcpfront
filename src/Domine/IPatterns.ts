@@ -1,7 +1,7 @@
 import { GenericService } from 'src/Application/Repositories/Interface';
 import { IPermission, ITableOptions } from './ICommons';
 import { NotificationType, ModalType } from './Types';
-import { BiologicalSexResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, MedicalOfficeResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, AuthResponse, SpecialityResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse, KinshipResponse, AttentionScheduleMedicalResponse, PatientResponse } from './Responses';
+import { BiologicalSexResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, MedicalOfficeResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, AuthResponse, SpecialityResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse, KinshipResponse, AttentionScheduleMedicalResponse, PatientResponse, ReasonConsultResponse } from './Responses';
 import { DIVIPOLADTO } from './DTOs';
 import { IGlobalState, IStorePermissions, IStoreUser } from './IStores';
 import { AttentionScheduleMedicalRequest } from './Request';
@@ -79,6 +79,7 @@ export interface IControllersMediator {
 export interface IHandleGlobalState {
   store: IGlobalState;
   createStore(): object;
+  resetStore(): void
   getAllCountries(): Promise<CountryResponse[]>
   getAllOcupation(): Promise<OcupationResponse[]>
   getAllHealthEntity(): Promise<HealthInsuranceResponse[]>
@@ -95,6 +96,8 @@ export interface IHandleGlobalState {
   getAllMedicalEntry(): Promise<MedicalEntryResponse[]>
   getAllAllergies(): Promise<AllergieResponse[]>
   getAllKinship(): Promise<KinshipResponse[]>
+  getAllReasonConsult(): Promise<KinshipResponse[]>
+  getAllPurposeService(): Promise<ReasonConsultResponse[]>
   saveInfoMedicalOffice(medicalOffice: MedicalOfficeResponse[]): void
   refecthEvents(): void
 }

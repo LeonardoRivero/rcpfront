@@ -41,6 +41,8 @@ import {
   PaymentOptionsResponse,
   PhoneCodeResponse,
   PhysicalExamResponse,
+  PurposeServiceResponse,
+  ReasonConsultResponse,
   RelationCodeResponse,
   RoleResponse,
   ScheduleResponse,
@@ -55,37 +57,32 @@ export interface InfoPatientState {
   showSkeleton: boolean
 }
 export interface AppointmentState {
-  allPathologies: Array<PathologicalHistoryResponse>;
-  items: Array<unknown>;
-  reasonConsultation: string;
+  reasonConsultation: string | null;
   descriptionConsultation: string;
-  pathology: PathologicalHistoryResponse | null;
-  pathologiesForFilter: Array<PathologicalHistoryResponse>;
   allDxMainCodes: Array<CIE10Response>;
   allRelationCodes: Array<CIE10Response>;
   allAllergies: AllergieResponse[];
   allKinship: KinshipResponse[];
   allCUP: CUPResponse[];
+  allReasonConsult: ReasonConsultResponse[],
+  allPurposeService: PurposeServiceResponse[],
   dxMainCode: CIE10Response | null;
   relationCode: CIE10Response | null;
-  cupCode: CUPResponse | null
   allergie: AllergieResponse | null;
+  cupCode: CUPResponse | null
+  reasonConsult: ReasonConsultResponse | null;
+  kinship: KinshipResponse | null
+  filterReasonConsult: string | null
   filterCIE10: string | null
   filterRelatedCode: string | null
   filterCUP: string | null
-  smoke: boolean
-  alcohol: boolean
-  drugs: boolean
-  alcoholObservations: string | null
-  smokeObservations: string | null
-  drugsObservations: string | null
   diagnosticObservations: string | null
+  procedureObservations: string | null
   allergen: string | null
   treatmentMedical: string | null
   patientHasTreatment: boolean
   patientHasAllergie: boolean,
   patientWithFamilyHistory: boolean,
-  kinship: KinshipResponse | null
   familiarCondition: string | null
 }
 
@@ -225,10 +222,9 @@ export interface ScheduleState {
 
 export interface AdmissionState {
   identificationPatient: string;
-  reasonConsult: IReasonConsult | null;
   currentAppointment: AddAdmissionRequest;
   allPaymentOptions: Array<PaymentOptionsResponse>;
-  allReasonConsult: MedicalEntryResponse[];
+  allMedicalEntry: MedicalEntryResponse[];
   allPatientStatus: Array<PatientStatusResponse>;
   start: string;
   end: string;

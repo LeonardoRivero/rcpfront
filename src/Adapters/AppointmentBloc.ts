@@ -5,13 +5,11 @@ import {
   GenderResponse,
   MedicalOfficeResponse,
   PatientResponse,
+  ReasonConsultResponse,
   ScheduleResponse,
 } from 'src/Domine/Responses';
-import {
-  IconSVG,
-  Messages,
-} from 'src/Application/Utilities';
-// import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators/ClinicHistoryMediator';
+import { Messages } from 'src/Application/Utilities';
+
 import {
   AppointmentState,
   InfoPatientState,
@@ -29,10 +27,9 @@ import { CheckAdmissionPatientRequest } from 'src/Domine/Request';
 import { IHelpers } from 'src/Domine/ICommons';
 import { routerInstance } from 'src/boot/globalRouter';
 import { NotificatorIndexBloc } from './IndexBloc';
-// import { ActionsScheduleMediator } from 'src/Infraestructure/Mediators';
+
 
 export class InfoPatientPanelBloc extends Bloc<InfoPatientState> {
-  private iconSVG = IconSVG;
   private notifySweetAlert: Notificator;
   private static instance: InfoPatientPanelBloc
   private constructor(
@@ -128,36 +125,31 @@ export class InfoPatientPanelBloc extends Bloc<InfoPatientState> {
 
 export class AppointmentBloc extends Bloc<AppointmentState> {
   public constructor(private getByFilterCIE10UseCase: IUseCase<string, CIE10Response[]>,
-    private getByFilterCUPUseCase: IUseCase<string, CUPResponse[]>
+    private getByFilterCUPUseCase: IUseCase<string, CUPResponse[]>,
   ) {
     const state: AppointmentState = {
-      allPathologies: [],
-      pathology: null,
-      items: [],
-      reasonConsultation: '',
+      reasonConsultation: null,
       descriptionConsultation: '',
-      pathologiesForFilter: [],
       allDxMainCodes: [],
       allRelationCodes: [],
       allAllergies: [],
       allKinship: [],
       allCUP: [],
+      allReasonConsult: [],
+      allPurposeService: [],
       dxMainCode: null,
       relationCode: null,
       cupCode: null,
       allergie: null,
       allergen: null,
+      reasonConsult: null,
       filterCIE10: null,
       filterRelatedCode: null,
       filterCUP: null,
-      alcohol: false,
-      drugs: false,
-      smoke: false,
+      filterReasonConsult: null,
       treatmentMedical: null,
-      alcoholObservations: null,
-      smokeObservations: null,
-      drugsObservations: null,
       diagnosticObservations: null,
+      procedureObservations: null,
       patientHasTreatment: false,
       patientHasAllergie: false,
       patientWithFamilyHistory: false,
@@ -200,10 +192,12 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
   async loadInitialData(handleGlobalState: IHandleGlobalState): Promise<void> {
     const allAllergies = await handleGlobalState.getAllAllergies()
     const allKinship = await handleGlobalState.getAllKinship()
+    const allReasonConsult = await handleGlobalState.getAllReasonConsult()
     this.changeState({
       ...this.state,
       allAllergies: allAllergies,
-      allKinship: allKinship
+      allKinship: allKinship,
+      allReasonConsult: allReasonConsult
     });
   }
 
@@ -244,6 +238,16 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
     const cupCode = await this.getByFilterCUPUseCase.execute(this.state.filterCUP ?? '')
     this.changeState({ ...this.state, allCUP: cupCode })
   }
+
+  async filterReasonConsult(value: string): Promise<ReasonConsultResponse[]> {
+    if (value == '') return this.state.allReasonConsult
+    const needle = value.toLowerCase();
+    return this.state.allReasonConsult.filter((option) => {
+      return option.description.toLowerCase().indexOf(needle) > -1;
+    })
+    // this.changeState({ ...this.state, allReasonConsult: reason })
+  }
+
   allergieChanged(allergie: AllergieResponse) {
     this.changeState({ ...this.state, patientHasAllergie: allergie.description.toLowerCase() != 'ninguna' })
   }

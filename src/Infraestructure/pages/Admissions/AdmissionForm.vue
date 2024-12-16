@@ -13,12 +13,10 @@
             <div class="col-12 col-sm-6">
               <q-input
                 dense
-                type="number"
                 v-model="state.identificationPatient"
                 @keydown.enter.prevent="patientWasScheduled()"
                 label="N° Identificacion"
-                lazy-rules
-                :rules="[numberRequired]"
+                :rules="[anySpace]"
               >
                 <template v-slot:append>
                   <q-btn
@@ -38,9 +36,9 @@
             <div class="col-12 col-sm-6">
               <q-select
                 dense
-                label="Razon Consulta *"
+                label="Via de entrada *"
                 v-model="state.currentAppointment.medicalEntryId"
-                :options="state.allReasonConsult"
+                :options="state.allMedicalEntry"
                 :option-value="(item) => (item === null ? null : item.id)"
                 option-label="description"
                 map-options
@@ -192,7 +190,11 @@
 
 <script setup lang="ts">
   import { onMounted, ref, inject } from 'vue';
-  import { isNotNull, numberRequired } from 'src/Application/Utilities/Helpers';
+  import {
+    anySpace,
+    isNotNull,
+    numberRequired,
+  } from 'src/Application/Utilities/Helpers';
   import { QForm } from 'quasar';
   import 'src/css/app.sass';
   import { AdmissionsBloc } from 'src/Adapters/AdmissionsBloc';

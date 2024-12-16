@@ -68,7 +68,8 @@
             <q-input
               v-model="state.currentPatient.name"
               label="Nombres *"
-              :rules="[required, noSpecialCharsNoNumbers]"
+              :rules="[required, onlyLetters]"
+              @keydown="blockNumbers"
               dense
             />
           </div>
@@ -76,7 +77,8 @@
             <q-input
               v-model="state.currentPatient.lastName"
               label="Apellidos *"
-              :rules="[required, noSpecialCharsNoNumbers]"
+              :rules="[required, onlyLetters]"
+              @keydown="blockNumbers"
               dense
             />
           </div>
@@ -405,6 +407,7 @@
     noSpecialCharsNoNumbers,
     onlyNumbers,
     maskPhoneNumber,
+    onlyLetters,
   } from 'src/Application/Utilities/Helpers';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   import 'src/css/app.sass';
@@ -545,6 +548,13 @@
     controller.clear();
     form.value?.reset();
     form.value?.resetValidation();
+  }
+
+  function blockNumbers(event: KeyboardEvent) {
+    const key = event.key;
+    if (/[0-9]/.test(key)) {
+      event.preventDefault();
+    }
   }
   // function enableEdition() {
   //   controller.enableEdition();

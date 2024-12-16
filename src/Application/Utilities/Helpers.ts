@@ -155,5 +155,6 @@ export const isDateInFuture = (value: string) => {
   return isDateInFuture1(value) || 'Fecha futura no permitida';
 };
 
-export const onlyLetters = (val: string) => { return /^[A-Za-z\s]+$/.test(val) || 'Solo se permiten letras'; };
+export const onlyLetters = (val: string) => { return /^[A-Za-zñÑáéíóúÁÉÍÓÚüÜ\s]+$/.test(val) || 'Solo se permiten letras'; };
 export const notNumber = (val: string) => { return /^[^0-9]*$/.test(val) || 'No se permiten números' }
+export const anySpace = (val: string) => { return !/\s/.test(val) || 'No se permiten espacios'; }

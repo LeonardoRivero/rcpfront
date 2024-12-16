@@ -48,6 +48,7 @@
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
   import { IHandleGlobalState } from 'src/Domine/IPatterns';
   import { EventScheduleResponse } from 'src/Domine/Responses';
+  import { ENDPOINTS } from 'src/Application/Utilities/EndPoints';
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dependenciesLocator = inject<any>('dependenciesLocator');
@@ -95,7 +96,7 @@
       right: 'timeGridDay,dayGridMonth,listMonth,timeGridWeek,listWeek',
     },
     events: {
-      url: `${process.env.RCP}${process.env.SCHEDULE}filter/`,
+      url: ENDPOINTS.SCHEDULE.filter,
       method: 'POST',
       extraParams: {
         medicaloffice: handleGlobalState.store.currentMedicalOffice.map(

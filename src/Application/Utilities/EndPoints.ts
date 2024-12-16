@@ -1,6 +1,15 @@
 export const API_BASE_URL = process.env.NODE_ENV === 'development' ? `${process.env.RCPDEV}/rcp` : `${process.env.RCP}/rcp`;
 
 export const ENDPOINTS = {
+  ACCOUNT: {
+    registration: `${API_BASE_URL}/account/register/`,
+    login: `${API_BASE_URL}/account/login/`,
+    changePassword: `${API_BASE_URL}/account/changepassword/`,
+    role: `${API_BASE_URL}/account/role/`,
+    confirmEmailRegistration: `${API_BASE_URL}/account/confirmemail/`,
+    forgetPassword: `${API_BASE_URL}/account/forgetpassword/`,
+    resetPassword: `${API_BASE_URL}/account/resetpassword/`
+  },
   CUP: {
     filter: `${API_BASE_URL}/cup/filter`,
   },
@@ -49,10 +58,17 @@ export const ENDPOINTS = {
   PHONECODE: {
     root: `${API_BASE_URL}/settings/phonecode`
   },
+  PURPOSE_SERVICE: {
+    root: `${API_BASE_URL}/settings/purpose`
+  },
+  REASON_CONSULT: {
+    root: `${API_BASE_URL}/settings/reasonconsult`
+  },
   SCHEDULE: {
     root: `${API_BASE_URL}/schedule`,
     patient: `${API_BASE_URL}/schedule/patient/`,
-    medicalOffice: `${API_BASE_URL}/schedule/medicaloffice/`
+    medicalOffice: `${API_BASE_URL}/schedule/medicaloffice/`,
+    filter: `${API_BASE_URL}/schedule/filter/`
   },
   SECRETARY: {
     root: `${API_BASE_URL}/secretary/`,
@@ -60,15 +76,6 @@ export const ENDPOINTS = {
   },
   SPECIALITY: {
     root: `${API_BASE_URL}/settings/speciality/`
-  },
-  ACCOUNT: {
-    registration: `${API_BASE_URL}/account/register/`,
-    login: `${API_BASE_URL}/account/login/`,
-    changePassword: `${API_BASE_URL}/account/changepassword/`,
-    role: `${API_BASE_URL}/account/role/`,
-    confirmEmailRegistration: `${API_BASE_URL}/account/confirmemail/`,
-    forgetPassword: `${API_BASE_URL}/account/forgetpassword/`,
-    resetPassword: `${API_BASE_URL}/account/resetpassword/`
   },
   ZONE_STAY: {
     root: `${API_BASE_URL}/settings/zonestay`

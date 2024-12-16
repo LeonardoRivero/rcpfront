@@ -85,6 +85,6 @@ export class LoginBloc extends Bloc<LoginState> {
     }
     this.sweetAlertModal.setType('success');
     await this.sweetAlertModal.show(undefined, Messages.sucessConfirmEmail);
-    routerInstance.push('/')
+    routerInstance.push('/changepassword')
   }
 }

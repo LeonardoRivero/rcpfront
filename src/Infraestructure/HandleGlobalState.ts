@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import { defineStore, StoreGeneric } from 'pinia';
 import FullCalendar from '@fullcalendar/vue3/dist/FullCalendar';
 import { GetAllGenderUseCase } from 'src/Application/Services';
 import { GetAllDocumentTypeUseCase } from 'src/Application/Services/IDTypeService';
@@ -15,11 +15,13 @@ import { GetAllZoneStayUseCase } from 'src/Application/UseCases/ZoneStayUseCase'
 import { DIVIPOLADTO, StateDTO, TownDTO } from 'src/Domine/DTOs';
 import { HTTPClient, IHandleGlobalState, IUseCase } from 'src/Domine/IPatterns';
 import { IGlobalState } from 'src/Domine/IStores';
-import { BiologicalSexResponse, CityResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, SpecialityResponse, RoleResponse, MedicalOfficeResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse, KinshipResponse } from 'src/Domine/Responses';
+import { BiologicalSexResponse, CityResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, SpecialityResponse, RoleResponse, MedicalOfficeResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse, KinshipResponse, ReasonConsultResponse, PurposeServiceResponse } from 'src/Domine/Responses';
 import { GetAllPaymentOptionUseCase } from 'src/Application/UseCases/PaymentOptionsUseCases';
 import { GetAllMedicalEntryUseCase } from 'src/Application/UseCases/MedicalEntryUseCases';
 import { GetAllAllergieUseCase } from 'src/Application/UseCases/AllergieUseCases';
 import { GetAllKinshipUseCase } from 'src/Application/UseCases/KinShipUseCase';
+import { GetAllReasonConsultUseCase } from 'src/Application/UseCases/ReasonConsultUseCase';
+import { GetAllPurposeServiceUseCase } from 'src/Application/UseCases/PurposeServiceUseCase';
 
 
 export class HandleGlobalState implements IHandleGlobalState {
@@ -41,6 +43,8 @@ export class HandleGlobalState implements IHandleGlobalState {
   private getAllMedicalEntryUseCase: IUseCase<void, MedicalEntryResponse[]>
   private getAllAllergieUseCase: IUseCase<void, AllergieResponse[]>
   private getAllKinshipUseCase: IUseCase<void, KinshipResponse[]>
+  private getAllReasonConsultUseCase: IUseCase<void, ReasonConsultResponse[]>
+  private getAllPurposeServiceUseCase: IUseCase<void, PurposeServiceResponse[]>
   // private getAllGroupsUseCase: IUseCase<string, RoleResponse[]>
 
   private constructor(httpClient: HTTPClient) {
@@ -61,6 +65,8 @@ export class HandleGlobalState implements IHandleGlobalState {
     this.getAllMedicalEntryUseCase = new GetAllMedicalEntryUseCase(httpClient)
     this.getAllAllergieUseCase = new GetAllAllergieUseCase(httpClient)
     this.getAllKinshipUseCase = new GetAllKinshipUseCase(httpClient)
+    this.getAllReasonConsultUseCase = new GetAllReasonConsultUseCase(httpClient)
+    this.getAllPurposeServiceUseCase = new GetAllPurposeServiceUseCase(httpClient)
     // this.getAllGroupsUseCase = new GetAllGroupsUseCase(httpClient)
   }
 
@@ -69,6 +75,11 @@ export class HandleGlobalState implements IHandleGlobalState {
       HandleGlobalState.instance = new HandleGlobalState(httpClient);
     }
     return HandleGlobalState.instance;
+  }
+
+  public resetStore(): void {
+    const t = this.store as unknown as StoreGeneric
+    t.$reset()
   }
 
   public createStore() {
@@ -88,16 +99,41 @@ export class HandleGlobalState implements IHandleGlobalState {
         allGender: [],
         allSpecialities: [],
         allAllergies: [],
+        allReasonConsult: [],
         DIVIPOLA: <DIVIPOLADTO>{},
         currentMedicalOffice: [],
         allPaymentOption: [],
         allMedicalEntry: [],
         allKinShip: [],
+        allPurposeService: [],
         calendar: {} as InstanceType<typeof FullCalendar>,
       }),
+      actions: {
+        resetState() {
+          this.$reset()
+        }
+      },
       persist: true,
     });
     return store();
+  }
+
+  public async getAllPurposeService(): Promise<ReasonConsultResponse[]> {
+    if (this.store.allPurposeService.length != 0) {
+      return this.store.allPurposeService;
+    }
+    const response = await this.getAllPurposeServiceUseCase.execute();
+    this.store.allPurposeService = response;
+    return response;
+  }
+
+  public async getAllReasonConsult(): Promise<KinshipResponse[]> {
+    if (this.store.allReasonConsult.length != 0) {
+      return this.store.allReasonConsult;
+    }
+    const response = await this.getAllReasonConsultUseCase.execute();
+    this.store.allReasonConsult = response;
+    return response;
   }
 
   public async getAllKinship(): Promise<KinshipResponse[]> {

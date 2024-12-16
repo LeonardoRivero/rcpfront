@@ -64,7 +64,14 @@ export interface PatientStatusResponse {
 }
 export interface ReasonConsultResponse {
   id: number;
-  abbreviation: string;
+  code: string;
+  description: string;
+}
+
+export interface PurposeServiceResponse {
+  id: number;
+  code: string;
+  description: string;
 }
 export interface AppointmentResponse {
   price: number;

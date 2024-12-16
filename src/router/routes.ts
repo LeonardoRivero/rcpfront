@@ -1,11 +1,17 @@
+import ChangePassword from 'src/Infraestructure/pages/Account/ChangePassword.vue';
+import ConfirmEmail from 'src/Infraestructure/pages/Account/ConfirmEmail.vue';
+import ForgetPassword from 'src/Infraestructure/pages/Account/ForgetPassword.vue';
+import LoginUser from 'src/Infraestructure/pages/Account/LoginUser.vue';
+import ResetPassword from 'src/Infraestructure/pages/Account/ResetPassword.vue';
 import ListMedicalOffice from 'src/Infraestructure/pages/Settings/ListMedicalOffice.vue';
 import MedicalOffice from 'src/Infraestructure/pages/Settings/MedicalOffice.vue';
+import RegisterUsersForm from 'src/Infraestructure/pages/Settings/RegisterUsersForm.vue';
 import { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
     path: '',
-    component: () => import('src/Infraestructure/pages/Login/LoginUser.vue'),
+    component: LoginUser
   },
   {
     path: '/',
@@ -58,29 +64,25 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'users',
-        component: () =>
-          import('src/Infraestructure/pages/Settings/RegisterUsersForm.vue'),
+        component: RegisterUsersForm,
       }
     ],
   },
   {
     path: '/confirmemail',
-    component: () => import('src/Infraestructure/pages/Login/ConfirmEmail.vue'),
+    component: ConfirmEmail,
   },
   {
     path: '/changepassword',
-    component: () =>
-      import('src/Infraestructure/pages/Login/ChangePassword.vue'),
+    component: ChangePassword,
   },
   {
     path: '/forgetpassword',
-    component: () =>
-      import('src/Infraestructure/pages/Login/ForgetPassword.vue'),
+    component: ForgetPassword,
   },
   {
     path: '/resetpassword',
-    component: () =>
-      import('src/Infraestructure/pages/Login/ResetPassword.vue'),
+    component: ResetPassword,
   },
   // Always leave this as last one,
   // but you can also remove it

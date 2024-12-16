@@ -59,10 +59,9 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
   ) {
     const state: AdmissionState = {
       identificationPatient: '',
-      reasonConsult: null,
       currentAppointment: { isParticular: false } as AddAdmissionRequest,
       allPaymentOptions: [],
-      allReasonConsult: [],
+      allMedicalEntry: [],
       allPatientStatus: [],
       start: '',
       end: '',
@@ -328,7 +327,7 @@ export class AdmissionsBloc extends Bloc<AdmissionState> {
     this.changeState({
       ...this.state,
       allPaymentOptions: allPaymentOptions,
-      allReasonConsult: allMedicalEntry,
+      allMedicalEntry: allMedicalEntry,
     });
   }
 }
