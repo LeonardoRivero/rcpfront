@@ -1,7 +1,7 @@
 <template>
   <q-form @submit="confirmChanges" ref="form">
-    <q-item-label class="q-pb-xs"
-      >Datos Paciente
+    <!-- <q-item-label class="q-pb-xs">
+      <b>Datos Paciente </b>
       <small>
         <cite title="Ayuda"
           >(Antes de agendar la cita medica,verifique la informacion del
@@ -9,11 +9,12 @@
         >
       </small>
     </q-item-label>
-    <br />
+    <br /> -->
     <div class="row q-col-gutter-md">
       <div class="col-12 col-sm-6"></div>
       <div class="col-12 col-sm-6">
         <q-input
+          outlined
           dense
           type="number"
           v-model="state.identificationPatient"
@@ -39,8 +40,8 @@
       </div>
       <div class="col-12 col-sm-6">
         <q-input
-          filled
-          :readonly="true"
+          standout
+          :disable="true"
           dense
           v-model="state.currentPatient.name"
           label="Nombre Paciente"
@@ -48,8 +49,8 @@
       </div>
       <div class="col-12 col-sm-6">
         <q-input
-          filled
-          :readonly="true"
+          standout
+          :disable="true"
           dense
           v-model="state.currentPatient.lastName"
           label="Apellido Paciente"
@@ -58,8 +59,8 @@
 
       <div class="col-12 col-sm-6">
         <q-input
-          filled
-          :readonly="true"
+          standout
+          :disable="true"
           dense
           v-model="state.currentPatient.phoneNumber"
           label="Telefono Paciente"
@@ -67,17 +68,16 @@
       </div>
       <div class="col-12 col-sm-6">
         <q-input
-          filled
-          :readonly="true"
+          standout
+          :disable="true"
           dense
           v-model="state.currentPatient.email"
           label="Email"
         />
       </div>
-    </div>
-    <br />
-    <q-item-label class="q-pb-xs">Datos Generales: </q-item-label>
-    <div class="row q-col-gutter-md">
+
+      <!-- <q-item-label class="q-pb-xs"> <b> Datos Generales: </b></q-item-label> -->
+
       <div class="col-12 col-sm-6">
         <q-select
           dense
@@ -98,8 +98,6 @@
           dense
           v-model="state.currentSchedule.start"
           label="Fecha y Hora"
-          filled
-          readonly
           :rules="[required]"
           lazy-rules
           :hint="`Finalizacion Cita: ${date.formatDate(
@@ -201,7 +199,6 @@
         />
       </div>
     </div>
-
     <q-card-actions align="right" class="text-teal">
       <q-btn
         v-if="state.allowToUpdate"

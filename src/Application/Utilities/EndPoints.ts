@@ -25,6 +25,9 @@ export const ENDPOINTS = {
     root: `${API_BASE_URL}/doctor/`,
     belongMedicalOffice: `${API_BASE_URL}/doctor/medicaloffice/`
   },
+  DX_MAIN_ENTRY_TYPE: {
+    root: `${API_BASE_URL}/settings/dxmainentrytype/`,
+  },
   ETHNICITY: {
     root: `${API_BASE_URL}/settings/ethnicity`,
   },
@@ -65,7 +68,7 @@ export const ENDPOINTS = {
     root: `${API_BASE_URL}/settings/reasonconsult`
   },
   SCHEDULE: {
-    root: `${API_BASE_URL}/schedule`,
+    root: `${API_BASE_URL}/schedule/`,
     patient: `${API_BASE_URL}/schedule/patient/`,
     medicalOffice: `${API_BASE_URL}/schedule/medicaloffice/`,
     filter: `${API_BASE_URL}/schedule/filter/`

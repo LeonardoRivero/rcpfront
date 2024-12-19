@@ -1,14 +1,14 @@
 <template>
   <FullCalendar :options="calOptions" ref="calendar"> </FullCalendar>
   <div id="tooltip" class="tooltip"></div>
-  <div class="row q-col-gutter-sm q-ma-xs q-mr-sm">
+  <div class="row">
     <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
       <q-dialog v-model="state.card" persistent>
         <q-card class="my-card" bordered>
           <q-card-section class="row items-center q-pb-none">
             <div class="text-h6">
-              <q-icon :name="icons.calendarCheckMark" size="24px" /> Agenda de
-              Citas
+              <q-icon :name="icons.calendarCheckMark" size="24px" /> Nueva
+              consulta
             </div>
             <q-space />
             <q-btn icon="close" flat round dense v-close-popup />

@@ -62,6 +62,7 @@
           </q-input>
         </q-toolbar>
       </div>
+
       <q-form @submit="() => {$refs.stepper!.next();}" ref="form">
         <div class="row q-col-gutter-md">
           <div class="col-12 col-sm-6">
@@ -230,7 +231,6 @@
         </q-stepper-navigation>
       </q-form>
     </q-step>
-
     <q-step
       :name="2"
       title="Informacion de contacto"

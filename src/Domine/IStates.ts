@@ -24,6 +24,7 @@ import {
   CUPResponse,
   CountryResponse,
   DXMainCodeResponse,
+  DXMainEntryType,
   DoctorResponse,
   DocumentTypeResponse,
   EthicityResponse,
@@ -66,12 +67,14 @@ export interface AppointmentState {
   allCUP: CUPResponse[];
   allReasonConsult: ReasonConsultResponse[],
   allPurposeService: PurposeServiceResponse[],
+  allDxMainEntryType: DXMainEntryType[],
   dxMainCode: CIE10Response | null;
   relationCode: CIE10Response | null;
   allergie: AllergieResponse | null;
   cupCode: CUPResponse | null
   reasonConsult: ReasonConsultResponse | null;
   kinship: KinshipResponse | null
+  dxMainEntryType: DXMainEntryType | null
   filterReasonConsult: string | null
   filterCIE10: string | null
   filterRelatedCode: string | null

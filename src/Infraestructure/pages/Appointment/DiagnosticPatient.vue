@@ -1,21 +1,36 @@
 <template>
-  <q-select
-    option-value="id"
-    :option-label="(option) => `${option.description}`"
-    dense
-    v-model="state.reasonConsult"
-    :options="optionsReasonConsult"
-    label="Razon Consulta *"
-    clearable
-    input-debounce="300"
-    fill-input
-    use-input
-    hide-selected
-    @filter="onSearchReasonConsult"
-    :rules="[isNotNull]"
-  >
-  </q-select>
-  <br />
+  <div class="row q-col-gutter-md">
+    <div class="col-12 col-sm-4">
+      <q-select
+        option-value="id"
+        :option-label="(option) => `${option.description}`"
+        dense
+        v-model="state.dxMainEntryType"
+        :options="state.allDxMainEntryType"
+        label="Tipo Diagnostico Ingreso *"
+        :rules="[isNotNull]"
+      >
+      </q-select>
+    </div>
+    <div class="col-12 col-sm-8">
+      <q-select
+        option-value="id"
+        :option-label="(option) => `${option.description}`"
+        dense
+        v-model="state.reasonConsult"
+        :options="optionsReasonConsult"
+        label="Razon Consulta *"
+        input-debounce="300"
+        fill-input
+        use-input
+        hide-selected
+        @filter="onSearchReasonConsult"
+        :rules="[isNotNull]"
+        autogrow
+      >
+      </q-select>
+    </div>
+  </div>
   <q-select
     option-value="id"
     :option-label="(option) => `${option.code} ${option.name}`"
@@ -32,7 +47,6 @@
     :rules="[isNotNull]"
   >
   </q-select>
-  <br />
   <q-select
     option-value="id"
     :option-label="(option) => `${option.code} ${option.name}`"
@@ -49,7 +63,6 @@
     :rules="[isNotNull]"
   >
   </q-select>
-  <br />
   <!-- <q-select
     option-value="id"
     :option-label="(option) => `${option.code} ${option.name}`"
@@ -244,12 +257,11 @@
   import { onMounted, inject, ref } from 'vue';
   import { AppointmentBloc } from 'src/Adapters';
   import { usePlocState } from 'src/Infraestructure/Utilities/usePlocState';
-  // import { ClinicHistoryMediator } from 'src/Infraestructure/Mediators';
-  import 'src/css/app.sass';
   import { UpdateFunction } from 'src/Domine/Types';
   import { isNotNull } from 'src/Application/Utilities';
   import { IHandleGlobalState } from 'src/Domine/IPatterns';
   import { ReasonConsultResponse } from 'src/Domine/Responses';
+  import 'src/css/app.sass';
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dependenciesLocator = inject<any>('dependenciesLocator');

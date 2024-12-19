@@ -145,6 +145,7 @@
           </div>
         </q-form>
       </div>
+
       <div class="col-12 col-md-4" :class="{ 'order-first': $q.screen.xs }">
         <q-card flat bordered class="bg-grey-1">
           <q-card-section>

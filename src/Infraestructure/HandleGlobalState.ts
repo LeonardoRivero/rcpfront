@@ -15,13 +15,14 @@ import { GetAllZoneStayUseCase } from 'src/Application/UseCases/ZoneStayUseCase'
 import { DIVIPOLADTO, StateDTO, TownDTO } from 'src/Domine/DTOs';
 import { HTTPClient, IHandleGlobalState, IUseCase } from 'src/Domine/IPatterns';
 import { IGlobalState } from 'src/Domine/IStores';
-import { BiologicalSexResponse, CityResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, SpecialityResponse, RoleResponse, MedicalOfficeResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse, KinshipResponse, ReasonConsultResponse, PurposeServiceResponse } from 'src/Domine/Responses';
+import { BiologicalSexResponse, CityResponse, CountryResponse, EthicityResponse, GenderResponse, HealthInsuranceResponse, DocumentTypeResponse, KindDisabilityResponse, OcupationResponse, PhoneCodeResponse, ZoneStayResponse, SpecialityResponse, RoleResponse, MedicalOfficeResponse, PaymentOptionsResponse, MedicalEntryResponse, AllergieResponse, KinshipResponse, ReasonConsultResponse, PurposeServiceResponse, DXMainEntryType } from 'src/Domine/Responses';
 import { GetAllPaymentOptionUseCase } from 'src/Application/UseCases/PaymentOptionsUseCases';
 import { GetAllMedicalEntryUseCase } from 'src/Application/UseCases/MedicalEntryUseCases';
 import { GetAllAllergieUseCase } from 'src/Application/UseCases/AllergieUseCases';
 import { GetAllKinshipUseCase } from 'src/Application/UseCases/KinShipUseCase';
 import { GetAllReasonConsultUseCase } from 'src/Application/UseCases/ReasonConsultUseCase';
 import { GetAllPurposeServiceUseCase } from 'src/Application/UseCases/PurposeServiceUseCase';
+import { GetAllDXMainEntryTypeUseCase } from 'src/Application/UseCases/DXMainEntryType';
 
 
 export class HandleGlobalState implements IHandleGlobalState {
@@ -45,6 +46,7 @@ export class HandleGlobalState implements IHandleGlobalState {
   private getAllKinshipUseCase: IUseCase<void, KinshipResponse[]>
   private getAllReasonConsultUseCase: IUseCase<void, ReasonConsultResponse[]>
   private getAllPurposeServiceUseCase: IUseCase<void, PurposeServiceResponse[]>
+  private getAllDxMainEntryTypeUseCase: IUseCase<void, DXMainEntryType[]>
   // private getAllGroupsUseCase: IUseCase<string, RoleResponse[]>
 
   private constructor(httpClient: HTTPClient) {
@@ -67,6 +69,7 @@ export class HandleGlobalState implements IHandleGlobalState {
     this.getAllKinshipUseCase = new GetAllKinshipUseCase(httpClient)
     this.getAllReasonConsultUseCase = new GetAllReasonConsultUseCase(httpClient)
     this.getAllPurposeServiceUseCase = new GetAllPurposeServiceUseCase(httpClient)
+    this.getAllDxMainEntryTypeUseCase = new GetAllDXMainEntryTypeUseCase(httpClient)
     // this.getAllGroupsUseCase = new GetAllGroupsUseCase(httpClient)
   }
 
@@ -106,6 +109,7 @@ export class HandleGlobalState implements IHandleGlobalState {
         allMedicalEntry: [],
         allKinShip: [],
         allPurposeService: [],
+        allDxMainEntryType: [],
         calendar: {} as InstanceType<typeof FullCalendar>,
       }),
       actions: {
@@ -116,6 +120,15 @@ export class HandleGlobalState implements IHandleGlobalState {
       persist: true,
     });
     return store();
+  }
+
+  public async getAllDxMainEntryType(): Promise<DXMainEntryType[]> {
+    if (this.store.allDxMainEntryType.length != 0) {
+      return this.store.allDxMainEntryType;
+    }
+    const response = await this.getAllDxMainEntryTypeUseCase.execute();
+    this.store.allDxMainEntryType = response;
+    return response;
   }
 
   public async getAllPurposeService(): Promise<ReasonConsultResponse[]> {

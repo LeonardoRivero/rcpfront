@@ -137,12 +137,14 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
       allCUP: [],
       allReasonConsult: [],
       allPurposeService: [],
+      allDxMainEntryType: [],
       dxMainCode: null,
       relationCode: null,
       cupCode: null,
       allergie: null,
       allergen: null,
       reasonConsult: null,
+      dxMainEntryType: null,
       filterCIE10: null,
       filterRelatedCode: null,
       filterCUP: null,
@@ -193,11 +195,13 @@ export class AppointmentBloc extends Bloc<AppointmentState> {
     const allAllergies = await handleGlobalState.getAllAllergies()
     const allKinship = await handleGlobalState.getAllKinship()
     const allReasonConsult = await handleGlobalState.getAllReasonConsult()
+    const allDxMainEntryType = await handleGlobalState.getAllDxMainEntryType()
     this.changeState({
       ...this.state,
       allAllergies: allAllergies,
       allKinship: allKinship,
-      allReasonConsult: allReasonConsult
+      allReasonConsult: allReasonConsult,
+      allDxMainEntryType: allDxMainEntryType
     });
   }
 

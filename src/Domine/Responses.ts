@@ -270,7 +270,11 @@ export interface KindDisabilityResponse {
   description: string;
   code: string;
 }
-
+export interface DXMainEntryType {
+  id: number;
+  description: string;
+  code: string;
+}
 export interface PhoneCodeResponse {
   id: number,
   country: string,

@@ -11,10 +11,9 @@
           </div>
           <div class="col-12 col-md-6 flex flex-center q-pa-md form-section">
             <q-img src="mercury.svg" alt="Logo" width="30%" />
-            <br />
             <div class="form-container">
-              <h4 class="text-h4 q-mb-md">Iniciar sesión</h4>
-              <q-form ref="form" @keyup.enter="login()" class="q-gutter-md">
+              <h4 class="text-h4 q-mb-md">Bienvenido</h4>
+              <q-form ref="form" @keyup.enter="login()">
                 <q-input
                   square
                   clearable
@@ -27,6 +26,7 @@
                     <q-icon name="email" />
                   </template>
                 </q-input>
+                <br />
                 <q-input
                   square
                   clearable
@@ -39,14 +39,7 @@
                     <q-icon name="lock" />
                   </template>
                 </q-input>
-                <!-- <q-input
-                  v-if="state.labelMessage != ''"
-                  v-model="state.labelMessage"
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="error" />
-                  </template>
-                </q-input> -->
+                <br />
                 <transition
                   appear
                   enter-active-class="animated fadeIn"
@@ -54,17 +47,18 @@
                 >
                   <div
                     v-if="hasError"
-                    class="text-negative q-mb-md error-message"
+                    class="text-negative text-center q-mt-sm error-message"
                     role="alert"
                   >
                     Credenciales incorrectas. Por favor, inténtalo de nuevo.
                   </div>
                 </transition>
+                <br />
                 <q-btn
                   rounded
                   color="primary"
                   size="lg"
-                  class="full-width"
+                  class="full-width flex-center"
                   label="Iniciar sesión"
                   @click="login()"
                 />

@@ -5,7 +5,6 @@ import { ENDPOINTS } from '../Utilities/EndPoints';
 export class GetAllEthnicityUseCase implements IUseCase<void, EthicityResponse[]> {
   url: string
   constructor(private httpClient: HTTPClient) {
-    // this.url = `${process.env.RCP}${process.env.ETHNICITY}`;
     this.url = ENDPOINTS.ETHNICITY.root
   }
   async execute(): Promise<EthicityResponse[]> {

@@ -306,7 +306,7 @@ export class ScheduleFormBloc extends Bloc<ScheduleState> {
   ): Promise<ScheduleResponse | null> {
     const payload: FilterScheduleRequest = {
       identificationPatient: identification,
-      medicalOfficeId: this.state.medicalOfficeSelected == null ? 0 : this.state.medicalOfficeSelected.id
+      medicalOfficeId: this.state.medicalOfficeSelected == null ? [0] : [this.state.medicalOfficeSelected.id]
     }
     const register = await this.scheduleByIdentificationPatientUseCase.execute(
       payload
